@@ -17,73 +17,53 @@ var hub *Hub
 func main() {
 	hub = NewHub()
 	go hub.Run()
-	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
-	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))
-	http.HandleFunc("/", homeHandler)
 
-	http.HandleFunc("/api/conversations", conversationsHandler)
-	http.HandleFunc("/api/mark-read", markReadHandler)
-	http.HandleFunc("/ws", hub.HandleWebSocket)
-	http.HandleFunc("/api/auth", islogged)
-	http.HandleFunc("/api/register", registerHandler)
-	http.HandleFunc("/api/login", loginHandler)
-	http.HandleFunc("/api/logout", logoutHandler)
-	http.HandleFunc("/api/posts", postsHandler)
-	http.HandleFunc("/api/add-post", addPostHandler)
-	http.HandleFunc("/api/post", postHandler)
-	http.HandleFunc("/api/add-comment", addCommentHandler)
-	http.HandleFunc("/api/categories", categoriesHandler)
-	http.HandleFunc("/api/profile", profileHandler)
-	http.HandleFunc("/api/messages", messagesHandler)
-	http.HandleFunc("/api/category-posts", categoryPostsHandler)
-	http.HandleFunc("/api/follow", forunf)
-	http.HandleFunc("/api/upload", uploadHandler)
-
-	fmt.Println("Server is running at http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Println("Server is running at https://localhost:8080")
+	log.Fatal(http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil))
 }
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
-    if r.Method != http.MethodPost {
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-        return
-    }
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-    file, handler, err := r.FormFile("file")
-    if err != nil {
-        http.Error(w, "File upload error: "+err.Error(), http.StatusBadRequest)
-        return
-    }
-    defer file.Close()
+	file, handler, err := r.FormFile("file")
+	if err != nil {
+		http.Error(w, "File upload error: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer file.Close()
 
-    // Create uploads directory with explicit permissions
-    if err := os.MkdirAll("uploads", 0755); err != nil {
-        http.Error(w, "Could not create directory", http.StatusInternalServerError)
-        return
-    }
+	// Create uploads directory with explicit permissions
+	if err := os.MkdirAll("uploads", 0o755); err != nil {
+		http.Error(w, "Could not create directory", http.StatusInternalServerError)
+		return
+	}
 
-    // Secure the filename and create path
-    filename := filepath.Base(handler.Filename) // Prevent directory traversal
-    filePath := filepath.Join("uploads", filename)
+	// Secure the filename and create path
+	filename := filepath.Base(handler.Filename) // Prevent directory traversal
+	filePath := filepath.Join("uploads", filename)
 
-    dst, err := os.Create(filePath)
-    if err != nil {
-        http.Error(w, "Unable to save file: "+err.Error(), http.StatusInternalServerError)
-        return
-    }
-    defer dst.Close()
+	dst, err := os.Create(filePath)
+	if err != nil {
+		http.Error(w, "Unable to save file: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
 
-    if _, err := io.Copy(dst, file); err != nil {
-        http.Error(w, "Error copying file: "+err.Error(), http.StatusInternalServerError)
-        return
-    }
+	if _, err := io.Copy(dst, file); err != nil {
+		http.Error(w, "Error copying file: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-    // Return forward-slash path for web compatibility
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(map[string]string{
-        "path": "/uploads/" + filename, // Note the forward slash
-    })
+	// Return forward-slash path for web compatibility
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"path": "/uploads/" + filename, // Note the forward slash
+	})
 }
+
 func postsHandler(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := loggedin(w, r)
 	rows, err := db.Query(`

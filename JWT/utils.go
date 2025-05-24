@@ -20,23 +20,23 @@ type JwtPayload struct {
 	Exp      int64  `json:"exp"`
 }
 
-// LoadSecret manually reads the .env file and retrieves SECRET_KEY
+// LoadSecret manually reads the .env file and retrieves JWT_SECRET_KEY
 func LoadSecret() string {
-	file, err := os.Open(".env")
+	file, err := os.Open("private/.env")
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("Error loading private/.env file")
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "SECRET_KEY=") {
-			return strings.TrimPrefix(line, "SECRET_KEY=")
+		if strings.HasPrefix(line, "JWT_SECRET_KEY=") {
+			return strings.TrimPrefix(line, "JWT_SECRET_KEY=")
 		}
 	}
 
-	log.Fatal("SECRET_KEY not found in .env file")
+	log.Fatal("JWT_SECRET_KEY not found in private/.env file")
 	return ""
 }
 

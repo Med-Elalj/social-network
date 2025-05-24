@@ -1,41 +1,84 @@
-# paths:  api/v1/
-## mark-read            api/v1/mark-read
+# API v1 Documentation
 
-##### TODO: ADD requirments
-## ws           api/v1/ws
+**Base Path:** `/api/v1/`
 
-## auth         api/v1/auth ?/
+---
 
-### api/v1/auth
-##### are you logged in
-##### TODO: ADD requirments
-### api/v1/auth/register
-##### TODO: ADD requirments
-### api/v1/auth/login
-##### TODO: ADD requirments
-### api/v1/auth/logout
-##### TODO: ADD requirments
+## 📌 Endpoints Overview
 
-## get          api/v1/get/: method GET
+### ✅ General
 
-### - profile  [api/v1/get/profile]
-##### TODO: ADD requirments
-### - posts  [api/v1/get/posts]
-##### TODO: ADD requirments
-### - categories  [api/v1/get/categories]
-##### TODO: ADD requirments
-### - conversations  [api/v1/get/conversations]
-##### TODO: ADD requirments
-### - messages  [api/v1/get/messages]
-##### TODO: ADD requirments
+- **POST** `/api/v1/mark-read`  
+  _Mark notifications or messages as read_  
+  **TODO**: Add requirements
 
-## set          api/v1/set/: method POST
+- **GET** `/api/v1/ws`  
+  _WebSocket connection endpoint_  
+  **TODO**: Add requirements
 
-### - profile  [api/v1/get/profile]
-##### TODO: ADD requirments
-### - posts  [api/v1/get/posts]
-##### TODO: ADD requirments
-### - comments  [api/v1/get/comments]
-##### TODO: ADD requirments
-### - follow  [api/v1/get/follow]
-##### TODO: ADD requirments
+---
+
+### 🔐 Auth (`/api/v1/auth`)
+
+- **GET** `/auth`  
+  _Check login status_  
+  **TODO**: Add requirements
+
+- **POST** `/auth/register`  
+  _User registration_  
+  **TODO**: Add requirements
+
+- **POST** `/auth/login`  
+  _User login_  
+  **TODO**: Add requirements
+
+- **POST** `/auth/logout`  
+  _User logout_  
+  **TODO**: Add requirements
+
+---
+
+### 📥 GET Endpoints (`/api/v1/get/`)
+
+- **GET** `/get/profile`  
+  _Retrieve user profile_  
+  **TODO**: Add requirements
+
+- **GET** `/get/posts`  
+  _Fetch posts_  
+  **TODO**: Add requirements
+
+- **GET** `/get/categories`  
+  _List all categories_  
+  **TODO**: Add requirements
+
+- **GET** `/get/conversations`  
+  _List user conversations_  
+  **TODO**: Add requirements
+
+- **GET** `/get/messages`  
+  _Get messages from a conversation_  
+  **TODO**: Add requirements
+
+---
+
+### 📤 SET Endpoints (`/api/v1/set/`)
+
+- **POST** `/set/profile`  
+  _Update user profile_  
+  **TODO**: Add requirements
+
+- **POST** `/set/posts`  
+  _Create or update posts_  
+  **TODO**: Add requirements
+
+- **POST** `/set/comments`  
+  _Add a comment_  
+  **TODO**: Add requirements
+
+- **POST** `/set/follow`  
+  _Follow or unfollow a user_  
+  **TODO**: Add requirements
+
+---
+

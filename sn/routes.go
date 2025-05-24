@@ -1,8 +1,13 @@
-package main
+package sn
 
 import (
 	"net/http"
 	"slices"
+
+	"social-network/sn/comments"
+	"social-network/sn/handlers"
+	"social-network/sn/posts"
+	"social-network/sn/ws"
 )
 
 var (
@@ -10,25 +15,24 @@ var (
 	files = http.Dir("front-end/")
 )
 
-func init() {
+func SetupMux(hub *ws.Hub) *http.ServeMux {
 	mux.Handle("/files/", http.StripPrefix("/files/", http.HandlerFunc(noNavigation)))
 
-	mux.HandleFunc("/", homeHandler)
-
-	mux.HandleFunc("/api/v1/conversations", conversationsHandler)
-	mux.HandleFunc("/api/v1/mark-read", markReadHandler)
+	mux.HandleFunc("/", handlers.HomeHandler)
+	mux.HandleFunc("/api/v1/mark-read", handlers.MarkReadHandler)
 	mux.HandleFunc("/ws", hub.HandleWebSocket)
 
-	mux.HandleFunc("/api/v1/auth", islogged)
-	mux.HandleFunc("/api/v1/register", registerHandler)
-	mux.HandleFunc("/api/v1/login", loginHandler)
-	mux.HandleFunc("/api/v1/logout", logoutHandler)
-	mux.HandleFunc("/api/v1/post", postHandler)
-	mux.HandleFunc("/api/v1/category-posts", categoryPostsHandler)
-	mux.HandleFunc("/api/v1/follow", forunf)
-	mux.HandleFunc("/api/v1/upload", uploadHandler)
+	mux.HandleFunc("/api/v1/auth", handlers.Islogged)
+	mux.HandleFunc("/api/v1/register", handlers.RegisterHandler)
+	mux.HandleFunc("/api/v1/login", handlers.LoginHandler)
+	mux.HandleFunc("/api/v1/logout", handlers.LogoutHandler)
+	mux.HandleFunc("/api/v1/post", posts.PostHandler)
+	mux.HandleFunc("/api/v1/category-posts", handlers.CategoryPostsHandler)
+	mux.HandleFunc("/api/v1/follow", handlers.Forunf)
+	mux.HandleFunc("/api/v1/upload", handlers.UploadHandler)
 	mux.HandleFunc("GET /api/v1/get/{type}", getRouter)
 	mux.HandleFunc("POST /api/v1/set/{type}", setRouter)
+	return mux
 }
 
 var paths = []string{
@@ -47,15 +51,15 @@ func noNavigation(w http.ResponseWriter, r *http.Request) {
 func getRouter(w http.ResponseWriter, r *http.Request) {
 	switch r.PathValue("type") {
 	case "profile":
-		profileHandler(w, r)
+		handlers.ProfileHandler(w, r)
 	case "posts":
-		postsHandler(w, r)
+		handlers.PostsHandler(w, r)
 	case "categories":
-		categoriesHandler(w, r)
+		handlers.CategoriesHandler(w, r)
 	case "conversations":
-		conversationsHandler(w, r)
+		handlers.ConversationsHandler(w, r)
 	case "messages":
-		messagesHandler(w, r)
+		handlers.MessagesHandler(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -64,13 +68,13 @@ func getRouter(w http.ResponseWriter, r *http.Request) {
 func setRouter(w http.ResponseWriter, r *http.Request) {
 	switch r.PathValue("type") {
 	case "profile":
-		profileHandler(w, r)
+		handlers.ProfileHandler(w, r)
 	case "posts":
-		addPostHandler(w, r)
+		handlers.AddPostHandler(w, r)
 	case "comments":
-		addCommentHandler(w, r)
+		comments.AddCommentHandler(w, r)
 	case "follow":
-		forunf(w, r)
+		handlers.Forunf(w, r)
 	default:
 		http.NotFound(w, r)
 	}

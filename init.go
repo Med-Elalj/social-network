@@ -35,7 +35,7 @@ func SetTables() *sql.DB {
 		log.Fatalf("Error opening database: %v", err)
 	}
 
-	sqlContent, err := os.ReadFile("./DataBase/db.sql")
+	sqlContent, err := os.ReadFile("./DataBase/db.DB.sql")
 	if err != nil {
 		log.Fatalf("Error reading SQL file: %v", err)
 	}

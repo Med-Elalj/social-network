@@ -1,35 +1,14 @@
-package main
+package posts
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"social-network/sn/db"
+	"social-network/sn/handlers"
+	"social-network/sn/structs"
 )
-
-type Post struct {
-	ID           int
-	Title        string
-	Content      string
-	CreatedAt    string
-	Username     string
-	Categories   string
-	CommentCount int
-	Attachement	 string
-	Status	 	 string
-	// LikeCount    int
-	// DislikeCount int
-}
-
-type User struct {
-	ID       int
-	Username string
-	Email    string
-	fname    string
-	lname    string
-	Status	 string
-	followers []int
-	followed  []int
-}
 
 type comnt struct {
 	ID        int
@@ -40,10 +19,9 @@ type comnt struct {
 	// DislikeCount int
 }
 
-
-func postdata(postID string) (Post, error) {
-    var post Post
-    err := db.QueryRow(`
+func postdata(postID string) (structs.Post, error) {
+	var post structs.Post
+	err := db.DB.QueryRow(`
         SELECT 
         posts.id, 
         posts.title, 
@@ -59,13 +37,12 @@ func postdata(postID string) (Post, error) {
         INNER JOIN users ON posts.id_users = users.id
         WHERE posts.id = ?`, postID).Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.Attachement, &post.Status, &post.Categories, &post.Username)
 
-    return post, err
+	return post, err
 }
-
 
 func commentdata(postID string) ([]comnt, error) {
 	var com []comnt
-	rows, err := db.Query(`
+	rows, err := db.DB.Query(`
 	SELECT comments.id, comments.content, comments.created_at, users.username
 	FROM comments 
 	JOIN users ON comments.user_id = users.id
@@ -90,7 +67,7 @@ func commentdata(postID string) ([]comnt, error) {
 	return com, nil
 }
 
-func postHandler(w http.ResponseWriter, r *http.Request) {
+func PostHandler(w http.ResponseWriter, r *http.Request) {
 	postID := r.URL.Query().Get("id")
 	if postID == "" {
 		http.Error(w, `{"error": "Post ID is required"}`, http.StatusBadRequest)
@@ -111,7 +88,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// fmt.Println(post, comments)
-	isLoggedIn := loggedin(w, r)
+	isLoggedIn := handlers.Loggedin(w, r)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{

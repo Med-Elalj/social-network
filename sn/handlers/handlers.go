@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"crypto/rand"
@@ -14,10 +14,14 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"social-network/sn/db"
+	"social-network/sn/hub"
+	"social-network/sn/structs"
 )
 
 func getPosts() (*sql.Rows, error) {
-	rows, err := db.Query(`
+	rows, err := db.DB.Query(`
     SELECT 
         posts.id,
         posts.title, 
@@ -44,8 +48,8 @@ func getPosts() (*sql.Rows, error) {
 	return rows, nil
 }
 
-func loggedin(w http.ResponseWriter, r *http.Request) bool {
-	if db == nil {
+func Loggedin(w http.ResponseWriter, r *http.Request) bool {
+	if db.DB == nil {
 		log.Println("Database connection is nil!")
 		return false
 	}
@@ -56,7 +60,7 @@ func loggedin(w http.ResponseWriter, r *http.Request) bool {
 
 	// Just check if session exists, don't trigger logout
 	var exists bool
-	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE uuid = ?)", cookie.Value).Scan(&exists)
+	err = db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE uuid = ?)", cookie.Value).Scan(&exists)
 	if err != nil {
 		log.Println("Error checking session:", err)
 		return false
@@ -64,20 +68,20 @@ func loggedin(w http.ResponseWriter, r *http.Request) bool {
 	return exists
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "templates/inde.html")
 }
 
-func islogged(w http.ResponseWriter, r *http.Request) {
-	isLoggedIn := loggedin(w, r)
+func Islogged(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := Loggedin(w, r)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"isLoggedIn": isLoggedIn,
 	})
 }
 
-func categoriesHandler(w http.ResponseWriter, r *http.Request) {
-	isLoggedIn := loggedin(w, r)
+func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := Loggedin(w, r)
 	if r.Method == http.MethodPost {
 		return
 	}
@@ -93,7 +97,7 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	categories := []CategoryData{}
 
-	rows, err := db.Query(`
+	rows, err := db.DB.Query(`
         SELECT c.id, c.name, COUNT(pc.post_id) AS post_count 
         FROM category c
         LEFT JOIN post_category pc ON c.id = pc.catego_id
@@ -123,7 +127,7 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func errorsHandler(w http.ResponseWriter, r *http.Request) {
-	islogedin := loggedin(w, r)
+	islogedin := Loggedin(w, r)
 	code := r.URL.Query().Get("code")
 	errorin := map[string]string{
 		"404": "Path Not Found",
@@ -152,7 +156,7 @@ func errorsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func newPostHandler(w http.ResponseWriter, r *http.Request) {
-	isLoggedIn := loggedin(w, r)
+	isLoggedIn := Loggedin(w, r)
 	if !isLoggedIn {
 		http.Redirect(w, r, "/errors?code=401", http.StatusFound) //////////////////////////////////////////////////////////////////////////////////////////////////////
 		return
@@ -170,10 +174,10 @@ func newPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func fetchuid(token string) (int, error) {
+func Fetchuid(token string) (int, error) {
 	var id string
 	var iid int
-	err := db.QueryRow("SELECT id FROM users WHERE uuid = ?", token).Scan(&id)
+	err := db.DB.QueryRow("SELECT id FROM users WHERE uuid = ?", token).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -184,29 +188,29 @@ func fetchuid(token string) (int, error) {
 	return iid, nil
 }
 
-func getusername(id int) (string, error) {
+func Getusername(id int) (string, error) {
 	var usrname string
-	err := db.QueryRow("select username from users where id = ?", id).Scan(&usrname)
+	err := db.DB.QueryRow("select username from users where id = ?", id).Scan(&usrname)
 	if err != nil {
 		return "", err
 	}
 	return usrname, nil
 }
 
-func addPostHandler(w http.ResponseWriter, r *http.Request) {
+func AddPostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, `{"error": "Invalid method"}`, http.StatusMethodNotAllowed)
 		return
 	}
 
-	isLoggedIn := loggedin(w, r)
+	isLoggedIn := Loggedin(w, r)
 	cookie, err := r.Cookie("userId")
 	if err != nil || !isLoggedIn {
 		http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 
-	userID, err := fetchuid(cookie.Value)
+	userID, err := Fetchuid(cookie.Value)
 	if err != nil {
 		http.Error(w, `{"error": "Invalid user ID"}`, http.StatusBadRequest)
 		return
@@ -230,7 +234,7 @@ func addPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error": "Title and content are required"}`, http.StatusBadRequest)
 		return
 	}
-	tx, err := db.Begin()
+	tx, err := db.DB.Begin()
 	if err != nil {
 		http.Error(w, "Error starting transaction", http.StatusInternalServerError)
 		return
@@ -283,7 +287,7 @@ func addPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hub.brdcast <- []byte(`{"type": "new_post", "islogged": ` + strconv.FormatBool(isLoggedIn) + `}`)
+	hub.HUB.Brdcast <- []byte(`{"type": "new_post", "islogged": ` + strconv.FormatBool(isLoggedIn) + `}`)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -297,9 +301,9 @@ func addPostHandler(w http.ResponseWriter, r *http.Request) {
 // 	return re.MatchString(email)
 // }
 
-func registerHandler(w http.ResponseWriter, r *http.Request) {
+func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	if loggedin(w, r) {
+	if Loggedin(w, r) {
 		http.Error(w, `{"error": "Already logged in"}`, http.StatusBadRequest)
 		return
 	}
@@ -344,7 +348,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Check if user exists
 	var exists bool
-	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", user.Username, user.Email).Scan(&exists)
+	err = db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", user.Username, user.Email).Scan(&exists)
 	if err != nil {
 		log.Println("Error checking if user exists:", err)
 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
@@ -364,7 +368,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec(`
+	_, err = db.DB.Exec(`
     INSERT INTO users (
         uuid, username, email, birthdate, password, age, gender, fname, lname, avatar, aboutme, status
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
@@ -382,7 +386,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 // func registerHandler(w http.ResponseWriter, r *http.Request) {
 // 	w.Header().Set("Content-Type", "application/json")
-// 	if loggedin(w, r) {
+// 	if Loggedin(w, r) {
 // 		http.Error(w, `{"error": "Already logged in"}`, http.StatusBadRequest)
 // 		return
 // 	}
@@ -422,7 +426,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 // 	// Check if user exists
 // 	var exists bool
-// 	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", user.Username, user.Email).Scan(&exists)
+// 	err = db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", user.Username, user.Email).Scan(&exists)
 // 	if err != nil {
 // 		log.Println("Error checking if user exists:", err)
 // 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
@@ -442,7 +446,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 // 		return
 // 	}
 
-// 	_, err = db.Exec("INSERT INTO users (uuid, username, email, password, age, gender, fname, lname) VALUES (?, ?, ?, ?,?,?,?,?)", uuid, user.Username, user.Email, user.Password, user.Age, user.Gender, user.Fname, user.Lname)
+// 	_, err = db.DB.Exec("INSERT INTO users (uuid, username, email, password, age, gender, fname, lname) VALUES (?, ?, ?, ?,?,?,?,?)", uuid, user.Username, user.Email, user.Password, user.Age, user.Gender, user.Fname, user.Lname)
 // 	if err != nil {
 // 		log.Println("Error inserting user into database:", err)
 // 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
@@ -456,7 +460,7 @@ func registerHandler(w http.ResponseWriter, r *http.Request) {
 
 // func setandchecksession(cokie *http.Cookie) bool {
 // 	var exists bool
-// 	err := db.QueryRow(
+// 	err := db.DB.QueryRow(
 // 		"SELECT EXISTS(SELECT 1 FROM users WHERE uuid = ?)",
 // 		cokie.Value,
 // 	).Scan(&exists)
@@ -483,7 +487,7 @@ func generateToken() (string, error) {
 	return hex.EncodeToString(bytes), nil
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var credentials struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -496,14 +500,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	var storedPassword string
 	var id string
 	var usrnm string
-	err := db.QueryRow("SELECT password, id FROM users WHERE username = ?", credentials.Username).Scan(&storedPassword, &id)
+	err := db.DB.QueryRow("SELECT password, id FROM users WHERE username = ?", credentials.Username).Scan(&storedPassword, &id)
 	if err != nil || storedPassword != credentials.Password {
-		err = db.QueryRow("SELECT password, id FROM users WHERE email = ?", credentials.Username).Scan(&storedPassword, &id)
+		err = db.DB.QueryRow("SELECT password, id FROM users WHERE email = ?", credentials.Username).Scan(&storedPassword, &id)
 		if err != nil || storedPassword != credentials.Password {
 			http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
 			return
 		} else {
-			err = db.QueryRow("SELECT username  FROM users WHERE email = ?", credentials.Username).Scan(&usrnm)
+			err = db.DB.QueryRow("SELECT username  FROM users WHERE email = ?", credentials.Username).Scan(&usrnm)
 			if err != nil {
 				http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
 				return
@@ -512,7 +516,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = db.QueryRow("SELECT password, id FROM users WHERE username = ? OR email = ?", credentials.Username, credentials.Username).Scan(&storedPassword, &id)
+	err = db.DB.QueryRow("SELECT password, id FROM users WHERE username = ? OR email = ?", credentials.Username, credentials.Username).Scan(&storedPassword, &id)
 	if err != nil || storedPassword != credentials.Password {
 		http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
 		return
@@ -524,7 +528,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
 		return
 	}
-	_, err = db.Exec("UPDATE users SET uuid = ? WHERE id = ?", uuid, id)
+	_, err = db.DB.Exec("UPDATE users SET uuid = ? WHERE id = ?", uuid, id)
 	if err != nil {
 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
 		return
@@ -548,7 +552,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // lougoutiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
-func logoutHandler(w http.ResponseWriter, r *http.Request) {
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("userId")
 	if err != nil {
 		return
@@ -556,7 +560,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	// fmt.Println("yup")
 	var username string
-	err = db.QueryRow("SELECT username FROM users WHERE uuid = ?", cookie.Value).Scan(&username)
+	err = db.DB.QueryRow("SELECT username FROM users WHERE uuid = ?", cookie.Value).Scan(&username)
 	// fmt.Println(username)
 	if err != nil {
 		http.Error(w, `{"error": "Invalid username"}`, http.StatusUnauthorized)
@@ -573,7 +577,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
 	}
-	hub.unregister <- hub.srsu[username]
+	hub.HUB.Unregister <- hub.HUB.Srsu[username]
 	http.SetCookie(w, cookie)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -587,9 +591,9 @@ func AssetsHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filePath)
 }
 
-func profileHandler(w http.ResponseWriter, r *http.Request) {
+func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	profileuser := r.URL.Query().Get("user")
-	isLoggedIn := loggedin(w, r)
+	isLoggedIn := Loggedin(w, r)
 	if !isLoggedIn {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -608,7 +612,7 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := fetchuid(cookie.Value)
+	userId, err := Fetchuid(cookie.Value)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -618,11 +622,11 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user User
-	var posts []Post
+	var user structs.User
+	var posts []structs.Post
 
-	err = db.QueryRow("SELECT id, username, email , fname, lname,status FROM users WHERE username = ?", profileuser).
-		Scan(&user.ID, &user.Username, &user.Email, &user.fname, &user.lname, &user.Status)
+	err = db.DB.QueryRow("SELECT id, username, email , fname, lname,status FROM users WHERE username = ?", profileuser).
+		Scan(&user.ID, &user.Username, &user.Email, &user.Fname, &user.Lname, &user.Status)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			w.Header().Set("Content-Type", "application/json")
@@ -639,18 +643,18 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	rows, err := db.Query("SELECT id, title FROM posts WHERE id_users = ?", user.ID)
+	rows, err := db.DB.Query("SELECT id, title FROM posts WHERE id_users = ?", user.ID)
 	if err != nil {
 	}
 	for rows.Next() {
-		var pos Post
+		var pos structs.Post
 		if err := rows.Scan(&pos.ID, &pos.Title); err != nil {
 			log.Println("Error scanning post:", err)
 			continue
 		}
 		posts = append(posts, pos)
 	}
-	rows, err = db.Query("SELECT follower , followed FROM followers WHERE follower = ? or followed = ? ", user.ID, user.ID)
+	rows, err = db.DB.Query("SELECT follower , followed FROM followers WHERE follower = ? or followed = ? ", user.ID, user.ID)
 	if err != nil {
 	}
 	for rows.Next() {
@@ -659,9 +663,9 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 		if err := rows.Scan(&fr, &fd); err != nil {
 		}
 		if fd == user.ID {
-			user.followers = append(user.followers, fr)
+			user.Followers = append(user.Followers, fr)
 		} else if fr == user.ID {
-			user.followed = append(user.followed, fd)
+			user.Followed = append(user.Followed, fd)
 		}
 
 	}
@@ -671,15 +675,15 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 			"username":   user.Username,
 			"email":      user.Email,
 			"isLoggedIn": isLoggedIn,
-			"fname":      user.fname,
-			"lname":      user.lname,
+			"fname":      user.Fname,
+			"lname":      user.Lname,
 			"posts":      posts,
-			"followers":  user.followers,
-			"followed":   user.followed,
+			"followers":  user.Followers,
+			"followed":   user.Followed,
 		})
 	} else {
 		checkfd := false
-		for rng := range user.followers {
+		for rng := range user.Followers {
 			if rng == userId {
 				checkfd = true
 				break
@@ -689,20 +693,20 @@ func profileHandler(w http.ResponseWriter, r *http.Request) {
 			"username":   user.Username,
 			"status":     user.Status,
 			"isLoggedIn": isLoggedIn,
-			"fname":      user.fname,
-			"lname":      user.lname,
+			"fname":      user.Fname,
+			"lname":      user.Lname,
 			"posts":      posts,
-			"followers":  user.followers,
-			"followed":   user.followed,
+			"followers":  user.Followers,
+			"followed":   user.Followed,
 			"unfollow":   checkfd,
 		})
 	}
 }
 
-func forunf(w http.ResponseWriter, r *http.Request) {
+func Forunf(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("hiiiiiiiiiiiiiiii")
 	profileuser := r.URL.Query().Get("id")
-	isLoggedIn := loggedin(w, r)
+	isLoggedIn := Loggedin(w, r)
 	if !isLoggedIn {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -722,7 +726,7 @@ func forunf(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Println("looooooooooooooooooooooooooooooool", profileuser)
 
-	userId, err := fetchuid(cookie.Value)
+	userId, err := Fetchuid(cookie.Value)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -733,33 +737,33 @@ func forunf(w http.ResponseWriter, r *http.Request) {
 	}
 	var me string
 	var find string
-	err = db.QueryRow("select username from users where id = ?", userId).Scan(&me)
+	err = db.DB.QueryRow("select username from users where id = ?", userId).Scan(&me)
 	if err != nil {
 	}
-	err = db.QueryRow("SELECT follower FROM followers WHERE follower = ? AND followed = ? ", me, profileuser).Scan(&find)
+	err = db.DB.QueryRow("SELECT follower FROM followers WHERE follower = ? AND followed = ? ", me, profileuser).Scan(&find)
 	if err != nil {
 	}
 	if find == me {
-		_, err := db.Exec("DELETE FROM followers WHERE follower = ? AND followed = ?", me, profileuser)
+		_, err := db.DB.Exec("DELETE FROM followers WHERE follower = ? AND followed = ?", me, profileuser)
 		if err != nil {
 		}
 		find = "unfollowed"
 	} else {
 		var stat string
-		err = db.QueryRow("select status from users where username = ?", profileuser).Scan(&stat)
+		err = db.DB.QueryRow("select status from users where username = ?", profileuser).Scan(&stat)
 		if err != nil {
 		}
 		if stat == "public" {
-			_, err := db.Exec("INSERT INTO followers (follower ,followed) VALUES(?,?)", me, profileuser)
+			_, err := db.DB.Exec("INSERT INTO followers (follower ,followed) VALUES(?,?)", me, profileuser)
 			fmt.Println("looooooooooooooooooooooooooooooool")
 			if err != nil {
 			}
 			find = "followed"
-			_, err = db.Exec("insert into notifications (notif,user) values(?,?)", me+" start to follow you", profileuser)
+			_, err = db.DB.Exec("insert into notifications (notif,user) values(?,?)", me+" start to follow you", profileuser)
 			if err != nil {
 			}
 		} else {
-			_, err = db.Exec("insert into notifications (notif,user) values(?,?)", me+" send you follow request", profileuser)
+			_, err = db.DB.Exec("insert into notifications (notif,user) values(?,?)", me+" send you follow request", profileuser)
 			if err != nil {
 			}
 			find = "follow request sent"
@@ -771,8 +775,8 @@ func forunf(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func messagesHandler(w http.ResponseWriter, r *http.Request) {
-	isLoggedIn := loggedin(w, r)
+func MessagesHandler(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn := Loggedin(w, r)
 	if !isLoggedIn {
 		http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
 		return
@@ -784,7 +788,7 @@ func messagesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := fetchuid(cookie.Value)
+	userID, err := Fetchuid(cookie.Value)
 	if err != nil {
 		http.Error(w, `{"error": "Invalid user ID"}`, http.StatusBadRequest)
 		return
@@ -797,13 +801,13 @@ func messagesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var otherUserID int
-	err = db.QueryRow("SELECT id FROM users WHERE username = ?", otherUser).Scan(&otherUserID)
+	err = db.DB.QueryRow("SELECT id FROM users WHERE username = ?", otherUser).Scan(&otherUserID)
 	if err != nil {
 		http.Error(w, `{"error": "User not found"}`, http.StatusNotFound)
 		return
 	}
 
-	rows, err := db.Query(`
+	rows, err := db.DB.Query(`
         SELECT m.content, m.created_at, u.username 
         FROM messages m
         JOIN users u ON m.sender_id = u.id
@@ -836,7 +840,7 @@ func messagesHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func categoryPostsHandler(w http.ResponseWriter, r *http.Request) {
+func CategoryPostsHandler(w http.ResponseWriter, r *http.Request) {
 	categoryID := r.URL.Query().Get("id")
 	if categoryID == "" {
 		http.Error(w, "Category ID is missing", http.StatusBadRequest)
@@ -844,7 +848,7 @@ func categoryPostsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// fmt.Println(categoryID,"looool")
 	// Check if the user is logged in
-	IsLoggedIn := loggedin(w, r)
+	IsLoggedIn := Loggedin(w, r)
 
 	// type PostData struct {
 	// 	ID           int
@@ -876,15 +880,15 @@ func categoryPostsHandler(w http.ResponseWriter, r *http.Request) {
         WHERE pc.catego_id = ?
         GROUP BY p.id, u.username
     `
-	rows, err := db.Query(query, categoryID)
+	rows, err := db.DB.Query(query, categoryID)
 	if err != nil {
 		http.Error(w, "Unable to fetch posts", http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
-	var posts []Post
+	var posts []structs.Post
 	for rows.Next() {
-		var post Post
+		var post structs.Post
 		if err := rows.Scan(&post.ID, &post.Title, &post.CreatedAt, &post.Username, &post.CommentCount); err != nil {
 			log.Println("Error scanning post:", err)
 			continue
@@ -898,7 +902,7 @@ func categoryPostsHandler(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 	var catego string
-	db.QueryRow("select name from category where id = ?", &categoryID).Scan(&catego)
+	db.DB.QueryRow("select name from category where id = ?", &categoryID).Scan(&catego)
 
 	// tmpl.Execute(w, map[string]interface{}{
 	// 	"Posts":      posts,
@@ -914,7 +918,7 @@ func categoryPostsHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func conversationsHandler(w http.ResponseWriter, r *http.Request) {
+func ConversationsHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("userId")
 	if err != nil {
 		http.Error(w, `{"error": "Not authenticated"}`, http.StatusUnauthorized)
@@ -922,7 +926,7 @@ func conversationsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userID int
-	err = db.QueryRow("SELECT id FROM users WHERE uuid = ?", cookie.Value).Scan(&userID)
+	err = db.DB.QueryRow("SELECT id FROM users WHERE uuid = ?", cookie.Value).Scan(&userID)
 	if err != nil {
 		http.Error(w, `{"error": "Invalid user"}`, http.StatusBadRequest)
 		return
@@ -952,7 +956,7 @@ func conversationsHandler(w http.ResponseWriter, r *http.Request) {
     GROUP BY u.username, last_msg.content
     ORDER BY last_message_time DESC`
 
-	rows, err := db.Query(query,
+	rows, err := db.DB.Query(query,
 		userID, userID, userID, userID, userID, userID, userID, userID)
 	if err != nil {
 		http.Error(w, `{"error": "Database error"}`, http.StatusInternalServerError)
@@ -1004,7 +1008,7 @@ func conversationsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getUserNames() ([]string, error) {
-	rows, err := db.Query("SELECT username FROM users")
+	rows, err := db.DB.Query("SELECT username FROM users")
 	if err != nil {
 		return nil, err
 	}
@@ -1034,13 +1038,13 @@ func getUserNames() ([]string, error) {
 //     }
 
 //     var userID int
-//     err = db.QueryRow("SELECT id FROM users WHERE uuid = ?", cookie.Value).Scan(&userID)
+//     err = db.DB.QueryRow("SELECT id FROM users WHERE uuid = ?", cookie.Value).Scan(&userID)
 //     if err != nil {
 //         http.Error(w, `{"error": "Invalid user"}`, http.StatusBadRequest)
 //         return
 //     }
 
-//     rows, err := db.Query(`
+//     rows, err := db.DB.Query(`
 //         SELECT
 //             u.username,
 //             MAX(m.created_at) as last_message_time,
@@ -1104,14 +1108,14 @@ func getUserNames() ([]string, error) {
 //     }
 
 //     var userID int
-//     err = db.QueryRow("SELECT id FROM users WHERE uuid = ?", cookie.Value).Scan(&userID)
+//     err = db.DB.QueryRow("SELECT id FROM users WHERE uuid = ?", cookie.Value).Scan(&userID)
 //     if err != nil {
 //         http.Error(w, `{"error": "Invalid user"}`, http.StatusBadRequest)
 //         return
 //     }
 
 //     // Get distinct conversation partners
-//     rows, err := db.Query(`
+//     rows, err := db.DB.Query(`
 //         SELECT DISTINCT
 //             u.id,
 //             u.username,
@@ -1148,7 +1152,7 @@ func getUserNames() ([]string, error) {
 //     json.NewEncoder(w).Encode(conversations)
 // }
 
-func markReadHandler(w http.ResponseWriter, r *http.Request) {
+func MarkReadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -1166,7 +1170,7 @@ func markReadHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = db.Exec(`
+	_, err = db.DB.Exec(`
         UPDATE messages SET read = 1 
         WHERE sender_id = (SELECT id FROM users WHERE username = ?)
         AND receiver_id = (SELECT id FROM users WHERE uuid = ?)`,

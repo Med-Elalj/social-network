@@ -1,4 +1,4 @@
-package main
+package ws
 
 import (
 	"encoding/json"
@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"social-network/sn/db"
 
 	"github.com/gorilla/websocket"
 )
@@ -26,21 +28,21 @@ type Client struct {
 
 func NewHub() *Hub {
 	return &Hub{
-		usrs:       make(map[*Client]string),
-		srsu:       make(map[string]*Client),
-		brdcast:    make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
+		Usrs:       make(map[*Client]string),
+		Srsu:       make(map[string]*Client),
+		Brdcast:    make(chan []byte),
+		Register:   make(chan *Client),
+		Unregister: make(chan *Client),
 	}
 }
 
 type Hub struct {
-	usrs       map[*Client]string
-	srsu       map[string]*Client
-	brdcast    chan []byte
-	register   chan *Client
-	unregister chan *Client
-	mu         sync.Mutex
+	Usrs       map[*Client]string
+	Srsu       map[string]*Client
+	Brdcast    chan []byte
+	Register   chan *Client
+	Unregister chan *Client
+	Mu         sync.Mutex
 }
 
 type Message struct {
@@ -69,51 +71,51 @@ type ChatHistoryRequest struct {
 func (h *Hub) Run() {
 	for {
 		select {
-		case client := <-h.register:
+		case client := <-h.Register:
 			h.handleClientRegister(client)
 
-		case client := <-h.unregister:
+		case client := <-h.Unregister:
 			h.handleClientUnregister(client)
-		case message := <-h.brdcast:
+		case message := <-h.Brdcast:
 			h.handleBroadcast(message)
 		}
 	}
 }
 
 func (h *Hub) handleClientRegister(client *Client) {
-	h.mu.Lock()
-	h.srsu[client.nm] = client
-	h.usrs[client] = client.nm
-	h.mu.Unlock()
+	h.Mu.Lock()
+	h.Srsu[client.nm] = client
+	h.Usrs[client] = client.nm
+	h.Mu.Unlock()
 	h.sendUserListUpdate()
 }
 
 func (h *Hub) handleClientUnregister(client *Client) {
-	h.mu.Lock()
-	if _, ok := h.usrs[client]; ok {
-		delete(h.srsu, client.nm)
-		delete(h.usrs, client)
+	h.Mu.Lock()
+	if _, ok := h.Usrs[client]; ok {
+		delete(h.Srsu, client.nm)
+		delete(h.Usrs, client)
 		close(client.send)
 		// fmt.Println("yeeees")
 	}
-	h.mu.Unlock()
+	h.Mu.Unlock()
 	h.sendUserListUpdate()
 }
 
 func (h *Hub) handleBroadcast(message []byte) {
-	h.mu.Lock()
-	clients := make([]*Client, 0, len(h.usrs))
-	for client := range h.usrs {
+	h.Mu.Lock()
+	clients := make([]*Client, 0, len(h.Usrs))
+	for client := range h.Usrs {
 		clients = append(clients, client)
 	}
-	h.mu.Unlock()
+	h.Mu.Unlock()
 
 	for _, client := range clients {
 		select {
 		case client.send <- message:
 		default:
 			go func(c *Client) {
-				h.unregister <- c
+				h.Unregister <- c
 				c.conn.Close()
 			}(client)
 		}
@@ -121,13 +123,13 @@ func (h *Hub) handleBroadcast(message []byte) {
 }
 
 func (h *Hub) sendUserListUpdate() {
-	h.mu.Lock()
+	h.Mu.Lock()
 	userList := h.getOnlineUsersJSON()
-	clients := make([]*Client, 0, len(h.usrs))
-	for client := range h.usrs {
+	clients := make([]*Client, 0, len(h.Usrs))
+	for client := range h.Usrs {
 		clients = append(clients, client)
 	}
-	h.mu.Unlock()
+	h.Mu.Unlock()
 	message := []byte(fmt.Sprintf(`{"type":"users_update","users":%s}`, userList))
 
 	for _, client := range clients {
@@ -135,7 +137,7 @@ func (h *Hub) sendUserListUpdate() {
 		case client.send <- message:
 		default:
 			go func(c *Client) {
-				h.unregister <- c
+				h.Unregister <- c
 				c.conn.Close()
 			}(client)
 		}
@@ -143,9 +145,8 @@ func (h *Hub) sendUserListUpdate() {
 }
 
 func (h *Hub) getOnlineUsersJSON() string {
-
-	users := make([]string, 0, len(h.srsu))
-	for username := range h.srsu {
+	users := make([]string, 0, len(h.Srsu))
+	for username := range h.Srsu {
 		users = append(users, fmt.Sprintf(`"%s"`, username))
 	}
 	return fmt.Sprintf(`[%s]`, strings.Join(users, ","))
@@ -166,7 +167,7 @@ func (h *Hub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var username string
-	err = db.QueryRow("SELECT username FROM users WHERE uuid = ?", cookie.Value).Scan(&username)
+	err = db.DB.QueryRow("SELECT username FROM users WHERE uuid = ?", cookie.Value).Scan(&username)
 	if err != nil {
 		conn.WriteMessage(websocket.CloseMessage, []byte(`{"error": "Invalid user"}`))
 		conn.Close()
@@ -179,7 +180,7 @@ func (h *Hub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 		send: make(chan []byte, 256),
 	}
 
-	h.register <- client
+	h.Register <- client
 
 	go client.writePump()
 	go client.readPump(h)
@@ -207,7 +208,7 @@ func (c *Client) writePump() {
 
 func (c *Client) readPump(h *Hub) {
 	defer func() {
-		h.unregister <- c
+		h.Unregister <- c
 		c.conn.Close()
 	}()
 
@@ -245,10 +246,10 @@ func (c *Client) readPump(h *Hub) {
 }
 
 func (h *Hub) handleTypingIndicator(msg Message) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Mu.Lock()
+	defer h.Mu.Unlock()
 
-	if target, ok := h.srsu[msg.Receiver]; ok {
+	if target, ok := h.Srsu[msg.Receiver]; ok {
 		typingMsg := fmt.Sprintf(`{
             "type": "typing",
             "sender": "%s",
@@ -259,10 +260,10 @@ func (h *Hub) handleTypingIndicator(msg Message) {
 }
 
 func (h *Hub) handlePrivateMessage(msg Message) {
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	h.Mu.Lock()
+	defer h.Mu.Unlock()
 
-	_, err := db.Exec("INSERT INTO messages (sender_id, receiver_id, content) VALUES ((SELECT id FROM users WHERE username = ?), (SELECT id FROM users WHERE username = ?), ?)",
+	_, err := db.DB.Exec("INSERT INTO messages (sender_id, receiver_id, content) VALUES ((SELECT id FROM users WHERE username = ?), (SELECT id FROM users WHERE username = ?), ?)",
 		msg.Sender, msg.Receiver, msg.Content)
 	if err != nil {
 		log.Println("Error saving message:", err)
@@ -277,37 +278,37 @@ func (h *Hub) handlePrivateMessage(msg Message) {
         "created_at": "%s"
     }`, msg.Sender, msg.Receiver, msg.Content, time.Now().Format(time.RFC3339))
 
-	if target, ok := h.srsu[msg.Receiver]; ok {
+	if target, ok := h.Srsu[msg.Receiver]; ok {
 		target.send <- []byte(messageData)
 	}
 
-	if sender, ok := h.srsu[msg.Sender]; ok {
+	if sender, ok := h.Srsu[msg.Sender]; ok {
 		sender.send <- []byte(messageData)
 	}
 
 	updateMsg := `{"type": "update_conversations"}`
-	if target, ok := h.srsu[msg.Receiver]; ok {
+	if target, ok := h.Srsu[msg.Receiver]; ok {
 		target.send <- []byte(updateMsg)
 	}
-	if sender, ok := h.srsu[msg.Sender]; ok {
+	if sender, ok := h.Srsu[msg.Sender]; ok {
 		sender.send <- []byte(updateMsg)
 	}
 }
 
 func (h *Hub) sendChatHistory(client *Client, otherUser string, offset, limit int) {
 	var clientID, otherUserID int
-	err := db.QueryRow("SELECT id FROM users WHERE username = ?", client.nm).Scan(&clientID)
+	err := db.DB.QueryRow("SELECT id FROM users WHERE username = ?", client.nm).Scan(&clientID)
 	if err != nil {
 		log.Println("Error fetching client ID:", err)
 		return
 	}
-	err = db.QueryRow("SELECT id FROM users WHERE username = ?", otherUser).Scan(&otherUserID)
+	err = db.DB.QueryRow("SELECT id FROM users WHERE username = ?", otherUser).Scan(&otherUserID)
 	if err != nil {
 		log.Println("Error fetching other user ID:", err)
 		return
 	}
 
-	rows, err := db.Query(`
+	rows, err := db.DB.Query(`
         SELECT DISTINCT  m.id, m.content, m.created_at, u.username 
         FROM messages m
         JOIN users u ON m.sender_id = u.id

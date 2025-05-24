@@ -50,41 +50,6 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    IF NOT EXISTS groupcomment (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        content TEXT NOT NULL,
-        post_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (post_id) REFERENCES grouposts (id),
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    );
-
-CREATE TABLE
-    IF NOT EXISTS grouposts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        group_id INT not null,
-        user_id INT NOT NULL,
-        title TEXT NOT NULL,
-        post_content TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        attachement TEXT DEFAULT NULL,
-        FOREIGN KEY (group_id) REFERENCES groupTable (id),
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    );
-
-CREATE TABLE
-    IF NOT EXISTS joinrequest (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        group_id INT not null,
-        sender_id INT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        stqtus TEXT DEFAULT NULL,
-        FOREIGN KEY (group_id) REFERENCES groupTable (id),
-        FOREIGN KEY (sender_id) REFERENCES users (id)
-    );
-
-CREATE TABLE
     IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         id_users INTEGER NOT NULL,
@@ -94,7 +59,9 @@ CREATE TABLE
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         attachement TEXT DEFAULT NULL,
         status TEXT NOT NULL,
-        FOREIGN KEY (id_users) REFERENCES users (id)
+        group_id INT DEFAULT null,
+        FOREIGN KEY (id_users) REFERENCES users (id),
+        FOREIGN KEY (group_id) REFERENCES groupTable (id)
     );
 
 CREATE TABLE
@@ -145,4 +112,24 @@ CREATE TABLE
         read BOOLEAN DEFAULT 0, -- New column (0=unread, 1=read)
         FOREIGN KEY (sender_id) REFERENCES users (id),
         FOREIGN KEY (receiver_id) REFERENCES users (id)
+    );
+
+CREATE TABLE
+    IF NOT EXISTS postreaction (
+        post_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        action BOOLEAN NOT NULL,
+        FOREIGN KEY (post_id) REFERENCES posts (id),
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        PRIMARY KEY (user_id, post_id)
+    );
+
+CREATE TABLE
+    IF NOT EXISTS commentreaction (
+        comment_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        action TEXT NOT NULL CHECK (action IN ('like', 'dislike')),
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        FOREIGN KEY (comment_id) REFERENCES comments (id),
+        PRIMARY KEY (user_id, comment_id)
     );

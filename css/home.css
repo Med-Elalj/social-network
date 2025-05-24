@@ -1,0 +1,137 @@
+
+.container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    align-items: center;
+    column-gap: 37px;
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.posts {
+    background: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    padding: 20px;
+    padding: 20px;
+}
+.post {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+.post:last-child {
+    border-bottom: none;
+}
+.post a {
+    text-decoration: none;
+    font-size: 18px;
+    color: #007bff;
+}
+.post a:hover {
+    text-decoration: underline;
+}
+.post .meta {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+.add-post-container {
+    background-color: #f4922c;
+    width: 150px;
+    margin: 20px auto;
+    text-align: center;
+    font-size: 16px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.add-post-container a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    display: inline-block;
+
+    transition: color 0.3s;
+}
+.not-registered  a {
+    background-color: none;
+    color: #f4922c;
+    
+}
+.filter {
+background-color: #ffffff;
+border-radius: 8px;
+padding: 20px;
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+width: 90%;
+margin: 20px auto;
+font-size: 16px;
+}
+
+.filter form fieldset {
+border: none;
+padding: 0;
+}
+
+.filter form legend {
+font-size: 20px;
+font-weight: bold;
+color: #333;
+margin-bottom: 10px;
+}
+
+.filter form label {
+display: block;
+margin-bottom: 10px;
+font-size: 14px;
+color: #333;
+}
+
+.filter form label input[type="checkbox"] {
+margin-right: 8px;
+}
+
+#category {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+gap: 10px;
+margin-bottom: 20px;
+}
+
+.filter form input[type="time"],
+.filter form input[type="number"] {
+width: 100%;
+padding: 10px;
+border: 1px solid #ddd;
+border-radius: 4px;
+font-size: 14px;
+margin-bottom: 20px;
+transition: border-color 0.3s ease;
+}
+
+.filter form input[type="time"]:focus,
+.filter form input[type="number"]:focus {
+border-color: #007bff;
+outline: none;
+}
+
+.filter form input[type="submit"] {
+background-color: #f4922c;
+color: white;
+font-size: 16px;
+font-weight: bold;
+padding: 10px 20px;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+transition: background-color 0.3s ease;
+}
+
+.filter form input[type="submit"]:hover {
+background-color: #e07b19;
+}

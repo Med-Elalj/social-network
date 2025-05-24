@@ -1,0 +1,132 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
+)
+
+func checkCommentReaction(commentID string, userID int, action string) bool {
+	if db == nil {
+		log.Println("Database connection is nil!")
+		return false
+	}
+	var currentAction string
+	err := db.QueryRow(`
+        SELECT action
+        FROM commentreaction
+        WHERE comment_id = ? AND user_id = ?`, commentID, userID).Scan(&currentAction)
+	if err != nil {
+		err = insertCommentReaction(commentID, userID, action)
+		return err == nil
+	}
+
+	if currentAction == action {
+		_, err = db.Exec(`
+            DELETE FROM commentreaction
+            WHERE comment_id = ? AND user_id = ?`, commentID, userID)
+		return err == nil
+	}
+
+	_, err = db.Exec(`
+        UPDATE commentreaction
+        SET action = ?
+        WHERE comment_id = ? AND user_id = ?`, action, commentID, userID)
+	return err == nil
+}
+
+func insertCommentReaction(commentID string, userID int, action string) error {
+	_, err := db.Exec(`
+        INSERT INTO commentreaction (comment_id, user_id, action)
+        VALUES (?, ?, ?)`, commentID, userID, action)
+	return err
+}
+
+type Comtresp struct {
+	Success      bool   `json:"success"`
+	Username     string `json:"username"`
+	Content      string `json:"content"`
+	CreatedAt    string `json:"createdAt"`
+	CommentID    int    `json:"commentId"`
+	LikeCount    int    `json:"likeCount"`
+	DislikeCount int    `json:"dislikeCount"`
+}
+
+func getcomntid() (int, error) {
+	var id int
+	err := db.QueryRow("SELECT id FROM comments ORDER BY id DESC LIMIT 1").Scan(&id)
+	if err != nil {
+		return -1, err
+	}
+	return id, nil
+}
+
+func addCommentHandler(w http.ResponseWriter, r *http.Request) {
+	// fmt.Println("jjyaaaaaaaaaaaaaaaaaaaj")
+	if r.Method != "POST" {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	cookie, err := r.Cookie("userId")
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := fetchuid(cookie.Value)
+	if err != nil {
+		http.Error(w, "something wrong happened", http.StatusInternalServerError)
+		fmt.Println("fetchuid function returned error")
+		return
+	}
+
+	var comment struct {
+		Postid   string `json:"post_id"`
+		Commet 	 string `json:"comment"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&comment); err != nil {
+		http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
+		return
+	}
+	// postID := r.FormValue("post_id")
+	// commentContent := r.FormValue("comment")
+
+	if comment.Postid == "" || comment.Commet == "" || userID == 0 {
+		http.Error(w, "Invalid comment or user", http.StatusBadRequest)
+		return
+	}
+	pstid ,err := strconv.Atoi(comment.Postid)
+	if err != nil {
+		http.Error(w, "Invalid comment or user", http.StatusBadRequest)
+		return
+	}
+	_, erro := db.Exec(`
+        INSERT INTO comments (content, post_id, user_id)
+        VALUES (?, ?, ?)`, comment.Commet, pstid, userID)
+	if erro != nil {
+		http.Error(w, "Error adding comment", http.StatusInternalServerError)
+		return
+	}
+	username, err := getusername(userID)
+	if err != nil {
+		http.Error(w, "something wrong happened", http.StatusInternalServerError)
+		return
+	}
+	comtid, err := getcomntid()
+	if err != nil {
+		http.Error(w, "something wrong happened", http.StatusInternalServerError)
+		return
+	}
+	response := Comtresp{
+		Success:   true,
+		Username:  username,
+		Content:   comment.Commet,
+		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		CommentID: comtid,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}

@@ -20,16 +20,18 @@ func SetupMux(hub *ws.Hub) *http.ServeMux {
 
 	mux.HandleFunc("/", handlers.HomeHandler)
 	mux.HandleFunc("/api/v1/mark-read", handlers.MarkReadHandler)
-	mux.HandleFunc("/ws", hub.HandleWebSocket)
+	mux.HandleFunc("/api/v1/ws", hub.HandleWebSocket)
 
 	mux.HandleFunc("/api/v1/auth", handlers.Islogged)
-	mux.HandleFunc("/api/v1/register", handlers.RegisterHandler)
-	mux.HandleFunc("/api/v1/login", handlers.LoginHandler)
-	mux.HandleFunc("/api/v1/logout", handlers.LogoutHandler)
+	mux.HandleFunc("/api/v1/auth/register", handlers.RegisterHandler)
+	mux.HandleFunc("/api/v1/auth/login", handlers.LoginHandler)
+	mux.HandleFunc("/api/v1/auth/logout", handlers.LogoutHandler)
+
 	mux.HandleFunc("/api/v1/post", posts.PostHandler)
 	mux.HandleFunc("/api/v1/category-posts", handlers.CategoryPostsHandler)
 	mux.HandleFunc("/api/v1/follow", handlers.Forunf)
 	mux.HandleFunc("/api/v1/upload", handlers.UploadHandler)
+
 	mux.HandleFunc("GET /api/v1/get/{type}", getRouter)
 	mux.HandleFunc("POST /api/v1/set/{type}", setRouter)
 	return mux

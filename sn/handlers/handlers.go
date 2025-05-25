@@ -69,7 +69,9 @@ func Loggedin(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "templates/inde.html")
+	// http.ServeFile(w, r, "templates/inde.html") TODO: fix
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("hello world"))
 }
 
 func Islogged(w http.ResponseWriter, r *http.Request) {

@@ -77,7 +77,7 @@ func TestUserHandler(t *testing.T) {
 			}
 			body := w.Body.String()
 			if body != tt.eBody {
-				t.Errorf("\n\n\t\texpected body '%s'\n\n\t\t got '%s'", tt.eBody, body)
+				t.Errorf("\n\n\t\texpected body '%s'\n\n\t\t\t  got '%s'", tt.eBody, body)
 			}
 			if tt.dbres != nil {
 				data, err := dumpRows(db.DB, tt.dbres[0])

@@ -190,4 +190,15 @@ var tests = []struct {
 			"username=User_Name, email=example@web.site, birthdate=2001-11-09 00:00:00 +0000 UTC, password=password, gender=2, fname=Firstname, lname=LastName",
 		},
 	},
+	{
+		"RegisterHandler bad all ready exist ",
+		"POST", "/api/v1/auth/register",
+		kvp{},
+		kvp{},
+		`{"username": "User_Name","email": "example@web.site","birthdate": "2001-11-09","fname": "Firstname", "lname": "LastName", "password": "password", "gender": "DFK"}`,
+		http.StatusInternalServerError,
+		kvp{"Content-Type": "application/json"},
+		`{"error": "sorry couldn't register your information please try aggain later"}`,
+		nil,
+	},
 }

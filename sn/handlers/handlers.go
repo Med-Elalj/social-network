@@ -1,10 +1,9 @@
 package handlers
 
 import (
-	"crypto/rand"
 	"database/sql"
-	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -50,11 +49,11 @@ func getPosts() (*sql.Rows, error) {
 
 func Loggedin(w http.ResponseWriter, r *http.Request) bool {
 	if db.DB == nil {
-		log.Println("Database connection is nil!")
+		log.Fatal("Database connection is nil!")
 		return false
 	}
 	cookie, err := r.Cookie("userId")
-	if err != nil || cookie == nil {
+	if err != nil || cookie == nil || cookie.Value == "" {
 		return false
 	}
 
@@ -77,6 +76,11 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 func Islogged(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn := Loggedin(w, r)
 	w.Header().Set("Content-Type", "application/json")
+	if isLoggedIn {
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+	}
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"isLoggedIn": isLoggedIn,
 	})
@@ -199,14 +203,7 @@ func Getusername(id int) (string, error) {
 	return usrname, nil
 }
 
-func AddPostHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, `{"error": "Invalid method"}`, http.StatusMethodNotAllowed)
-		return
-	}
-
-	isLoggedIn := Loggedin(w, r)
-	cookie, err := r.Cookie("userId")func checkPostReaction(postID string, userID int, action int) error {
+func checkPostReaction(postID string, userID int, action int) error {
 	if db.DB == nil {
 		log.Println("Database connection is nil!")
 		return errors.New("database connection is nil")
@@ -214,27 +211,35 @@ func AddPostHandler(w http.ResponseWriter, r *http.Request) {
 	switch action {
 	case 1:
 		_, err := db.DB.Exec(`
-			INSERT INTO postreaction (post_id, user_id, action)
-			VALUES (?, ?, ?)
-			ON CONFLICT(user_id, post_id) DO UPDATE SET action = excluded.action;
-`, postID, userID, true)
+		INSERT INTO postreaction (post_id, user_id, action)
+		VALUES (?, ?, ?)
+		ON CONFLICT(user_id, post_id) DO UPDATE SET action = excluded.action;
+		`, postID, userID, true)
 		return err
 	case 0:
 		_, err := db.DB.Exec(`
-			DELETE FROM postreaction
-			WHERE post_id = ? AND user_id = ?`, postID, userID)
+		DELETE FROM postreaction
+		WHERE post_id = ? AND user_id = ?`, postID, userID)
 		return err
 	case -1:
 		_, err := db.DB.Exec(`
-	INSERT INTO postreaction (post_id, user_id, action)
-	VALUES (?, ?, ?)
-	ON CONFLICT(user_id, post_id) DO UPDATE SET action = excluded.action;
-`, postID, userID, false)
+		INSERT INTO postreaction (post_id, user_id, action)
+		VALUES (?, ?, ?)
+		ON CONFLICT(user_id, post_id) DO UPDATE SET action = excluded.action;
+		`, postID, userID, false)
 		return err
 	}
 	return nil
 }
 
+func AddPostHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, `{"error": "Invalid method"}`, http.StatusMethodNotAllowed)
+		return
+	}
+
+	isLoggedIn := Loggedin(w, r)
+	cookie, err := r.Cookie("userId")
 	if err != nil || !isLoggedIn {
 		http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
 		return
@@ -332,251 +337,118 @@ func AddPostHandler(w http.ResponseWriter, r *http.Request) {
 // }
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Add("Content-Type", "application/json")
 	if Loggedin(w, r) {
-		http.Error(w, `{"error": "Already logged in"}`, http.StatusBadRequest)
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte(`{"error": "Already logged in"}`))
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Println("Error reading request body:", err)
-		http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
+		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 		return
 	}
-	// log.Println("Request body:", string(body))
-
-	var user struct {
-		Username  string `json:"username"`
-		Email     string `json:"email"`
-		Password  string `json:"password"`
-		Age       string `json:"age"`
-		Gender    string `json:"gender"`
-		Fname     string `json:"fname"`
-		Lname     string `json:"lname"`
-		Birthdate string `json:"birthdate"`
-		Avatar    string `json:"avatar"`
-		Aboutme   string `json:"aboutme"`
-		Status    string `json:"status"`
+	// log.Println("Request body:", string(body), body)
+	if len(body) == 0 {
+		// w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": "Request body cannot be empty"}`)
+		return
 	}
 
-	if err := json.Unmarshal(body, &user); err != nil {
-		http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
+	var user structs.Register
+
+	if err := structs.JsonRestrictedDecoder(body, &user); err != nil {
+		// w.Header().Add("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": %q}`, err.Error())
 		return
 	}
 	// fmt.Println(user)
 	// Validate input
-	containSpaceRegex := regexp.MustCompile(`\s`)
-	whitespaceRegex := regexp.MustCompile(`^\s*$`)
-	if user.Username == "" || user.Email == "" || user.Password == "" ||
-		containSpaceRegex.MatchString(user.Username) || containSpaceRegex.MatchString(user.Email) ||
-		whitespaceRegex.MatchString(user.Password) {
+
+	if err := user.Validate(); err != nil {
 		log.Println("Validation failed for user input")
-		http.Error(w, `{"error": "Username, email, or password should not be empty or contain spaces"}`, http.StatusBadRequest)
-		return
-	}
-	var exists bool
-	err = db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", user.Username, user.Email).Scan(&exists)
-	if err != nil {
-		log.Println("Error checking if user exists:", err)
-		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-		return
-	}
-	if exists {
-		log.Println("User already exists:", user.Username, user.Email)
-		http.Error(w, `{"error": "Username or email already exists"}`, http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": %q}`, err.Error())
 		return
 	}
 
-	// Insert user
-	uuid, err := generateToken()
-	if err != nil {
-		log.Println("Error generating token:", err)
-		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-		return
-	}
-
-	_, err = db.DB.Exec(`
+	// TODO hash password
+	n, err := db.DB.Exec(`
     INSERT INTO users (
-        uuid, username, email, birthdate, password, age, gender, fname, lname, avatar, aboutme, status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
-		uuid, user.Username, user.Email, user.Birthdate, user.Password, user.Age, user.Gender, user.Fname, user.Lname, user.Avatar, user.Aboutme, user.Status)
+        username, email, birthdate, password, gender, fname, lname
+    ) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
+		user.UserName, user.Email, user.Birthdate, user.Password, user.Gender, user.Fname, user.Lname)
 	if err != nil {
 		log.Println("Error inserting user into database:", err)
-		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, `{"error": "sorry couldn't register your information please try aggain later"}`)
 		return
 	}
+	fmt.Print('n')
+	fmt.Print(n.LastInsertId())
+	fmt.Print(n.RowsAffected())
+	fmt.Println("")
 
-	response := map[string]string{"message": "User registered successfully"}
-
-	json.NewEncoder(w).Encode(response)
-}
-
-// func registerHandler(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Set("Content-Type", "application/json")
-// 	if Loggedin(w, r) {
-// 		http.Error(w, `{"error": "Already logged in"}`, http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	body, err := io.ReadAll(r.Body)
-// 	if err != nil {
-// 		log.Println("Error reading request body:", err)
-// 		http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
-// 		return
-// 	}
-// 	// log.Println("Request body:", string(body))
-
-// 	var user struct {
-// 		Username string `json:"username"`
-// 		Email    string `json:"email"`
-// 		Password string `json:"password"`
-// 		Age      string `json:"age"`
-// 		Gender   string `json:"gender"`
-// 		Fname    string `json:"fname"`
-// 		Lname    string `json:"lname"`
-// 	}
-// 	if err := json.Unmarshal(body, &user); err != nil {
-// 		http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
-// 		return
-// 	}
-// 	// fmt.Println(user)
-// 	// Validate input
-// 	containSpaceRegex := regexp.MustCompile(`\s`)
-// 	whitespaceRegex := regexp.MustCompile(`^\s*$`)
-// 	if user.Username == "" || user.Email == "" || user.Password == "" ||
-// 		containSpaceRegex.MatchString(user.Username) || containSpaceRegex.MatchString(user.Email) ||
-// 		whitespaceRegex.MatchString(user.Password) {
-// 		log.Println("Validation failed for user input")
-// 		http.Error(w, `{"error": "Username, email, or password should not be empty or contain spaces"}`, http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	// Check if user exists
-// 	var exists bool
-// 	err = db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE username = ? OR email = ?)", user.Username, user.Email).Scan(&exists)
-// 	if err != nil {
-// 		log.Println("Error checking if user exists:", err)
-// 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-// 		return
-// 	}
-// 	if exists {
-// 		log.Println("User already exists:", user.Username, user.Email)
-// 		http.Error(w, `{"error": "Username or email already exists"}`, http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	// Insert user
-// 	uuid, err := generateToken()
-// 	if err != nil {
-// 		log.Println("Error generating token:", err)
-// 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	_, err = db.DB.Exec("INSERT INTO users (uuid, username, email, password, age, gender, fname, lname) VALUES (?, ?, ?, ?,?,?,?,?)", uuid, user.Username, user.Email, user.Password, user.Age, user.Gender, user.Fname, user.Lname)
-// 	if err != nil {
-// 		log.Println("Error inserting user into database:", err)
-// 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	response := map[string]string{"message": "User registered successfully"}
-
-// 	json.NewEncoder(w).Encode(response)
-// }
-
-// func setandchecksession(cokie *http.Cookie) bool {
-// 	var exists bool
-// 	err := db.DB.QueryRow(
-// 		"SELECT EXISTS(SELECT 1 FROM users WHERE uuid = ?)",
-// 		cokie.Value,
-// 	).Scan(&exists)
-// 	if err != nil {
-// 		log.Println("Error checking existing user:", err)
-// 		return false
-// 	}
-// 	if exists {
-// 		return false
-// 	}
-// 	return true
-// }
-
-func generateToken() (string, error) {
-	bytes := make([]byte, 16)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return "", err
-	}
-
-	bytes[6] = (bytes[6] & 0x0f) | 0x40 // UUID version 4
-	bytes[8] = (bytes[8] & 0x3f) | 0x80 // UUID variant 1
-
-	return hex.EncodeToString(bytes), nil
+	fmt.Fprintf(w, `{"message":"User registered successfully"}`)
+	w.WriteHeader(http.StatusOK)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	var credentials struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
-		http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
-		return
-	}
+	// var credentials struct {
+	// 	Username string `json:"username"`
+	// 	Password string `json:"password"`
+	// }
+	// if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
+	// 	http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
+	// 	return
+	// }
 
-	var storedPassword string
-	var id string
-	var usrnm string
-	err := db.DB.QueryRow("SELECT password, id FROM users WHERE username = ?", credentials.Username).Scan(&storedPassword, &id)
-	if err != nil || storedPassword != credentials.Password {
-		err = db.DB.QueryRow("SELECT password, id FROM users WHERE email = ?", credentials.Username).Scan(&storedPassword, &id)
-		if err != nil || storedPassword != credentials.Password {
-			http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
-			return
-		} else {
-			err = db.DB.QueryRow("SELECT username  FROM users WHERE email = ?", credentials.Username).Scan(&usrnm)
-			if err != nil {
-				http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
-				return
-			}
-			credentials.Username = usrnm
-		}
-	}
+	// var storedPassword string
+	// var id string
+	// var usrnm string
+	// err := db.DB.QueryRow("SELECT password, id FROM users WHERE username = ?", credentials.Username).Scan(&storedPassword, &id)
+	// if err != nil || storedPassword != credentials.Password {
+	// 	err = db.DB.QueryRow("SELECT password, id FROM users WHERE email = ?", credentials.Username).Scan(&storedPassword, &id)
+	// 	if err != nil || storedPassword != credentials.Password {
+	// 		http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
+	// 		return
+	// 	} else {
+	// 		err = db.DB.QueryRow("SELECT username  FROM users WHERE email = ?", credentials.Username).Scan(&usrnm)
+	// 		if err != nil {
+	// 			http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
+	// 			return
+	// 		}
+	// 		credentials.Username = usrnm
+	// 	}
+	// }
 
-	err = db.DB.QueryRow("SELECT password, id FROM users WHERE username = ? OR email = ?", credentials.Username, credentials.Username).Scan(&storedPassword, &id)
-	if err != nil || storedPassword != credentials.Password {
-		http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
-		return
-	}
+	// err = db.DB.QueryRow("SELECT password, id FROM users WHERE username = ? OR email = ?", credentials.Username, credentials.Username).Scan(&storedPassword, &id)
+	// if err != nil || storedPassword != credentials.Password {
+	// 	http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
+	// 	return
+	// }
 
-	// Generate and update UUID
-	uuid, err := generateToken()
-	if err != nil {
-		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-		return
-	}
-	_, err = db.DB.Exec("UPDATE users SET uuid = ? WHERE id = ?", uuid, id)
-	if err != nil {
-		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-		return
-	}
+	// jwt.Generate()
 
-	// Set cookie
-	cookie := &http.Cookie{
-		Name:     "userId",
-		Value:    uuid,
-		Path:     "/",
-		HttpOnly: true,
-		Expires:  time.Now().Add(168 * time.Hour),
-	}
+	// // Set cookie
+	// cookie := &http.Cookie{
+	// 	Name:     "JWT",
+	// 	Value:    "jwt",
+	// 	Path:     "/",
+	// 	HttpOnly: true,
+	// 	Expires:  time.Now().Add(168 * time.Hour),
+	// }
 
-	http.SetCookie(w, cookie)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message":  "Login successful",
-		"username": credentials.Username,
-	})
+	// http.SetCookie(w, cookie)
+	// w.Header().Set("Content-Type", "application/json")
+	// json.NewEncoder(w).Encode(map[string]string{
+	// 	"message":  "Login successful",
+	// 	"username": credentials.Username,
+	// })
 }
 
 // lougoutiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
@@ -732,7 +604,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func Forunf(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hiiiiiiiiiiiiiiii")
 	profileuser := r.URL.Query().Get("id")
 	isLoggedIn := Loggedin(w, r)
 	if !isLoggedIn {
@@ -752,7 +623,6 @@ func Forunf(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	fmt.Println("looooooooooooooooooooooooooooooool", profileuser)
 
 	userId, err := Fetchuid(cookie.Value)
 	if err != nil {
@@ -783,7 +653,6 @@ func Forunf(w http.ResponseWriter, r *http.Request) {
 		}
 		if stat == "public" {
 			_, err := db.DB.Exec("INSERT INTO followers (follower ,followed) VALUES(?,?)", me, profileuser)
-			fmt.Println("looooooooooooooooooooooooooooooool")
 			if err != nil {
 			}
 			find = "followed"

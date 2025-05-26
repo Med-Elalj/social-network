@@ -9,12 +9,10 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        uuid TEXT UNIQUE NOT NULL,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
-        birthdate DATE DEFAULT NULL,
-        age TEXT DEFAULT NULL,
-        gender TEXT NOT NULL,
+        birthdate DATE DEFAULT (DATE('now')),
+        gender INT NOT NULL,
         fname TEXT NOT NULL,
         lname TEXT NOT NULL,
         password TEXT NOT NULL,

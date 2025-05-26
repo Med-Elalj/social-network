@@ -8,12 +8,12 @@ CREATE TABLE followers (
 	);
 CREATE TABLE users (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-uuid TEXT UNIQUE NOT NULL,
+uuid TEXT UNIQUE ,
 username TEXT UNIQUE NOT NULL,
 email TEXT UNIQUE NOT NULL,
 birthdate DATE  DEFAULT NULL,
 age TEXT DEFAULT NULL,
-gender TEXT NOT NULL,
+gender INTEGER NOT NULL,
 fname TEXT NOT NULL,
 lname TEXT NOT NULL,
 password TEXT NOT NULL,
@@ -21,8 +21,8 @@ avatar TEXT DEFAULT NULL,
 aboutme TEXT DEFAULT NULL,
 status TEXT NOT NULL CHECK (status IN ('public', 'private')) DEFAULT 'public'
 );
-INSERT INTO users VALUES(1,'6352337196a2449cb772b524818bea36','bbb','bbb@gmail.com','1999-05-10','19','male','bbb','bbbbb','bbb','Screenshot 2024-11-25 185542.png','fsjklsdklfjsdjgksdjklghkldsdjfkdjhfsdhgjlsdjglksdjgkjksdjgkldjgkjfklgjlfkljgkfjklgjklgjfkjgfjgklfjkgfdkl','public');
-INSERT INTO users VALUES(2,'ee9774d09b884691b54f1df39fa4e03f','aaa','aaa@gmaol.clp','1992-12-31','20','male','aaa','aaa','aaa','','fdgdfgfdg','public');
+INSERT INTO users VALUES(1,'6352337196a2449cb772b524818bea36','bbb','bbb@gmail.com','1999-05-10','19',0,'bbb','bbbbb','bbb','Screenshot 2024-11-25 185542.png','fsjklsdklfjsdjgksdjklghkldsdjfkdjhfsdhgjlsdjglksdjgkjksdjgkldjgkjfklgjlfkljgkfjklgjklgjfkjgfjgklfjkgfdkl','public');
+INSERT INTO users VALUES(2,'ee9774d09b884691b54f1df39fa4e03f','aaa','aaa@gmaol.clp','1992-12-31','20',0,'aaa','aaa','aaa','','fdgdfgfdg','public');
 CREATE TABLE notifications (
 	notif TEXT NOT NULL,
 	user TEXT NOT NULL,

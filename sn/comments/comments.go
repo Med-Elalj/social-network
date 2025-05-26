@@ -2,6 +2,7 @@ package comments
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -12,40 +13,33 @@ import (
 	"social-network/sn/handlers"
 )
 
-func checkCommentReaction(commentID string, userID int, action string) bool {
+func checkCommentReaction(commentID string, userID int, action int) error {
 	if db.DB == nil {
 		log.Println("Database connection is nil!")
-		return false
+		return errors.New("database connection is nil")
 	}
-	var currentAction string
-	err := db.DB.QueryRow(`
-        SELECT action
-        FROM commentreaction
-        WHERE comment_id = ? AND user_id = ?`, commentID, userID).Scan(&currentAction)
-	if err != nil {
-		err = insertCommentReaction(commentID, userID, action)
-		return err == nil
+	switch action {
+	case 1:
+		_, err := db.DB.Exec(`
+			INSERT INTO commentreaction (comment_id, user_id, action)
+			VALUES (?, ?, ?)
+			ON CONFLICT(user_id, comment_id) DO UPDATE SET action = excluded.action;
+`, commentID, userID, true)
+		return err
+	case 0:
+		_, err := db.DB.Exec(`
+			DELETE FROM commentreaction
+			WHERE comment_id = ? AND user_id = ?`, commentID, userID)
+		return err
+	case -1:
+		_, err := db.DB.Exec(`
+	INSERT INTO commentreaction (comment_id, user_id, action)
+	VALUES (?, ?, ?)
+	ON CONFLICT(user_id, comment_id) DO UPDATE SET action = excluded.action;
+`, commentID, userID, false)
+		return err
 	}
-
-	if currentAction == action {
-		_, err = db.DB.Exec(`
-            DELETE FROM commentreaction
-            WHERE comment_id = ? AND user_id = ?`, commentID, userID)
-		return err == nil
-	}
-
-	_, err = db.DB.Exec(`
-        UPDATE commentreaction
-        SET action = ?
-        WHERE comment_id = ? AND user_id = ?`, action, commentID, userID)
-	return err == nil
-}
-
-func insertCommentReaction(commentID string, userID int, action string) error {
-	_, err := db.DB.Exec(`
-        INSERT INTO commentreaction (comment_id, user_id, action)
-        VALUES (?, ?, ?)`, commentID, userID, action)
-	return err
+	return nil
 }
 
 type Comtresp struct {

@@ -128,7 +128,7 @@ CREATE TABLE
     IF NOT EXISTS commentreaction (
         comment_id INTEGER NOT NULL,
         user_id INTEGER NOT NULL,
-        action TEXT NOT NULL CHECK (action IN ('like', 'dislike')),
+        action BOOLEAN NOT null,
         FOREIGN KEY (user_id) REFERENCES users (id),
         FOREIGN KEY (comment_id) REFERENCES comments (id),
         PRIMARY KEY (user_id, comment_id)

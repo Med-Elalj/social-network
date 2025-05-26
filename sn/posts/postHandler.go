@@ -2,6 +2,7 @@ package posts
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 
@@ -96,4 +97,33 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		"comments":   comments,
 		"isLoggedIn": isLoggedIn,
 	})
+}
+
+func checkPostReaction(postID string, userID int, action int) error {
+	if db.DB == nil {
+		log.Println("Database connection is nil!")
+		return errors.New("database connection is nil")
+	}
+	switch action {
+	case 1:
+		_, err := db.DB.Exec(`
+			INSERT INTO postreaction (post_id, user_id, action)
+			VALUES (?, ?, ?)
+			ON CONFLICT(user_id, post_id) DO UPDATE SET action = excluded.action;
+`, postID, userID, true)
+		return err
+	case 0:
+		_, err := db.DB.Exec(`
+			DELETE FROM postreaction
+			WHERE post_id = ? AND user_id = ?`, postID, userID)
+		return err
+	case -1:
+		_, err := db.DB.Exec(`
+	INSERT INTO postreaction (post_id, user_id, action)
+	VALUES (?, ?, ?)
+	ON CONFLICT(user_id, post_id) DO UPDATE SET action = excluded.action;
+`, postID, userID, false)
+		return err
+	}
+	return nil
 }

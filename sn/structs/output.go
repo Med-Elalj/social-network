@@ -24,9 +24,6 @@ func sanitizeSQLiteError(err error) error {
 			case sqlite3.ErrReadonly:
 				return errors.New("The database is in read-only mode. Changes are not allowed.")
 
-			case sqlite3.ErrNoMem:
-				return errors.New("The server is out of memory. Please try again later.")
-
 			case sqlite3.ErrCorrupt:
 				return errors.New("The database file is corrupted. Please contact support.")
 

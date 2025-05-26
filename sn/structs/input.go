@@ -1,7 +1,6 @@
 package structs
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"reflect"
@@ -23,6 +22,8 @@ type Password string
 
 type Birthdate time.Time
 
+type Gender int
+
 // User struct with custom types
 type Register struct {
 	UserName  Name      `json:"username"`
@@ -31,18 +32,12 @@ type Register struct {
 	Fname     Name      `json:"fname"`
 	Lname     Name      `json:"lname"`
 	Password  Password  `json:"password"`
-	// Username  string    `json:"username"`
-	// Email     string    `json:"email"`
-	// Age       string    `json:"age"`
-	// Gender    string    `json:"gender"`
-	// Avatar    string    `json:"avatar"`
-	// Aboutme   string    `json:"aboutme"`
-	// Status    string    `json:"status"`
+	Gender    Gender    `json:"gender"`
 }
 
 type Login struct {
-	Username Name
-	Password Name
+	NoE      Validator `json:"login"`
+	Password Password  `json:"pwd"`
 }
 
 // Input interface with IsValid method
@@ -50,22 +45,23 @@ type Input interface {
 	IsValid() error
 }
 
-// Name type implementing Input
-// type Name string
-var nameRegex = regexp.MustCompile(`[a-zA-Z_]{3,}$`)
+type NameOrEmail struct {
+	Validator
+}
+
+var nameRegex = regexp.MustCompile(`^[a-zA-Z_]{3,}$`)
 
 func (n Name) IsValid() error {
 	if len(n) == 0 {
 		return errors.New("cannot be empty")
+	} else if !nameRegex.MatchString(string(n)) {
+		return errors.New("invalid charachters used")
 	}
 	return nil
 }
 
-// Email type implementing Input
-// type Email string
-
 func (e Email) IsValid() error {
-	var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 
 	if emailRegex.MatchString(string(e)) {
 		return nil
@@ -74,10 +70,8 @@ func (e Email) IsValid() error {
 	}
 }
 
-// Birthdate type implementing Input
-// type Birthdate time.Time
-
 func (b Birthdate) IsValid() error {
+	// TODO: max age
 	t := time.Time(b)
 	if t.After(time.Now()) {
 		return errors.New("cannot be in the future")
@@ -85,13 +79,9 @@ func (b Birthdate) IsValid() error {
 	return nil
 }
 
-var passwordRegex = regexp.MustCompile(`^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$`)
-
 func (p Password) IsValid() error {
-	pass := string(p)
-
-	if !passwordRegex.MatchString(pass) {
-		return errors.New("password must be at least 8 characters long, and include at least one uppercase letter, one lowercase letter, and one number")
+	if len(string(p)) < 8 {
+		return errors.New("password must be at least 8 characters long")
 	}
 
 	return nil
@@ -144,22 +134,5 @@ func validateStruct(v any) error {
 		}
 	}
 
-	return nil
-}
-
-func (b *Birthdate) UnmarshalJSON(data []byte) error {
-	// Unmarshal as string
-	var raw string
-	if err := json.Unmarshal(data, &raw); err != nil {
-		return fmt.Errorf("invalid birthdate format: %w", err)
-	}
-
-	// Parse using expected format (customize if needed)
-	parsed, err := time.Parse("2006-01-02", raw)
-	if err != nil {
-		return fmt.Errorf("invalid birthdate format (expected YYYY-MM-DD): %w", err)
-	}
-
-	*b = Birthdate(parsed)
 	return nil
 }

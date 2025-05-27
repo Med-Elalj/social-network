@@ -92,8 +92,6 @@ CREATE TABLE "notifications" (
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP)
 );
 
-CREATE UNIQUE INDEX ON "users" ("first_name", "last_name");
-
 ALTER TABLE "posts" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
 ALTER TABLE "posts" ADD FOREIGN KEY ("group_id") REFERENCES "groups" ("id") ON DELETE CASCADE;

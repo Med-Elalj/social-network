@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var secretKey = LoadSecret()
+var secretKey string
 
 func CreateJwtPayload(id int, username string) JwtPayload {
 	iat := time.Now().Unix()
@@ -34,7 +34,7 @@ func Generate(payload JwtPayload) string {
 	encodedHeader := base64Encode(headerJSON)
 	encodedPayload := base64Encode(payloadJSON)
 
-	signature := signMessage(encodedHeader+"."+encodedPayload, secretKey)
+	signature := signMessage(encodedHeader + "." + encodedPayload)
 
 	return encodedHeader + "." + encodedPayload + "." + signature
 }
@@ -51,7 +51,7 @@ func JWTVerify(token string) (*JwtPayload, error) {
 		return nil, errors.New("invalid payload encoding")
 	}
 
-	if signMessage(parts[0]+"."+parts[1], secretKey) != parts[2] {
+	if signMessage(parts[0]+"."+parts[1]) != parts[2] {
 		return nil, errors.New("invalid signature")
 	}
 

@@ -3,9 +3,9 @@ package posts
 import (
 	"encoding/json"
 	"errors"
-	"log"
 	"net/http"
 
+	"social-network/server/logs"
 	"social-network/sn/db"
 	"social-network/sn/handlers"
 	"social-network/sn/structs"
@@ -56,13 +56,13 @@ func commentdata(postID string) ([]comnt, error) {
 	for rows.Next() {
 		var comment comnt
 		if err := rows.Scan(&comment.ID, &comment.Content, &comment.CreatedAt, &comment.Username); err != nil {
-			log.Println("Error scanning comment:", err)
+			logs.Println("Error scanning comment:", err)
 			continue
 		}
 		com = append(com, comment)
 	}
 	if err := rows.Err(); err != nil {
-		log.Println("error iterating over rows:", err)
+		logs.Println("error iterating over rows:", err)
 		return nil, err
 	}
 	return com, nil
@@ -101,7 +101,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 func checkPostReaction(postID string, userID int, action int) error {
 	if db.DB == nil {
-		log.Println("Database connection is nil!")
+		logs.Println("Database connection is nil!")
 		return errors.New("database connection is nil")
 	}
 	switch action {

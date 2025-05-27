@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
+	logs "social-network/server/logs"
 	"social-network/sn"
 	"social-network/sn/hub"
 
@@ -14,6 +14,8 @@ import (
 var mux = sn.SetupMux(hub.HUB)
 
 func main() {
+	logs.InitFiles()
+	SetTables()
 	fmt.Println("Server is running at https://localhost:8080")
-	log.Fatal(http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", mux))
+	logs.Fatal(http.ListenAndServeTLS(":8080", "server/private/cert.pem", "server/private/key.pem", mux))
 }

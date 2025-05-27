@@ -6,14 +6,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"time"
+
+	"social-network/server/logs"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (b *Birthdate) UnmarshalJSON(data []byte) error {
 	// Unmarshal as string
 	var raw string
-	log.Println("Unmarshalling Birthdate:", string(data))
+	logs.Println("Unmarshalling Birthdate:", string(data))
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return fmt.Errorf("invalid birthdate format: %w", err)
 	}
@@ -34,7 +37,7 @@ func (b *Birthdate) UnmarshalJSON(data []byte) error {
 func (g *Gender) UnmarshalJSON(data []byte) error {
 	// Unmarshal as string
 	var raw string
-	log.Println("Unmarshalling Gender:", string(data))
+	logs.Println("Unmarshalling Gender:", string(data))
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return fmt.Errorf("invalid gender format: %w", err)
 	}
@@ -133,4 +136,13 @@ func (b *Birthdate) Scan(value interface{}) error {
 	default:
 		return fmt.Errorf("cannot scan %T into Birthdate", value)
 	}
+}
+
+func (p Password) Hash() {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
+	if err != nil {
+		logs.Fatalln(err.Error())
+		return
+	}
+	p = Password(bytes)
 }

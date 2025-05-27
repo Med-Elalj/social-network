@@ -2,7 +2,7 @@ package routes__test
 
 import "net/http"
 
-var tests = []struct {
+type endPointTest struct {
 	name     string
 	method   string
 	path     string
@@ -13,7 +13,9 @@ var tests = []struct {
 	eHeaders kvp
 	eBody    string
 	dbres    []string
-}{
+}
+
+var tests = []endPointTest{
 	// {"TEST NAME   ",
 	// 	"METHOD", "/URL/PATH&querry=value", []kvp{{"Header Name": "Header Value"}}, kvp{"Cookie Name": "Cookie Value"},`Request Body`,
 	// 	http.ExpectedStatus, []kvp{{"Expected Header Name": "Expected Header Value"}}, `Expected Body`} ,
@@ -29,82 +31,84 @@ var tests = []struct {
 		`hello world`,
 		nil,
 	},
+	// TODO: CHANGE AUTH COOKIE to JWT
+	// {
+	// 	"Isloged in false no uId  ",
+	// 	"POST", "/api/v1/auth",
+	// 	kvp{},
+	// 	kvp{},
+	// 	``,
+	// 	http.StatusUnauthorized,
+	// 	kvp{"Content-Type": "application/json"},
+	// 	`{"isLoggedIn":false}` + "\n",
+	// 	nil,
+	// },
 
-	{
-		"Isloged in false no uId  ",
-		"POST", "/api/v1/auth",
-		kvp{},
-		kvp{},
-		``,
-		http.StatusUnauthorized,
-		kvp{"Content-Type": "application/json"},
-		`{"isLoggedIn":false}` + "\n",
-		nil,
-	},
+	// {
+	// 	"Isloged in false bad cookie name ",
+	// 	"POST", "/api/v1/auth",
+	// 	kvp{},
+	// 	kvp{"userid": "6352337196a2449cb772b524818bea36"},
+	// 	``,
+	// 	http.StatusUnauthorized,
+	// 	kvp{"Content-Type": "application/json"},
+	// 	`{"isLoggedIn":false}` + "\n",
+	// 	nil,
+	// },
 
-	{
-		"Isloged in false bad cookie name ",
-		"POST", "/api/v1/auth",
-		kvp{},
-		kvp{"userid": "6352337196a2449cb772b524818bea36"},
-		``,
-		http.StatusUnauthorized,
-		kvp{"Content-Type": "application/json"},
-		`{"isLoggedIn":false}` + "\n",
-		nil,
-	},
+	// {
+	// 	"Isloged in false no uid value ",
+	// 	"POST", "/api/v1/auth",
+	// 	kvp{},
+	// 	kvp{"userId": ""},
+	// 	``,
+	// 	http.StatusUnauthorized,
+	// 	kvp{"Content-Type": "application/json"},
+	// 	`{"isLoggedIn":false}` + "\n",
+	// 	nil,
+	// },
 
-	{
-		"Isloged in false no uid value ",
-		"POST", "/api/v1/auth",
-		kvp{},
-		kvp{"userId": ""},
-		``,
-		http.StatusUnauthorized,
-		kvp{"Content-Type": "application/json"},
-		`{"isLoggedIn":false}` + "\n",
-		nil,
-	},
+	// {
+	// 	"Isloged in false bad uid value ",
+	// 	"POST", "/api/v1/auth",
+	// 	kvp{},
+	// 	kvp{"userId": "6352337196a2449cb772b524818bea37"},
+	// 	``,
+	// 	http.StatusUnauthorized,
+	// 	kvp{"Content-Type": "application/json"},
+	// 	`{"isLoggedIn":false}` + "\n",
+	// 	nil,
+	// },
 
-	{
-		"Isloged in false bad uid value ",
-		"POST", "/api/v1/auth",
-		kvp{},
-		kvp{"userId": "6352337196a2449cb772b524818bea37"},
-		``,
-		http.StatusUnauthorized,
-		kvp{"Content-Type": "application/json"},
-		`{"isLoggedIn":false}` + "\n",
-		nil,
-	},
+	// {
+	// 	"Isloged in true   ",
+	// 	"POST", "/api/v1/auth",
+	// 	kvp{},
+	// 	kvp{"userId": "6352337196a2449cb772b524818bea36"},
+	// 	``,
+	// 	http.StatusOK,
+	// 	kvp{"Content-Type": "application/json"},
+	// 	`{"isLoggedIn":true}` + "\n",
+	// 	nil,
+	// },
 
-	{
-		"Isloged in true   ",
-		"POST", "/api/v1/auth",
-		kvp{},
-		kvp{"userId": "6352337196a2449cb772b524818bea36"},
-		``,
-		http.StatusOK,
-		kvp{"Content-Type": "application/json"},
-		`{"isLoggedIn":true}` + "\n",
-		nil,
-	},
+	// {
+	// 	"RegisterHandler bad allready logged in  ",
+	// 	"POST", "/api/v1/auth/register",
+	// 	kvp{},
+	// 	kvp{"userId": "6352337196a2449cb772b524818bea36"},
+	// 	`{
+	// 		"username" : "","email" : "","password" : "","age" : "","gender" : "",
+	// 		"fname" : "","lname" : "","birthdate" : "","avatar" : "",
+	// 		"aboutme" : "","status" : ""
+	// 		}`,
+	// 	http.StatusForbidden,
+	// 	kvp{"Content-Type": "application/json"},
+	// 	`{"error": "Already logged in"}`,
+	// 	nil,
+	// },
+	// TODO: CHANGE AUTH COOKIE to JWT
 
-	{
-		"RegisterHandler bad allready logged in  ",
-		"POST", "/api/v1/auth/register",
-		kvp{},
-		kvp{"userId": "6352337196a2449cb772b524818bea36"},
-		`{
-			"username" : "","email" : "","password" : "","age" : "","gender" : "",
-			"fname" : "","lname" : "","birthdate" : "","avatar" : "",
-			"aboutme" : "","status" : ""
-			}`,
-		http.StatusForbidden,
-		kvp{"Content-Type": "application/json"},
-		`{"error": "Already logged in"}`,
-		nil,
-	},
 	{
 		"RegisterHandler bad empty body ",
 		"POST", "/api/v1/auth/register",
@@ -191,14 +195,25 @@ var tests = []struct {
 		},
 	},
 	{
-		"RegisterHandler bad all ready exist ",
+		"RegisterHandler bad all ready exist 1",
 		"POST", "/api/v1/auth/register",
 		kvp{},
 		kvp{},
 		`{"username": "User_Name","email": "example@web.site","birthdate": "2001-11-09","fname": "Firstname", "lname": "LastName", "password": "password", "gender": "DFK"}`,
-		http.StatusInternalServerError,
+		http.StatusConflict,
 		kvp{"Content-Type": "application/json"},
-		`{"error": "sorry couldn't register your information please try aggain later"}`,
+		`{"error": "sorry email already exists"}`,
+		nil,
+	},
+	{
+		"RegisterHandler bad all ready exist 2",
+		"POST", "/api/v1/auth/register",
+		kvp{},
+		kvp{},
+		`{"username": "User_Name","email": "email@web.site","birthdate": "2001-11-09","fname": "Firstname", "lname": "LastName", "password": "password", "gender": "DFK"}`,
+		http.StatusConflict,
+		kvp{"Content-Type": "application/json"},
+		`{"error": "sorry username already exists"}`,
 		nil,
 	},
 }

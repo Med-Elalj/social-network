@@ -3,12 +3,12 @@ package ws
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
 
+	"social-network/server/logs"
 	"social-network/sn/db"
 
 	"github.com/gorilla/websocket"
@@ -155,7 +155,7 @@ func (h *Hub) getOnlineUsersJSON() string {
 func (h *Hub) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("WebSocket upgrade error:", err)
+		logs.Println("WebSocket upgrade error:", err)
 		return
 	}
 
@@ -199,7 +199,7 @@ func (c *Client) writePump() {
 				return
 			}
 			if err := c.conn.WriteMessage(websocket.TextMessage, message); err != nil {
-				log.Println("WebSocket write error:", err)
+				logs.Println("WebSocket write error:", err)
 				return
 			}
 		}
@@ -216,7 +216,7 @@ func (c *Client) readPump(h *Hub) {
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("WebSocket error: %v", err)
+				logs.Printf("WebSocket error: %v", err)
 			}
 			break
 		}
@@ -266,7 +266,7 @@ func (h *Hub) handlePrivateMessage(msg Message) {
 	_, err := db.DB.Exec("INSERT INTO messages (sender_id, receiver_id, content) VALUES ((SELECT id FROM users WHERE username = ?), (SELECT id FROM users WHERE username = ?), ?)",
 		msg.Sender, msg.Receiver, msg.Content)
 	if err != nil {
-		log.Println("Error saving message:", err)
+		logs.Println("Error saving message:", err)
 		return
 	}
 
@@ -299,12 +299,12 @@ func (h *Hub) sendChatHistory(client *Client, otherUser string, offset, limit in
 	var clientID, otherUserID int
 	err := db.DB.QueryRow("SELECT id FROM users WHERE username = ?", client.nm).Scan(&clientID)
 	if err != nil {
-		log.Println("Error fetching client ID:", err)
+		logs.Println("Error fetching client ID:", err)
 		return
 	}
 	err = db.DB.QueryRow("SELECT id FROM users WHERE username = ?", otherUser).Scan(&otherUserID)
 	if err != nil {
-		log.Println("Error fetching other user ID:", err)
+		logs.Println("Error fetching other user ID:", err)
 		return
 	}
 
@@ -318,7 +318,7 @@ func (h *Hub) sendChatHistory(client *Client, otherUser string, offset, limit in
         LIMIT ? OFFSET ?`,
 		clientID, otherUserID, otherUserID, clientID, limit, offset)
 	if err != nil {
-		log.Println("Error fetching chat history:", err)
+		logs.Println("Error fetching chat history:", err)
 		return
 	}
 	defer rows.Close()
@@ -327,7 +327,7 @@ func (h *Hub) sendChatHistory(client *Client, otherUser string, offset, limit in
 	for rows.Next() {
 		var msg ChatMessage
 		if err := rows.Scan(&msg.ID, &msg.Content, &msg.CreatedAt, &msg.Sender); err != nil {
-			log.Println("Error scanning message:", err)
+			logs.Println("Error scanning message:", err)
 			continue
 		}
 		messages = append(messages, msg)
@@ -340,10 +340,10 @@ func (h *Hub) sendChatHistory(client *Client, otherUser string, offset, limit in
 
 	historyJSON, err := json.Marshal(messages)
 	if err != nil {
-		log.Println("Error marshaling history:", err)
+		logs.Println("Error marshaling history:", err)
 		return
 	}
-	// log.Println("Sending history:", len(messages), "messages")
+	// logs.Println("Sending history:", len(messages), "messages")
 	// fmt.Println(string(historyJSON))
 	client.send <- []byte(fmt.Sprintf(`{
         "type": "chat_history",

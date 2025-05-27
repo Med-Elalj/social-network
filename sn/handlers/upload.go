@@ -3,11 +3,11 @@ package handlers
 import (
 	"encoding/json"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 
+	"social-network/server/logs"
 	"social-network/sn/db"
 	"social-network/sn/structs"
 )
@@ -74,7 +74,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 	`)
 	if err != nil {
 		http.Error(w, `{"error": "Something went wrong"}`, http.StatusInternalServerError)
-		log.Println("Error fetching posts:", err)
+		logs.Println("Error fetching posts:", err)
 		return
 	}
 	defer rows.Close()
@@ -82,7 +82,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var post structs.Post
 		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.Username, &post.Categories, &post.CommentCount); err != nil {
-			log.Println("Error scanning post:", err)
+			logs.Println("Error scanning post:", err)
 			continue
 		}
 		// fmt.Println(post.Categories)
@@ -90,7 +90,7 @@ func PostsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// fmt.Println(posts)
 	if err := rows.Err(); err != nil {
-		log.Println("Error iterating over rows:", err)
+		logs.Println("Error iterating over rows:", err)
 		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
 		return
 	}

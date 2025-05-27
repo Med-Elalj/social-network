@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"social-network/server/logs"
 	"social-network/sn"
 	"social-network/sn/db"
 	"social-network/sn/ws"
@@ -22,7 +23,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("Error opening database: %v", err)
 	}
-	sqlContent, err := os.ReadFile("./fake_db.sql")
+	sqlContent, err := os.ReadFile("test/main.sql")
 	if err != nil {
 		t.Fatalf("Error reading SQL file: %v", err)
 	}
@@ -43,6 +44,11 @@ func setupTestDB(t *testing.T) *sql.DB {
 type kvp map[string]string
 
 func TestUserHandler(t *testing.T) {
+	err := os.Chdir("..")
+	if err != nil {
+		panic(err)
+	}
+	logs.InitFiles()
 	setupTestDB(t)
 	dummyHub := &ws.Hub{}
 	mux := sn.SetupMux(dummyHub)

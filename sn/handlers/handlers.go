@@ -7,13 +7,14 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"social-network/server/logs"
+	"social-network/sn/auth/jwt"
 	"social-network/sn/db"
 	"social-network/sn/hub"
 	"social-network/sn/structs"
@@ -41,30 +42,19 @@ func getPosts() (*sql.Rows, error) {
     ORDER BY posts.created_at DESC;
 	`)
 	if err != nil {
-		log.Printf("Error fetching posts: %v", err)
+		logs.Printf("Error fetching posts: %v", err)
 		return nil, err
 	}
 	return rows, nil
 }
 
 func Loggedin(w http.ResponseWriter, r *http.Request) bool {
-	if db.DB == nil {
-		log.Fatal("Database connection is nil!")
-		return false
-	}
-	cookie, err := r.Cookie("userId")
-	if err != nil || cookie == nil || cookie.Value == "" {
-		return false
-	}
-
-	// Just check if session exists, don't trigger logout
-	var exists bool
-	err = db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE uuid = ?)", cookie.Value).Scan(&exists)
+	cookie, err := r.Cookie("jwt")
 	if err != nil {
-		log.Println("Error checking session:", err)
 		return false
 	}
-	return exists
+	_, err = jwt.JWTVerify(cookie.Value)
+	return err == nil
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +101,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
     `)
 	if err != nil {
 		http.Error(w, `{"error": "Unable to fetch categories"}`, http.StatusInternalServerError)
-		log.Println("Error fetching categories:", err)
+		logs.Println("Error fetching categories:", err)
 		return
 	}
 	defer rows.Close()
@@ -205,7 +195,7 @@ func Getusername(id int) (string, error) {
 
 func checkPostReaction(postID string, userID int, action int) error {
 	if db.DB == nil {
-		log.Println("Database connection is nil!")
+		logs.Println("Database connection is nil!")
 		return errors.New("database connection is nil")
 	}
 	switch action {
@@ -346,13 +336,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Println("Error reading request body:", err)
+		logs.Println("Error reading request body:", err)
 		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 		return
 	}
-	// log.Println("Request body:", string(body), body)
+
 	if len(body) == 0 {
-		// w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, `{"error": "Request body cannot be empty"}`)
 		return
@@ -361,38 +350,44 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user structs.Register
 
 	if err := structs.JsonRestrictedDecoder(body, &user); err != nil {
-		// w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, `{"error": %q}`, err.Error())
 		return
 	}
-	// fmt.Println(user)
 	// Validate input
 
 	if err := user.Validate(); err != nil {
-		log.Println("Validation failed for user input")
+		logs.Println("Validation failed for user input")
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, `{"error": %q}`, err.Error())
 		return
 	}
 
 	// TODO hash password
+	user.Password.Hash()
 	n, err := db.DB.Exec(`
     INSERT INTO users (
         username, email, birthdate, password, gender, fname, lname
     ) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
 		user.UserName, user.Email, user.Birthdate, user.Password, user.Gender, user.Fname, user.Lname)
 	if err != nil {
-		log.Println("Error inserting user into database:", err)
+		logs.Println("Error inserting user into database:", err)
+		if structs.SqlConstraint(&err) {
+			w.WriteHeader(http.StatusConflict)
+			fmt.Fprintf(w, `{"error": %q}`, err.Error())
+			return
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprint(w, `{"error": "sorry couldn't register your information please try aggain later"}`)
+			return
+		}
+	}
+	id, err := n.LastInsertId()
+	if err != nil || id == 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, `{"error": "sorry couldn't register your information please try aggain later"}`)
 		return
 	}
-	fmt.Print('n')
-	fmt.Print(n.LastInsertId())
-	fmt.Print(n.RowsAffected())
-	fmt.Println("")
-
 	fmt.Fprintf(w, `{"message":"User registered successfully"}`)
 	w.WriteHeader(http.StatusOK)
 }
@@ -549,7 +544,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var pos structs.Post
 		if err := rows.Scan(&pos.ID, &pos.Title); err != nil {
-			log.Println("Error scanning post:", err)
+			logs.Println("Error scanning post:", err)
 			continue
 		}
 		posts = append(posts, pos)
@@ -787,7 +782,7 @@ func CategoryPostsHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var post structs.Post
 		if err := rows.Scan(&post.ID, &post.Title, &post.CreatedAt, &post.Username, &post.CommentCount); err != nil {
-			log.Println("Error scanning post:", err)
+			logs.Println("Error scanning post:", err)
 			continue
 		}
 		posts = append(posts, post)
@@ -883,7 +878,7 @@ func ConversationsHandler(w http.ResponseWriter, r *http.Request) {
 		var lastMsgContent sql.NullString
 
 		if err := rows.Scan(&conv.User, &lastMsgTime, &conv.Unread, &lastMsgContent); err != nil {
-			log.Printf("Error scanning conversation row: %v", err)
+			logs.Printf("Error scanning conversation row: %v", err)
 			continue
 		}
 		if lastMsgContent.Valid {
@@ -900,7 +895,7 @@ func ConversationsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(retrn); err != nil {
-		log.Printf("Error encoding response: %v", err)
+		logs.Printf("Error encoding response: %v", err)
 	}
 }
 

@@ -4,18 +4,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 
+	"social-network/server/logs"
 	"social-network/sn/db"
 	"social-network/sn/handlers"
 )
 
 func checkCommentReaction(commentID string, userID int, action int) error {
 	if db.DB == nil {
-		log.Println("Database connection is nil!")
+		logs.Println("Database connection is nil!")
 		return errors.New("database connection is nil")
 	}
 	switch action {

@@ -2,48 +2,50 @@ package main
 
 import (
 	"database/sql"
-	"log"
 	"os"
+
+	"social-network/server/logs"
 )
 
 var db *sql.DB
 
-func init() {
-	// // Open log files
-	// logFile, err := os.OpenFile("./ServerLogs/app.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o664)
-	// if err != nil {
-	// 	log.Fatalf("Failed to open app log file: %v", err)
-	// }
+// func init() {
+// 	// // Open logs. files
+// 	// logs.File, err := os.OpenFile("./Serverlogs.s/app.logs.", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o664)
+// 	// if err != nil {
+// 	// 	logs..Fatalf("Failed to open app logs. file: %v", err)
+// 	// }
 
-	// errorFile, err := os.OpenFile("./ServerLogs/error.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o664)
-	// if err != nil {
-	// 	log.Fatalf("Failed to open error log file: %v", err)
-	// }
+// 	// errorFile, err := os.OpenFile("./Serverlogs.s/error.logs.", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o664)
+// 	// if err != nil {
+// 	// 	logs..Fatalf("Failed to open error logs. file: %v", err)
+// 	// }
 
-	// // Setup loggers
-	// helpers.InfoLog = log.New(logFile, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	// helpers.ErrorLog = log.New(errorFile, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+// 	// // Setup logs.gers
+// 	// helpers.Infologs. = logs..New(logs.File, "INFO: ", logs..Ldate|logs..Ltime|logs..Lshortfile)
+// 	// helpers.Errorlogs. = logs..New(errorFile, "ERROR: ", logs..Ldate|logs..Ltime|logs..Lshortfile)
 
-	// // Set default log output for Fatal logs
-	// log.SetOutput(errorFile)
-	db = SetTables()
-}
+// 	// // Set default logs. output for Fatal logs.s
+// 	// logs..SetOutput(errorFile)
+// 	db = SetTables()
+// }
 
 func SetTables() *sql.DB {
-	db, err := sql.Open("sqlite3", "./DataBase/SN.db")
+	dB, err := sql.Open("sqlite3", "server/db/main.db")
 	if err != nil {
-		log.Fatalf("Error opening database: %v", err)
+		logs.Fatalf("Error opening database: %v", err)
 	}
 
-	sqlContent, err := os.ReadFile("./DataBase/db.DB.sql")
+	sqlContent, err := os.ReadFile("./server/sql/db.sql")
 	if err != nil {
-		log.Fatalf("Error reading SQL file: %v", err)
+		logs.Fatalf("Error reading SQL file: %v", err)
 	}
 
-	_, err = db.Exec(string(sqlContent))
+	_, err = dB.Exec(string(sqlContent))
 	if err != nil {
-		log.Fatalf("Error executing SQL: %v", err)
+		logs.Fatalf("Error executing SQL: %v", err)
 	}
-	log.Println("Database successfully created!")
-	return db
+	logs.Println("Database successfully created!")
+	db = dB
+	return dB
 }

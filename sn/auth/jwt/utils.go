@@ -5,10 +5,11 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"log"
 	"os"
 	"strings"
 	"time"
+
+	"social-network/server/logs"
 )
 
 var Time_to_Expire = time.Hour * 6
@@ -22,9 +23,9 @@ type JwtPayload struct {
 
 // LoadSecret manually reads the .env file and retrieves JWT_SECRET_KEY
 func LoadSecret() string {
-	file, err := os.Open("private/.env")
+	file, err := os.Open("server/private/.env")
 	if err != nil {
-		log.Fatal("Error loading private/.env file")
+		logs.Fatal("Error loading private/.env file", err)
 	}
 	defer file.Close()
 
@@ -36,7 +37,7 @@ func LoadSecret() string {
 		}
 	}
 
-	log.Fatal("JWT_SECRET_KEY not found in private/.env file")
+	logs.Fatal("JWT_SECRET_KEY not found in private/.env file")
 	return ""
 }
 
@@ -50,8 +51,14 @@ func base64Decode(encoded string) ([]byte, error) {
 	return base64.RawURLEncoding.DecodeString(encoded)
 }
 
-func signMessage(message, secret string) string {
-	h := hmac.New(sha256.New, []byte(secret))
+func signMessage(message string) string {
+	if secretKey == "" {
+		secretKey = LoadSecret()
+		if secretKey == "" {
+			logs.Fatal("JWT_SECRET_KEY is not set")
+		}
+	}
+	h := hmac.New(sha256.New, []byte(secretKey))
 	h.Write([]byte(message))
 	signature := h.Sum(nil)
 	return base64Encode(signature)

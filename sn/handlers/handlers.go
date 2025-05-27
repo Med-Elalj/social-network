@@ -328,12 +328,7 @@ func AddPostHandler(w http.ResponseWriter, r *http.Request) {
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
-	if Loggedin(w, r) {
-		w.WriteHeader(http.StatusForbidden)
-		w.Write([]byte(`{"error": "Already logged in"}`))
-		return
-	}
-
+	// TODO: ADD middle ware to check if the user is already logged in
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		logs.Println("Error reading request body:", err)

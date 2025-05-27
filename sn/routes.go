@@ -1,7 +1,10 @@
 package sn
 
 import (
+	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 
 	"social-network/sn/comments"
 	"social-network/sn/handlers"
@@ -16,8 +19,15 @@ var (
 
 func SetupMux(hub *ws.Hub) *http.ServeMux {
 	mux.Handle("/front_end/", http.StripPrefix("/front_end/", http.HandlerFunc(noNavigation)))
+	// TODO fix this
+	reactURL, _ := url.Parse("http://localhost:3000")
+	proxy := httputil.NewSingleHostReverseProxy(reactURL)
 
-	mux.Handle("/", http.FileServer(http.Dir("front-end/"))) // handlers.HomeHandler)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Received request for:", r.URL.Path)
+		proxy.ServeHTTP(w, r)
+	})
+	// mux.Handle("/", http.FileServer(http.Dir("./react-front/build"))) // handlers.HomeHandler)
 	mux.HandleFunc("/api/v1/mark-read", handlers.MarkReadHandler)
 	mux.HandleFunc("/api/v1/ws", hub.HandleWebSocket)
 

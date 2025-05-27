@@ -102,7 +102,8 @@ func JsonRestrictedDecoder(data []byte, destination interface{}) error {
 func (b Birthdate) Value() (driver.Value, error) {
 	t := time.Time(b)
 	if t.IsZero() {
-		return nil, nil
+		logs.Fatal("Birthdate is zero value, cannot store in DB")
+		return nil, errors.New("birthdate is zero value, cannot store in DB")
 	}
 	return t.Format("2006-01-02"), nil // Store date only, no time
 }

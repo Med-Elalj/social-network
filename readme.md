@@ -36,3 +36,11 @@ go run .
 ```
 https://localhost:8080
 ```
+
+### REACT NEEDS SEPERATE TERMAL TO RUN OR RUN IT IN BACK GROUND
+```React
+npx create-react-app react-front
+cd react-front
+npm start
+
+```

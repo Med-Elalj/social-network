@@ -1,3 +1,4 @@
 server/private/*
 server/db/*
 server/logs/*.log
+react-front/*

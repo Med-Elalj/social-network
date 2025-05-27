@@ -58,9 +58,9 @@ func Loggedin(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	// http.ServeFile(w, r, "templates/inde.html") TODO: fix
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("hello world"))
+	// http.ServeFile(w, r, ) // TODO: fix
+	// w.WriteHeader(http.StatusOK)
+	// w.Write([]byte("hello world"))
 }
 
 func Islogged(w http.ResponseWriter, r *http.Request) {
@@ -382,14 +382,16 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	logs.Println("User inserted into database successfully:", user.UserName)
 	id, err := n.LastInsertId()
+	logs.Println("User registered successfully with ID:", id)
 	if err != nil || id == 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, `{"error": "sorry couldn't register your information please try aggain later"}`)
 		return
 	}
-	fmt.Fprintf(w, `{"message":"User registered successfully"}`)
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `{"message":"User registered successfully"}`)
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {

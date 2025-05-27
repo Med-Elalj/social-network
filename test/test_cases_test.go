@@ -190,8 +190,8 @@ var tests = []endPointTest{
 		kvp{"Content-Type": "application/json"},
 		`{"message":"User registered successfully"}`,
 		[]string{
-			"select username, email, birthdate, password, gender, fname, lname from users where username = 'User_Name';",
-			"username=User_Name, email=example@web.site, birthdate=2001-11-09 00:00:00 +0000 UTC, password=password, gender=2, fname=Firstname, lname=LastName",
+			"select username, email, birthdate, gender, fname, lname from users where username = 'User_Name';",
+			"username=User_Name, email=example@web.site, birthdate=2001-11-09 00:00:00 +0000 UTC, gender=2, fname=Firstname, lname=LastName",
 		},
 	},
 	{

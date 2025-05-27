@@ -138,11 +138,35 @@ func (b *Birthdate) Scan(value interface{}) error {
 	}
 }
 
-func (p Password) Hash() {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
+func (p *Password) Hash() {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(*p), bcrypt.DefaultCost)
 	if err != nil {
 		logs.Fatalln(err.Error())
 		return
 	}
-	p = Password(bytes)
+	logs.Printf("Hashing password:%q\ngot: %q", *p, Password(bytes))
+	*p = Password(bytes)
+}
+
+func (p Password) Verify(password []byte) bool {
+	logs.Printf("Verifying password: %q against hash: %q", string(password), string(p))
+	if _, err := bcrypt.Cost([]byte(p)); err != nil {
+		err := bcrypt.CompareHashAndPassword([]byte(p), password)
+		if err != nil {
+			logs.Println("Password comparison failed:", err)
+			return false
+		}
+		logs.Println("Password comparison succeeded")
+	} else if _, err := bcrypt.Cost([]byte(password)); err != nil {
+		err := bcrypt.CompareHashAndPassword([]byte(password), []byte(p))
+		if err != nil {
+			logs.Println("Password comparison failed:", err)
+			return false
+		}
+		logs.Println("Password comparison succeeded")
+	} else {
+		logs.Println("Password comparison failed: invalid hash or password format")
+		return false
+	}
+	return true
 }

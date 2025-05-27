@@ -2,7 +2,6 @@ package sn
 
 import (
 	"net/http"
-	"slices"
 
 	"social-network/sn/comments"
 	"social-network/sn/handlers"
@@ -12,13 +11,13 @@ import (
 
 var (
 	mux   = http.NewServeMux()
-	files = http.Dir("front-end/")
+	files = http.Dir("front_end/")
 )
 
 func SetupMux(hub *ws.Hub) *http.ServeMux {
-	mux.Handle("/files/", http.StripPrefix("/files/", http.HandlerFunc(noNavigation)))
+	mux.Handle("/front_end/", http.StripPrefix("/front_end/", http.HandlerFunc(noNavigation)))
 
-	mux.HandleFunc("/", handlers.HomeHandler)
+	mux.Handle("/", http.FileServer(http.Dir("front-end/"))) // handlers.HomeHandler)
 	mux.HandleFunc("/api/v1/mark-read", handlers.MarkReadHandler)
 	mux.HandleFunc("/api/v1/ws", hub.HandleWebSocket)
 
@@ -42,12 +41,13 @@ var paths = []string{
 }
 
 func noNavigation(w http.ResponseWriter, r *http.Request) {
-	if slices.Contains(paths, r.URL.Path) {
-		http.FileServer(files).ServeHTTP(w, r)
-		return
-	}
-	// TODO: page
-	http.NotFound(w, r)
+	http.FileServer(files).ServeHTTP(w, r)
+	// if slices.Contains(paths, r.URL.Path) {
+	// 	return
+	// }
+	// // TODO: page
+	// w.Write([]byte("This is a static file server. No navigation allowed.\n"))
+	// http.NotFound(w, r)
 }
 
 func getRouter(w http.ResponseWriter, r *http.Request) {

@@ -6,10 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"social-network/server/logs"
-	"social-network/sn/db"
-	"social-network/sn/structs"
 )
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -54,49 +50,4 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func PostsHandler(w http.ResponseWriter, r *http.Request) {
-	isLoggedIn := Loggedin(w, r)
-	rows, err := db.DB.Query(`
-		SELECT p.id, p.title, p.content, p.created_at, u.username,
-		GROUP_CONCAT(category.name, ', ') AS categories,
-		COALESCE(comment.comment_count, 0) AS comment
-		FROM posts p
-		INNER JOIN users u ON p.id_users = u.id
-		INNER JOIN post_category ON p.id = post_category.post_id
-    	INNER JOIN category ON post_category.catego_id = category.id
-		    LEFT JOIN (
-		select post_id, count(*) as comment_count
-		from comments
-		GROUP by post_id
-		) as comment on comment.post_id = p.id
-		GROUP BY p.id
-		ORDER BY p.created_at DESC;
-	`)
-	if err != nil {
-		http.Error(w, `{"error": "Something went wrong"}`, http.StatusInternalServerError)
-		logs.Println("Error fetching posts:", err)
-		return
-	}
-	defer rows.Close()
-	var posts []structs.Post
-	for rows.Next() {
-		var post structs.Post
-		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.CreatedAt, &post.Username, &post.Categories, &post.CommentCount); err != nil {
-			logs.Println("Error scanning post:", err)
-			continue
-		}
-		// fmt.Println(post.Categories)
-		posts = append(posts, post)
-	}
-	// fmt.Println(posts)
-	if err := rows.Err(); err != nil {
-		logs.Println("Error iterating over rows:", err)
-		http.Error(w, `{"error": "Internal Server Error"}`, http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"posts":      posts,
-		"isLoggedIn": isLoggedIn,
-	})
-}
+// TODO POST HANDLER

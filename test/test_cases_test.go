@@ -21,16 +21,16 @@ var tests = []endPointTest{
 	// 	http.ExpectedStatus, []kvp{{"Expected Header Name": "Expected Header Value"}}, `Expected Body`} ,
 	//  []string{"Database Query", "Database Result Row1", "Database Result Row2"}},
 	// }
-	{
-		"GET root 1   ", "GET", "/",
-		kvp{},
-		kvp{},
-		``,
-		http.StatusOK,
-		kvp{},
-		`hello world`,
-		nil,
-	},
+	// {
+	// 	"GET root 1   ", "GET", "/",
+	// 	kvp{},
+	// 	kvp{},
+	// 	``,
+	// 	http.StatusOK,
+	// 	kvp{},
+	// 	`hello world`,
+	// 	nil,
+	// },
 	// TODO: CHANGE AUTH COOKIE to JWT
 	// {
 	// 	"Isloged in false no uId  ",

@@ -12,7 +12,6 @@ import (
 	"social-network/server/logs"
 	"social-network/sn"
 	"social-network/sn/db"
-	"social-network/sn/ws"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -23,7 +22,7 @@ func setupTestDB(t *testing.T) *sql.DB {
 	if err != nil {
 		t.Fatalf("Error opening database: %v", err)
 	}
-	sqlContent, err := os.ReadFile("test/main.sql")
+	sqlContent, err := os.ReadFile("server/sql/db.sql")
 	if err != nil {
 		t.Fatalf("Error reading SQL file: %v", err)
 	}
@@ -50,8 +49,7 @@ func TestUserHandler(t *testing.T) {
 	}
 	logs.InitFiles()
 	setupTestDB(t)
-	dummyHub := &ws.Hub{}
-	mux := sn.SetupMux(dummyHub)
+	mux := sn.SetupMux()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

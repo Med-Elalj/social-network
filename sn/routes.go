@@ -1,93 +1,31 @@
 package sn
 
 import (
-	"fmt"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 
-	"social-network/sn/comments"
+	"social-network/sn/auth/middleware"
 	"social-network/sn/handlers"
-	"social-network/sn/posts"
-	"social-network/sn/ws"
 )
 
-var (
-	mux   = http.NewServeMux()
-	files = http.Dir("front_end/")
-)
+var mux = http.NewServeMux()
 
-func SetupMux(hub *ws.Hub) *http.ServeMux {
-	mux.Handle("/front_end/", http.StripPrefix("/front_end/", http.HandlerFunc(noNavigation)))
+func SetupMux() *http.ServeMux {
 	// TODO fix this
-	reactURL, _ := url.Parse("http://localhost:3000")
-	proxy := httputil.NewSingleHostReverseProxy(reactURL)
+	mux.HandleFunc("/", IndexHandler)
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("Received request for:", r.URL.Path)
-		proxy.ServeHTTP(w, r)
-	})
-	// mux.Handle("/", http.FileServer(http.Dir("./react-front/build"))) // handlers.HomeHandler)
-	mux.HandleFunc("/api/v1/mark-read", handlers.MarkReadHandler)
-	mux.HandleFunc("/api/v1/ws", hub.HandleWebSocket)
+	// TODO IMPLEMENT
+	// mux.HandleFunc("/api/v1/mark-read", handlers.MarkReadHandler)
 
-	mux.HandleFunc("/api/v1/auth", handlers.Islogged)
+	// TODO IMPLEMENT
+	// mux.HandleFunc("/api/v1/auth", handlers.Islogged)
 	mux.HandleFunc("/api/v1/auth/register", handlers.RegisterHandler)
 	mux.HandleFunc("/api/v1/auth/login", handlers.LoginHandler)
-	mux.HandleFunc("/api/v1/auth/logout", handlers.LogoutHandler)
 
-	mux.HandleFunc("/api/v1/post", posts.PostHandler)
-	mux.HandleFunc("/api/v1/category-posts", handlers.CategoryPostsHandler)
-	mux.HandleFunc("/api/v1/follow", handlers.Forunf)
-	mux.HandleFunc("/api/v1/upload", handlers.UploadHandler)
+	// TODO add them to get and set routers
+	// mux.HandleFunc("/api/v1/follow", handlers.Forunf)
+	// mux.HandleFunc("/api/v1/upload", handlers.UploadHandler)
 
-	mux.HandleFunc("GET /api/v1/get/{type}", getRouter)
-	mux.HandleFunc("POST /api/v1/set/{type}", setRouter)
+	mux.HandleFunc("GET /api/v1/get/{type}", middleware.Mdlw_router(GetHandler_in, GetHandler_out))
+	mux.HandleFunc("POST /api/v1/set/{type}", middleware.MdlwLogged_IN(PostHandler))
 	return mux
-}
-
-var paths = []string{
-	// TODO: add Front end files here
-}
-
-func noNavigation(w http.ResponseWriter, r *http.Request) {
-	http.FileServer(files).ServeHTTP(w, r)
-	// if slices.Contains(paths, r.URL.Path) {
-	// 	return
-	// }
-	// // TODO: page
-	// w.Write([]byte("This is a static file server. No navigation allowed.\n"))
-	// http.NotFound(w, r)
-}
-
-func getRouter(w http.ResponseWriter, r *http.Request) {
-	switch r.PathValue("type") {
-	case "profile":
-		handlers.ProfileHandler(w, r)
-	case "posts":
-		handlers.PostsHandler(w, r)
-	case "categories":
-		handlers.CategoriesHandler(w, r)
-	case "conversations":
-		handlers.ConversationsHandler(w, r)
-	case "messages":
-		handlers.MessagesHandler(w, r)
-	default:
-		http.NotFound(w, r)
-	}
-}
-
-func setRouter(w http.ResponseWriter, r *http.Request) {
-	switch r.PathValue("type") {
-	case "profile":
-		handlers.ProfileHandler(w, r)
-	case "posts":
-		handlers.AddPostHandler(w, r)
-	case "comments":
-		comments.AddCommentHandler(w, r)
-	case "follow":
-		handlers.Forunf(w, r)
-	default:
-		http.NotFound(w, r)
-	}
 }

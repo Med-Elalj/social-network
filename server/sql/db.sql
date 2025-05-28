@@ -1,133 +1,138 @@
-CREATE TABLE
-    IF NOT EXISTS followers (
-        follower TEXT NOT NULL,
-        followed TEXT NOT NULL,
-        FOREIGN KEY (follower) REFERENCES users (username),
-        FOREIGN KEY (followed) REFERENCES users (username)
-    );
+CREATE TABLE IF NOT EXISTS "profile" (
+  "id" INTEGER PRIMARY KEY,
+  "display_name" TEXT Not NULL UNIQUE,
+  "avatar" TEXT UNIQUE DEFAULT null,
+  "description" TEXT DEFAULT null,
+  "is_public" BOOLEAN DEFAULT true,
+  "is_person" BOOLEAN NOT NULL,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP) NOT NULL
+);
 
-CREATE TABLE
-    IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        birthdate DATE DEFAULT (DATE('now')),
-        gender INT NOT NULL,
-        fname TEXT NOT NULL,
-        lname TEXT NOT NULL,
-        password TEXT NOT NULL,
-        avatar TEXT DEFAULT NULL,
-        aboutme TEXT DEFAULT NULL,
-        status TEXT NOT NULL CHECK (status IN ('public', 'private')) DEFAULT 'public'
-    );
+CREATE TABLE IF NOT EXISTS "person" (
+  "ent" integer PRIMARY KEY,
+  "email" TEXT UNIQUE NOT NULL,
+  "first_name" TEXT NOT NULL,
+  "last_name" TEXT NOT NULL,
+  "password_hash" TEXT NOT NULL,
+  "date_of_birth" TEXT NOT NULL,
+  "gender" INTEGER NOT NULL,
+  FOREIGN KEY ("ent") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS notifications (
-        notif TEXT NOT NULL,
-        user TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user) REFERENCES users (username)
-    );
+CREATE TABLE IF NOT EXISTS "group" (
+  "id" INTEGER PRIMARY KEY,
+  "creator_id" INTEGER NOT NULL,
+  FOREIGN KEY ("creator_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS groupTable (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        description TEXT NOT NULL,
-        creator_id INT NOT NULL,
-        FOREIGN KEY (creator_id) REFERENCES users (id)
-    );
+CREATE TABLE IF NOT EXISTS "posts" (
+  "id" INTEGER PRIMARY KEY,
+  "user_id" INTEGER NOT NULL,
+  "group_id" INTEGER,
+  "content" TEXT NOT NULL,
+  "image_path" TEXT UNIQUE DEFAULT null,
+  "privacy" TEXT NOT NULL DEFAULT 'public',
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS groupmembers (
-        group_id INT not null,
-        user_id INT NOT NULL,
-        goined_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (group_id) REFERENCES groupTable (id),
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    );
+CREATE TABLE IF NOT EXISTS "follow" (
+  "id" INTEGER PRIMARY KEY,
+  "follower_id" INTEGER NOT NULL,
+  "following_id" INTEGER NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'pending',
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("follower_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("following_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS posts (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_users INTEGER NOT NULL,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        PostPlace TEXT DEFAULT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        attachement TEXT DEFAULT NULL,
-        status TEXT NOT NULL,
-        group_id INT DEFAULT null,
-        FOREIGN KEY (id_users) REFERENCES users (id),
-        FOREIGN KEY (group_id) REFERENCES groupTable (id)
-    );
+CREATE TABLE IF NOT EXISTS "comments" (
+  "id" INTEGER PRIMARY KEY,
+  "post_id" INTEGER NOT NULL,
+  "user_id" INTEGER NOT NULL,
+  "content" TEXT NOT NULL,
+  "image_path" TEXT,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS category (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
+CREATE TABLE IF NOT EXISTS "post_interactions" (
+  "user_id" INTEGER,
+  "post_id" INTEGER,
+  "interaction" INTEGER DEFAULT 0,
+  PRIMARY KEY ("user_id", "post_id"),
+  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS post_category (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        catego_id INTEGER NOT NULL,
-        post_id INTEGER NOT NULL,
-        FOREIGN KEY (catego_id) REFERENCES category (id),
-        FOREIGN KEY (post_id) REFERENCES posts (id)
-    );
+CREATE TABLE IF NOT EXISTS "group_events" (
+  "id" INTEGER PRIMARY KEY,
+  "group_id" INTEGER NOT NULL,
+  "title" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "event_date" DATETIME NOT NULL,
+  "creator_id" INTEGER NOT NULL,
+  "created_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
+  "options" TEXT DEFAULT '["Going","Not Going"]',
+  FOREIGN KEY ("creator_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS comments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        content TEXT NOT NULL,
-        post_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (post_id) REFERENCES posts (id),
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    );
+CREATE TABLE IF NOT EXISTS "eventResponse" (
+  "event_id" INTEGER NOT NULL,
+  "user_id" INTEGER NOT NULL,
+  "response" INTEGER NOT NULL,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY ("event_id", "user_id"),
+  FOREIGN KEY ("event_id") REFERENCES "group_events" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS groupMessage (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sender_id INTEGER NOT NULL,
-        receiver_id INTEGER NOT NULL,
-        content TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (sender_id) REFERENCES users (id),
-        FOREIGN KEY (receiver_id) REFERENCES groupTable (id)
-    );
+CREATE TABLE IF NOT EXISTS "message" (
+  "id" INTEGER PRIMARY KEY,
+  "sender_id" INTEGER NOT NULL,
+  "recever_id" INTEGER NOT NULL,
+  "isread" BOOLEAN NOT NULL DEFAULT 0,
+  "content" TEXT NOT NULL,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("recever_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sender_id INTEGER NOT NULL,
-        receiver_id INTEGER NOT NULL,
-        content TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        read BOOLEAN DEFAULT 0, -- New column (0=unread, 1=read)
-        FOREIGN KEY (sender_id) REFERENCES users (id),
-        FOREIGN KEY (receiver_id) REFERENCES users (id)
-    );
+CREATE TABLE IF NOT EXISTS "notifications" (
+  "id" INTEGER PRIMARY KEY,
+  "type" TEXT NOT NULL,
+  "related_id" INTEGER,
+  "recever_id" INTEGER NOT NULL,
+  "sender_id" INTEGER NOT NULL,
+  "is_read" BOOLEAN DEFAULT 0,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("recever_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
 
-CREATE TABLE
-    IF NOT EXISTS postreaction (
-        post_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
-        action BOOLEAN NOT NULL,
-        FOREIGN KEY (post_id) REFERENCES posts (id),
-        FOREIGN KEY (user_id) REFERENCES users (id),
-        PRIMARY KEY (user_id, post_id)
-    );
+-- add person transaction
+-- BEGIN TRANSACTION;
 
-CREATE TABLE
-    IF NOT EXISTS commentreaction (
-        comment_id INTEGER NOT NULL,
-        user_id INTEGER NOT NULL,
-        action BOOLEAN NOT null,
-        FOREIGN KEY (user_id) REFERENCES users (id),
-        FOREIGN KEY (comment_id) REFERENCES comments (id),
-        PRIMARY KEY (user_id, comment_id)
-    );
+-- Step 1: Insert into profile
+-- INSERT INTO profile (display_name, avatar, description, is_public, is_person)
+-- VALUES ('jdoe', null, 'Just a sample user', 1, 1);
+
+-- -- Step 2: Insert into person using last inserted profile id
+-- INSERT INTO person (ent, email, first_name, last_name, password_hash, date_of_birth)
+-- VALUES (last_insert_rowid(), 'jdoe@example.com', 'John', 'Doe', 'hashed_password_here', '1990-01-01');
+
+-- COMMIT;
+
+-- -- add group transaction
+-- BEGIN TRANSACTION;
+
+-- INSERT INTO "profile" (display_name, avatar, description, is_public, is_person)
+-- VALUES ('GroupName', null, 'Just a sample group', 1, 0);
+
+-- INSERT INTO "group" (id, creator_id)
+-- VALUES (last_insert_rowid(), 'id_of_creator_profile');
+
+-- COMMIT;

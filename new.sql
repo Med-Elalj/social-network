@@ -15,7 +15,7 @@ CREATE TABLE "person" (
   "last_name" TEXT NOT NULL,
   "password_hash" TEXT NOT NULL,
   "date_of_birth" TEXT NOT NULL,
-  FOREIGN KEY ("ent") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("ent") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "group" (
@@ -111,3 +111,27 @@ CREATE TABLE "notifications" (
   FOREIGN KEY ("recever_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
+
+-- add person transaction
+BEGIN TRANSACTION;
+
+-- Step 1: Insert into profile
+INSERT INTO profile (display_name, avatar, description, is_public, is_person)
+VALUES ('jdoe', null, 'Just a sample user', 1, 1);
+
+-- Step 2: Insert into person using last inserted profile id
+INSERT INTO person (ent, email, first_name, last_name, password_hash, date_of_birth)
+VALUES (last_insert_rowid(), 'jdoe@example.com', 'John', 'Doe', 'hashed_password_here', '1990-01-01');
+
+COMMIT;
+
+-- add group transaction
+BEGIN TRANSACTION;
+
+INSERT INTO profile (display_name, avatar, description, is_public, is_person)
+VALUES ('GroupName', null, 'Just a sample group', 1, 0);
+
+INSERT INTO group (id, creator_id)
+VALUES (last_insert_rowid(), 'id_of_creator_profile');
+
+COMMIT;

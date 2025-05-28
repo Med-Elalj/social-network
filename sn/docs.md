@@ -8,13 +8,13 @@
 
 ### ✅ General
 
-- **POST** `/api/v1/mark-read`  
-  _Mark notifications or messages as read_  
-  **TODO**: Add requirements
-
 - **GET** `/api/v1/ws`  
   _WebSocket connection endpoint_  
-  **TODO**: Add requirements
+  **TODO**:
+
+  - Being logged in WILL be required,
+
+  - other requirments to be decided at later date.
 
 ---
 
@@ -22,19 +22,28 @@
 
 - **GET** `/auth`  
   _Check login status_  
-  **TODO**: Add requirements
+  **TODO**: simple get request will return will return `{"status": true/false}`
 
 - **POST** `/auth/register`  
   _User registration_  
-  **TODO**: Add requirements
+  **Requirements**:
+
+  - _not logged in_
+
+  - {"username": "User_Name","email": "example@web.site","birthdate": "2001-11-09","fname": "Firstname", "lname": "LastName", "password": "password", "gender": "DFK"}.
+
+    NOTE: check "sn/structs/input.go" for detail on what is valid
 
 - **POST** `/auth/login`  
   _User login_  
-  **TODO**: Add requirements
+  **TODO**:
+
+  - _not logged in_
+  - `{"login":"username/email","password":"eazerazer"}`
 
 - **POST** `/auth/logout`  
   _User logout_  
-  **TODO**: Add requirements
+  **TODO**: -Just post to it
 
 ---
 
@@ -81,4 +90,3 @@
   **TODO**: Add requirements
 
 ---
-

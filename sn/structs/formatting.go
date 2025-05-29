@@ -43,18 +43,18 @@ func (g *Gender) UnmarshalJSON(data []byte) error {
 	}
 
 	// Parse using expected format (customize if needed)
-	for i, t := range []string{"male", "female", "DFK"} {
+	for i, t := range []string{"male", "female", "Attack Helicopter"} {
 		if raw == t {
 			*g = Gender(i)
 			return nil
 		}
 	}
 
-	return fmt.Errorf("invalid gender %q valid ones are ['male','female','DFK']", raw)
+	return fmt.Errorf("invalid gender %q valid ones are ['male','female','Attack Helicopter']", raw)
 }
 
 func (g Gender) MarshalJSON() ([]byte, error) {
-	names := []string{"male", "female", "DFK"}
+	names := []string{"male", "female", "Attack Helicopter"}
 
 	if int(g) < 0 || int(g) >= len(names) {
 		return nil, fmt.Errorf("invalid gender value: %d", g)

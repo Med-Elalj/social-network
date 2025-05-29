@@ -1,3 +1,5 @@
+PRAGMA foreign_keys = ON;
+
 CREATE TABLE IF NOT EXISTS "profile" (
   "id" INTEGER PRIMARY KEY,
   "display_name" TEXT Not NULL UNIQUE,
@@ -15,7 +17,7 @@ CREATE TABLE IF NOT EXISTS "person" (
   "last_name" TEXT NOT NULL,
   "password_hash" TEXT NOT NULL,
   "date_of_birth" TEXT NOT NULL,
-  "gender" INTEGER NOT NULL,
+  "gender" INTEGER NOT NULL, -- 0: male, 1: female, 2: Attack Helicopter
   FOREIGN KEY ("id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
 
@@ -42,10 +44,10 @@ CREATE TABLE IF NOT EXISTS "posts" (
 CREATE TABLE IF NOT EXISTS "follow" (
   "follower_id" INTEGER NOT NULL,
   "following_id" INTEGER NOT NULL,
-  "status" INTEGER NOT NULL,
+  "status" INTEGER NOT NULL,  -- 0: pending, 1: following, 2: blocked
   CHECK (follower_id <> following_id),
   PRIMARY KEY (follower_id,following_id),
-  FOREIGN KEY ("follower_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("follower_id") REFERENCES "person" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("following_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
 
@@ -57,7 +59,7 @@ CREATE TABLE IF NOT EXISTS "comments" (
   "image_path" TEXT,
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+  FOREIGN KEY ("user_id") REFERENCES "person" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "post_interactions" (
@@ -66,7 +68,7 @@ CREATE TABLE IF NOT EXISTS "post_interactions" (
   "interaction" BOOLEAN NOT NULL,
   PRIMARY KEY ("user_id", "post_id"),
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+  FOREIGN KEY ("user_id") REFERENCES "person" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "group_events" (
@@ -78,7 +80,7 @@ CREATE TABLE IF NOT EXISTS "group_events" (
   "creator_id" INTEGER NOT NULL,
   "created_at" TIMESTAMP DEFAULT (CURRENT_TIMESTAMP),
   "options" TEXT DEFAULT '["Going","Not Going"]',
-  FOREIGN KEY ("creator_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("creator_id") REFERENCES "person" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
 );
 
@@ -94,24 +96,24 @@ CREATE TABLE IF NOT EXISTS "eventResponse" (
 
 CREATE TABLE IF NOT EXISTS "message" (
   "sender_id" INTEGER NOT NULL,
-  "recever_id" INTEGER NOT NULL,
+  "receiver_id" INTEGER NOT NULL,
   "isread" BOOLEAN DEFAULT 0,
   "content" TEXT NOT NULL,
-  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
-  PRIMARY KEY ("sender_id", "recever_id", "created_at")
-  FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("recever_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+  "created_at" DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY ("sender_id", "receiver_id", "created_at"),
+  FOREIGN KEY ("sender_id") REFERENCES "person" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "notifications" (
   "id" INTEGER PRIMARY KEY,
   "type" TEXT NOT NULL,
   "related_id" INTEGER,
-  "recever_id" INTEGER NOT NULL,
+  "receiver_id" INTEGER NOT NULL,
   "sender_id" INTEGER NOT NULL,
   "is_read" BOOLEAN DEFAULT 0,
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
-  FOREIGN KEY ("recever_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("receiver_id") REFERENCES "person" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
 

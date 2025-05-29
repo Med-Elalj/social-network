@@ -84,9 +84,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch r.PathValue("type") {
-	case "createPost":
+	case "Post":
 		requests.PostCreation(w, r, data.Sub)
-	case "createComment":
+	case "Comment":
 		requests.CommentCreation(w, r, data.Sub)
+		// case "Follow":
+		// 	requests.FollowCreation(w, r, data.Sub)
+		// case "Profile":
+		// 	requests.ProfileUpdate(w, r, data.Sub)
 	}
 }

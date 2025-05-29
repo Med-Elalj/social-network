@@ -10,7 +10,7 @@ import (
 )
 
 // Auth Middleware Enforcing that the user is authenticated
-func MdlwLogged_IN(next http.HandlerFunc) http.HandlerFunc {
+func Logged_IN(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract and verify JWT
 		w.Header().Set("Content-Type", "application/json")
@@ -35,7 +35,7 @@ func MdlwLogged_IN(next http.HandlerFunc) http.HandlerFunc {
 }
 
 // Auth Middleware Enforcing that the user is NOT authenticated
-func MdlwLogged_OUT(next http.HandlerFunc) http.HandlerFunc {
+func Logged_OUT(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
@@ -50,28 +50,5 @@ func MdlwLogged_OUT(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		next(w, r)
-	}
-}
-
-func Mdlw_router(next, signed_out http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Extract and verify JWT
-		w.Header().Set("Content-Type", "application/json")
-		cookie, err := r.Cookie("jwt")
-		if err != nil {
-			signed_out(w, r)
-			return
-		}
-
-		payload, err := jwt.JWTVerify(cookie.Value)
-		if err != nil {
-			w.WriteHeader(http.StatusForbidden)
-			fmt.Fprint(w, `{"error": "invalid or expired token"}`)
-			return
-		}
-
-		// Set user in context and proceed
-		ctx := context.WithValue(r.Context(), auth.UserContextKey, payload)
-		next(w, r.WithContext(ctx))
 	}
 }

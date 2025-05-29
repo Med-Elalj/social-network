@@ -25,7 +25,7 @@ func SetupMux() *http.ServeMux {
 	// mux.HandleFunc("/api/v1/follow", handlers.Forunf)
 	// mux.HandleFunc("/api/v1/upload", handlers.UploadHandler)
 
-	mux.HandleFunc("GET /api/v1/get/{type}", middleware.Mdlw_router(GetHandler_in, GetHandler_out))
-	mux.HandleFunc("POST /api/v1/set/{type}", middleware.MdlwLogged_IN(PostHandler))
+	mux.HandleFunc("GET /api/v1/get/{type}", middleware.Logged_IN(GetHandler))
+	mux.HandleFunc("POST /api/v1/set/{type}", middleware.Logged_IN(PostHandler))
 	return mux
 }

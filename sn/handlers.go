@@ -24,9 +24,7 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	proxy.ServeHTTP(w, r)
 }
 
-func GetHandler_out(w http.ResponseWriter, r *http.Request) {}
-
-func GetHandler_in(w http.ResponseWriter, r *http.Request) {
+func GetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	offset := r.URL.Query().Get("offset")
 

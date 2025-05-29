@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"social-network/server/logs"
+	"social-network/sn/auth"
+	"social-network/sn/auth/jwt"
 	"social-network/sn/db"
 	"social-network/sn/structs"
 )
@@ -42,17 +46,14 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO hash password
 	user.Password.Hash()
 	n, err := db.DB.Exec(`
     BEGIN TRANSACTION;
 INSERT INTO profile (display_name, is_person) VALUES (?, 1);
 INSERT INTO person (ent, email, first_name, last_name, password_hash, date_of_birth,gender)
 VALUES (last_insert_rowid(), ?, ?, ?, ?, ?, ?);
-
-COMMIT;
-`,
-		user.UserName, user.Email, user.Fname, user.Lname, user.Password, user.Birthdate, user.Gender)
+	END;
+`, user.UserName, user.Email, user.Fname, user.Lname, user.Password, user.Birthdate, user.Gender)
 	if err != nil {
 		logs.Println("Error inserting user into database:", err)
 		if structs.SqlConstraint(&err) {
@@ -78,59 +79,84 @@ COMMIT;
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	// var credentials struct {
-	// 	Username string `json:"username"`
-	// 	Password string `json:"password"`
-	// }
-	// if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
-	// 	http.Error(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
-	// 	return
-	// }
+	w.Header().Set("Content-Type", "application/json")
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		logs.Println("Error reading request body:", err)
+		structs.JsRespond(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
+		return
+	}
 
-	// var storedPassword string
-	// var id string
-	// var usrnm string
-	// err := db.DB.QueryRow("SELECT password, id FROM users WHERE username = ?", credentials.Username).Scan(&storedPassword, &id)
-	// if err != nil || storedPassword != credentials.Password {
-	// 	err = db.DB.QueryRow("SELECT password, id FROM users WHERE email = ?", credentials.Username).Scan(&storedPassword, &id)
-	// 	if err != nil || storedPassword != credentials.Password {
-	// 		http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
-	// 		return
-	// 	} else {
-	// 		err = db.DB.QueryRow("SELECT username  FROM users WHERE email = ?", credentials.Username).Scan(&usrnm)
-	// 		if err != nil {
-	// 			http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
-	// 			return
-	// 		}
-	// 		credentials.Username = usrnm
-	// 	}
-	// }
+	if len(body) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": "Request body cannot be empty"}`)
+		return
+	}
+	var credentials structs.Login
 
-	// err = db.DB.QueryRow("SELECT password, id FROM users WHERE username = ? OR email = ?", credentials.Username, credentials.Username).Scan(&storedPassword, &id)
-	// if err != nil || storedPassword != credentials.Password {
-	// 	http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
-	// 	return
-	// }
+	if err := structs.JsonRestrictedDecoder(body, &credentials); err != nil {
+		structs.JsRespond(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
+		return
+	}
 
-	// jwt.Generate()
+	var storedPassword string
+	var id int
+	var userName string
+	err = db.DB.QueryRow(
+		`SELECT pr.id,pr.display_name, pe.password_hash  FROM profile pr  
+JOIN person pe ON pr.id = pe.id
+WHERE ? IN (pe.email, pr.display_name);`,
+		credentials.NoE.String()).Scan(&id, &userName, &storedPassword)
 
-	// // Set cookie
-	// cookie := &http.Cookie{
-	// 	Name:     "JWT",
-	// 	Value:    "jwt",
-	// 	Path:     "/",
-	// 	HttpOnly: true,
-	// 	Expires:  time.Now().Add(168 * time.Hour),
-	// }
+	if err != nil || !credentials.Password.Verify([]byte(storedPassword)) {
+		logs.Println("Login failed for user:", credentials.NoE.String())
+		http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
+		return
+	}
 
-	// http.SetCookie(w, cookie)
-	// w.Header().Set("Content-Type", "application/json")
-	// json.NewEncoder(w).Encode(map[string]string{
-	// 	"message":  "Login successful",
-	// 	"username": credentials.Username,
-	// })
+	// Set cookie
+	cookie := &http.Cookie{
+		Name:     "JWT",
+		Value:    jwt.Generate(jwt.CreateJwtPayload(id, userName)),
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+		Expires:  time.Now().Add(jwt.Time_to_Expire),
+	}
+
+	http.SetCookie(w, cookie)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message":  "Login successful",
+		"username": userName,
+	})
 }
 
-func Forunf(w http.ResponseWriter, r *http.Request) {
-	// TODO implement this function
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	cookie := &http.Cookie{
+		Name:    "JWT",
+		Value:   "",
+		Expires: time.Unix(0, 0),
+	}
+	http.SetCookie(w, cookie)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Logout successful",
+	})
+}
+
+func Islogged(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	payload := r.Context().Value(auth.UserContextKey)
+	data, ok := payload.(*jwt.JwtPayload)
+	if !ok {
+		structs.JsRespond(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message":  "User is logged in",
+		"username": data.Username,
+		"id":       data.Sub,
+	})
 }

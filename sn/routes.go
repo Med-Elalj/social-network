@@ -5,6 +5,7 @@ import (
 
 	"social-network/sn/auth/middleware"
 	"social-network/sn/handlers"
+	"social-network/sn/ws"
 )
 
 var mux = http.NewServeMux()
@@ -17,13 +18,12 @@ func SetupMux() *http.ServeMux {
 	// mux.HandleFunc("/api/v1/mark-read", handlers.MarkReadHandler)
 
 	// TODO IMPLEMENT
-	// mux.HandleFunc("/api/v1/auth", handlers.Islogged)
+	mux.HandleFunc("/api/v1/auth", middleware.Logged_IN(handlers.Islogged))
 	mux.HandleFunc("/api/v1/auth/register", handlers.RegisterHandler)
 	mux.HandleFunc("/api/v1/auth/login", handlers.LoginHandler)
-
-	// TODO add them to get and set routers
-	// mux.HandleFunc("/api/v1/follow", handlers.Forunf)
-	// mux.HandleFunc("/api/v1/upload", handlers.UploadHandler)
+	mux.HandleFunc("/api/v1/auth/logout", handlers.LogoutHandler)
+	// STILL WORK IN PROGRESS
+	mux.HandleFunc("POST /api/v1/ws", ws.HandleConnections)
 
 	mux.HandleFunc("GET /api/v1/get/{type}", middleware.Logged_IN(GetHandler))
 	mux.HandleFunc("POST /api/v1/set/{type}", middleware.Logged_IN(PostHandler))

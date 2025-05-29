@@ -36,8 +36,8 @@ type Register struct {
 }
 
 type Login struct {
-	NoE      Validator `json:"login"`
-	Password Password  `json:"pwd"`
+	NoE      NameOrEmail `json:"login"`
+	Password Password    `json:"pwd"`
 }
 
 // Input interface with IsValid method
@@ -92,7 +92,7 @@ func (r Register) Validate() error {
 }
 
 func (l Login) Validate() error {
-	return validateStruct(l)
+	return l.Password.IsValid()
 }
 
 // validateStruct loops through struct fields and calls IsValid() if implemented

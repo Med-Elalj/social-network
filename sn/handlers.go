@@ -90,5 +90,12 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		// 	requests.FollowCreation(w, r, data.Sub)
 		// case "Profile":
 		// 	requests.ProfileUpdate(w, r, data.Sub)
+		// case "Upload":
+		// 	requests.UploadHandler(w, r, data.Sub)
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, `{"error": "page not found"}`)
+		logs.Errorf("Invalid request to /set/: %s", r.PathValue("type"))
+		return
 	}
 }

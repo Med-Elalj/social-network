@@ -12,7 +12,7 @@ import (
 	"social-network/server/logs"
 )
 
-var Time_to_Expire = time.Hour * 6
+const Time_to_Expire = time.Hour * 6
 
 type JwtPayload struct {
 	Sub      int    `json:"sub,string"`

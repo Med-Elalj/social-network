@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
+	"path"
+	"path/filepath"
+	"strings"
 
 	"social-network/server/logs"
 	"social-network/sn/auth"
@@ -15,13 +16,32 @@ import (
 )
 
 var (
-	reactURL, _ = url.Parse("http://localhost:3000")
-	proxy       = httputil.NewSingleHostReverseProxy(reactURL)
+	rootDir = ".front-end/dist"
+	fs      = http.FileServer(http.Dir(rootDir))
 )
 
-func IndexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Received request for:", r.URL.Path)
-	proxy.ServeHTTP(w, r)
+func IndexHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cleanPath := path.Clean("/" + r.URL.Path) // ensure it starts with '/' for path.Clean
+
+		// Disallow path traversal
+		if strings.Contains(cleanPath, "..") {
+			http.Error(w, "403 Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Compute full path and ensure it stays within rootDir
+		absPath, err := filepath.Abs(filepath.Join(rootDir, cleanPath))
+		rootAbs, _ := filepath.Abs(rootDir)
+		if err != nil || !strings.HasPrefix(absPath, rootAbs) {
+			http.Error(w, "403 Forbidden", http.StatusForbidden)
+			return
+		}
+
+		// Serve the sanitized request
+		r.URL.Path = cleanPath
+		fs.ServeHTTP(w, r)
+	})
 }
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
@@ -66,6 +86,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		jsonData, _ := json.Marshal(dms)
 		w.Write(jsonData)
+		// TODO notifications
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, `{"error": "Invalid request type"}`)

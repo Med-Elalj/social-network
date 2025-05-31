@@ -1,5 +1,10 @@
 # Social Network API v1 Documentation
 
+## NOTE: 
+
+to build in dev or prod(default) run using
+>go build -tags=dev<br>go run -tags=dev .
+---
 ## Base URL: /api/v1/
 API Endpoints Overview
 WebSocket

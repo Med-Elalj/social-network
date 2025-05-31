@@ -1,37 +1,41 @@
 package requests
 
 import (
-	"encoding/json"
-	"html"
+	"fmt"
+	"io"
 	"net/http"
-	"strings"
 
+	"social-network/server/logs"
 	"social-network/sn/db"
 	"social-network/sn/structs"
 )
 
 func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
-	var post structs.PostInfo
-	if err := json.NewDecoder(r.Body).Decode(&post); err != nil {
-		structs.JsRespond(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-	categories := strings.Split(strings.Join(strings.Fields(html.EscapeString(post.Category)), " "), ",")
-	if len(categories) > 3 || len(categories) < 1 {
-		structs.JsRespond(w, "Invalid category selection", http.StatusBadRequest)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		logs.Println("Error reading request body:", err)
+		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 		return
 	}
 
-	// Validate basic input
-	if len(post.Title) < 3 || len(post.Content) < 10 {
-		structs.JsRespond(w, "Title and content required", http.StatusBadRequest)
+	if len(body) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": "Request body cannot be empty"}`)
 		return
 	}
-	if len(post.Content) > 1500 || len(post.Title) > 30 {
-		structs.JsRespond(w, "Title or content too long", http.StatusBadRequest)
+
+	var post structs.PostCreate
+
+	structs.JsonRestrictedDecoder(body, &post)
+
+	post.ParseCategories()
+	if err := post.Validate(); err != nil {
+		logs.Println("Validation failed for post title:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": %q}`, err.Error())
 		return
 	}
-	if !db.InsertPost(post, categories, uid) {
+	if !db.InsertPost(post, uid) {
 		structs.JsRespond(w, "Post creation failed", http.StatusBadRequest)
 	}
 	structs.JsRespond(w, "Post created successfully", http.StatusOK)

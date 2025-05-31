@@ -1,45 +1,16 @@
 package structs
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/mattn/go-sqlite3"
 )
-
-// func sanitizeSQLiteError(err error) error {
-// 	if err != nil {
-// 		if sqliteErr, ok := err.(sqlite3.Error); ok {
-// 			// Log the full error internally
-// 			logs.Printf("SQLite error: Code=%d, ExtendedCode=%d, Message=%s",
-// 				sqliteErr.Code, sqliteErr.ExtendedCode, sqliteErr.Error())
-// 			switch sqliteErr.Code {
-// 			case sqlite3.ErrConstraint:
-// 				// For example, unique constraint violation
-// 				return errors.New("A record with the same unique value already exists.")
-
-// 			case sqlite3.ErrBusy, sqlite3.ErrLocked:
-// 				return errors.New("The database is currently busy. Please try again shortly.")
-
-// 			case sqlite3.ErrReadonly:
-// 				return errors.New("The database is in read-only mode. Changes are not allowed.")
-
-// 			case sqlite3.ErrCorrupt:
-// 				return errors.New("The database file is corrupted. Please contact support.")
-
-// 			case sqlite3.ErrNotFound:
-// 				return errors.New("The requested record was not found.")
-
-// 			default:
-// 				return errors.New("An unexpected database error occurred. Please try again.")
-// 			}
-// 		}
-// 		// For non-SQLite errors, log full detail but send generic message
-// 		logs.Printf("Non-SQLite error: %v", err)
-// 		return errors.New("An internal error occurred. Please try again.")
-// 	}
-// 	return nil
-// }
 
 func SqlConstraint(err *error) bool {
 	if *err != nil {
@@ -60,4 +31,65 @@ func SqlConstraint(err *error) bool {
 		}
 	}
 	return false
+}
+
+func JsonRestrictedDecoder(data []byte, destination interface{}) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	return dec.Decode(destination)
+}
+
+type ErrorResponse struct {
+	Error string `json:"error"`
+	Code  int    `json:"code"`
+}
+
+func JsRespond(w http.ResponseWriter, message string, code int) {
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(ErrorResponse{
+		Error: message,
+		Code:  code,
+	})
+}
+
+// validateStruct loops through struct fields and calls IsValid() if implemented
+func validateStruct(v any) error {
+	val := reflect.ValueOf(v)
+
+	if val.Kind() == reflect.Ptr {
+		if val.IsNil() {
+			return errors.New("nil pointer passed to ValidateStruct")
+		}
+		val = val.Elem()
+	}
+
+	if val.Kind() != reflect.Struct {
+		return errors.New("ValidateStruct expects a struct or pointer to struct")
+	}
+
+	typ := val.Type()
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		fieldType := typ.Field(i)
+
+		// Only check exported fields
+		if !field.CanInterface() {
+			continue
+		}
+
+		// Get the JSON tag (fall back to field name if not set)
+		jsonTag := fieldType.Tag.Get("json")
+		if jsonTag == "" {
+			jsonTag = fieldType.Name
+		}
+
+		// Check if the field implements the Input interface
+		if input, ok := field.Interface().(Input); ok {
+			if err := input.IsValid(); err != nil {
+				return fmt.Errorf("field '%s' is invalid: %w", jsonTag, err)
+			}
+		}
+	}
+
+	return nil
 }

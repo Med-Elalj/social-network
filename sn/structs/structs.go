@@ -1,5 +1,50 @@
 package structs
 
+import "time"
+
+type Input interface {
+	IsValid() error
+}
+
+type NameOrEmail struct {
+	Input
+}
+
+// Custom field types implementing Validator
+
+type (
+	Ptitle      string
+	Pbody       string
+	Pcategories []string
+
+	ID             int
+	CommentContent string
+
+	Name      string
+	Email     string
+	Password  string
+	Birthdate time.Time
+	Gender    int
+)
+
+// User struct with custom types
+type Register struct {
+	UserName  Name      `json:"username"`
+	Email     Email     `json:"email"`
+	Birthdate Birthdate `json:"birthdate"`
+	Fname     Name      `json:"fname"`
+	Lname     Name      `json:"lname"`
+	Password  Password  `json:"password"`
+	Gender    Gender    `json:"gender"`
+}
+
+type Login struct {
+	NoE      NameOrEmail `json:"login"`
+	Password Password    `json:"pwd"`
+}
+
+// Input interface with IsValid method
+
 type Post struct {
 	ID           int
 	Title        string
@@ -23,4 +68,45 @@ type User struct {
 	Status    string
 	Followers []int
 	Followed  []int
+}
+
+type PostCreate struct {
+	Title      Ptitle      `json:"title"`
+	Content    Pbody       `json:"content"`
+	Categories Pcategories `json:"-"`
+}
+
+type CommentInfo struct {
+	PostID  ID             `json:"post_id"`
+	Content CommentContent `json:"content"`
+}
+
+type PostGet struct {
+	Pid          ID        `json:"pid"`
+	AuthorId     ID        `json:"authorId"`
+	Author       string    `json:"author_username"`
+	GroupId      ID        `json:"groupId"`
+	GroupName    string    `json:"group_name"`
+	Title        string    `json:"title"`
+	Content      string    `json:"content"`
+	CreationTime time.Time `json:"creation_time"`
+	// Categories   []string `json:"categories"` // TODO implement categories
+}
+
+type CommentGet struct {
+	Pid          ID        `json:"pid"`
+	Author       string    `json:"author"`
+	Content      string    `json:"content"`
+	CreationTime time.Time `json:"creation_time"`
+}
+
+type UsersGet struct {
+	Online   bool   `json:"online"`
+	Username string `json:"username"` // Exported field
+}
+
+type Message struct {
+	Sender  ID        `json:"sender"`
+	Content string    `json:"message"`
+	Time    time.Time `json:"time"`
 }

@@ -2,52 +2,13 @@ package structs
 
 import (
 	"errors"
-	"fmt"
-	"reflect"
 	"regexp"
 	"time"
+
+	"social-network/server/logs"
+
+	"golang.org/x/crypto/bcrypt"
 )
-
-type Validator interface {
-	IsValid() error
-}
-
-// Custom field types implementing Validator
-
-type Name string
-
-type Email string
-
-type Password string
-
-type Birthdate time.Time
-
-type Gender int
-
-// User struct with custom types
-type Register struct {
-	UserName  Name      `json:"username"`
-	Email     Email     `json:"email"`
-	Birthdate Birthdate `json:"birthdate"`
-	Fname     Name      `json:"fname"`
-	Lname     Name      `json:"lname"`
-	Password  Password  `json:"password"`
-	Gender    Gender    `json:"gender"`
-}
-
-type Login struct {
-	NoE      NameOrEmail `json:"login"`
-	Password Password    `json:"pwd"`
-}
-
-// Input interface with IsValid method
-type Input interface {
-	IsValid() error
-}
-
-type NameOrEmail struct {
-	Validator
-}
 
 var nameRegex = regexp.MustCompile(`^[a-zA-Z_]{3,}$`)
 
@@ -95,44 +56,35 @@ func (l Login) Validate() error {
 	return l.Password.IsValid()
 }
 
-// validateStruct loops through struct fields and calls IsValid() if implemented
-func validateStruct(v any) error {
-	val := reflect.ValueOf(v)
-
-	if val.Kind() == reflect.Ptr {
-		if val.IsNil() {
-			return errors.New("nil pointer passed to ValidateStruct")
-		}
-		val = val.Elem()
+func (p *Password) Hash() {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(*p), bcrypt.DefaultCost)
+	if err != nil {
+		logs.Fatalln(err.Error())
+		return
 	}
+	logs.Printf("Hashing password:%q\ngot: %q", *p, Password(bytes))
+	*p = Password(bytes)
+}
 
-	if val.Kind() != reflect.Struct {
-		return errors.New("ValidateStruct expects a struct or pointer to struct")
+func (p Password) Verify(password []byte) bool {
+	logs.Printf("Verifying password: %q against hash: %q", string(password), string(p))
+	if _, err := bcrypt.Cost([]byte(p)); err != nil {
+		err := bcrypt.CompareHashAndPassword([]byte(p), password)
+		if err != nil {
+			logs.Println("Password comparison failed:", err)
+			return false
+		}
+		logs.Println("Password comparison succeeded")
+	} else if _, err := bcrypt.Cost([]byte(password)); err != nil {
+		err := bcrypt.CompareHashAndPassword([]byte(password), []byte(p))
+		if err != nil {
+			logs.Println("Password comparison failed:", err)
+			return false
+		}
+		logs.Println("Password comparison succeeded")
+	} else {
+		logs.Println("Password comparison failed: invalid hash or password format")
+		return false
 	}
-
-	typ := val.Type()
-	for i := 0; i < val.NumField(); i++ {
-		field := val.Field(i)
-		fieldType := typ.Field(i)
-
-		// Only check exported fields
-		if !field.CanInterface() {
-			continue
-		}
-
-		// Get the JSON tag (fall back to field name if not set)
-		jsonTag := fieldType.Tag.Get("json")
-		if jsonTag == "" {
-			jsonTag = fieldType.Name
-		}
-
-		// Check if the field implements the Input interface
-		if input, ok := field.Interface().(Input); ok {
-			if err := input.IsValid(); err != nil {
-				return fmt.Errorf("field '%s' is invalid: %w", jsonTag, err)
-			}
-		}
-	}
-
-	return nil
+	return true
 }

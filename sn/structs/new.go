@@ -1,41 +1,64 @@
 package structs
 
-import "time"
+import (
+	"errors"
+	"html"
+	"regexp"
+	"strings"
+)
 
-type PostInfo struct {
-	Title    string `json:"title"`
-	Content  string `json:"content"`
-	Category string `json:"category"`
+var categoriesRegex = regexp.MustCompile(`¤\w{3,20}`)
+
+func (p Ptitle) IsValid() error {
+	p = Ptitle(html.EscapeString(strings.TrimSpace(string(p))))
+	if len(p) < 3 || len(p) > 30 {
+		return errors.New("title must be between 3 and 30 characters")
+	}
+	return nil
 }
 
-type CommentInfo struct {
-	PostID  string `json:"post_id"`
-	Content string `json:"content"`
+func (p *Pbody) IsValid() error {
+	*p = Pbody(html.EscapeString(strings.TrimSpace(string(*p))))
+	if len(*p) < 10 || len(*p) > 1024 {
+		return errors.New("content must be between 10 and 1500 characters")
+	}
+	return nil
 }
 
-type Post1 struct {
-	Pid          int      `json:"pid"`
-	Title        string   `json:"title"`
-	Content      string   `json:"content"`
-	Author       string   `json:"author"`
-	CreationTime string   `json:"creation_time"`
-	Categories   []string `json:"categories"`
+func (c *Pcategories) IsValid() error {
+	return nil
 }
 
-type Comment struct {
-	Pid          int    `json:"pid"`
-	Author       string `json:"author"`
-	Content      string `json:"content"`
-	CreationTime string `json:"creation_time"`
+func (p PostCreate) ParseCategories() (Pcategories, error) {
+	categories := categoriesRegex.FindAllString(string(p.Content), -1)
+	if len(categories) == 0 {
+		return Pcategories{}, nil
+	}
+	for i, cat := range categories {
+		categories[i] = cat[1:]
+	}
+	return categories, nil
 }
 
-type User1 struct {
-	Online   bool   `json:"online"`
-	Username string `json:"username"` // Exported field
+func (p ID) IsValid() error {
+	if p <= 0 {
+		return errors.New("post ID must be a positive integer")
+	}
+	return nil
 }
 
-type Message struct {
-	Sender  string    `json:"sender"`
-	Content string    `json:"message"`
-	Time    time.Time `json:"time"`
+func (c CommentContent) IsValid() error {
+	c = CommentContent(html.EscapeString(strings.TrimSpace(string(c))))
+	if len(c) < 1 || len(c) > 300 {
+		return errors.New("comment must be between 1 and 300 characters")
+	}
+	return nil
+}
+
+func (p PostCreate) Validate() error {
+	return validateStruct(p)
+}
+
+func (c CommentInfo) Validate() error {
+	return validateStruct(c)
 }

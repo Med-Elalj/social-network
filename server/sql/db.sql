@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS "posts" (
   "title" TEXT NOT NULL,
   "content" TEXT NOT NULL,
   "image_path" TEXT UNIQUE DEFAULT null,
-  "privacy" TEXT NOT NULL DEFAULT 'public',
+  "privacy" INTEGER NOT NULL DEFAULT 0, -- 0: public, 1: followers/group members, 2: private
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
   FOREIGN KEY ("user_id") REFERENCES "person" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE

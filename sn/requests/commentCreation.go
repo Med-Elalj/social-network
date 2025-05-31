@@ -1,27 +1,39 @@
 package requests
 
 import (
-	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 
+	"social-network/server/logs"
 	"social-network/sn/db"
 	"social-network/sn/structs"
 )
 
 func CommentCreation(w http.ResponseWriter, r *http.Request, uid int) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		logs.Println("Error reading request body:", err)
+		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 		return
 	}
+
+	if len(body) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": "Request body cannot be empty"}`)
+		return
+	}
+
 	var comment structs.CommentInfo
-	if err := json.NewDecoder(r.Body).Decode(&comment); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+
+	structs.JsonRestrictedDecoder(body, &comment)
+	if err := comment.Validate(); err != nil {
+		logs.Println("Validation failed for comment content:", err)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": %q}`, err.Error())
 		return
 	}
-	if len(comment.Content) > 1000 {
-		structs.JsRespond(w, "Comment length exceeds the allowed ", http.StatusBadRequest)
-		return
-	}
+
 	if !db.InsertComment(comment, uid) {
 		structs.JsRespond(w, "Comment creation failed", http.StatusInternalServerError)
 	}

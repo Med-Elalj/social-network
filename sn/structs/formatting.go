@@ -1,16 +1,14 @@
 package structs
 
 import (
-	"bytes"
 	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"social-network/server/logs"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func (b *Birthdate) UnmarshalJSON(data []byte) error {
@@ -73,29 +71,12 @@ func (n *NameOrEmail) UnmarshalJSON(data []byte) error {
 	// simple email detection
 	if Email(s).IsValid() == nil {
 		email := Email(s)
-		n.Validator = email
+		n.Input = email
 	} else if Name(s).IsValid() == nil {
 		name := Name(s)
-		n.Validator = name
+		n.Input = name
 	}
 	return errors.New("not a valid email or name")
-}
-
-func (n NameOrEmail) String() string {
-	switch v := n.Validator.(type) {
-	case Name:
-		return string(v)
-	case Email:
-		return string(v)
-	default:
-		return ""
-	}
-}
-
-func JsonRestrictedDecoder(data []byte, destination interface{}) error {
-	dec := json.NewDecoder(bytes.NewReader(data))
-	dec.DisallowUnknownFields()
-	return dec.Decode(destination)
 }
 
 // Implement the driver.Valuer interface for writing to DB
@@ -139,35 +120,40 @@ func (b *Birthdate) Scan(value interface{}) error {
 	}
 }
 
-func (p *Password) Hash() {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(*p), bcrypt.DefaultCost)
-	if err != nil {
-		logs.Fatalln(err.Error())
-		return
+func (pc Pcategories) Value() (driver.Value, error) {
+	if pc == nil {
+		logs.Fatal("Birthdate is zero value, cannot store in DB")
+		return nil, errors.New("birthdate is zero value, cannot store in DB")
 	}
-	logs.Printf("Hashing password:%q\ngot: %q", *p, Password(bytes))
-	*p = Password(bytes)
+	return strings.Join(pc, "|"), nil // Store date only, no time
 }
 
-func (p Password) Verify(password []byte) bool {
-	logs.Printf("Verifying password: %q against hash: %q", string(password), string(p))
-	if _, err := bcrypt.Cost([]byte(p)); err != nil {
-		err := bcrypt.CompareHashAndPassword([]byte(p), password)
-		if err != nil {
-			logs.Println("Password comparison failed:", err)
-			return false
-		}
-		logs.Println("Password comparison succeeded")
-	} else if _, err := bcrypt.Cost([]byte(password)); err != nil {
-		err := bcrypt.CompareHashAndPassword([]byte(password), []byte(p))
-		if err != nil {
-			logs.Println("Password comparison failed:", err)
-			return false
-		}
-		logs.Println("Password comparison succeeded")
-	} else {
-		logs.Println("Password comparison failed: invalid hash or password format")
-		return false
+// Implement the sql.Scanner interface for reading from DB
+func (pc *Pcategories) Scan(value interface{}) error {
+	if value == nil {
+		*pc = Pcategories{}
+		return nil
 	}
-	return true
+
+	switch v := value.(type) {
+	case []byte:
+		*pc = strings.Split(string(v), "|")
+		return nil
+	case string:
+		*pc = strings.Split(v, "|")
+		return nil
+	default:
+		return fmt.Errorf("cannot scan %T into Categories", value)
+	}
+}
+
+func (n NameOrEmail) Value() (driver.Value, error) {
+	switch v := n.Input.(type) {
+	case Name:
+		return string(v), nil
+	case Email:
+		return string(v), nil
+	default:
+		return nil, fmt.Errorf("unsupported type %T for NameOrEmail", v)
+	}
 }

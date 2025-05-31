@@ -3,60 +3,59 @@ package db
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"social-network/server/logs"
 	"social-network/sn/structs"
 )
 
-func GetPosts(soffset string) ([]structs.Post1, error) {
-	offset, err := strconv.Atoi(soffset)
-	if err != nil {
-		logs.Errorf("Error converting pid to int: %q", err.Error())
-		return nil, err
-	}
+func GetPosts(soffset string) ([]structs.PostGet, error) {
+	// offset, err := strconv.Atoi(soffset) // TODO ADD
+	// if err != nil {
+	// 	logs.Errorf("Error converting pid to int: %q", err.Error())
+	// 	return nil, err
+	// }
 	rows, err := DB.Query(`
-	SELECT 
-   		p.post_id AS pid, 
-    	p.title, 
-    	p.content, 
-    	p.categories, 
-    	p.created_at, 
-    	u.username AS author
+SELECT 
+   		p.id, p.user_id, u.display_name,p.title,p.content, p.created_at
+		CASE 
+			WHEN g.id IS NULL THEN 0 ELSE g.id
+		END AS 'group_id',
+        CASE
+            WHEN g.id IS NULL THEN '' ELSE g.display_name
+        END AS 'name',
 	FROM
     	posts p
 	JOIN 
-    	users u ON p.uid = u.id
+    	profile u ON p.user_id = u.id
+    LEFT JOIN 
+    	profile g ON p.group_id = g.id
 	ORDER BY
 		p.created_at DESC
-	LIMIT 3 OFFSET ?
-	`, offset)
+	LIMIT 10; -- TODO Add pagination`)
 	if err != nil {
 		logs.Errorf("Error getting posts: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
-	var categories string
-	var posts []structs.Post1
+	var posts []structs.PostGet
 	for rows.Next() {
-		var post structs.Post1
-		err := rows.Scan(&post.Pid, &post.Title, &post.Content, &categories, &post.CreationTime, &post.Author)
+		var post structs.PostGet
+		err := rows.Scan(&post.Pid, &post.AuthorId, &post.Author, &post.Title, &post.Content, &post.CreationTime, &post.GroupId, &post.GroupName)
 		if err != nil {
 			logs.Errorf("Error scanning posts: %q", err.Error())
 			return nil, err
 		}
-		post.Categories = strings.Split(categories, ", ")
 		posts = append(posts, post)
 	}
 	return posts, nil
 }
 
-func GetComments(pid string) ([]structs.Comment, error) {
+func GetComments(pid string) ([]structs.CommentGet, error) {
 	if pid == "" {
 		return nil, nil
 	}
-	iPid, err := strconv.Atoi(pid)
+	Pid, err := strconv.Atoi(pid)
 	if err != nil {
 		logs.Errorf("Error converting pid to int: %q", err.Error())
 		return nil, err
@@ -74,27 +73,27 @@ func GetComments(pid string) ([]structs.Comment, error) {
 		c.post_id = ?
 	ORDER BY
 		c.created_at DESC
-	`, iPid)
+	`, Pid)
 	if err != nil {
 		logs.Errorf("Error getting comments: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
-	var comments []structs.Comment
+	var comments []structs.CommentGet
 	for rows.Next() {
-		var comment structs.Comment
+		var comment structs.CommentGet
 		err := rows.Scan(&comment.Author, &comment.Content, &comment.CreationTime)
 		if err != nil {
 			logs.Errorf("Error scanning comments: %q", err.Error())
 			return nil, err
 		}
-		comment.Pid = iPid
+		comment.Pid = structs.ID(Pid)
 		comments = append(comments, comment)
 	}
 	return comments, nil
 }
 
-func GetUserNames(uid int) ([]structs.User1, error) {
+func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	rows, err := DB.Query(`
 	SELECT
 		u.username
@@ -121,10 +120,10 @@ func GetUserNames(uid int) ([]structs.User1, error) {
 	}
 	defer rows.Close()
 
-	var userNames []structs.User1
+	var userNames []structs.UsersGet
 
 	for rows.Next() {
-		var username structs.User1
+		var username structs.UsersGet
 		if err := rows.Scan(&username.Username); err != nil {
 			return userNames, fmt.Errorf("could not scan row: %w", err)
 		}

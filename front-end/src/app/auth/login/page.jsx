@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import { useState } from 'react';
-import Styles from './login.module.css';
+import Styles from "./login.module.css";
 
 export default function Login() {
     const [formData, setFormData] = useState({
         login: '',
-        password: "",
+        password: '',
     });
 
     const handleChange = (e) => {
@@ -16,25 +16,44 @@ export default function Login() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         const data = new FormData();
         for (const key in formData) {
             data.append(key, formData[key]);
         }
 
-        // TODO: send `data` to backend via fetch
+        // TODO: Replace this with fetch() to backend
         console.log('Submitting form...', formData);
     };
 
     return (
-        <form className={Styles.form} onSubmit={handleSubmit}>
-            <label htmlFor="login">Email Or Nickname</label>
-            <input type="text" name="login" id="login" onChange={handleChange} />
+        <div className={Styles.container}>
+            <div className={Styles.messageBox}>
+                <h2>Welcome back to Our Social Network 👋</h2>
+            </div>
 
-            <label htmlFor="password">Password</label>
-            <input type="password" name="password" id="password" onChange={handleChange} />
+            <form className={Styles.form} onSubmit={handleSubmit}>
+                <label className={Styles.label} htmlFor="login">Email or Nickname</label>
+                <input
+                    className={Styles.input}
+                    type="text"
+                    name="login"
+                    id="login"
+                    onChange={handleChange}
+                    required
+                />
 
-            <button type="submit">Login</button>
-        </form>
+                <label className={Styles.label} htmlFor="password">Password</label>
+                <input
+                    className={Styles.input}
+                    type="password"
+                    name="password"
+                    id="password"
+                    onChange={handleChange}
+                    required
+                />
+
+                <button className={Styles.button} type="submit">Login</button>
+            </form>
+        </div>
     );
 }

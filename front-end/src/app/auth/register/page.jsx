@@ -1,8 +1,9 @@
-"use client"
+"use client";
 
 import { useState } from 'react';
+import styles from './register.module.css';
 
-export default function Login() {
+export default function Register() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -31,43 +32,43 @@ export default function Login() {
             data.append(key, formData[key]);
         }
 
-        // TODO: send `data` to backend via fetch
         console.log('Submitting form...', formData);
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <label htmlFor="email">Email</label>
-            <input type="email" name="email" id="email" onChange={handleChange} />
+        <div>
+            <div className={styles.messageBox}>
+                <h2>Join Our Social Network 👋</h2>
+            </div>
+            <div className={styles.formContainer}>
+                <form className={styles.form} onSubmit={handleSubmit}>
+                    <label className={styles.label} htmlFor="email">Email</label>
+                    <input className={styles.input} type="email" name="email" id="email" onChange={handleChange} />
 
-            <label htmlFor="password">Password</label>
-            <input type="password" name="password" id="password" onChange={handleChange} />
+                    <label className={styles.label} htmlFor="password">Password</label>
+                    <input className={styles.input} type="password" name="password" id="password" onChange={handleChange} />
 
+                    <label className={styles.label} htmlFor="firstName">First Name</label>
+                    <input className={styles.input} type="text" name="firstName" id="firstName" onChange={handleChange} />
 
-            <label htmlFor="firstName">First Name</label>
-            <input type="text" name="firstName" id="firstName" onChange={handleChange} />
+                    <label className={styles.label} htmlFor="lastName">Last Name</label>
+                    <input className={styles.input} type="text" name="lastName" id="lastName" onChange={handleChange} />
 
+                    <label className={styles.label} htmlFor="nickName">Nickname</label>
+                    <input className={styles.input} type="text" name="nickName" id="nickName" onChange={handleChange} />
 
-            <label htmlFor="lastName">Last Name</label>
-            <input type="text" name="lastName" id="lastName" onChange={handleChange} />
+                    <label className={styles.label} htmlFor="dob">Date of Birth</label>
+                    <input className={styles.input} type="date" name="dob" id="dob" onChange={handleChange} />
 
+                    <label className={styles.label} htmlFor="profileImg">Profile Image</label>
+                    <input className={styles.input} type="file" name="profileImg" id="profileImg" accept="image/*" onChange={handleChange} />
 
-            <label htmlFor="nickName">Nickname</label>
-            <input type="text" name="nickName" id="nickName" onChange={handleChange} />
+                    <label className={styles.label} htmlFor="about">About Me</label>
+                    <input className={styles.input} type="text" name="about" id="about" onChange={handleChange} />
 
-
-            <label htmlFor="dob">Date of Birth</label>
-            <input type="date" name="dob" id="dob" onChange={handleChange} />
-
-
-            <label htmlFor="profileImg">Profile Image</label>
-            <input type="file" name="profileImg" id="profileImg" accept="image/*" onChange={handleChange} />
-
-            <label htmlFor="about">About Me</label>
-            <input type="text" name="about" id="about" onChange={handleChange} />
-
-
-            <button type="submit">Register</button>
-        </form>
+                    <button className={styles.submitButton} type="submit">Register</button>
+                </form>
+            </div>
+        </div>
     );
 }

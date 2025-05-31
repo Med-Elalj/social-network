@@ -13,7 +13,7 @@ export default function Layout({ children }) {
       <body>
         <Routing />
         <div>{children}</div>
-        <Footer/>
+        {/* <Footer/> */}
       </body>
     </html>
   );

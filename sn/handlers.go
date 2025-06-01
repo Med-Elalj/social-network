@@ -13,6 +13,7 @@ import (
 	"social-network/sn/auth/jwt"
 	"social-network/sn/db"
 	"social-network/sn/requests"
+	"social-network/sn/upload"
 )
 
 var (
@@ -86,7 +87,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		jsonData, _ := json.Marshal(dms)
 		w.Write(jsonData)
-		// TODO notifications
+		// TODO get notifications
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, `{"error": "Invalid request type"}`)
@@ -107,12 +108,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		requests.PostCreation(w, r, data.Sub)
 	case "Comment":
 		requests.CommentCreation(w, r, data.Sub)
+		// TODO: set follow, profile
 		// case "Follow":
 		// 	requests.FollowCreation(w, r, data.Sub)
 		// case "Profile":
 		// 	requests.ProfileUpdate(w, r, data.Sub)
-		// case "Upload":
-		// 	requests.UploadHandler(w, r, data.Sub)
+	case "Upload":
+		upload.UploadHandler(w, r, data.Sub)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, `{"error": "page not found"}`)

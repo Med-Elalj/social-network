@@ -16,7 +16,6 @@ import (
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
-	// TODO: ADD middle ware to check if the user is already logged in
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		logs.Println("Error reading request body:", err)

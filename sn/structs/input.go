@@ -31,11 +31,22 @@ func (e Email) IsValid() error {
 	}
 }
 
+// var minAge = 13
+
 func (b Birthdate) IsValid() error {
-	// TODO: max age
 	t := time.Time(b)
 	if t.After(time.Now()) {
 		return errors.New("cannot be in the future")
+	}
+	// Uncomment the following lines if you want to enforce a minimum and max age
+	// if t.Year() < 1900 {
+	// 	return errors.New("year must be greater than 1900")
+	// }
+	// if t.Year() > time.Now().Year()-minAge {
+	// 	return fmt.Errorf("you must be at least %d years old", minAge)
+	// }
+	if t.IsZero() {
+		return errors.New("cannot be empty")
 	}
 	return nil
 }

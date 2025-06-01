@@ -157,3 +157,33 @@ func (n NameOrEmail) Value() (driver.Value, error) {
 		return nil, fmt.Errorf("unsupported type %T for NameOrEmail", v)
 	}
 }
+
+func (p *PostPrivacy) UnmarshalJSON(data []byte) error {
+	// Unmarshal as string
+	var raw string
+	logs.Println("Unmarshalling PostPrivacy:", string(data))
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return fmt.Errorf("invalid post Privacy format: %w", err)
+	}
+
+	// Parse using expected format (customize if needed)
+	for i, t := range []string{"public", "followers", "private"} {
+		if raw == t {
+			*p = PostPrivacy(i)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("invalid gender %q valid ones are ['public', 'followers', 'private']", raw)
+}
+
+func (p PostPrivacy) MarshalJSON() ([]byte, error) {
+	names := []string{"public", "followers", "private"}
+
+	if int(p) < 0 || int(p) >= len(names) {
+		return nil, fmt.Errorf("invalid privacy value: %d", p)
+	}
+
+	// Marshal the string as JSON string literal
+	return json.Marshal(names[int(p)])
+}

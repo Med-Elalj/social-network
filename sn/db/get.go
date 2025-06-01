@@ -15,24 +15,46 @@ func GetPosts(soffset string) ([]structs.PostGet, error) {
 	// 	logs.Errorf("Error converting pid to int: %q", err.Error())
 	// 	return nil, err
 	// }
-	rows, err := DB.Query(`
+	rows, err := DB.Query(`WITH followed_profiles AS (
+	SELECT following_id FROM follow WHERE follower_id = ? -- Replace with the actual user ID
+),
+pivate_post_see AS (
+	SELECT post_id FROM pivate_post_visibility WHERE user_id = ? -- Replace with the actual user ID
+)
 SELECT 
-   		p.id, p.user_id, u.display_name,p.title,p.content, p.created_at
+   		p.id, p.user_id, u.display_name,p.title,p.content, p.created_at,p.privacy,
 		CASE 
 			WHEN g.id IS NULL THEN 0 ELSE g.id
 		END AS 'group_id',
         CASE
             WHEN g.id IS NULL THEN '' ELSE g.display_name
-        END AS 'name',
+        END AS 'name'
 	FROM
     	posts p
 	JOIN 
     	profile u ON p.user_id = u.id
     LEFT JOIN 
     	profile g ON p.group_id = g.id
+	WHERE
+			p.privacy = 0
+		OR 
+			(
+				p.privacy = 1
+				AND 
+				(p.user_id IN followed_profiles OR p.group_id IN followed_profiles)
+			)
+		OR 
+			(
+					p.privacy = 2
+				AND 
+					p.id IN pivate_post_see
+			)
+
+		
 	ORDER BY
 		p.created_at DESC
-	LIMIT 10; -- TODO Add pagination`)
+	LIMIT 10; -- TODO Add pagination
+`)
 	if err != nil {
 		logs.Errorf("Error getting posts: %q", err.Error())
 		return nil, err
@@ -41,7 +63,7 @@ SELECT
 	var posts []structs.PostGet
 	for rows.Next() {
 		var post structs.PostGet
-		err := rows.Scan(&post.Pid, &post.AuthorId, &post.Author, &post.Title, &post.Content, &post.CreationTime, &post.GroupId, &post.GroupName)
+		err := rows.Scan(&post.Pid, &post.AuthorId, &post.Author, &post.Title, &post.Content, &post.CreationTime, &post.Privacy, &post.GroupId, &post.GroupName)
 		if err != nil {
 			logs.Errorf("Error scanning posts: %q", err.Error())
 			return nil, err

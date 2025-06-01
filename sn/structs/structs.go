@@ -16,6 +16,7 @@ type (
 	Ptitle      string
 	Pbody       string
 	Pcategories []string
+	PostPrivacy int8
 
 	ID             int
 	CommentContent string
@@ -82,14 +83,15 @@ type CommentInfo struct {
 }
 
 type PostGet struct {
-	Pid          ID        `json:"pid"`
-	AuthorId     ID        `json:"authorId"`
-	Author       string    `json:"author_username"`
-	GroupId      ID        `json:"groupId"`
-	GroupName    string    `json:"group_name"`
-	Title        string    `json:"title"`
-	Content      string    `json:"content"`
-	CreationTime time.Time `json:"creation_time"`
+	Pid          ID          `json:"pid"`
+	AuthorId     ID          `json:"authorId"`
+	Author       string      `json:"author_username"`
+	GroupId      ID          `json:"groupId"`
+	GroupName    string      `json:"group_name"`
+	Title        string      `json:"title"`
+	Content      string      `json:"content"`
+	CreationTime time.Time   `json:"creation_time"`
+	Privacy      PostPrivacy `json:"privacy"`
 	// Categories   []string `json:"categories"` // TODO implement categories
 }
 

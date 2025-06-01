@@ -82,6 +82,36 @@ CREATE TABLE IF NOT EXISTS "message" (
   FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS user_files (
+  uid INTEGER NOT NULL,
+  filename TEXT NOT NULL,
+  size INTEGER NOT NULL,
+  PRIMARY KEY (uid, filename),
+  FOREIGN KEY (uid) REFERENCES person (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS pivate_post_visibility (
+  post_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
+  PRIMARY KEY (post_id, user_id),
+  FOREIGN KEY (post_id) REFERENCES posts (id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES person (id) ON DELETE CASCADE
+);
+
+CREATE TRIGGER IF NOT EXISTS prevent_user_storage_over_10mb
+BEFORE INSERT ON user_files
+FOR EACH ROW
+BEGIN
+  SELECT
+    CASE
+      WHEN (
+        (SELECT IFNULL(SUM(size),0) FROM user_files WHERE uid = NEW.uid) + NEW.size
+      ) > 10485760
+      THEN
+        RAISE(ABORT, 'User storage quota exceeded (10MB limit)')
+    END;
+END;
+
 CREATE TRIGGER IF NOT EXISTS check_event_post_group
 BEFORE INSERT ON posts
 FOR EACH ROW

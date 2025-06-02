@@ -4,9 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"path"
-	"path/filepath"
-	"strings"
 
 	"social-network/server/logs"
 	"social-network/sn/db"
@@ -15,35 +12,6 @@ import (
 	"social-network/sn/security/jwt"
 	"social-network/sn/upload"
 )
-
-var (
-	rootDir = ".front-end/dist"
-	fs      = http.FileServer(http.Dir(rootDir))
-)
-
-func IndexHandler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cleanPath := path.Clean("/" + r.URL.Path) // ensure it starts with '/' for path.Clean
-
-		// Disallow path traversal
-		if strings.Contains(cleanPath, "..") {
-			http.Error(w, "403 Forbidden", http.StatusForbidden)
-			return
-		}
-
-		// Compute full path and ensure it stays within rootDir
-		absPath, err := filepath.Abs(filepath.Join(rootDir, cleanPath))
-		rootAbs, _ := filepath.Abs(rootDir)
-		if err != nil || !strings.HasPrefix(absPath, rootAbs) {
-			http.Error(w, "403 Forbidden", http.StatusForbidden)
-			return
-		}
-
-		// Serve the sanitized request
-		r.URL.Path = cleanPath
-		fs.ServeHTTP(w, r)
-	})
-}
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

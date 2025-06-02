@@ -62,15 +62,6 @@ CREATE TABLE IF NOT EXISTS "comments" (
   FOREIGN KEY ("user_id") REFERENCES "person" ("id") ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "post_interactions" (
-  "user_id" INTEGER,
-  "post_id" INTEGER,
-  "interaction" BOOLEAN NOT NULL,
-  PRIMARY KEY ("user_id", "post_id"),
-  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("user_id") REFERENCES "person" ("id") ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS "message" (
   "sender_id" INTEGER NOT NULL,
   "receiver_id" INTEGER NOT NULL,

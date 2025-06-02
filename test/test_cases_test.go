@@ -3,7 +3,7 @@ package routes__test
 import (
 	"net/http"
 
-	"social-network/sn/auth/jwt"
+	"social-network/sn/security/jwt"
 )
 
 type endPointTest struct {

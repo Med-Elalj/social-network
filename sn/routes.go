@@ -3,8 +3,8 @@ package sn
 import (
 	"net/http"
 
-	"social-network/sn/auth/middleware"
 	"social-network/sn/handlers"
+	"social-network/sn/security/middleware"
 	"social-network/sn/ws"
 )
 

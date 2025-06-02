@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"social-network/server/logs"
-	"social-network/sn/auth"
-	"social-network/sn/auth/jwt"
 	"social-network/sn/db"
+	"social-network/sn/security"
+	"social-network/sn/security/jwt"
 	"social-network/sn/structs"
 )
 
@@ -143,7 +143,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 func Islogged(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	payload := r.Context().Value(auth.UserContextKey)
+	payload := r.Context().Value(security.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)

@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"social-network/server/logs"
-	"social-network/sn/auth"
-	"social-network/sn/auth/jwt"
 	"social-network/sn/db"
 	"social-network/sn/requests"
+	"social-network/sn/security"
+	"social-network/sn/security/jwt"
 	"social-network/sn/upload"
 )
 
@@ -60,7 +60,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		jsonData, _ := json.Marshal(posts)
 		w.Write(jsonData)
 	case "users":
-		payload := r.Context().Value(auth.UserContextKey)
+		payload := r.Context().Value(security.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)
 		if !ok {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -73,7 +73,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	case "dmhistory":
 		target := r.Header.Get("target")
 		page := r.Header.Get("page")
-		payload := r.Context().Value(auth.UserContextKey)
+		payload := r.Context().Value(security.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)
 		if !ok {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -96,7 +96,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-	payload := r.Context().Value(auth.UserContextKey)
+	payload := r.Context().Value(security.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if !ok {
 		w.WriteHeader(http.StatusInternalServerError)

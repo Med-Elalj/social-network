@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"social-network/sn/auth"
-	"social-network/sn/auth/jwt"
+	"social-network/sn/security"
+	"social-network/sn/security/jwt"
 )
 
 // Auth Middleware Enforcing that the user is authenticated
@@ -29,7 +29,7 @@ func Logged_IN(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Set user in context and proceed
-		ctx := context.WithValue(r.Context(), auth.UserContextKey, payload)
+		ctx := context.WithValue(r.Context(), security.UserContextKey, payload)
 		next(w, r.WithContext(ctx))
 	}
 }

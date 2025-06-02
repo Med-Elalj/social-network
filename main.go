@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	logs "social-network/server/logs"
 	"social-network/sn"
@@ -20,5 +21,15 @@ func main() {
 	upload.EnsureUploadDir()
 	defer db.DB.Close()
 	fmt.Println("Server is running at https://localhost:8080")
-	logs.Fatal(http.ListenAndServeTLS(":8080", "server/private/cert.pem", "server/private/key.pem", mux))
+	srv := &http.Server{
+		Addr:              ":8080",
+		Handler:           mux,
+		MaxHeaderBytes:    1024, // 1KB
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      15 * time.Second,
+		IdleTimeout:       60 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
+		ErrorLog:          logs.GetLogger("server"),
+	}
+	logs.Fatal(srv.ListenAndServeTLS("server/private/cert.pem", "server/private/key.pem"))
 }

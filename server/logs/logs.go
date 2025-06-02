@@ -31,6 +31,11 @@ func InitFiles() {
 	log.SetOutput(errorFile)
 }
 
+// GetLogger returns a logger with the specified prefix
+func GetLogger(prefix string) *log.Logger {
+	return errorFILE
+}
+
 var (
 	infoFILE  *log.Logger
 	errorFILE *log.Logger

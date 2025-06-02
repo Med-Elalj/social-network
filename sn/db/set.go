@@ -1,6 +1,8 @@
 package db
 
 import (
+	"database/sql"
+
 	"social-network/server/logs"
 	"social-network/sn/structs"
 )
@@ -77,4 +79,39 @@ VALUES
 		return false
 	}
 	return true
+}
+
+func InsertUser(user structs.Register) (sql.Result, error) {
+	user.Password.Hash()
+	tx, err := DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := tx.Exec(`INSERT INTO profile (display_name, is_person) VALUES (?, 1)`, user.UserName)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	profileID, err := res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	_, err = tx.Exec(`INSERT INTO person (id, email, first_name, last_name, password_hash, date_of_birth, gender)
+	VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		profileID, user.Email, user.Fname, user.Lname, user.Password, user.Birthdate, user.Gender)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	// Return the result of the profile insert for LastInsertId
+	return res, nil
 }

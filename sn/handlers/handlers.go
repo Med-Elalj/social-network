@@ -45,14 +45,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Password.Hash()
-	n, err := db.DB.Exec(`
-    BEGIN TRANSACTION;
-INSERT INTO profile (display_name, is_person) VALUES (?, 1);
-INSERT INTO person (ent, email, first_name, last_name, password_hash, date_of_birth,gender)
-VALUES (last_insert_rowid(), ?, ?, ?, ?, ?, ?);
-	END;
-`, user.UserName, user.Email, user.Fname, user.Lname, user.Password, user.Birthdate, user.Gender)
+	n, err := db.InsertUser(user)
 	if err != nil {
 		logs.Println("Error inserting user into database:", err)
 		if structs.SqlConstraint(&err) {
@@ -82,19 +75,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		logs.Println("Error reading request body:", err)
-		structs.JsRespond(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 		return
 	}
 
 	if len(body) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, `{"error": "Request body cannot be empty"}`)
+		fmt.Fprint(w, `{"error": "Request body cannot be empty"}`)
 		return
 	}
 	var credentials structs.Login
 
-	if err := structs.JsonRestrictedDecoder(body, &credentials); err != nil {
-		structs.JsRespond(w, `{"error": "Invalid request body"}`, http.StatusBadRequest)
+	if err := structs.JsonRestrictedDecoder(body, &credentials); err != nil || credentials.Password.IsValid() != nil {
+		logs.Errorf("Error decoding request body: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, `{"error": "Invalid request body"}`)
 		return
 	}
 
@@ -109,7 +105,8 @@ WHERE ? IN (pe.email, pr.display_name);`,
 
 	if err != nil || !credentials.Password.Verify([]byte(storedPassword)) {
 		logs.Println("Login failed for user:", credentials.NoE)
-		http.Error(w, `{"error": "Invalid username or password"}`, http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, `{"error": "Invalid username or password"}`)
 		return
 	}
 
@@ -149,7 +146,8 @@ func Islogged(w http.ResponseWriter, r *http.Request) {
 	payload := r.Context().Value(auth.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if !ok {
-		structs.JsRespond(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
+		fmt.Fprint(w, `{"error": "Unauthorized"}`)
 		return
 	}
 

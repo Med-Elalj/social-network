@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var nameRegex = regexp.MustCompile(`^[a-zA-Z_]{3,}$`)
+var nameRegex = regexp.MustCompile(`^[a-zA-Z_]{3,30}$`)
 
 func (n Name) IsValid() error {
 	if len(n) == 0 {
@@ -79,14 +79,14 @@ func (p *Password) Hash() {
 
 func (p Password) Verify(password []byte) bool {
 	logs.Printf("Verifying password: %q against hash: %q", string(password), string(p))
-	if _, err := bcrypt.Cost([]byte(p)); err != nil {
+	if _, err := bcrypt.Cost([]byte(p)); err == nil {
 		err := bcrypt.CompareHashAndPassword([]byte(p), password)
 		if err != nil {
 			logs.Println("Password comparison failed:", err)
 			return false
 		}
 		logs.Println("Password comparison succeeded")
-	} else if _, err := bcrypt.Cost([]byte(password)); err != nil {
+	} else if _, err := bcrypt.Cost([]byte(password)); err == nil {
 		err := bcrypt.CompareHashAndPassword([]byte(password), []byte(p))
 		if err != nil {
 			logs.Println("Password comparison failed:", err)

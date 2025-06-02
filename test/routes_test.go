@@ -47,10 +47,11 @@ func TestUserHandler(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
+
 	logs.InitFiles()
 	setupTestDB(t)
 	mux := sn.SetupMux()
-
+	tests_fill()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest(tt.method, tt.path, strings.NewReader(tt.body))

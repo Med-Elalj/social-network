@@ -75,8 +75,11 @@ func (n *NameOrEmail) UnmarshalJSON(data []byte) error {
 	} else if Name(s).IsValid() == nil {
 		name := Name(s)
 		n.Input = name
+	} else {
+		logs.Println("Unmarshalling NameOrEmail:", s, "||||", Email(s).IsValid(), Name(s).IsValid(), "||||", n.Input)
+		return errors.New("not a valid email or name")
 	}
-	return errors.New("not a valid email or name")
+	return nil
 }
 
 // Implement the driver.Valuer interface for writing to DB

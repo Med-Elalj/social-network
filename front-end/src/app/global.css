@@ -1,10 +1,9 @@
-body {
-  padding: 0;
-  margin: 0;
+html {
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #ddd #ffffff;
 }
 
-root :root{
-  --primary-color:#FFFFFF;
-  --secondary-color:#160C28;
-  --third-color:#EFCB68;
+body {
+    overflow-x: hidden;
 }

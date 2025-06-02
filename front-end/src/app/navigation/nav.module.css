@@ -5,8 +5,13 @@
     padding: 0 2rem;
     height: 60px;
     background-color: #fff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 5px 10px 5px #0000001a;
     position: relative;
+    scroll-behavior: smooth;
+}
+
+.bottomNav {
+    display: none;
 }
 
 .leftSection,
@@ -52,21 +57,21 @@
 
 .linkWithIcon {
     display: inline-flex;
-    align-items: center;
-    gap: 8px;
+    padding: 16px;
     text-decoration: none;
-    background-color: #1C1665;
-    color: #FFBB00;
-    padding: 8px 16px;
-    border-radius: 15px;
-    font-size: 16px;
-    transition: background-color 0.3s, color 0.3s;
+    color: #1C1665;
 }
 
 .linkWithIcon:hover {
-    background-color: #FFBB00;
-    color: #1C1665;
+    color: #FFBB00;
+    border-bottom: solid 3px #FFBB00;
 }
+
+.active {
+    text-decoration: none;
+    border-bottom: solid 3px #1C1665;
+}
+
 
 .iconWrapper {
     position: relative;
@@ -74,11 +79,17 @@
     height: 20px;
 }
 
+.iconUser {
+    position: relative;
+    width: 30px;
+    height: 30px;
+}
+
 .iconDefault,
 .iconHover {
     position: absolute;
     top: 0;
-    left: 0;
+    left: -2;
     transition: opacity 0.3s ease;
 }
 
@@ -113,6 +124,7 @@
     cursor: pointer;
     text-decoration: none;
     transition: color 0.3s;
+    flex-direction: column;
 }
 
 .dropdownMenu {
@@ -144,28 +156,8 @@
     background-color: #f0f0f0;
 }
 
-/* Responsive */
-
-.menuToggle {
-    background: none;
-    border: none;
+.logged{
     display: none;
-    cursor: pointer;
-}
-
-.links {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    gap: 1rem;
-}
-
-.navLinks,
-.authLinks {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
 }
 
 /* Mobile tweaks */
@@ -182,48 +174,70 @@
         align-items: center;
     }
 
+    .centerSection {
+        display: none;
+        width: 100%;
+    }
+
+    .bottomNav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        border-top: 1px solid #ccc;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 1000;
+    }
+
+    .centerSection {
+        display: none;
+    }
+
+    .bottomNav .linkWithIcon {
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bottomNav .iconWrapper {
+        width: 24px;
+        height: 24px;
+    }
+
+    .bottomNav .iconDefault,
+    .bottomNav .iconHover {
+        width: 100%;
+        height: auto;
+        position: static;
+    }
+
+    .bottomNav .linkWithIcon:hover .iconDefault {
+        opacity: 1;
+    }
+
+    .bottomNav .linkWithIcon:hover .iconHover {
+        opacity: 0;
+    }
+
+}
+
+@media (max-width: 375px) {
+    .loginTitle {
+        font-size: 17px;
+    }
+
     .linkWithIcon {
-        width: 60%;
+        font-size: 10px;
     }
 }
 
-
-@media (max-width: 768px) {
-    .nav {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 1rem;
-        height: auto;
-    }
-
-    .menuToggle {
-        display: block;
-        position: absolute;
-        right: 1rem;
-        top: 1rem;
-    }
-
-    .centerSection,
-    .rightSection {
-        display: none;
-        width: 100%;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 1rem;
-    }
-
-    .open {
-        display: flex !important;
-    }
-
-    .linkWithIcon {
-        width: 60%;
-        justify-content: center;
-        margin: 0.25rem 0;
-    }
-
-    .dropdownMenu {
-        position: static;
-        width: 100%;
+@media (max-width: 320px) {
+    .loginTitle {
+        font-size: 15px;
     }
 }

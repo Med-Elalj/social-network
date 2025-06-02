@@ -1,5 +1,5 @@
 import Routing from "./navigation/page";
-import Footer from "./footer/page";
+// import Footer from "./footer/page";
 import "./global.css";
 
 export const metadata = {

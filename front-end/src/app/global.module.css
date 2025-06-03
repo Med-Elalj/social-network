@@ -1,0 +1,89 @@
+body {
+  padding: 0;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+:root {
+  --primary-color: #ffffff;
+  --secondary-color: #160c28;
+  --third-color: #efcb68;
+  --border-color: #ddd;
+}
+
+.global {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.firstSide,
+.thirdSide {
+  width: 20%;
+}
+
+.firstSide>div,
+.thirdSide>div {
+  margin-bottom: 40px;
+}
+
+.firstSide h1,
+.thirdSide h1 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: var(--secondary-color);
+}
+
+.firstSide div>div,
+.thirdSide div>div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.firstSide h5,
+.thirdSide h5 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.firstSide p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.thirdSide a {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--third-color);
+  text-decoration: none;
+}
+
+.thirdSide a:hover {
+  text-decoration: underline;
+}
+
+.centerContent {
+  width: 55%;
+  padding: 0 20px;
+}
+
+.centerContent>div {
+  background-color: #f0f0f0;
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-weight: bold;
+  text-align: center;
+  width: 75%;
+  margin-left: 12%;
+}

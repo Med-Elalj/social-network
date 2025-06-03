@@ -1,0 +1,117 @@
+INFO: 2025/06/02 23:13:51 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:16:56 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:17:31 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:19:12 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:21:27 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:24:06 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:36:06 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:40:06 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:40:51 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:47:18 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:51:41 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:54:38 logs.go:54: Database successfully created!
+INFO: 2025/06/02 23:59:27 logs.go:54: Unmarshalling Gender: ""
+INFO: 2025/06/02 23:59:36 logs.go:54: Unmarshalling Gender: ""
+INFO: 2025/06/03 00:02:39 logs.go:54: Database successfully created!
+INFO: 2025/06/03 00:02:44 logs.go:54: Unmarshalling Gender: ""
+INFO: 2025/06/03 00:04:34 logs.go:54: Database successfully created!
+INFO: 2025/06/03 00:04:40 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:04:40 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:04:54 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:04:54 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:05:04 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:05:04 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:05:12 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:05:12 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:05:49 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:05:49 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:08:24 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:08:24 logs.go:54: Unmarshalling Birthdate: "4000-12-01"
+INFO: 2025/06/03 00:09:28 logs.go:54: Database successfully created!
+INFO: 2025/06/03 00:09:36 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:09:36 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:09:50 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:09:50 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:10:09 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:10:09 logs.go:54: Unmarshalling Birthdate: "2004-10-04"
+INFO: 2025/06/03 00:10:40 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:10:40 logs.go:54: Unmarshalling Birthdate: "2202-10-04"
+INFO: 2025/06/03 00:11:40 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:11:40 logs.go:54: Unmarshalling Birthdate: "1111-10-04"
+INFO: 2025/06/03 00:11:40 logs.go:54: Validation failed for user input
+INFO: 2025/06/03 00:11:53 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:11:53 logs.go:54: Unmarshalling Birthdate: "1111-10-04"
+INFO: 2025/06/03 00:11:53 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy"
+INFO: 2025/06/03 00:11:53 logs.go:54: User inserted into database successfully: aaaa
+INFO: 2025/06/03 00:11:53 logs.go:54: User registered successfully with ID: 1
+INFO: 2025/06/03 00:15:27 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:15:27 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:17:43 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:17:43 logs.go:54: Unmarshalling Birthdate: "2201-10-04"
+INFO: 2025/06/03 00:24:55 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:24:55 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:24:57 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:24:57 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:25:02 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:25:02 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:25:31 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:25:31 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/03 00:28:02 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:28:02 logs.go:54: Unmarshalling Birthdate: "2025-04-07"
+INFO: 2025/06/03 00:29:02 logs.go:54: Database successfully created!
+INFO: 2025/06/03 00:29:39 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:29:39 logs.go:54: Unmarshalling Birthdate: "2002-12-01"
+INFO: 2025/06/03 00:29:39 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$KqIWINVcQ14SoFWHAdrBEeizZWI5M8XwcaoRFQzk0x/kWIJCPTuUe"
+INFO: 2025/06/03 00:29:39 logs.go:54: Error inserting user into database: UNIQUE constraint failed: person.email
+INFO: 2025/06/03 00:29:48 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:29:48 logs.go:54: Unmarshalling Birthdate: "2002-12-01"
+INFO: 2025/06/03 00:29:49 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$n6BJaPbUsUrIsCxQ4DSQ0.oW81er2nzuz/CMk1yz0pKMbMH8q2JGa"
+INFO: 2025/06/03 00:29:49 logs.go:54: User inserted into database successfully: sdds
+INFO: 2025/06/03 00:29:49 logs.go:54: User registered successfully with ID: 2
+INFO: 2025/06/03 00:33:06 logs.go:54: Database successfully created!
+INFO: 2025/06/03 00:33:59 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:33:59 logs.go:54: Unmarshalling Birthdate: "4401-10-07"
+INFO: 2025/06/03 00:33:59 logs.go:54: Validation failed for user input
+INFO: 2025/06/03 00:34:26 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:34:26 logs.go:54: Unmarshalling Birthdate: "2100-10-07"
+INFO: 2025/06/03 00:34:26 logs.go:54: Validation failed for user input
+INFO: 2025/06/03 00:34:33 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:34:33 logs.go:54: Unmarshalling Birthdate: "2026-10-07"
+INFO: 2025/06/03 00:34:33 logs.go:54: Validation failed for user input
+INFO: 2025/06/03 00:34:43 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/03 00:34:43 logs.go:54: Unmarshalling Birthdate: "1900-10-07"
+INFO: 2025/06/03 00:34:43 logs.go:58: Hashing password:"@qwerQ.sdfd44@"
+got: "$2a$10$VTFN8g/iqZ62cKzxMtt2Qe3kBlG/Evxhxlo8vqfgCo1W/5HPVGJhm"
+INFO: 2025/06/03 00:34:43 logs.go:54: User inserted into database successfully: mrhioui
+INFO: 2025/06/03 00:34:43 logs.go:54: User registered successfully with ID: 3
+INFO: 2025/06/03 01:19:38 logs.go:54: Database successfully created!
+INFO: 2025/06/03 01:20:37 logs.go:54: Database successfully created!
+INFO: 2025/06/03 01:23:48 logs.go:54: Database successfully created!
+INFO: 2025/06/03 01:25:29 logs.go:54: Database successfully created!
+INFO: 2025/06/03 01:26:28 logs.go:54: Database successfully created!
+INFO: 2025/06/03 01:27:34 logs.go:54: Database successfully created!
+INFO: 2025/06/03 01:27:40 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 01:27:40 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 01:28:31 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 01:28:32 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 01:32:13 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 01:32:13 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 01:32:23 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 01:32:23 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 01:41:00 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 01:41:00 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 02:12:28 logs.go:54: Database successfully created!
+INFO: 2025/06/03 02:12:39 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 02:12:39 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 02:13:18 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 02:13:18 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 02:15:07 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 02:15:07 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 02:18:52 logs.go:54: Database successfully created!
+INFO: 2025/06/03 02:19:21 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 02:19:21 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 02:20:52 logs.go:54: Database successfully created!
+INFO: 2025/06/03 02:22:39 logs.go:54: Database successfully created!

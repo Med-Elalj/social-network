@@ -1,0 +1,9 @@
+html {
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #ddd #ffffff;
+}
+
+body {
+    overflow-x: hidden;
+}

@@ -5,6 +5,7 @@ export async function SendData(url, Data) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(Data),
         })
+        
         const responseBody = await response.json()
         return { status: response.status, body: responseBody }
     } catch (error) {

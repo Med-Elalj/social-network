@@ -6,19 +6,27 @@ import Link from "next/link";
 import Image from 'next/image';
 import Styles from "./nav.module.css";
 import { SendData } from '../../../utils/sendData.js';
+import { Logout } from "../../../EndPoints/Logout.js"
 
 export default function Routing() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
 
+  //TODO: if logged forbedin to use login/logout and the oposet true
   useEffect(() => {
     const fetchAuthStatus = async () => {
       try {
-        const {status, res} = await SendData('/api/v1/auth', null);
-        console.log(status, res);
+        const { status, body } = await SendData('/api/v1/auth', null);
         if (status === 200) {
           setIsLoggedIn(true);
+          const { status: st, body: body2 } = await SendData('/api/v1/profile', { id: body.id });
+
+          if (st === 200) {
+            localStorage.setItem("UserInfo", JSON.stringify(body2.Userinfo));
+          } else {
+            console.log("err", st, body2);
+          }
         }
       } catch (err) {
         console.error("Auth check failed", err);
@@ -27,6 +35,8 @@ export default function Routing() {
 
     fetchAuthStatus();
   }, []);
+
+  //TODO:fucntion to get data of user from local storage
 
   return (
     <div>
@@ -64,7 +74,16 @@ export default function Routing() {
                 {isOpen && (
                   <div className={Styles.dropdownMenu}>
                     <Link href={`/profile/nickname`} onClick={() => setIsOpen(false)}>Profile</Link>
-                    <Link href="/logout" onClick={() => setIsOpen(false)}>Logout</Link>
+                    <button
+                      onClick={async () => {
+                        await Logout();
+                        setIsOpen(false);
+                        setIsLoggedIn(false);
+                      }}
+                      className={Styles.dropdownItem}
+                    >
+                      Logout
+                    </button>
                   </div>
                 )}
               </div>
@@ -89,7 +108,7 @@ export default function Routing() {
           </>
         )}
       </div>
-    </div>
+    </div >
   );
 }
 

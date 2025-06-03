@@ -115,3 +115,52 @@ INFO: 2025/06/03 02:19:21 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.V
 INFO: 2025/06/03 02:19:21 logs.go:54: Password comparison succeeded
 INFO: 2025/06/03 02:20:52 logs.go:54: Database successfully created!
 INFO: 2025/06/03 02:22:39 logs.go:54: Database successfully created!
+INFO: 2025/06/03 02:41:33 logs.go:54: Database successfully created!
+INFO: 2025/06/03 02:41:54 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 02:41:54 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 03:28:10 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:29:26 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:30:42 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:31:13 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:32:09 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:34:30 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:35:08 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:35:59 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:38:40 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:39:09 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:40:04 logs.go:54: Database successfully created!
+INFO: 2025/06/03 03:40:48 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:28:32 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:31:08 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:31:36 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:31:44 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:32:10 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:33:04 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:33:29 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:34:10 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:35:23 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:37:17 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:39:28 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:42:26 logs.go:54: Database successfully created!
+INFO: 2025/06/03 04:43:09 logs.go:54: Database successfully created!
+INFO: 2025/06/03 05:03:11 logs.go:54: Database successfully created!
+INFO: 2025/06/03 05:03:58 logs.go:54: Database successfully created!
+INFO: 2025/06/03 05:04:19 logs.go:54: Database successfully created!
+INFO: 2025/06/03 05:04:51 logs.go:54: Database successfully created!
+INFO: 2025/06/03 05:05:51 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:05:51 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 05:05:58 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:05:58 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 05:25:37 logs.go:54: Database successfully created!
+INFO: 2025/06/03 05:26:11 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:26:11 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 05:27:13 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:27:13 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 05:28:30 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:28:30 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 05:29:25 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:29:25 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 05:29:26 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:29:26 logs.go:54: Password comparison succeeded
+INFO: 2025/06/03 05:29:26 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/03 05:29:26 logs.go:54: Password comparison succeeded

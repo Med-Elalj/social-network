@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 
 	"social-network/server/logs"
@@ -132,15 +134,21 @@ WHERE ? IN (pe.email, pr.display_name);`,
 	json.NewEncoder(w).Encode(map[string]string{
 		"message":  "Login successful",
 		"username": userName,
+		"id":       strconv.Itoa(id),
 	})
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	cookie := &http.Cookie{
-		Name:    "JWT",
-		Value:   "",
-		Expires: time.Unix(0, 0),
+		Name:     "JWT",
+		Value:    "",
+		Path:     "/", // important!
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,                   // ensures deletion
+		HttpOnly: true,                 // match original
+		Secure:   true,                 // match original
+		SameSite: http.SameSiteLaxMode, // match original
 	}
 	http.SetCookie(w, cookie)
 	json.NewEncoder(w).Encode(map[string]string{
@@ -166,4 +174,62 @@ func Islogged(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func ProfileHandler(w http.ResponseWriter, r *http.Request) {
+	type ProfileRequest struct {
+		ID int `json:"id"`
+	}
+	var id ProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&id); err != nil {
+		w.WriteHeader(400)
+		fmt.Println("sadsads", err)
+		return
+	}
 
+	var User structs.User
+	query := `
+			SELECT
+				p.email,
+			    p.first_name,
+			    p.last_name,
+			    p.gender,
+			    pr.display_name,
+			    pr.avatar,
+			    pr.description,
+			    pr.is_public,
+			    pr.is_person
+			FROM
+			    person p
+			    JOIN  profile pr ON p.id = pr.id
+			WHERE p.id = ?`
+
+	if err := db.DB.QueryRow(query, id.ID).Scan(&User.Email, &User.Fname, &User.Lname, &User.Gender, &User.Username, &User.Avatar, &User.Description, &User.IsPublic, &User.IsPerson); err != nil {
+		fmt.Println("weeeeee 3awtani lwla", err)
+		w.WriteHeader(400)
+		return
+	}
+
+	query2 := `
+			SELECT
+			    f.follower_id,
+			    f.following_id
+			FROM
+			    follow f
+			WHERE
+			    f.follower_id = ?
+			    OR f.following_id = ?`
+
+	if err := db.DB.QueryRow(query2, id.ID, id.ID).Scan(&User.Followed, &User.Followers); err != nil {
+		fmt.Println("weeeeee 3awtani lwla", err)
+		if err != sql.ErrNoRows {
+			w.WriteHeader(400)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"Userinfo": User,
+	})
+}

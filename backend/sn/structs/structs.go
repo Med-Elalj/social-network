@@ -1,6 +1,9 @@
 package structs
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type Input interface {
 	IsValid() error
@@ -65,14 +68,19 @@ type Post struct {
 }
 
 type User struct {
-	ID        int
-	Username  string
-	Email     string
-	Fname     string
-	Lname     string
-	Status    string
-	Followers []int
-	Followed  []int
+	ID          int
+	Username    string
+	Email       string
+	Fname       string
+	Lname       string
+	Status      string
+	Followers   []int
+	Followed    []int
+	Gender      int
+	Description sql.NullString
+	IsPublic    bool
+	IsPerson    bool
+	Avatar      sql.NullString
 }
 
 type PostCreate struct {

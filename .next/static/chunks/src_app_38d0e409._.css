@@ -1,0 +1,247 @@
+/* [project]/src/app/navigation/nav.module.css [app-client] (css) */
+.nav-module__ZdNNxq__nav {
+  scroll-behavior: smooth;
+  background-color: #fff;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  padding: 0 2rem;
+  display: flex;
+  position: relative;
+  box-shadow: 0 5px 10px 5px #0000001a;
+}
+
+.nav-module__ZdNNxq__bottomNav {
+  display: none;
+}
+
+.nav-module__ZdNNxq__leftSection, .nav-module__ZdNNxq__centerSection, .nav-module__ZdNNxq__rightSection {
+  align-items: center;
+  display: flex;
+}
+
+.nav-module__ZdNNxq__leftSection {
+  flex: 1;
+}
+
+.nav-module__ZdNNxq__centerSection {
+  flex: 2;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.nav-module__ZdNNxq__rightSection {
+  flex: 1;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+.nav-module__ZdNNxq__loginTitle {
+  color: #1c1665;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color .3s;
+}
+
+.nav-module__ZdNNxq__loginTitle:hover {
+  color: #fb0;
+}
+
+.nav-module__ZdNNxq__links {
+  align-items: center;
+  gap: .5rem;
+  display: flex;
+}
+
+.nav-module__ZdNNxq__linkWithIcon {
+  color: #1c1665;
+  padding: 16px;
+  text-decoration: none;
+  display: inline-flex;
+}
+
+.nav-module__ZdNNxq__linkWithIcon:hover {
+  color: #fb0;
+  border-bottom: 3px solid #fb0;
+}
+
+.nav-module__ZdNNxq__active {
+  border-bottom: 3px solid #1c1665;
+  text-decoration: none;
+}
+
+.nav-module__ZdNNxq__iconWrapper {
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+.nav-module__ZdNNxq__iconUser {
+  width: 30px;
+  height: 30px;
+  position: relative;
+}
+
+.nav-module__ZdNNxq__iconDefault, .nav-module__ZdNNxq__iconHover {
+  transition: opacity .3s;
+  position: absolute;
+  top: 0;
+  left: -2px;
+}
+
+.nav-module__ZdNNxq__iconDefault {
+  opacity: 1;
+}
+
+.nav-module__ZdNNxq__linkWithIcon:hover .nav-module__ZdNNxq__iconDefault, .nav-module__ZdNNxq__iconHover {
+  opacity: 0;
+}
+
+.nav-module__ZdNNxq__linkWithIcon:hover .nav-module__ZdNNxq__iconHover {
+  opacity: 1;
+}
+
+.nav-module__ZdNNxq__dropdownWrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.nav-module__ZdNNxq__profile {
+  color: #1c1665;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color .3s;
+  display: flex;
+}
+
+.nav-module__ZdNNxq__dropdownMenu {
+  z-index: 1000;
+  background: #fff;
+  border-radius: 4px;
+  flex-direction: column;
+  min-width: 160px;
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px #00000026;
+}
+
+.nav-module__ZdNNxq__dropdownWrapper:hover .nav-module__ZdNNxq__dropdownMenu {
+  display: flex;
+}
+
+.nav-module__ZdNNxq__dropdownMenu a {
+  color: #333;
+  padding: 10px 15px;
+  text-decoration: none;
+  transition: background .2s;
+}
+
+.nav-module__ZdNNxq__dropdownMenu a:hover {
+  background-color: #f0f0f0;
+}
+
+.nav-module__ZdNNxq__logged {
+  display: none;
+}
+
+@media (width <= 768px) {
+  .nav-module__ZdNNxq__links {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-module__ZdNNxq__navLinks, .nav-module__ZdNNxq__authLinks {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  .nav-module__ZdNNxq__centerSection {
+    width: 100%;
+    display: none;
+  }
+
+  .nav-module__ZdNNxq__bottomNav {
+    z-index: 1000;
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+    justify-content: space-around;
+    width: 100%;
+    padding: 10px 0;
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+  }
+
+  .nav-module__ZdNNxq__centerSection {
+    display: none;
+  }
+
+  .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__linkWithIcon {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    display: flex;
+  }
+
+  .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__iconWrapper {
+    width: 24px;
+    height: 24px;
+  }
+
+  .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__iconDefault, .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__iconHover {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+
+  .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__linkWithIcon:hover .nav-module__ZdNNxq__iconDefault {
+    opacity: 1;
+  }
+
+  .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__linkWithIcon:hover .nav-module__ZdNNxq__iconHover {
+    opacity: 0;
+  }
+}
+
+@media (width <= 375px) {
+  .nav-module__ZdNNxq__loginTitle {
+    font-size: 17px;
+  }
+
+  .nav-module__ZdNNxq__linkWithIcon {
+    font-size: 10px;
+  }
+}
+
+@media (width <= 320px) {
+  .nav-module__ZdNNxq__loginTitle {
+    font-size: 15px;
+  }
+}
+
+
+/* [project]/src/app/global.css [app-client] (css) */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #ddd #fff;
+  overflow-y: scroll;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+
+/*# sourceMappingURL=src_app_38d0e409._.css.map*/

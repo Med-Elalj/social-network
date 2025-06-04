@@ -1,0 +1,93 @@
+/* [project]/src/app/auth/register/register.module.css [app-client] (css) */
+.register-module__MLSybq__formContainer {
+  box-sizing: border-box;
+  background-color: #fff;
+  border: 1px solid #1c1665;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  margin: 3rem auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.register-module__MLSybq__form {
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  display: flex;
+}
+
+.register-module__MLSybq__messageBox {
+  text-align: center;
+  box-sizing: border-box;
+  width: 90%;
+  max-width: 500px;
+  margin: 2rem auto 1rem;
+  padding: 0 1rem;
+}
+
+.register-module__MLSybq__messageBox h2 {
+  color: #1c1665;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.register-module__MLSybq__label {
+  color: #1c1665;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.register-module__MLSybq__input {
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  transition: border .2s ease-in-out;
+}
+
+.register-module__MLSybq__input:focus {
+  border-color: #1c1665;
+  outline: none;
+}
+
+.register-module__MLSybq__submitButton {
+  color: #fb0;
+  cursor: pointer;
+  box-sizing: border-box;
+  background-color: #1c1665;
+  border: none;
+  border-radius: 8px;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all .3s;
+}
+
+.register-module__MLSybq__submitButton:hover {
+  color: #1c1665;
+  background-color: #fb0;
+}
+
+@media (width <= 600px) {
+  .register-module__MLSybq__formContainer {
+    margin: 2rem auto;
+    padding: 1.5rem;
+  }
+
+  .register-module__MLSybq__messageBox h2 {
+    font-size: 20px;
+  }
+
+  .register-module__MLSybq__input, .register-module__MLSybq__submitButton {
+    font-size: 15px;
+  }
+}
+
+
+/*# sourceMappingURL=src_app_auth_register_register_module_e3f3e13a.css.map*/

@@ -1,0 +1,12 @@
+/* [project]/src/app/global.css [app-client] (css) */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #ddd #fff;
+  overflow-y: scroll;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/*# sourceMappingURL=src_app_global_css_f9ee138c._.single.css.map*/

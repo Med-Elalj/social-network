@@ -61,33 +61,52 @@ export default function Routing() {
         {/* Right - Auth/Profile */}
         <div className={Styles.rightSection}>
           {isLoggedIn ? (
-            <div className={Styles.dropdownWrapper}>
-              <div
-                className={Styles.profile}
-                onMouseEnter={() => setIsOpen(true)}
-                onMouseLeave={() => setIsOpen(false)}
-              >
-                <span className={Styles.iconUser}>
-                  <Image src="/iconMale.png" alt="profile" width={40} height={40} />
-                </span>
-                <span>nickname</span>
-                {isOpen && (
-                  <div className={Styles.dropdownMenu}>
-                    <Link href={`/profile/nickname`} onClick={() => setIsOpen(false)}>Profile</Link>
-                    <button
-                      onClick={async () => {
-                        await Logout();
-                        setIsOpen(false);
-                        setIsLoggedIn(false);
-                      }}
-                      className={Styles.dropdownItem}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
+            <>
+              <div className={Styles.dropdownWrapper}>
+                <div
+                  className={Styles.notif}
+                  onClick={() => setIsOpen(true)}
+                  onMouseLeave={() => setIsOpen(false)}
+                >
+                  <span>
+                    <Image src="/notification.svg" alt="notification" width={25} height={25} />
+                  </span>
+                  {isOpen && (
+                    <div className={Styles.dropdownMenu}>
+                      <Link href={`/`} onClick={() => setIsOpen(false)}>test1</Link>
+                      <Link href={`/`} onClick={() => setIsOpen(false)}>test2</Link>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+              <div className={Styles.dropdownWrapper}>
+                <div
+                  className={Styles.profile}
+                  onClick={() => setIsOpen(true)}
+                  onMouseLeave={() => setIsOpen(false)}
+                >
+                  <span className={Styles.iconUser}>
+                    <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                  </span>
+                  <span>nickname</span>
+                  {isOpen && (
+                    <div className={Styles.dropdownMenu}>
+                      <Link href={`/profile/nickname`} onClick={() => setIsOpen(false)}>Profile</Link>
+                      <button
+                        onClick={async () => {
+                          await Logout();
+                          setIsOpen(false);
+                          setIsLoggedIn(false);
+                        }}
+                        className={Styles.dropdownItem}
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
           ) : (
             <>
               <Link className={`${Styles.linkWithIcon} ${pathname === "/auth/login" ? Styles.active : ""}`} href="/auth/login" onClick={() => setIsOpen(false)}>Login</Link>

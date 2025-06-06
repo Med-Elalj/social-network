@@ -8,7 +8,7 @@ body {
 
 :root {
   --primary-color: #ffffff;
-  --secondary-color: #160c28;
+  --secondary-color: #1C1665;
   --third-color: #efcb68;
   --border-color: #ddd;
 }
@@ -24,11 +24,6 @@ body {
   width: 20%;
 }
 
-.firstSide>div,
-.thirdSide>div {
-  margin-bottom: 40px;
-}
-
 .firstSide h1,
 .thirdSide h1 {
   font-size: 1.5rem;
@@ -36,40 +31,83 @@ body {
   color: var(--secondary-color);
 }
 
-.firstSide div>div,
-.thirdSide div>div {
+.groups,
+.friends,
+.Requiests {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 10px;
   padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  background-color: #f9f9f9;
+  border-bottom: #1C1665 1px solid;
 }
 
-.firstSide h5,
-.thirdSide h5 {
+.groups>div,
+.friends>div{
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.Requiests>div {
+    display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  /* justify-content: space-between; */
+}
+
+.friends>div {
+  cursor: pointer;
+}
+
+.groups>div>div {
+  display: flex;
+  margin-right: 10px;
+  align-items: center;
+}
+
+.Buttons a{
+  margin-left: 20px;
+  border: solid 1px #1C1665;
+  border-radius: 10px;
+  padding: 5px 10px;
+  text-decoration: none;
+  background-color: #1C1665;
+  color: white;
+}
+
+.Requiests>div>div {
+  display: flex;
+  align-items: center;
+}
+
+.friends h5 {
   margin: 0;
-  font-size: 1rem;
 }
 
-.firstSide p {
+.groups h5 {
+  margin: 10px;
+  font-size: 1rem;
+  color: black;
+}
+
+.groups p,
+.friends p {
   margin: 0;
   color: #555;
   font-size: 0.9rem;
 }
 
-.thirdSide a {
-  margin-left: auto;
-  font-size: 0.85rem;
-  color: var(--third-color);
+.groups a {
+  color: #1C1665;
   text-decoration: none;
+  font-size: bold;
 }
 
-.thirdSide a:hover {
-  text-decoration: underline;
+.groups a:hover {
+  color: #efcb68;
 }
+
 
 .centerContent {
   width: 55%;

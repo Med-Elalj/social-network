@@ -77,12 +77,6 @@
   position: relative;
 }
 
-.nav-module__ZdNNxq__iconUser {
-  width: 30px;
-  height: 30px;
-  position: relative;
-}
-
 .nav-module__ZdNNxq__iconDefault, .nav-module__ZdNNxq__iconHover {
   transition: opacity .3s;
   position: absolute;
@@ -112,12 +106,17 @@
   cursor: pointer;
   flex-direction: column;
   align-items: center;
-  gap: .5rem;
-  font-size: 15px;
   font-weight: bold;
   text-decoration: none;
   transition: color .3s;
   display: flex;
+}
+
+.nav-module__ZdNNxq__notif {
+  cursor: pointer;
+  background-color: #ececec;
+  border-radius: 90%;
+  padding: 7px 8px;
 }
 
 .nav-module__ZdNNxq__dropdownMenu {
@@ -138,14 +137,32 @@
   display: flex;
 }
 
+.nav-module__ZdNNxq__dropdownMenu button {
+  color: #333;
+  cursor: pointer;
+  text-align: left;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background .2s;
+}
+
+.nav-module__ZdNNxq__dropdownMenu button:hover, .nav-module__ZdNNxq__dropdownMenu a:hover {
+  background-color: #f0f0f0;
+}
+
 .nav-module__ZdNNxq__dropdownMenu a {
   color: #333;
   padding: 10px 15px;
+  font-weight: bold;
   text-decoration: none;
   transition: background .2s;
 }
 
-.nav-module__ZdNNxq__dropdownMenu a:hover {
+.nav-module__ZdNNxq__dropdownMenu a:hover, .nav-module__ZdNNxq__dropdownMenu button:hover {
   background-color: #f0f0f0;
 }
 

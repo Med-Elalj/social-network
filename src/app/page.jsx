@@ -1,28 +1,14 @@
 import Image from "next/image";
 import Styles from "./global.module.css";
-import Link from "next/link";
-import Groups from "./components/groups.js"
+import Groups from "./components/Groups";
+import Friends from "./components/Friends";
 
 export default function Home() {
   return (
     <div className={Styles.global}>
       {/* Left Sidebar */}
       <div className={Styles.firstSide}>
-        <Groups/>
-
-        <div>
-          <h1>Friends</h1>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>User Name</h5>
-            <p>Start of last message ...</p>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>User Name</h5>
-            <p>Start of last message ...</p>
-          </div>
-        </div>
+        <Groups />
       </div>
 
       {/* Center Content */}
@@ -38,40 +24,7 @@ export default function Home() {
 
       {/* Right Sidebar */}
       <div className={Styles.thirdSide}>
-        <div>
-          <h1>Requests</h1>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Reject</Link>
-            <Link href="/join">Accept</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Reject</Link>
-            <Link href="/join">Accept</Link>
-          </div>
-        </div>
-
-        <div>
-          <h1>Suggestions</h1>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Add</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Add</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Add</Link>
-          </div>
-        </div>
+        <Friends/>
       </div>
     </div>
   );

@@ -79,11 +79,7 @@
     height: 20px;
 }
 
-.iconUser {
-    position: relative;
-    width: 30px;
-    height: 30px;
-}
+
 
 .iconDefault,
 .iconHover {
@@ -116,15 +112,20 @@
 
 .profile {
     color: #1C1665;
-    font-size: 15px;
     font-weight: bold;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     cursor: pointer;
     text-decoration: none;
     transition: color 0.3s;
     flex-direction: column;
+}
+
+.notif {
+    background-color: #ececec;
+    border-radius: 90%;
+    padding: 7px 8px;
+    cursor: pointer;
 }
 
 .dropdownMenu {
@@ -145,18 +146,39 @@
     display: flex;
 }
 
+.dropdownMenu button {
+    background: none;
+    border: none;
+    color: #333;
+    padding: 10px 15px;
+    font-size: 16px;
+    margin: 0;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease;
+    font-weight: bold;
+}
+
+.dropdownMenu button:hover,
+.dropdownMenu a:hover {
+    background-color: #f0f0f0;
+}
+
+
 .dropdownMenu a {
     padding: 10px 15px;
     text-decoration: none;
     color: #333;
     transition: background 0.2s ease;
+    font-weight: bold;
 }
 
-.dropdownMenu a:hover {
+.dropdownMenu a:hover,
+.dropdownMenu button:hover {
     background-color: #f0f0f0;
 }
 
-.logged{
+.logged {
     display: none;
 }
 

@@ -1,4 +1,8 @@
 /* [project]/src/app/auth/register/register.module.css [app-client] (css) */
+.register-module__MLSybq__container {
+  margin: 80px 0;
+}
+
 .register-module__MLSybq__formContainer {
   box-sizing: border-box;
   background-color: #fff;

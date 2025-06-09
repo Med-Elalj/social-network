@@ -1,4 +1,11 @@
 /* [project]/src/app/global.module.css [app-client] (css) */
+:root {
+  --primary-color: #fff;
+  --secondary-color: #1c1665;
+  --third-color: #efcb68;
+  --border-color: #ddd;
+}
+
 body {
   background-color: var(--primary-color);
   color: var(--secondary-color);
@@ -7,21 +14,40 @@ body {
   font-family: Arial, sans-serif;
 }
 
-:root {
-  --primary-color: #fff;
-  --secondary-color: #1c1665;
-  --third-color: #efcb68;
-  --border-color: #ddd;
-}
-
 .global-module__5XLRYa__global {
-  justify-content: space-between;
-  padding: 20px;
-  display: flex;
+  margin: 0;
+  padding: 0;
+  display: block;
 }
 
 .global-module__5XLRYa__firstSide, .global-module__5XLRYa__thirdSide {
-  width: 20%;
+  background-color: var(--primary-color);
+  box-sizing: border-box;
+  z-index: -1;
+  width: 25%;
+  height: 100%;
+  padding: 20px;
+  position: fixed;
+  top: 20px;
+  overflow-y: auto;
+}
+
+.global-module__5XLRYa__firstSide {
+  border-right: 1px solid var(--border-color);
+  left: 0;
+}
+
+.global-module__5XLRYa__thirdSide {
+  border-left: 1px solid var(--border-color);
+  right: 0;
+}
+
+.global-module__5XLRYa__centerContent {
+  box-sizing: border-box;
+  margin-top: 60px;
+  margin-left: 20%;
+  margin-right: 20%;
+  padding: 20px;
 }
 
 .global-module__5XLRYa__firstSide h1, .global-module__5XLRYa__thirdSide h1 {
@@ -65,6 +91,12 @@ body {
   text-decoration: none;
 }
 
+.global-module__5XLRYa__Buttons a:hover {
+  color: #1c1665;
+  background-color: #efcb68;
+  border: 1px solid #efcb68;
+}
+
 .global-module__5XLRYa__Requiests > div > div {
   align-items: center;
   display: flex;
@@ -96,21 +128,67 @@ body {
   color: #efcb68;
 }
 
-.global-module__5XLRYa__centerContent {
-  width: 55%;
-  padding: 0 20px;
-}
-
-.global-module__5XLRYa__centerContent > div {
+.global-module__5XLRYa__post {
   border: 1px solid var(--border-color);
-  text-align: center;
-  background-color: #f0f0f0;
+  color: #000;
+  background-color: #ffffff7c;
   border-radius: 8px;
   width: 75%;
   margin-bottom: 20px;
   margin-left: 12%;
-  padding: 20px;
-  font-weight: bold;
+  padding: 0 20px;
+}
+
+.global-module__5XLRYa__userinfo {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.global-module__5XLRYa__userinfo > div {
+  align-items: center;
+  display: flex;
+}
+
+.global-module__5XLRYa__content {
+  margin: 20px 0;
+}
+
+.global-module__5XLRYa__footer {
+  justify-content: flex-end;
+  margin: 20px 0;
+  display: flex;
+}
+
+.global-module__5XLRYa__footer > img {
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+@media (width <= 1024px) {
+  .global-module__5XLRYa__firstSide, .global-module__5XLRYa__thirdSide {
+    width: 31%;
+  }
+
+  .global-module__5XLRYa__centerContent {
+    margin-left: 30%;
+    margin-right: 30%;
+  }
+}
+
+@media (width <= 768px) {
+  .global-module__5XLRYa__firstSide, .global-module__5XLRYa__thirdSide {
+    display: none;
+  }
+
+  .global-module__5XLRYa__centerContent {
+    width: 100%;
+    margin: 60px 0;
+  }
+
+  .global-module__5XLRYa__post {
+    margin: 10px 8%;
+  }
 }
 
 

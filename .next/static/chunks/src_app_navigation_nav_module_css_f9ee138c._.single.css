@@ -1,13 +1,12 @@
 /* [project]/src/app/navigation/nav.module.css [app-client] (css) */
 .nav-module__ZdNNxq__nav {
-  scroll-behavior: smooth;
   background-color: #fff;
   justify-content: space-between;
   align-items: center;
-  height: 60px;
+  width: 100%;
   padding: 0 2rem;
   display: flex;
-  position: relative;
+  position: fixed;
   box-shadow: 0 5px 10px 5px #0000001a;
 }
 
@@ -17,6 +16,7 @@
 
 .nav-module__ZdNNxq__leftSection, .nav-module__ZdNNxq__centerSection, .nav-module__ZdNNxq__rightSection {
   align-items: center;
+  margin-right: 60px;
   display: flex;
 }
 
@@ -114,9 +114,7 @@
 
 .nav-module__ZdNNxq__notif {
   cursor: pointer;
-  background-color: #ececec;
-  border-radius: 90%;
-  padding: 7px 8px;
+  margin-right: 10px;
 }
 
 .nav-module__ZdNNxq__dropdownMenu {

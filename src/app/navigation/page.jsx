@@ -51,7 +51,7 @@ export default function Routing() {
           {isLoggedIn && (
             <>
               <NavLink href="/" icon="home" pathname={pathname} />
-              <NavLink href="/posts" icon="posts" pathname={pathname} />
+              <NavLink href="/newPost" icon="posts" pathname={pathname} />
               <NavLink href="/groups" icon="groupe" pathname={pathname} />
               <NavLink href="/chat" icon="messages" pathname={pathname} />
             </>
@@ -121,7 +121,7 @@ export default function Routing() {
         {isLoggedIn && (
           <>
             <NavLink href="/" icon="home" pathname={pathname} />
-            <NavLink href="/posts" icon="posts" pathname={pathname} />
+            <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groups" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
           </>

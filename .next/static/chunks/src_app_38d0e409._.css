@@ -1,5 +1,6 @@
 /* [project]/src/app/navigation/nav.module.css [app-client] (css) */
 .nav-module__ZdNNxq__nav {
+  z-index: 1;
   background-color: #fff;
   justify-content: space-between;
   align-items: center;
@@ -255,6 +256,8 @@ html {
 }
 
 body {
+  margin: 0;
+  padding: 0;
   overflow-x: hidden;
 }
 

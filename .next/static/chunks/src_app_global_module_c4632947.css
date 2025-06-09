@@ -2,16 +2,8 @@
 :root {
   --primary-color: #fff;
   --secondary-color: #1c1665;
-  --third-color: #efcb68;
+  --third-color: #fb0;
   --border-color: #ddd;
-}
-
-body {
-  background-color: var(--primary-color);
-  color: var(--secondary-color);
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
 }
 
 .global-module__5XLRYa__global {
@@ -23,7 +15,6 @@ body {
 .global-module__5XLRYa__firstSide, .global-module__5XLRYa__thirdSide {
   background-color: var(--primary-color);
   box-sizing: border-box;
-  z-index: -1;
   width: 25%;
   height: 100%;
   padding: 20px;

@@ -136,8 +136,8 @@ function NavLink({ href, icon, pathname }) {
   return (
     <Link className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""}`} href={href}>
       <span className={Styles.iconWrapper}>
-        <Image src={`/${icon}2.svg`} alt={icon} width={25} height={25} className={Styles.iconDefault} />
-        <Image src={`/${icon}.svg`} alt={`${icon}-hover`} width={25} height={25} className={Styles.iconHover} />
+        <Image src={`/${icon}2.svg`} alt={`${icon}-hover`} width={25} height={25} className={Styles.iconHover} />
+        <Image src={`/${icon}.svg`} alt={icon} width={25} height={25} className={Styles.iconDefault} />
       </span>
     </Link>
   );

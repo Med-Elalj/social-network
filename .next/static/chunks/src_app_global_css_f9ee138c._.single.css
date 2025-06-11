@@ -5,7 +5,16 @@ html {
   overflow-y: scroll;
 }
 
+:root {
+  --primary-color: #1a1a1a;
+  --secondary-color: #e0e0e0;
+  --hover-color: #8d6b0d;
+  --third-color: #fb0;
+  --border-color: #333;
+}
+
 body {
+  background-color: var(--primary-color);
   margin: 0;
   padding: 0;
   overflow-x: hidden;

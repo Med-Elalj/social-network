@@ -1,7 +1,7 @@
 /* [project]/src/app/navigation/nav.module.css [app-client] (css) */
 .nav-module__ZdNNxq__nav {
+  background-color: var(--primary-color);
   z-index: 1;
-  background-color: #fff;
   justify-content: space-between;
   align-items: center;
   width: 100%;
@@ -38,7 +38,7 @@
 }
 
 .nav-module__ZdNNxq__loginTitle {
-  color: #1c1665;
+  color: var(--third-color);
   font-size: 24px;
   font-weight: bold;
   text-decoration: none;
@@ -46,7 +46,7 @@
 }
 
 .nav-module__ZdNNxq__loginTitle:hover {
-  color: #fb0;
+  color: var(--hover-color);
 }
 
 .nav-module__ZdNNxq__links {
@@ -56,19 +56,19 @@
 }
 
 .nav-module__ZdNNxq__linkWithIcon {
-  color: #1c1665;
+  color: var(--third-color);
   padding: 16px;
   text-decoration: none;
   display: inline-flex;
 }
 
 .nav-module__ZdNNxq__linkWithIcon:hover {
-  color: #fb0;
-  border-bottom: 3px solid #fb0;
+  color: var(--hover-color);
+  border-bottom: solid 3px var(--hover-color);
 }
 
 .nav-module__ZdNNxq__active {
-  border-bottom: 3px solid #1c1665;
+  border-bottom: solid 3px var(--third-color);
   text-decoration: none;
 }
 
@@ -103,7 +103,7 @@
 }
 
 .nav-module__ZdNNxq__profile {
-  color: #1c1665;
+  color: var(--third-color);
   cursor: pointer;
   flex-direction: column;
   align-items: center;
@@ -119,8 +119,8 @@
 }
 
 .nav-module__ZdNNxq__dropdownMenu {
+  background: var(--border-color);
   z-index: 1000;
-  background: #fff;
   border-radius: 4px;
   flex-direction: column;
   min-width: 160px;
@@ -137,7 +137,7 @@
 }
 
 .nav-module__ZdNNxq__dropdownMenu button {
-  color: #333;
+  color: var(--secondary-color);
   cursor: pointer;
   text-align: left;
   background: none;
@@ -150,11 +150,12 @@
 }
 
 .nav-module__ZdNNxq__dropdownMenu button:hover, .nav-module__ZdNNxq__dropdownMenu a:hover {
-  background-color: #f0f0f0;
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
 }
 
 .nav-module__ZdNNxq__dropdownMenu a {
-  color: #333;
+  color: var(--secondary-color);
   padding: 10px 15px;
   font-weight: bold;
   text-decoration: none;
@@ -187,9 +188,9 @@
   }
 
   .nav-module__ZdNNxq__bottomNav {
+    background-color: var(--primary-color);
+    border-top: 1px solid var(--border-color);
     z-index: 1000;
-    background-color: #fff;
-    border-top: 1px solid #ccc;
     justify-content: space-around;
     width: 100%;
     padding: 10px 0;
@@ -214,12 +215,6 @@
   .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__iconWrapper {
     width: 24px;
     height: 24px;
-  }
-
-  .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__iconDefault, .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__iconHover {
-    width: 100%;
-    height: auto;
-    position: static;
   }
 
   .nav-module__ZdNNxq__bottomNav .nav-module__ZdNNxq__linkWithIcon:hover .nav-module__ZdNNxq__iconDefault {
@@ -255,7 +250,16 @@ html {
   overflow-y: scroll;
 }
 
+:root {
+  --primary-color: #1a1a1a;
+  --secondary-color: #e0e0e0;
+  --hover-color: #8d6b0d;
+  --third-color: #fb0;
+  --border-color: #333;
+}
+
 body {
+  background-color: var(--primary-color);
   margin: 0;
   padding: 0;
   overflow-x: hidden;

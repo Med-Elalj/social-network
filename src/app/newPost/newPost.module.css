@@ -1,0 +1,65 @@
+.form {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 100px auto;
+  box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
+}
+
+.form h2 {
+  margin-bottom: 1.5rem;
+  color: var(--third-color);
+}
+
+.form label {
+  font-weight: bold;
+  color: var(--secondary-color);
+}
+
+.form textarea,
+.form input[type="file"] {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  background-color: #2a2a2a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--secondary-color);
+  resize: vertical;
+}
+
+.form textarea::placeholder {
+  color: #aaa;
+}
+
+.form input[type="file"] {
+  padding: 0.5rem;
+  color: var(--secondary-color);
+}
+
+.form img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.form button {
+  background-color: var(--third-color);
+  color: var(--primary-color);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form button:hover {
+  background-color: var(--hover-color);
+  color: var(--secondary-color);
+}

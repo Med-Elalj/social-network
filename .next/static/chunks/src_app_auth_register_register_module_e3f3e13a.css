@@ -4,15 +4,16 @@
 }
 
 .register-module__MLSybq__formContainer {
-  box-sizing: border-box;
-  background-color: #fff;
-  border: 1px solid #1c1665;
-  border-radius: 12px;
+  background-color: var(--primary-color);
   width: 90%;
   max-width: 500px;
+  color: var(--secondary-color);
+  box-sizing: border-box;
+  border-radius: 12px;
   margin: 3rem auto;
   padding: 2rem;
   font-family: Arial, sans-serif;
+  box-shadow: 0 0 10px #83838375;
 }
 
 .register-module__MLSybq__form {
@@ -32,37 +33,48 @@
 }
 
 .register-module__MLSybq__messageBox h2 {
-  color: #1c1665;
+  color: var(--third-color);
   font-size: 24px;
   font-weight: bold;
 }
 
 .register-module__MLSybq__label {
-  color: #1c1665;
+  color: var(--secondary-color);
   font-size: 14px;
   font-weight: 600;
 }
 
 .register-module__MLSybq__input {
+  border: 1px solid var(--border-color);
   box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 6px;
   width: 100%;
+  color: var(--secondary-color);
+  background-color: #2a2a2a;
+  border-radius: 6px;
   padding: 10px 12px;
   font-size: 15px;
   transition: border .2s ease-in-out;
 }
 
 .register-module__MLSybq__input:focus {
-  border-color: #1c1665;
+  border-color: var(--third-color);
   outline: none;
 }
 
+.register-module__MLSybq__input::placeholder {
+  color: #aaa;
+}
+
+.register-module__MLSybq__input[type="file"] {
+  color: var(--secondary-color);
+  padding: .5rem;
+}
+
 .register-module__MLSybq__submitButton {
-  color: #fb0;
+  background-color: var(--third-color);
+  color: var(--primary-color);
   cursor: pointer;
   box-sizing: border-box;
-  background-color: #1c1665;
   border: none;
   border-radius: 8px;
   width: 100%;
@@ -74,8 +86,8 @@
 }
 
 .register-module__MLSybq__submitButton:hover {
-  color: #1c1665;
-  background-color: #fb0;
+  background-color: var(--hover-color);
+  color: var(--secondary-color);
 }
 
 @media (width <= 600px) {

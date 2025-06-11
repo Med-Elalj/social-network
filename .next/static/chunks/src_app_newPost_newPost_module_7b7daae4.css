@@ -1,0 +1,68 @@
+/* [project]/src/app/newPost/newPost.module.css [app-client] (css) */
+.newPost-module__GjxzQa__form {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  border-radius: 8px;
+  max-width: 600px;
+  margin: 100px auto;
+  padding: 2rem;
+  box-shadow: 0 0 10px #83838375;
+}
+
+.newPost-module__GjxzQa__form h2 {
+  color: var(--third-color);
+  margin-bottom: 1.5rem;
+}
+
+.newPost-module__GjxzQa__form label {
+  color: var(--secondary-color);
+  font-weight: bold;
+}
+
+.newPost-module__GjxzQa__form textarea, .newPost-module__GjxzQa__form input[type="file"] {
+  border: 1px solid var(--border-color);
+  width: 100%;
+  color: var(--secondary-color);
+  resize: vertical;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  margin-top: .25rem;
+  margin-bottom: 1rem;
+  padding: .75rem;
+}
+
+.newPost-module__GjxzQa__form textarea::placeholder {
+  color: #aaa;
+}
+
+.newPost-module__GjxzQa__form input[type="file"] {
+  color: var(--secondary-color);
+  padding: .5rem;
+}
+
+.newPost-module__GjxzQa__form img {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  max-width: 100%;
+  height: auto;
+  margin-top: 1rem;
+}
+
+.newPost-module__GjxzQa__form button {
+  background-color: var(--third-color);
+  color: var(--primary-color);
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  padding: .75rem 1.5rem;
+  font-weight: bold;
+  transition: background-color .3s;
+}
+
+.newPost-module__GjxzQa__form button:hover {
+  background-color: var(--hover-color);
+  color: var(--secondary-color);
+}
+
+
+/*# sourceMappingURL=src_app_newPost_newPost_module_7b7daae4.css.map*/

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Styles from "./newPost.module.css";
 
 export default function NewPost() {
   const [content, setContent] = useState("");
@@ -27,7 +28,7 @@ export default function NewPost() {
   };
 
   return (
-    <div>
+    <div className={Styles.form}>
       <h2>Create New Post</h2>
 
       <form onSubmit={handleSubmit}>
@@ -47,7 +48,7 @@ export default function NewPost() {
           <input type="file" id="image" accept="image/*" onChange={handleImageChange} />
           {previewUrl && (
             <div >
-              <img src={previewUrl} alt="Preview"/>
+              <img src={previewUrl} alt="Preview" />
             </div>
           )}
         </div>

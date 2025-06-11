@@ -1,10 +1,3 @@
-:root {
-  --primary-color: #ffffff;
-  --secondary-color: #1C1665;
-  --third-color: #FFBB00;
-  --border-color: #ddd;
-}
-
 .global {
   display: block;
   padding: 0;
@@ -14,7 +7,7 @@
 .firstSide,
 .thirdSide {
   position: fixed;
-  top: 20;
+  top: 30;
   height: 100%;
   overflow-y: auto;
   padding: 20px;
@@ -34,18 +27,19 @@
 }
 
 .centerContent {
-  margin-left: 20%;
-  margin-right: 20%;
+  margin: 0 20%;
   margin-top: 60px;
-  padding: 20px;
+  padding: 40px;
   box-sizing: border-box;
+  color: var(--secondary-color);
+  background-color: var(--primary-color);
 }
 
 .firstSide h1,
 .thirdSide h1 {
   font-size: 1.5rem;
   margin-bottom: 20px;
-  color: var(--secondary-color);
+  color: var(--third-color);
 }
 
 .groups,
@@ -56,16 +50,12 @@
   gap: 10px;
   margin-bottom: 10px;
   padding: 10px;
-  border-bottom: #1C1665 1px solid;
+  border-bottom: var(--border-color) 1px solid;
+  color: var(--secondary-color);
 }
 
 .groups>div,
-.friends>div {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
+.friends>div,
 .Requiests>div {
   display: flex;
   align-items: center;
@@ -84,18 +74,18 @@
 
 .Buttons a {
   margin-left: 20px;
-  border: solid 1px #1C1665;
+  border: solid 1px var(--third-color);
   border-radius: 10px;
   padding: 5px 10px;
   text-decoration: none;
-  background-color: #1C1665;
-  color: white;
+  background-color: var(--third-color);
+  color: var(--primary-color);
 }
 
 .Buttons a:hover {
-  border: solid 1px #efcb68;
-  background-color: #efcb68;
-  color: #1C1665;
+  border: solid 1px var(--hover-color);
+  background-color: var(--hover-color);
+  color: var(--secondary-color);
 }
 
 .Requiests>div>div {
@@ -105,40 +95,41 @@
 
 .friends h5 {
   margin: 0;
+  color: var(--secondary-color);
 }
 
 .groups h5 {
   margin: 10px;
   font-size: 1rem;
-  color: black;
+  color: var(--secondary-color);
 }
 
 .groups p,
 .friends p {
   margin: 0;
-  color: #555;
+  color: #aaa;
   font-size: 0.9rem;
 }
 
 .groups a {
-  color: #1C1665;
+  color: var(--third-color);
   text-decoration: none;
-  font-size: bold;
+  font-weight: bold;
 }
 
 .groups a:hover {
-  color: #efcb68;
+  color: var(--hover-color);
 }
 
 .post {
-  background-color: #ffffff7c;
+  background-color: var(--border-color);
   margin-bottom: 20px;
   padding: 0 20px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
   width: 75%;
   margin-left: 12%;
-  color: black;
+  color: var(--secondary-color);
 }
 
 .userinfo {
@@ -152,6 +143,10 @@
   align-items: center;
 }
 
+.userinfo>div>p {
+  margin-left: 5px;
+}
+
 .content {
   margin: 20px 0;
 }
@@ -162,9 +157,15 @@
   margin: 20px 0;
 }
 
-.footer>img {
-  margin-left: 10px;
+.footer>.action>img {
   cursor: pointer;
+  margin-right: 5px;
+}
+
+.footer .action{
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
 }
 
 @media (max-width: 1024px) {

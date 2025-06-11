@@ -1,11 +1,4 @@
 /* [project]/src/app/global.module.css [app-client] (css) */
-:root {
-  --primary-color: #fff;
-  --secondary-color: #1c1665;
-  --third-color: #fb0;
-  --border-color: #ddd;
-}
-
 .global-module__5XLRYa__global {
   margin: 0;
   padding: 0;
@@ -19,7 +12,7 @@
   height: 100%;
   padding: 20px;
   position: fixed;
-  top: 20px;
+  top: 30px;
   overflow-y: auto;
 }
 
@@ -35,20 +28,21 @@
 
 .global-module__5XLRYa__centerContent {
   box-sizing: border-box;
-  margin-top: 60px;
-  margin-left: 20%;
-  margin-right: 20%;
-  padding: 20px;
+  color: var(--secondary-color);
+  background-color: var(--primary-color);
+  margin: 60px 20% 0;
+  padding: 40px;
 }
 
 .global-module__5XLRYa__firstSide h1, .global-module__5XLRYa__thirdSide h1 {
-  color: var(--secondary-color);
+  color: var(--third-color);
   margin-bottom: 20px;
   font-size: 1.5rem;
 }
 
 .global-module__5XLRYa__groups, .global-module__5XLRYa__friends, .global-module__5XLRYa__Requiests {
-  border-bottom: 1px solid #1c1665;
+  border-bottom: var(--border-color) 1px solid;
+  color: var(--secondary-color);
   flex-direction: column;
   gap: 10px;
   margin-bottom: 10px;
@@ -73,9 +67,9 @@
 }
 
 .global-module__5XLRYa__Buttons a {
-  color: #fff;
-  background-color: #1c1665;
-  border: 1px solid #1c1665;
+  border: solid 1px var(--third-color);
+  background-color: var(--third-color);
+  color: var(--primary-color);
   border-radius: 10px;
   margin-left: 20px;
   padding: 5px 10px;
@@ -83,9 +77,9 @@
 }
 
 .global-module__5XLRYa__Buttons a:hover {
-  color: #1c1665;
-  background-color: #efcb68;
-  border: 1px solid #efcb68;
+  border: solid 1px var(--hover-color);
+  background-color: var(--hover-color);
+  color: var(--secondary-color);
 }
 
 .global-module__5XLRYa__Requiests > div > div {
@@ -94,37 +88,38 @@
 }
 
 .global-module__5XLRYa__friends h5 {
+  color: var(--secondary-color);
   margin: 0;
 }
 
 .global-module__5XLRYa__groups h5 {
-  color: #000;
+  color: var(--secondary-color);
   margin: 10px;
   font-size: 1rem;
 }
 
 .global-module__5XLRYa__groups p, .global-module__5XLRYa__friends p {
-  color: #555;
+  color: #aaa;
   margin: 0;
   font-size: .9rem;
 }
 
 .global-module__5XLRYa__groups a {
-  color: #1c1665;
-  font-size: bold;
+  color: var(--third-color);
+  font-weight: bold;
   text-decoration: none;
 }
 
 .global-module__5XLRYa__groups a:hover {
-  color: #efcb68;
+  color: var(--hover-color);
 }
 
 .global-module__5XLRYa__post {
+  background-color: var(--border-color);
   border: 1px solid var(--border-color);
-  color: #000;
-  background-color: #ffffff7c;
-  border-radius: 8px;
   width: 75%;
+  color: var(--secondary-color);
+  border-radius: 8px;
   margin-bottom: 20px;
   margin-left: 12%;
   padding: 0 20px;
@@ -141,6 +136,10 @@
   display: flex;
 }
 
+.global-module__5XLRYa__userinfo > div > p {
+  margin-left: 5px;
+}
+
 .global-module__5XLRYa__content {
   margin: 20px 0;
 }
@@ -151,9 +150,15 @@
   display: flex;
 }
 
-.global-module__5XLRYa__footer > img {
+.global-module__5XLRYa__footer > .global-module__5XLRYa__action > img {
   cursor: pointer;
+  margin-right: 5px;
+}
+
+.global-module__5XLRYa__footer .global-module__5XLRYa__action {
+  align-items: center;
   margin-left: 10px;
+  display: flex;
 }
 
 @media (width <= 1024px) {

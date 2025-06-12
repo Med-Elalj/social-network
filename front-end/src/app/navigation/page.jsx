@@ -20,7 +20,10 @@ export default function Routing() {
         const { status, body } = await SendData('/api/v1/auth', null);
         if (status === 200) {
           setIsLoggedIn(true);
+          console.log(await body.id);
+          
           const { status: st, body: body2 } = await SendData('/api/v1/profile', { id: body.id });
+          console.log(await body2);
 
           if (st === 200) {
             localStorage.setItem("UserInfo", JSON.stringify(body2.Userinfo));
@@ -47,47 +50,66 @@ export default function Routing() {
         </div>
 
         {/* Center - Navigation Links */}
-        <div className={Styles.centerSection}>
-          {isLoggedIn && (
+        {isLoggedIn && (
+          <div className={Styles.centerSection}>
             <>
               <NavLink href="/" icon="home" pathname={pathname} />
-              <NavLink href="/posts" icon="posts" pathname={pathname} />
-              <NavLink href="/groups" icon="groupe" pathname={pathname} />
+              <NavLink href="/newPost" icon="posts" pathname={pathname} />
+              <NavLink href="/groupes" icon="groupe" pathname={pathname} />
               <NavLink href="/chat" icon="messages" pathname={pathname} />
             </>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Right - Auth/Profile */}
         <div className={Styles.rightSection}>
           {isLoggedIn ? (
-            <div className={Styles.dropdownWrapper}>
-              <div
-                className={Styles.profile}
-                onMouseEnter={() => setIsOpen(true)}
-                onMouseLeave={() => setIsOpen(false)}
-              >
-                <span className={Styles.iconUser}>
-                  <Image src="/iconMale.png" alt="profile" width={40} height={40} />
-                </span>
-                <span>nickname</span>
-                {isOpen && (
-                  <div className={Styles.dropdownMenu}>
-                    <Link href={`/profile/nickname`} onClick={() => setIsOpen(false)}>Profile</Link>
-                    <button
-                      onClick={async () => {
-                        await Logout();
-                        setIsOpen(false);
-                        setIsLoggedIn(false);
-                      }}
-                      className={Styles.dropdownItem}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
+            <>
+              <div className={Styles.dropdownWrapper}>
+                <div
+                  className={Styles.notif}
+                  onClick={() => setIsOpen(true)}
+                  onMouseLeave={() => setIsOpen(false)}
+                >
+                  <span>
+                    <Image src="/notification.svg" alt="notification" width={25} height={25} />
+                  </span>
+                  {isOpen && (
+                    <div className={Styles.dropdownMenu}>
+                      <Link href={`/`} onClick={() => setIsOpen(false)}>test1</Link>
+                      <Link href={`/`} onClick={() => setIsOpen(false)}>test2</Link>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+              <div className={Styles.dropdownWrapper}>
+                <div
+                  className={Styles.profile}
+                  onClick={() => setIsOpen(true)}
+                  onMouseLeave={() => setIsOpen(false)}
+                >
+                  <span className={Styles.iconUser}>
+                    <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                  </span>
+                  <span>nickname</span>
+                  {isOpen && (
+                    <div className={Styles.dropdownMenu}>
+                      <Link href={`/profile/nickname`} onClick={() => setIsOpen(false)}>Profile</Link>
+                      <button
+                        onClick={async () => {
+                          await Logout();
+                          setIsOpen(false);
+                          setIsLoggedIn(false);
+                        }}
+                        className={Styles.dropdownItem}
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
           ) : (
             <>
               <Link className={`${Styles.linkWithIcon} ${pathname === "/auth/login" ? Styles.active : ""}`} href="/auth/login" onClick={() => setIsOpen(false)}>Login</Link>
@@ -102,7 +124,7 @@ export default function Routing() {
         {isLoggedIn && (
           <>
             <NavLink href="/" icon="home" pathname={pathname} />
-            <NavLink href="/posts" icon="posts" pathname={pathname} />
+            <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groups" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
           </>
@@ -117,8 +139,8 @@ function NavLink({ href, icon, pathname }) {
   return (
     <Link className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""}`} href={href}>
       <span className={Styles.iconWrapper}>
-        <Image src={`/${icon}2.svg`} alt={icon} width={25} height={25} className={Styles.iconDefault} />
-        <Image src={`/${icon}.svg`} alt={`${icon}-hover`} width={25} height={25} className={Styles.iconHover} />
+        <Image src={`/${icon}2.svg`} alt={`${icon}-hover`} width={25} height={25} className={Styles.iconHover} />
+        <Image src={`/${icon}.svg`} alt={icon} width={25} height={25} className={Styles.iconDefault} />
       </span>
     </Link>
   );

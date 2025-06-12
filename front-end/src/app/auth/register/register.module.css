@@ -1,11 +1,16 @@
+.container {
+    margin: 80px 0;
+}
+
 .formContainer {
     max-width: 500px;
     width: 90%;
     margin: 3rem auto;
     padding: 2rem;
-    background-color: #ffffff;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
     border-radius: 12px;
-    border: 1px solid #1C1665;
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     font-family: Arial, sans-serif;
     box-sizing: border-box;
 }
@@ -28,36 +33,47 @@
 
 .messageBox h2 {
     font-size: 24px;
-    color: #1C1665;
+    color: var(--third-color);
     font-weight: bold;
 }
 
 .label {
     font-size: 14px;
-    color: #1C1665;
+    color: var(--secondary-color);
     font-weight: 600;
 }
 
 .input {
+    background-color: #2a2a2a;
     padding: 10px 12px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 15px;
     transition: border 0.2s ease-in-out;
     width: 100%;
     box-sizing: border-box;
+    color: var(--secondary-color);
 }
 
 .input:focus {
-    border-color: #1C1665;
+    border-color: var(--third-color);
     outline: none;
+}
+
+.input::placeholder {
+    color: #aaa;
+}
+
+.input[type="file"] {
+    padding: 0.5rem;
+    color: var(--secondary-color);
 }
 
 .submitButton {
     margin-top: 1rem;
     padding: 12px 20px;
-    background-color: #1C1665;
-    color: #FFBB00;
+    background-color: var(--third-color);
+    color: var(--primary-color);
     font-size: 16px;
     font-weight: bold;
     border: none;
@@ -69,8 +85,8 @@
 }
 
 .submitButton:hover {
-    background-color: #FFBB00;
-    color: #1C1665;
+  background-color: var(--hover-color);
+  color: var(--secondary-color);
 }
 
 /* Responsive */

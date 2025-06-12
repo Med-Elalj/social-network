@@ -164,3 +164,22 @@ INFO: 2025/06/03 05:29:26 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.V
 INFO: 2025/06/03 05:29:26 logs.go:54: Password comparison succeeded
 INFO: 2025/06/03 05:29:26 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
 INFO: 2025/06/03 05:29:26 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 11:54:29 logs.go:54: Database successfully created!
+INFO: 2025/06/12 11:55:26 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 11:55:26 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 12:06:17 logs.go:54: Database successfully created!
+INFO: 2025/06/12 12:07:04 logs.go:54: Database successfully created!
+INFO: 2025/06/12 12:07:18 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 12:07:18 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 12:07:19 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 12:07:19 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 12:08:29 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 12:08:29 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 12:08:31 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 12:08:31 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 12:10:35 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 12:10:35 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 12:11:10 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 12:11:10 logs.go:54: Password comparison succeeded
+INFO: 2025/06/12 12:14:00 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/12 12:14:00 logs.go:54: Password comparison succeeded

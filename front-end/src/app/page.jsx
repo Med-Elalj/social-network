@@ -1,104 +1,189 @@
-import Image from "next/image";
 import Styles from "./global.module.css";
-import Link from "next/link";
+import Groups from "./components/Groups";
+import Friends from "./components/Friends";
+import Image from 'next/image';
 
 export default function Home() {
   return (
     <div className={Styles.global}>
       {/* Left Sidebar */}
       <div className={Styles.firstSide}>
-        <div>
-          <h1>Groups</h1>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Group Name</h5>
-            <Link href="/join">Join</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Group Name</h5>
-            <Link href="/join">Join</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Group Name</h5>
-            <Link href="/join">Join</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Group Name</h5>
-            <Link href="/join">Join</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Group Name</h5>
-            <Link href="/join">Join</Link>
-          </div>
-        </div>
-
-        <div>
-          <h1>Friends</h1>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>User Name</h5>
-            <p>Start of last message ...</p>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>User Name</h5>
-            <p>Start of last message ...</p>
-          </div>
-        </div>
+        <Groups />
       </div>
 
       {/* Center Content */}
       <div className={Styles.centerContent}>
-        <div>search</div>
-        <div>postuser</div>
-        <div>post from group</div>
-        <div>postuser</div>
-        <div>post from group</div>
-        <div>postuser</div>
-        <div>post from group</div>
+        <div className={Styles.post}>
+          <section className={Styles.userinfo}>
+            <div>
+              <Image src="/iconMale.png" alt="notification" width={25} height={25} />
+              <p>userName</p>
+            </div>
+            <div>
+              <p>time/time/time</p>
+            </div>
+          </section>
+
+          <section className={Styles.content}>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione, ipsum!
+          </section>
+
+          <section className={Styles.footer}>
+            <div className={Styles.action}>
+              <Image src="/Like.svg" alt="like" width={20} height={20} />
+              <p>10</p>
+            </div>
+            <div className={Styles.action}>
+              <Image src="/comment.svg" alt="comment" width={20} height={20} />
+              <p>5</p>
+            </div>
+          </section>
+        </div>
+
+        <div className={Styles.post}>
+          <section className={Styles.userinfo}>
+            <div>
+              <p>groupeName @</p>
+              <Image src="/iconMale.png" alt="notification" width={25} height={25} />
+              <p>userName</p>
+            </div>
+            <div>
+              <p>time/time/time</p>
+            </div>
+          </section>
+
+          <section className={Styles.content}>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione, ipsum!
+          </section>
+
+          <section className={Styles.footer}>
+            <div className={Styles.action}>
+              <Image src="/Like2.svg" alt="like" width={20} height={20} />
+              <p>10</p>
+            </div>
+            <div className={Styles.action}>
+              <Image src="/comment.svg" alt="comment" width={20} height={20} />
+              <p>5</p>
+            </div>
+          </section>
+        </div>
+
+        <div className={Styles.post}>
+          <section className={Styles.userinfo}>
+            <div>
+              <Image src="/iconMale.png" alt="notification" width={25} height={25} />
+              <p>userName</p>
+            </div>
+            <div>
+              <p>time/time/time</p>
+            </div>
+          </section>
+
+          <section className={Styles.content}>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione, ipsum!
+          </section>
+
+          <section className={Styles.footer}>
+            <div className={Styles.action}>
+              <Image src="/Like.svg" alt="like" width={20} height={20} />
+              <p>10</p>
+            </div>
+            <div className={Styles.action}>
+              <Image src="/comment.svg" alt="comment" width={20} height={20} />
+              <p>5</p>
+            </div>
+          </section>
+        </div>
+
+        <div className={Styles.post}>
+          <section className={Styles.userinfo}>
+            <div>
+              <p>groupeName @</p>
+              <Image src="/iconMale.png" alt="notification" width={25} height={25} />
+              <p>userName</p>
+            </div>
+            <div>
+              <p>time/time/time</p>
+            </div>
+          </section>
+
+          <section className={Styles.content}>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione, ipsum!
+          </section>
+
+          <section className={Styles.footer}>
+            <div className={Styles.action}>
+              <Image src="/Like.svg" alt="like" width={20} height={20} />
+              <p>10</p>
+            </div>
+            <div className={Styles.action}>
+              <Image src="/comment.svg" alt="comment" width={20} height={20} />
+              <p>5</p>
+            </div>
+          </section>
+        </div>
+
+        <div className={Styles.post}>
+          <section className={Styles.userinfo}>
+            <div>
+              <Image src="/iconMale.png" alt="notification" width={25} height={25} />
+              <p>userName</p>
+            </div>
+            <div>
+              <p>time/time/time</p>
+            </div>
+          </section>
+
+          <section className={Styles.content}>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione, ipsum!
+          </section>
+
+          <section className={Styles.footer}>
+            <div className={Styles.action}>
+              <Image src="/Like2.svg" alt="like" width={20} height={20} />
+              <p>10</p>
+            </div>
+            <div className={Styles.action}>
+              <Image src="/comment.svg" alt="comment" width={20} height={20} />
+              <p>5</p>
+            </div>
+          </section>
+        </div>
+
+        <div className={Styles.post}>
+          <section className={Styles.userinfo}>
+            <div>
+              <p>groupeName @</p>
+              <Image src="/iconMale.png" alt="notification" width={25} height={25} />
+              <p>userName</p>
+            </div>
+            <div>
+              <p>time/time/time</p>
+            </div>
+          </section>
+
+          <section className={Styles.content}>
+            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Ratione, ipsum!
+          </section>
+
+          <section className={Styles.footer}>
+            <div className={Styles.action}>
+              <Image src="/Like.svg" alt="like" width={20} height={20} />
+              <p>10</p>
+            </div>
+            <div className={Styles.action}>
+              <Image src="/comment.svg" alt="comment" width={20} height={20} />
+              <p>5</p>
+            </div>
+          </section>
+        </div>
       </div>
 
       {/* Right Sidebar */}
       <div className={Styles.thirdSide}>
-        <div>
-          <h1>Requests</h1>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Reject</Link>
-            <Link href="/join">Accept</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Reject</Link>
-            <Link href="/join">Accept</Link>
-          </div>
-        </div>
-
-        <div>
-          <h1>Suggestions</h1>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Add</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Add</Link>
-          </div>
-          <div>
-            <Image src="/login2.svg" alt="profile" width={20} height={20} />
-            <h5>Username</h5>
-            <Link href="/join">Add</Link>
-          </div>
-        </div>
+        <Friends />
       </div>
     </div>
   );
 }
+

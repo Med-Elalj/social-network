@@ -4,6 +4,17 @@ html {
     scrollbar-color: #ddd #ffffff;
 }
 
+:root {
+  --primary-color: #1a1a1a;
+  --secondary-color: #e0e0e0;
+  --hover-color: #8D6B0D;
+  --third-color: #FFBB00;
+  --border-color: #333;
+}
+
 body {
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    background-color: var(--primary-color);
 }

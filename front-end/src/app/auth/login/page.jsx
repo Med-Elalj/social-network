@@ -22,11 +22,9 @@ export default function Login() {
             data.append(key, formData[key]);
         }
 
-        console.log('Submitting form...', formData);
         let status
         let res
         await status, res = SendData('/api/v1/auth/login', formData)
-        console.log(status, res);
     };
 
     return (

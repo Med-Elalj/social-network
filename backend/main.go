@@ -32,5 +32,4 @@ func main() {
 		ErrorLog:          logs.GetLogger("server"),
 	}
 	logs.Fatal(srv.ListenAndServeTLS("./server/private/cert.pem", "./server/private/key.pem"))
-	// srv.ListenAndServe()
 }

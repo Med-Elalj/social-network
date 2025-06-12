@@ -3,11 +3,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 2rem;
-    height: 60px;
-    background-color: #fff;
+    width: 100%;
+    background-color: var(--primary-color);
     box-shadow: 0px 5px 10px 5px #0000001a;
-    position: relative;
-    scroll-behavior: smooth;
+    position: fixed;
+    z-index: 1;
 }
 
 .bottomNav {
@@ -19,6 +19,7 @@
 .rightSection {
     display: flex;
     align-items: center;
+    margin-right: 60px;
 }
 
 .leftSection {
@@ -38,7 +39,7 @@
 }
 
 .loginTitle {
-    color: #1C1665;
+    color: var(--third-color);
     font-size: 24px;
     font-weight: bold;
     text-decoration: none;
@@ -46,7 +47,7 @@
 }
 
 .loginTitle:hover {
-    color: #FFBB00;
+    color: var(--hover-color);
 }
 
 .links {
@@ -59,17 +60,17 @@
     display: inline-flex;
     padding: 16px;
     text-decoration: none;
-    color: #1C1665;
+    color: var(--third-color);
 }
 
 .linkWithIcon:hover {
-    color: #FFBB00;
-    border-bottom: solid 3px #FFBB00;
+    color: var(--hover-color);
+    border-bottom: solid 3px var(--hover-color);
 }
 
 .active {
     text-decoration: none;
-    border-bottom: solid 3px #1C1665;
+    border-bottom: solid 3px var(--third-color);
 }
 
 
@@ -77,12 +78,6 @@
     position: relative;
     width: 20px;
     height: 20px;
-}
-
-.iconUser {
-    position: relative;
-    width: 30px;
-    height: 30px;
 }
 
 .iconDefault,
@@ -115,23 +110,26 @@
 }
 
 .profile {
-    color: #1C1665;
-    font-size: 15px;
+    color: var(--third-color);
     font-weight: bold;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     cursor: pointer;
     text-decoration: none;
     transition: color 0.3s;
     flex-direction: column;
 }
 
+.notif {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
 .dropdownMenu {
     position: absolute;
     top: 100%;
     right: 0;
-    background: white;
+    background: var(--border-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     border-radius: 4px;
     overflow: hidden;
@@ -145,18 +143,41 @@
     display: flex;
 }
 
+.dropdownMenu button {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    padding: 10px 15px;
+    font-size: 16px;
+    margin: 0;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease;
+    font-weight: bold;
+}
+
+.dropdownMenu button:hover,
+.dropdownMenu a:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+
+}
+
+
 .dropdownMenu a {
     padding: 10px 15px;
     text-decoration: none;
-    color: #333;
+    color: var(--secondary-color);
     transition: background 0.2s ease;
+    font-weight: bold;
 }
 
-.dropdownMenu a:hover {
+.dropdownMenu a:hover,
+.dropdownMenu button:hover {
     background-color: #f0f0f0;
 }
 
-.logged{
+.logged {
     display: none;
 }
 
@@ -185,8 +206,8 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        background-color: #fff;
-        border-top: 1px solid #ccc;
+        background-color:var(--primary-color);
+        border-top: 1px solid var(--border-color);
         justify-content: space-around;
         padding: 10px 0;
         z-index: 1000;
@@ -207,13 +228,6 @@
     .bottomNav .iconWrapper {
         width: 24px;
         height: 24px;
-    }
-
-    .bottomNav .iconDefault,
-    .bottomNav .iconHover {
-        width: 100%;
-        height: auto;
-        position: static;
     }
 
     .bottomNav .linkWithIcon:hover .iconDefault {

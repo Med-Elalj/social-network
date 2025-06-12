@@ -47,7 +47,7 @@ export default function Register() {
     };
 
     return (
-        <div>
+        <div className={styles.container}>
             <div className={styles.messageBox}>
                 <h2>Join Our Social Network 👋</h2>
             </div>

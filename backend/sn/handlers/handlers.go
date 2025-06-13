@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"time"
 
 	"social-network/server/logs"
@@ -106,11 +104,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var storedPassword string
 	var id int
 	var userName string
-	err = db.DB.QueryRow(
-		`SELECT pr.id,pr.display_name, pe.password_hash  FROM profile pr  
-JOIN person pe ON pr.id = pe.id
-WHERE ? IN (pe.email, pr.display_name);`,
-		credentials.NoE).Scan(&id, &userName, &storedPassword)
+	err = db.DB.QueryRow(`SELECT pr.id,pr.display_name, pe.password_hash  FROM profile pr  
+		JOIN person pe ON pr.id = pe.id
+		WHERE pe.email = ? OR pr.display_name = ?;`, credentials.NoE, credentials.NoE).Scan(&id, &userName, &storedPassword)
 
 	if err != nil || !credentials.Password.Verify([]byte(storedPassword)) {
 		logs.Println("Login failed for user:", credentials.NoE)
@@ -131,10 +127,11 @@ WHERE ? IN (pe.email, pr.display_name);`,
 	}
 
 	http.SetCookie(w, cookie)
-	json.NewEncoder(w).Encode(map[string]string{
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message":  "Login successful",
-		"username": userName,
-		"id":       strconv.Itoa(id),
+		"Username": userName,
 	})
 }
 
@@ -160,7 +157,6 @@ func Islogged(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	payload := r.Context().Value(security.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
-	fmt.Println(data)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, `{"error": "Unauthorized"}`)
@@ -168,68 +164,66 @@ func Islogged(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message":  "User is logged in",
-		"username": data.Username,
-		"id":       data.Sub,
+		"message": data.Username + " User is logged in",
 	})
 }
 
-func ProfileHandler(w http.ResponseWriter, r *http.Request) {
-	type ProfileRequest struct {
-		ID int `json:"id"`
-	}
-	var id ProfileRequest
-	if err := json.NewDecoder(r.Body).Decode(&id); err != nil {
-		w.WriteHeader(400)
-		fmt.Println("sadsads", err)
-		return
-	}
+// func ProfileHandler(w http.ResponseWriter, r *http.Request) {
+// 	type ProfileRequest struct {
+// 		ID int `json:"id"`
+// 	}
+// 	var id ProfileRequest
+// 	if err := json.NewDecoder(r.Body).Decode(&id); err != nil {
+// 		w.WriteHeader(400)
+// 		fmt.Println("sadsads", err)
+// 		return
+// 	}
 
-	var User structs.User
-	query := `
-			SELECT
-				p.email,
-			    p.first_name,
-			    p.last_name,
-			    p.gender,
-			    pr.display_name,
-			    pr.avatar,
-			    pr.description,
-			    pr.is_public,
-			    pr.is_person
-			FROM
-			    person p
-			    JOIN  profile pr ON p.id = pr.id
-			WHERE p.id = ?`
+// 	var User structs.User
+// 	query := `
+// 			SELECT
+// 				p.email,
+// 			    p.first_name,
+// 			    p.last_name,
+// 			    p.gender,
+// 			    pr.display_name,
+// 			    pr.avatar,
+// 			    pr.description,
+// 			    pr.is_public,
+// 			    pr.is_person
+// 			FROM
+// 			    person p
+// 			    JOIN  profile pr ON p.id = pr.id
+// 			WHERE p.id = ?`
 
-	if err := db.DB.QueryRow(query, id.ID).Scan(&User.Email, &User.Fname, &User.Lname, &User.Gender, &User.Username, &User.Avatar, &User.Description, &User.IsPublic, &User.IsPerson); err != nil {
-		fmt.Println("weeeeee 3awtani lwla", err)
-		w.WriteHeader(400)
-		return
-	}
+// 	if err := db.DB.QueryRow(query, id.ID).Scan(&User.Email, &User.Fname, &User.Lname, &User.Gender, &User.Username, &User.Avatar, &User.Description, &User.IsPublic, &User.IsPerson); err != nil {
+// 		fmt.Println("weeeeee 3awtani lwla", err)
+// 		w.WriteHeader(400)
+// 		return
+// 	}
 
-	query2 := `
-			SELECT
-			    f.follower_id,
-			    f.following_id
-			FROM
-			    follow f
-			WHERE
-			    f.follower_id = ?
-			    OR f.following_id = ?`
+// 	query2 := `
+// 			SELECT
+// 			    f.follower_id,
+// 			    f.following_id
+// 			FROM
+// 			    follow f
+// 			WHERE
+// 			    f.follower_id = ?
+// 			    OR f.following_id = ?`
 
-	if err := db.DB.QueryRow(query2, id.ID, id.ID).Scan(&User.Followed, &User.Followers); err != nil {
-		fmt.Println("weeeeee 3awtani lwla", err)
-		if err != sql.ErrNoRows {
-			w.WriteHeader(400)
-			return
-		}
-	}
+// 	if err := db.DB.QueryRow(query2, id.ID, id.ID).Scan(&User.Followed, &User.Followers); err != nil {
+// 		fmt.Println("weeeeee 3awtani lwla", err)
+// 		if err != sql.ErrNoRows {
+// 			w.WriteHeader(400)
+// 			return
+// 		}
+// 	}
 
-	w.Header().Set("Content-Type", "application/json")
+// 	w.Header().Set("Content-Type", "application/json")
 
-	w.WriteHeader(200)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"Userinfo": User,
-	})
-}
+// 	w.WriteHeader(200)
+// 	json.NewEncoder(w).Encode(map[string]interface{}{
+// 		"Userinfo": User,
+// 	})
+// }

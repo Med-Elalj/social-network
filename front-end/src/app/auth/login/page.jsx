@@ -17,14 +17,15 @@ export default function Login() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const data = new FormData();
-        for (const key in formData) {
-            data.append(key, formData[key]);
-        }
 
-        let status
-        let res
-        await status, res = SendData('/api/v1/auth/login', formData)
+        const response = await SendData('/api/v1/auth/login', formData)
+        if (response.status == 200) {
+            const res = await response.json();
+            console.log("res", res);
+            window.location.href = "/";
+        } else {
+            window.location.href = "/auth/login";
+        }
     };
 
     return (

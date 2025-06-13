@@ -139,6 +139,15 @@
     flex-direction: column;
 }
 
+.dropdownMenu.notification{
+    width: 250px;
+}
+
+.dropdownMenu.notification a{
+    height: 30px;
+    overflow-y: hidden;
+}
+
 .dropdownWrapper:hover .dropdownMenu {
     display: flex;
 }

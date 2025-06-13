@@ -6,12 +6,8 @@ export async function Logout() {
 
         if (status === 200) {
             console.log("Logout successful:", body);
-
-            // Clear localStorage/sessionStorage or cookies
             localStorage.removeItem("UserInfo");
-
-            // Redirect to home or login
-            window.location.href = "/auth/login"; // or "/" if you prefer
+            window.location.href = "/auth/login";
         } else {
             console.error("Logout failed with status", status);
         }

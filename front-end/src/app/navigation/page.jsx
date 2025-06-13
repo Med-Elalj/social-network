@@ -17,19 +17,9 @@ export default function Routing() {
   useEffect(() => {
     const fetchAuthStatus = async () => {
       try {
-        const { status, body } = await SendData('/api/v1/auth', null);
-        if (status === 200) {
+        const response = await SendData('/api/v1/auth', null);
+        if (response.status === 200) {
           setIsLoggedIn(true);
-          console.log(await body.id);
-          
-          const { status: st, body: body2 } = await SendData('/api/v1/profile', { id: body.id });
-          console.log(await body2);
-
-          if (st === 200) {
-            localStorage.setItem("UserInfo", JSON.stringify(body2.Userinfo));
-          } else {
-            console.log("err", st, body2);
-          }
         }
       } catch (err) {
         console.error("Auth check failed", err);
@@ -44,24 +34,19 @@ export default function Routing() {
   return (
     <div>
       <div className={Styles.nav}>
-        {/* Left - Logo */}
         <div className={Styles.leftSection}>
           <Link className={Styles.loginTitle} href="/">Social Network</Link>
         </div>
 
-        {/* Center - Navigation Links */}
         {isLoggedIn && (
           <div className={Styles.centerSection}>
-            <>
-              <NavLink href="/" icon="home" pathname={pathname} />
-              <NavLink href="/newPost" icon="posts" pathname={pathname} />
-              <NavLink href="/groupes" icon="groupe" pathname={pathname} />
-              <NavLink href="/chat" icon="messages" pathname={pathname} />
-            </>
+            <NavLink href="/" icon="home" pathname={pathname} />
+            <NavLink href="/newPost" icon="posts" pathname={pathname} />
+            <NavLink href="/groupes" icon="groupe" pathname={pathname} />
+            <NavLink href="/chat" icon="messages" pathname={pathname} />
           </div>
         )}
 
-        {/* Right - Auth/Profile */}
         <div className={Styles.rightSection}>
           {isLoggedIn ? (
             <>
@@ -75,8 +60,8 @@ export default function Routing() {
                     <Image src="/notification.svg" alt="notification" width={25} height={25} />
                   </span>
                   {isOpen && (
-                    <div className={Styles.dropdownMenu}>
-                      <Link href={`/`} onClick={() => setIsOpen(false)}>test1</Link>
+                    <div className={`${Styles.dropdownMenu} ${Styles.notification}`}>
+                      <Link href={`/`} onClick={() => setIsOpen(false)}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Link>
                       <Link href={`/`} onClick={() => setIsOpen(false)}>test2</Link>
                     </div>
                   )}
@@ -91,7 +76,6 @@ export default function Routing() {
                   <span className={Styles.iconUser}>
                     <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                   </span>
-                  <span>nickname</span>
                   {isOpen && (
                     <div className={Styles.dropdownMenu}>
                       <Link href={`/profile/nickname`} onClick={() => setIsOpen(false)}>Profile</Link>
@@ -134,7 +118,6 @@ export default function Routing() {
   );
 }
 
-// 🔧 Helper for nav links
 function NavLink({ href, icon, pathname }) {
   return (
     <Link className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""}`} href={href}>

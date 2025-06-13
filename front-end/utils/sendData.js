@@ -1,6 +1,4 @@
-export async function SendData(url, Data) {
-    console.log(url);
-    
+export async function SendData(url, Data) {   
     try {
         const response = await fetch(url, {
             method: 'POST',
@@ -8,8 +6,7 @@ export async function SendData(url, Data) {
             body: JSON.stringify(Data),
         })
         
-        const responseBody = await response.json()
-        return { status: response.status, body: responseBody }
+        return response
     } catch (error) {
         return        
     }

@@ -7,7 +7,7 @@ export async function Logout() {
         if (status === 200) {
             console.log("Logout successful:", body);
             localStorage.removeItem("UserInfo");
-            window.location.href = "/auth/login";
+            window.location.href = "/login";
         } else {
             console.error("Logout failed with status", status);
         }

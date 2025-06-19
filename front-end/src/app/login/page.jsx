@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Styles from "./login.module.css";
-import { SendData } from '../../../../utils/sendData.js';
+import { SendData } from '../../../utils/sendData.js';
 
 export default function Login() {
     const [formData, setFormData] = useState({
@@ -24,7 +24,7 @@ export default function Login() {
             console.log("res", res);
             window.location.href = "/";
         } else {
-            window.location.href = "/auth/login";
+            window.location.href = "/login";
         }
     };
 

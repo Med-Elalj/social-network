@@ -270,3 +270,16 @@ INFO: 2025/06/13 11:52:38 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.V
 INFO: 2025/06/13 11:52:38 logs.go:54: Password comparison succeeded
 INFO: 2025/06/13 11:55:40 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
 INFO: 2025/06/13 11:55:40 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 14:24:29 logs.go:54: Database successfully created!
+INFO: 2025/06/19 14:27:01 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 14:27:02 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 14:27:25 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 14:27:25 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 14:27:53 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 14:27:54 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 14:29:15 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 14:29:15 logs.go:54: Unmarshalling Birthdate: "2000-10-04"
+INFO: 2025/06/19 14:29:15 logs.go:58: Hashing password:"Test@test.test"
+got: "$2a$10$rpDPYArM4wfJfBXRA6.3rOcwPNT6dHrzENAmvw/rnc.GVssTguXku"
+INFO: 2025/06/19 14:29:15 logs.go:54: User inserted into database successfully: test
+INFO: 2025/06/19 14:29:15 logs.go:54: User registered successfully with ID: 4

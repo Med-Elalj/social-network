@@ -96,8 +96,8 @@ export default function Routing() {
             </>
           ) : (
             <>
-              <Link className={`${Styles.linkWithIcon} ${pathname === "/auth/login" ? Styles.active : ""}`} href="/auth/login" onClick={() => setIsOpen(false)}>Login</Link>
-              <Link className={`${Styles.linkWithIcon} ${pathname === "/auth/register" ? Styles.active : ""}`} href="/auth/register" onClick={() => setIsOpen(false)}>Register</Link>
+              <Link className={`${Styles.linkWithIcon} ${pathname === "/login" ? Styles.active : ""}`} href="/login" onClick={() => setIsOpen(false)}>Login</Link>
+              <Link className={`${Styles.linkWithIcon} ${pathname === "/register" ? Styles.active : ""}`} href="/register" onClick={() => setIsOpen(false)}>Register</Link>
             </>
           )}
         </div>

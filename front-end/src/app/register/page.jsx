@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import styles from './register.module.css';
-import { SendData } from '../../../../utils/sendData.js';
+import { SendData } from '../../../utils/sendData.js';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -39,8 +39,8 @@ export default function Register() {
         console.log('Submitting form...', formData);
         let status
         let res
-        await status, res = SendData('/api/v1/auth/register', formData)
-        if (status != 200) {
+        const response = await SendData('/api/v1/auth/register', formData)
+        if (response.status != 200) {
             console.log(res);
         }
 

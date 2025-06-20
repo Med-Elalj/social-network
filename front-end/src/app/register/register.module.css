@@ -22,6 +22,14 @@
     width: 100%;
 }
 
+.form img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
 .messageBox {
     text-align: center;
     margin: 2rem auto 1rem;
@@ -85,8 +93,8 @@
 }
 
 .submitButton:hover {
-  background-color: var(--hover-color);
-  color: var(--secondary-color);
+    background-color: var(--hover-color);
+    color: var(--secondary-color);
 }
 
 /* Responsive */

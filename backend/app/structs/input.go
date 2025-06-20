@@ -32,6 +32,7 @@ func (p Password) Verify(password []byte) bool {
 	return true
 }
 
+// Validate register form
 func (r Register) ValidateRegister() []string {
 	var errors []string
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]{3,}@[a-zA-Z0-9.\-]{3,}\.[a-zA-Z]{2,}$`)
@@ -85,6 +86,7 @@ func (r Register) ValidateRegister() []string {
 	return errors
 }
 
+//Generate hash code
 func (p *Password) Hash() {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(*p), bcrypt.DefaultCost)
 	if err != nil {

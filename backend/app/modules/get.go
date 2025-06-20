@@ -1,66 +1,108 @@
 package modules
 
-// func GetPosts(soffset string) ([]structs.PostGet, error) {
-// 	// offset, err := strconv.Atoi(soffset) // TODO ADD
-// 	// if err != nil {
-// 	// 	logs.Errorf("Error converting pid to int: %q", err.Error())
-// 	// 	return nil, err
-// 	// }
-// 	rows, err := DB.Query(`WITH followed_profiles AS (
-// 	SELECT following_id FROM follow WHERE follower_id = ? -- Replace with the actual user ID
-// ),
-// pivate_post_see AS (
-// 	SELECT post_id FROM pivate_post_visibility WHERE user_id = ? -- Replace with the actual user ID
-// )
-// SELECT
-//    		p.id, p.user_id, u.display_name,p.title,p.content, p.created_at,p.privacy,
-// 		CASE
-// 			WHEN g.id IS NULL THEN 0 ELSE g.id
-// 		END AS 'group_id',
-//         CASE
-//             WHEN g.id IS NULL THEN '' ELSE g.display_name
-//         END AS 'name'
-// 	FROM
-//     	posts p
-// 	JOIN
-//     	profile u ON p.user_id = u.id
-//     LEFT JOIN
-//     	profile g ON p.group_id = g.id
-// 	WHERE
-// 			p.privacy = 0
-// 		OR
-// 			(
-// 				p.privacy = 1
-// 				AND
-// 				(p.user_id IN followed_profiles OR p.group_id IN followed_profiles)
-// 			)
-// 		OR
-// 			(
-// 					p.privacy = 2
-// 				AND
-// 					p.id IN pivate_post_see
-// 			)
-// 	ORDER BY
-// 		p.created_at DESC
-// 	LIMIT 10; -- TODO Add pagination
-// `)
-// 	if err != nil {
-// 		logs.Errorf("Error getting posts: %q", err.Error())
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-// 	var posts []structs.PostGet
-// 	for rows.Next() {
-// 		var post structs.PostGet
-// 		err := rows.Scan(&post.Pid, &post.AuthorId, &post.Author, &post.Title, &post.Content, &post.CreationTime, &post.Privacy, &post.GroupId, &post.GroupName)
-// 		if err != nil {
-// 			logs.Errorf("Error scanning posts: %q", err.Error())
-// 			return nil, err
-// 		}
-// 		posts = append(posts, post)
-// 	}
-// 	return posts, nil
-// }
+import (
+	"fmt"
+
+	"social-network/app/structs"
+	"social-network/server/logs"
+)
+
+func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
+	query := `
+		WITH
+			user_groups AS (
+				SELECT group_id
+				FROM groupmember
+				WHERE person_id = ? AND active = 1
+			),
+			followed_profiles AS (
+				SELECT following_id
+				FROM follow
+				WHERE follower_id = ? AND status = 1
+			)
+		SELECT 
+			p.id,
+			p.content,
+			p.image_path,
+			p.created_at,
+			pr.display_name,
+			p.privacy,
+			(SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
+			(SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count
+		FROM
+			posts p
+		JOIN profile pr ON pr.id = p.user_id
+		LEFT JOIN user_groups ug ON p.group_id = ug.group_id
+		WHERE
+			(? = 0 OR p.id < ?) AND
+			(? = 0 OR p.group_id = ?) AND (
+				p.privacy = 'public'
+				OR p.user_id = ?
+				OR (p.privacy = 'friends' AND p.user_id IN (SELECT following_id FROM followed_profiles))
+				OR (p.group_id IS NOT NULL AND ug.group_id IS NOT NULL)
+			)
+		ORDER BY p.id DESC
+		LIMIT 10;
+	`
+
+	rows, err := DB.Query(query,
+		uid,          // for user_groups
+		uid,          // for followed_profiles
+		start, start, // pagination
+		groupId, groupId, // group filter
+		uid, // post owner visibility
+	)
+	if err != nil {
+		logs.Errorf("GetPosts query error: %q", err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []structs.Post
+	for rows.Next() {
+		var post structs.Post
+		err := rows.Scan(&post.ID, &post.Content, &post.ImagePath, &post.CreatedAt, &post.Username, &post.CommentCount, &post.LikeCount)
+		if err != nil {
+			logs.Errorf("Scan error: %q", err.Error())
+			return nil, err
+		}
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
+
+func GetMembers(groupid int) ([]structs.Gusers, error) {
+	var adminid int
+
+	rows, err := DB.Query(`
+	SELECT p.id p.display_name, p.avatar
+FROM profile p
+JOIN groupmember ON p.id = groupmember.person_id
+WHERE groupmember.group_id = ?;`, groupid)
+	if err != nil {
+		// anas
+	}
+	defer rows.Close()
+	err = DB.QueryRow(`SELECT g.creator_id FROM group g WHERE g.id = ?;`, groupid).Scan(adminid)
+	if err != nil {
+		return []structs.Gusers{}, fmt.Errorf("error fetching user: %v", err)
+	}
+	var members []structs.Gusers
+	for rows.Next() {
+		var member structs.Gusers
+		if err := rows.Scan(member.Uid, member.Name, member.Avatar); err != nil {
+			logs.Errorf("Error scanning message: %q", err.Error())
+			return nil, err
+		}
+		if member.Uid == adminid {
+			member.Adm = true
+		} else {
+			member.Adm = false
+		}
+		members = append(members, member)
+	}
+	return members, nil
+}
 
 // func GetComments(pid string) ([]structs.CommentGet, error) {
 // 	if pid == "" {

@@ -38,7 +38,6 @@ export default function Register() {
 
         console.log('Submitting form...', formData);
 
-        // Assuming SendData is a wrapper around fetch
         const response = await SendData('/api/v1/auth/register', formData);
 
         if (response.status !== 200) {
@@ -80,17 +79,18 @@ export default function Register() {
                     <div>
                         <label htmlFor="male">Male</label>
                         <input type="radio" name="gender" id="male" value="male" checked={formData.gender === "male"} onChange={handleChange} />
-                       
+
                         <label htmlFor="female">Female</label>
                         <input type="radio" name="gender" id="female" value="female" checked={formData.gender === "female"} onChange={handleChange} />
                     </div>
 
-                    <label className={styles.label} htmlFor="avatar">Profile Image</label>
-                    <input className={styles.input} type="file" name="avatar" id="profileImg" accept="image/*" onChange={handleChange} />
+                    <label htmlFor="image" style={{ cursor: "pointer" }} className={styles.label}>
+                        <img src="/Image.svg" alt="Upload" width="24" height="24" />&nbsp;&nbsp;
+                        Profile Image
+                    </label>
+                    <input className={styles.input} type="file" name="avatar" id="profileImg" style={{ display: "none" }} accept="image/*" onChange={handleChange} />
                     {previewUrl && (
-                        <div >
-                            <img src={previewUrl} alt="Preview" />
-                        </div>
+                        <img src={previewUrl} alt="Preview" />
                     )}
 
                     <label className={styles.label} htmlFor="about">About Me</label>

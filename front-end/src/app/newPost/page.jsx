@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Styles from "./newPost.module.css";
 import { SendData } from "../../../utils/sendData.js";
+import { useRouter } from 'next/navigation';
 
 export default function NewPost() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState("public");
   const [previewUrl, setPreviewUrl] = useState(null);
+  const router = useRouter();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -32,9 +34,6 @@ export default function NewPost() {
       image: image.name
     }
 
-    console.log(formData);
-
-
     const response = await SendData('/api/v1/set/Post', formData);
 
     if (response.status !== 200) {
@@ -42,6 +41,7 @@ export default function NewPost() {
       console.log(errorBody);
     } else {
       console.log('Form submitted successfully!');
+      router.push("/");
     }
   };
 
@@ -61,9 +61,12 @@ export default function NewPost() {
           />
         </div>
 
-        <div>
-          <label htmlFor="image">Upload Image</label><br />
-          <input type="file" name="image" id="image" accept="image/*" onChange={handleImageChange} />
+        <div className={Styles.upload}>
+          <label htmlFor="image" style={{ cursor: "pointer" }}>
+            <img src="/Image.svg" alt="Upload" width="24" height="24" />&nbsp;&nbsp;
+            Upload Image
+          </label>
+          <input type="file" name="image" style={{ display: "none" }} id="image" accept="image/*" onChange={handleImageChange} />
           {previewUrl && (
             <div>
               <img src={previewUrl} alt="Preview" />

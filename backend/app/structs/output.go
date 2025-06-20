@@ -30,13 +30,6 @@ func SqlConstraint(err *error) bool {
 	return false
 }
 
-// func JsonRestrictedDecoder(data []byte, destination interface{}) error {
-// 	dec := json.NewDecoder(bytes.NewReader(data))
-// 	dec.DisallowUnknownFields()
-// 	fmt.Println("here : ",dec.Decode(destination))
-// 	return dec.Decode(destination)
-// }
-
 type ErrorResponse struct {
 	Error string `json:"error"`
 	Code  int    `json:"code"`
@@ -49,47 +42,3 @@ func JsRespond(w http.ResponseWriter, message string, code int) {
 		Code:  code,
 	})
 }
-
-// validateStruct loops through struct fields and calls IsValid() if implemented
-// func validateStruct(v any) error {
-// 	val := reflect.ValueOf(v)
-
-// 	fmt.Println(val)
-
-// 	if val.Kind() == reflect.Ptr {
-// 		if val.IsNil() {
-// 			return errors.New("nil pointer passed to ValidateStruct")
-// 		}
-// 		val = val.Elem()
-// 	}
-
-// 	if val.Kind() != reflect.Struct {
-// 		return errors.New("ValidateStruct expects a struct or pointer to struct")
-// 	}
-
-// 	typ := val.Type()
-// 	for i := 0; i < val.NumField(); i++ {
-// 		field := val.Field(i)
-// 		fieldType := typ.Field(i)
-
-// 		// Only check exported fields
-// 		if !field.CanInterface() {
-// 			continue
-// 		}
-
-// 		// Get the JSON tag (fall back to field name if not set)
-// 		jsonTag := fieldType.Tag.Get("json")
-// 		if jsonTag == "" {
-// 			jsonTag = fieldType.Name
-// 		}
-
-// 		// Check if the field implements the Input interface
-// 		if input, ok := field.Interface().(Input); ok {
-// 			if err := input.IsValid(); err != nil {
-// 				return fmt.Errorf("field '%s' is invalid: %w", jsonTag, err)
-// 			}
-// 		}
-// 	}
-
-// 	return nil
-// }

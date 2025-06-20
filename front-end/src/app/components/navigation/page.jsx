@@ -11,7 +11,7 @@ import Styles from "./nav.module.css";
 
 export default function Routing() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -19,32 +19,27 @@ export default function Routing() {
     const fetchAuthStatus = async () => {
       try {
         const response = await SendData('/api/v1/auth', null);
-        if (response.status === 200) {
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
+        setIsLoggedIn(response.status === 200);
       } catch (err) {
-        console.error("Auth check failed", err);
+        setIsLoggedIn(false);
       }
     };
     fetchAuthStatus();
-  }, [pathname]);
+  });
 
   const validPaths = ["/", "/login", "/register", "/newPost", "/groupes", "/chat", "/profile/nickname"];
 
   useEffect(() => {
-    if (!validPaths.includes(pathname)) {
-      return; 
-    }
+    if (isLoggedIn === null) return;
+
+    if (!validPaths.includes(pathname)) return;
 
     if (isLoggedIn && (pathname === "/login" || pathname === "/register")) {
-      router.push("/");
+      router.push('/' || pathname);
     } else if (!isLoggedIn && pathname !== "/login" && pathname !== "/register") {
       router.push("/login");
     }
   }, [isLoggedIn, pathname]);
-
 
   return (
     <div>

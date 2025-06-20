@@ -61,30 +61,40 @@ type UsersGet struct {
 	Username string `json:"username"` // Exported field
 }
 
+type Group struct {
+	UserName Name   `json:"username"`
+	Cid      ID     `json:"cid"`
+	Avatar   Avatar `json:"avatar"`
+	About    About  `json:"about"`
+}
+
+type GroupReq struct {
+	Gid    int `json:"gid"`
+	Uid    int `json:"uid"`
+	Active int `json:"active"`
+}
+
+type Gusers struct {
+	Uid    int
+	Name   string
+	Avatar sql.NullString
+	Adm    bool
+}
+
 type Post struct {
 	ID           int
-	Title        string
+	ImagePath    string
 	Content      string
 	CreatedAt    string
 	Username     string
-	Categories   string
 	CommentCount int
-	Attachement  string
-	Status       string
 	LikeCount    int
-	DislikeCount int
 }
 
 type PostGet struct {
-	Pid          ID          `json:"pid"`
-	AuthorId     ID          `json:"authorId"`
-	Author       string      `json:"author_username"`
-	GroupId      ID          `json:"groupId"`
-	GroupName    string      `json:"group_name"`
-	Title        string      `json:"title"`
-	Content      string      `json:"content"`
-	CreationTime time.Time   `json:"creation_time"`
-	Privacy      PostPrivacy `json:"privacy"`
+	Start   ID `json:"start"`
+	UserId  ID `json:"userId"`
+	GroupId ID `json:"grouId"`
 }
 
 type PostCreate struct {

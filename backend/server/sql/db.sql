@@ -28,10 +28,13 @@ CREATE TABLE IF NOT EXISTS "group" (
   FOREIGN KEY ("creator_id") REFERENCES "person" ("id") ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "categories" (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  category_name VARCHAR(50) NOT NULL UNIQUE,
-  Category_icon_path TEXT NOT NULL UNIQUE
+CREATE TABLE IF NOT EXISTS "groupmember" (
+  "id" INTEGER PRIMARY KEY,
+  "group_id" INTEGER NOT NULL,
+  "person_id" INTEGER NOT NULL,
+  "active" INTEGER DEFAULT 0,
+  FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("person_id") REFERENCES "person" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS "follow" (
@@ -66,4 +69,25 @@ CREATE TABLE IF NOT EXISTS "message" (
   PRIMARY KEY ("sender_id", "receiver_id", "created_at"),
   FOREIGN KEY ("sender_id") REFERENCES "person" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS "posts" (
+  "id" INTEGER PRIMARY KEY,
+  "user_id" INTEGER NOT NULL,
+  "group_id" INTEGER,
+  "content" TEXT NOT NULL,
+  "image_path" TEXT DEFAULT null,
+  "privacy" TEXT NOT NULL DEFAULT "public",
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("user_id") REFERENCES "person" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS "likes" (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  post_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES person(id) ON DELETE CASCADE,
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  UNIQUE (user_id, post_id)
 );

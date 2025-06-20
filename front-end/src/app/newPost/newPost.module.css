@@ -20,15 +20,15 @@
 
 .form textarea,
 .form input[type="file"] {
+  border: 1px solid var(--border-color);
   width: 100%;
-  padding: 0.75rem;
+  color: var(--secondary-color);
+  resize: none;
+  background-color: #2a2a2a;
+  border-radius: 4px;
   margin-top: 0.25rem;
   margin-bottom: 1rem;
-  background-color: #2a2a2a;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  color: var(--secondary-color);
-  resize: vertical;
+  padding: 0.75rem 8px;
 }
 
 .form textarea::placeholder {
@@ -46,6 +46,12 @@
   margin-top: 1rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
+}
+
+.upload label {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 10px;
 }
 
 .form button {

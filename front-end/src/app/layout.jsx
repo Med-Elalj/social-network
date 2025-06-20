@@ -1,4 +1,4 @@
-import Routing from "./navigation/page";
+import Routing from "./components/navigation/page";
 // import Footer from "./footer/page";
 import "./global.css";
 

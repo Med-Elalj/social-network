@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import Styles from "./login.module.css";
 import { SendData } from '../../../utils/sendData.js';
+import { useRouter } from 'next/navigation';
+
 
 export default function Login() {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         login: '',
         pwd: '',
@@ -19,12 +22,12 @@ export default function Login() {
         e.preventDefault();
 
         const response = await SendData('/api/v1/auth/login', formData)
+        const res = await response.json();
         if (response.status == 200) {
-            const res = await response.json();
             console.log("res", res);
-            window.location.href = "/";
+            router.push("/");
         } else {
-            window.location.href = "/login";
+            console.log(res.error || "Login failed. Please try again.");
         }
     };
 

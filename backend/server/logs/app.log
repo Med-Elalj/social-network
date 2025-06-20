@@ -283,3 +283,324 @@ INFO: 2025/06/19 14:29:15 logs.go:58: Hashing password:"Test@test.test"
 got: "$2a$10$rpDPYArM4wfJfBXRA6.3rOcwPNT6dHrzENAmvw/rnc.GVssTguXku"
 INFO: 2025/06/19 14:29:15 logs.go:54: User inserted into database successfully: test
 INFO: 2025/06/19 14:29:15 logs.go:54: User registered successfully with ID: 4
+INFO: 2025/06/19 15:51:47 logs.go:54: Database successfully created!
+INFO: 2025/06/19 15:52:07 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:52:07 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:53:40 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:53:40 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:54:08 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:54:08 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:54:26 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:54:26 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:55:25 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:55:25 logs.go:54: Unmarshalling Birthdate: "2002-10-07"
+INFO: 2025/06/19 15:55:25 logs.go:54: Validation failed for user input
+INFO: 2025/06/19 15:56:06 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:56:06 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:57:13 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:57:13 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:57:55 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:57:55 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:58:30 logs.go:54: Validation failed for user input
+INFO: 2025/06/19 15:58:42 logs.go:54: Validation failed for user input
+INFO: 2025/06/19 15:58:52 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 15:58:52 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 15:59:32 logs.go:54: Validation failed for user input
+INFO: 2025/06/19 16:00:05 logs.go:54: Validation failed for user input
+INFO: 2025/06/19 16:01:43 logs.go:54: Database successfully created!
+INFO: 2025/06/19 16:01:50 logs.go:54: Validation failed for user input
+INFO: 2025/06/19 16:02:05 logs.go:54: Database successfully created!
+INFO: 2025/06/19 16:02:15 logs.go:54: Validation failed for user input
+INFO: 2025/06/19 16:02:35 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:02:35 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:02:44 logs.go:54: Database successfully created!
+INFO: 2025/06/19 16:02:49 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:02:49 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:04:03 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:04:03 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:04:47 logs.go:54: Database successfully created!
+INFO: 2025/06/19 16:05:41 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:05:41 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:05:51 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:05:51 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:05:57 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:05:57 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:06:39 logs.go:54: Database successfully created!
+INFO: 2025/06/19 16:06:42 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:06:42 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:09:11 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:09:11 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:09:41 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:09:41 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:20:59 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:20:59 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:21:42 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:21:42 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:24:08 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:24:08 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 16:26:28 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 16:26:28 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 16:27:19 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:27:19 logs.go:54: Unmarshalling Birthdate: "1999-07-29"
+INFO: 2025/06/19 16:27:19 logs.go:58: Hashing password:"Pa$$w0rd!"
+got: "$2a$10$AW3xehuDlVO7EhePmxYMEe1sWPqdFCZG8FlepCttX1pih63qCe.cy"
+INFO: 2025/06/19 16:27:19 logs.go:54: User inserted into database successfully: miwofyvox
+INFO: 2025/06/19 16:27:19 logs.go:54: User registered successfully with ID: 5
+INFO: 2025/06/19 16:27:29 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 16:27:29 logs.go:54: Unmarshalling Birthdate: "1999-07-29"
+INFO: 2025/06/19 16:27:29 logs.go:58: Hashing password:"Pa$$w0rd!"
+got: "$2a$10$OAwwx1DN649JctZZWvswdeooqKk2Aa7IAqi9W42LoMUVVYvRUWyDS"
+INFO: 2025/06/19 16:27:29 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/19 16:28:10 logs.go:54: Login failed for user: {fodulaz@mailinator.com}
+INFO: 2025/06/19 16:28:26 logs.go:58: Verifying password: "$2a$10$AW3xehuDlVO7EhePmxYMEe1sWPqdFCZG8FlepCttX1pih63qCe.cy" against hash: "Pa$$w0rd!"
+INFO: 2025/06/19 16:28:26 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 16:28:55 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 16:28:55 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 19:08:15 logs.go:54: Database successfully created!
+INFO: 2025/06/19 19:10:06 logs.go:54: Database successfully created!
+INFO: 2025/06/19 19:18:53 logs.go:54: Database successfully created!
+INFO: 2025/06/19 19:19:01 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 19:19:01 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 19:21:43 logs.go:54: Database successfully created!
+INFO: 2025/06/19 19:21:52 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 19:21:52 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 19:25:15 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:20:39 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:20:58 logs.go:58: Verifying password: "$2a$10$YynXQVgyIqH/.VK3qOA09ucUdAiAiuQzpiG5chySgkc7ZGtkPDzHy" against hash: "@Gdsx8503@"
+INFO: 2025/06/19 20:20:58 logs.go:54: Password comparison succeeded
+INFO: 2025/06/19 20:26:12 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:26:18 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:27:08 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:35:16 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:35:29 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 20:35:29 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 20:36:48 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:36:50 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 20:36:50 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 20:37:02 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:37:04 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 20:37:04 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 20:37:24 logs.go:54: Database successfully created!
+INFO: 2025/06/19 20:37:28 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 20:37:28 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 20:40:24 logs.go:54: Unmarshalling Gender: "male"
+INFO: 2025/06/19 20:40:24 logs.go:54: Unmarshalling Birthdate: ""
+INFO: 2025/06/19 22:43:12 logs.go:54: Database successfully created!
+INFO: 2025/06/19 23:18:04 logs.go:54: Database successfully created!
+INFO: 2025/06/19 23:19:54 logs.go:54: Database successfully created!
+INFO: 2025/06/19 23:30:17 logs.go:54: Database successfully created!
+INFO: 2025/06/19 23:30:22 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/19 23:30:37 logs.go:54: Database successfully created!
+INFO: 2025/06/19 23:30:40 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/19 23:31:01 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/19 23:32:16 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/19 23:33:28 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:00:32 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:00:37 logs.go:54: Login failed for user: {<nil>}
+INFO: 2025/06/20 00:01:33 logs.go:54: Login failed for user: {<nil>}
+INFO: 2025/06/20 00:02:25 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:02:30 logs.go:54: Login failed for user: {<nil>}
+INFO: 2025/06/20 00:03:22 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:03:24 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/20 00:03:29 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/20 00:04:41 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:04:44 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/20 00:04:57 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:05:01 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:05:40 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:06:12 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:07:27 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:07:34 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:08:20 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:09:06 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:09:14 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:12:08 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:12:14 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:16:32 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:28:49 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:32:18 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:40:11 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 00:44:30 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:55:21 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:58:20 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:58:24 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 00:59:01 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:59:05 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 00:59:33 logs.go:54: Database successfully created!
+INFO: 2025/06/20 00:59:35 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:03:58 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:04:01 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:04:53 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:04:55 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:05:37 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:05:39 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:06:03 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:06:06 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:07:29 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:07:32 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:07:51 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:07:53 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:10:47 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:10:50 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:11:12 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:11:14 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:16:45 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:16:47 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:17:17 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:17:32 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:17:58 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:18:10 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:23:45 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:24:45 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:24:47 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:26:44 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:26:52 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:27:23 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:28:01 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:28:11 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:28:19 logs.go:54: Error inserting user into database: sql: converting argument $6 type: unsupported type structs.Birthdate, a struct
+INFO: 2025/06/20 01:29:06 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:29:10 logs.go:54: Error inserting user into database: UNIQUE constraint failed: person.email
+INFO: 2025/06/20 01:29:20 logs.go:54: User registered successfully with ID: 6
+INFO: 2025/06/20 01:30:52 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:31:08 logs.go:54: User registered successfully with ID: 6
+INFO: 2025/06/20 01:32:07 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:32:12 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:32:22 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.avatar
+INFO: 2025/06/20 01:33:51 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.display_name
+INFO: 2025/06/20 01:34:34 logs.go:54: Error inserting user into database: UNIQUE constraint failed: profile.display_name
+INFO: 2025/06/20 01:34:53 logs.go:54: User registered successfully with ID: 7
+INFO: 2025/06/20 01:35:50 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:35:59 logs.go:54: Error inserting user into database: UNIQUE constraint failed: person.email
+INFO: 2025/06/20 01:36:05 logs.go:54: User registered successfully with ID: 8
+INFO: 2025/06/20 01:36:47 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:36:57 logs.go:54: User registered successfully with ID: 9
+INFO: 2025/06/20 01:40:56 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:41:05 logs.go:54: Error inserting user into database: sql: converting argument $2 type: unsupported type structs.Avatar, a struct
+INFO: 2025/06/20 01:48:56 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:49:16 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:50:03 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:51:50 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:52:07 logs.go:54: Database successfully created!
+INFO: 2025/06/20 01:53:13 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:14:36 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:14:46 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:16:23 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:16:47 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:16:55 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:17:33 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:17:36 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:20:57 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:21:01 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:22:21 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:22:28 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:22:30 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:26:01 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:26:02 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:26:50 logs.go:54: Login failed for user: mohamedrhioui82@gmail.com
+INFO: 2025/06/20 02:33:02 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:33:07 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:33:41 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:34:33 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:34:35 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:50:26 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:50:42 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:51:46 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:51:57 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:53:03 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:53:17 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:54:29 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:54:33 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:55:38 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:55:48 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:56:07 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:56:26 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:56:34 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:57:39 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:57:42 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:57:50 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:58:31 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:58:34 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:59:21 logs.go:54: Database successfully created!
+INFO: 2025/06/20 02:59:39 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:59:49 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 02:59:59 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:00:52 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:00:54 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:05:21 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:05:24 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$CoxZjtuvJg2HEV7nLhPHV..RS2j.URzvDutGFlznI/czOyUiCu6mq"
+INFO: 2025/06/20 03:06:11 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:06:14 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:07:08 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:07:10 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$p6liwC96PWxx.r2ni32d..kyz6cZ2iDHGKMYds2dpG04Q4ZQO9utu"
+INFO: 2025/06/20 03:08:18 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:08:19 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$dFUnpuCJOBDwgVssJvZUIOqo3LRfsJdq04BV1fh3I4Rw6x6TqWxe6"
+INFO: 2025/06/20 03:09:21 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:09:25 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$EyBJP3PXV1gt9ydU2vwa1e2S5iP22fwr4nBuNRH/MeoXORqFR1Jsm"
+INFO: 2025/06/20 03:09:33 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:09:34 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$m6Sr6DxdhF5ht9wwI/xBouUZLp9sMjmmixPGRNg1TTIB/BpYs4jbu"
+INFO: 2025/06/20 03:10:08 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$VLxSXDRItzyvzNE56eGGoeMx6UP6WSf.TVcuWra2JgiYVqrEPmAVm"
+INFO: 2025/06/20 03:10:32 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:10:34 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$pZtUKV/vCq/2BbaVR1ZhNOa2U/qwmNinjwcPrMKgwKVvhCxw5tQhC"
+INFO: 2025/06/20 03:13:47 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:13:50 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$IZEIEu8gem.hcnON89XVDuzXW0.8gieEz4C4QiO9b25V2n4aOuc06"
+INFO: 2025/06/20 03:14:05 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:14:07 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$cmn5S1mb/2ggnXJGZmRIy.jzvF4A1Xn1qFVT5q5fJQrWR2DJxeBaa"
+INFO: 2025/06/20 03:14:16 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:15:33 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:15:35 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:22:20 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:22:41 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:23:27 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:23:29 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:23:35 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:24:49 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:24:52 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:25:53 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:25:57 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:26:01 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:26:56 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:26:58 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:27:17 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:27:28 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:27:31 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:27:35 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:28:24 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:28:32 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:28:33 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:28:50 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:28:55 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:28:58 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:29:12 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:30:23 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:30:31 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:30:35 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:31:06 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:31:33 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:31:47 logs.go:54: Validation failed for user input
+INFO: 2025/06/20 03:33:13 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:33:36 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$uOpwN1p5LPb.C7B/ks.xOuCjbrBb6RzRzbyriA468uK12wbH4SUne"
+INFO: 2025/06/20 03:33:36 logs.go:54: Error inserting user into database: sql: converting argument $2 type: unsupported type structs.Avatar, a struct
+INFO: 2025/06/20 03:39:46 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:39:51 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$tNnhX7cD6a8S2NQ17rRaAee8ZPvGarApke5CytNjpJMANgQT2Hrgy"
+INFO: 2025/06/20 03:41:14 logs.go:54: Database successfully created!
+INFO: 2025/06/20 03:41:23 logs.go:58: Hashing password:"@Gdsx8503@"
+got: "$2a$10$a.0Z3pdd0JDetfqFAf0A..2Wj0kOL0EcO949bXKUpv7ERuYrCx3WS"
+INFO: 2025/06/20 03:41:31 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 03:41:57 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 03:42:17 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 04:32:06 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 04:33:24 logs.go:54: Database successfully created!
+INFO: 2025/06/20 04:45:59 logs.go:54: Password comparison succeeded
+INFO: 2025/06/20 04:56:04 logs.go:54: Password comparison succeeded

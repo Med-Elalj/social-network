@@ -1,4 +1,7 @@
-server/private/*
-server/db/*
-server/logs/*.log
-react-front/*
+backend/server/private/*
+backend/server/db/*
+backend/server/logs/*.log
+front-end/.next/
+front-end/cache/
+front-end/build-manifest.json
+front-end/server/

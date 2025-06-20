@@ -37,14 +37,18 @@ export default function Register() {
         }
 
         console.log('Submitting form...', formData);
-        let status
-        let res
-        const response = await SendData('/api/v1/auth/register', formData)
-        if (response.status != 200) {
-            console.log(res);
-        }
 
+        // Assuming SendData is a wrapper around fetch
+        const response = await SendData('/api/v1/auth/register', formData);
+
+        if (response.status !== 200) {
+            const errorBody = await response.json();
+            console.log(errorBody);
+        } else {
+            console.log('Form submitted successfully!');
+        }
     };
+
 
     return (
         <div className={styles.container}>
@@ -53,6 +57,10 @@ export default function Register() {
             </div>
             <div className={styles.formContainer}>
                 <form className={styles.form} onSubmit={handleSubmit}>
+
+                    <label className={styles.label} htmlFor="username">Nickname</label>
+                    <input className={styles.input} type="text" name="username" id="nickName" onChange={handleChange} />
+
                     <label className={styles.label} htmlFor="email">Email</label>
                     <input className={styles.input} type="email" name="email" id="email" onChange={handleChange} />
 
@@ -65,11 +73,18 @@ export default function Register() {
                     <label className={styles.label} htmlFor="lname">Last Name</label>
                     <input className={styles.input} type="text" name="lname" id="lastName" onChange={handleChange} />
 
-                    <label className={styles.label} htmlFor="username">Nickname</label>
-                    <input className={styles.input} type="text" name="username" id="nickName" onChange={handleChange} />
-
                     <label className={styles.label} htmlFor="birthdate">Date of Birth</label>
                     <input className={styles.input} type="date" name="birthdate" id="dob" onChange={handleChange} />
+
+                    <label className={styles.label} htmlFor="gender">Gender</label>
+                    <div>
+                        <label htmlFor="male">Male</label>
+                        <input className={styles.input} type="radio" name="gender" id="male" checked value="male" onChange={handleChange} />
+                    </div>
+                    <div>
+                        <label htmlFor="female">Female</label>
+                        <input className={styles.input} type="radio" name="gender" id="female" value="female" onChange={handleChange} />
+                    </div>
 
                     <label className={styles.label} htmlFor="avatar">Profile Image</label>
                     <input className={styles.input} type="file" name="avatar" id="profileImg" accept="image/*" onChange={handleChange} />

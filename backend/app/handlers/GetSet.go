@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
+
+	"social-network/app/security"
+	"social-network/app/security/jwt"
 )
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,16 +59,16 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PostHandler(w http.ResponseWriter, r *http.Request) {
-	// payload := r.Context().Value(security.UserContextKey)
-	// data, ok := payload.(*jwt.JwtPayload)
-	// if !ok {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	fmt.Fprintf(w, `{"error": "Sorry something went wrong"}`)
-	// 	return
-	// }
+	payload := r.Context().Value(security.UserContextKey)
+	data, ok := payload.(*jwt.JwtPayload)
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `{"error": "Sorry something went wrong"}`)
+		return
+	}
 	switch r.PathValue("type") {
 	case "Post":
-		// requests.PostCreation(w, r, data.Sub)
+		PostCreation(w, r, data.Sub)
 	case "Comment":
 		// requests.CommentCreation(w, r, data.Sub)
 		// TODO: set follow, profile

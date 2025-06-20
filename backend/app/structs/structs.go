@@ -6,10 +6,9 @@ import (
 )
 
 type (
-	Ptitle      string
+	PImage      string
 	Pbody       string
-	Pcategories []string
-	PostPrivacy int8
+	PostPrivacy string
 
 	NameOrEmail string
 
@@ -89,9 +88,9 @@ type PostGet struct {
 }
 
 type PostCreate struct {
-	Title      Ptitle      `json:"title"`
-	Content    Pbody       `json:"content"`
-	Categories Pcategories `json:"-"`
+	Content Pbody       `json:"content"`
+	Image   PImage      `json:"image"`
+	Privacy PostPrivacy `json:"privacy"`
 }
 
 type CommentInfo struct {

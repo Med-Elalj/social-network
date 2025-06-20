@@ -1,4 +1,4 @@
-package db
+package modules
 
 // func GetPosts(soffset string) ([]structs.PostGet, error) {
 // 	// offset, err := strconv.Atoi(soffset) // TODO ADD

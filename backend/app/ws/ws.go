@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"sync"
 
-	"social-network/server/logs"
 	"social-network/app/modules"
 	"social-network/app/security"
 	"social-network/app/security/jwt"
+	"social-network/server/logs"
 
 	"github.com/gorilla/websocket"
 )
@@ -151,7 +151,7 @@ func getUid(r *http.Request) int {
 }
 
 func (m *message) send() error {
-	err := db.AddDm(m.Sender, m.Receiver, m.Message)
+	err := modules.AddDm(m.Sender, m.Receiver, m.Message)
 	if err != nil {
 		err = errors.New("failed to store message in db with error: " + err.Error())
 		logs.Errorf("Error storing message in database: %v", err)

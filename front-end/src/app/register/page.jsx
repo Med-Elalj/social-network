@@ -16,13 +16,13 @@ export default function Register() {
         avatar: null,
         about: null,
     });
+    const [previewUrl, setPreviewUrl] = useState(null);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === 'avatar') {
-            console.log(files);
-
             setFormData({ ...formData, avatar: files[0].name });
+            setPreviewUrl(URL.createObjectURL(files[0]))
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -79,15 +79,19 @@ export default function Register() {
                     <label className={styles.label} htmlFor="gender">Gender</label>
                     <div>
                         <label htmlFor="male">Male</label>
-                        <input className={styles.input} type="radio" name="gender" id="male" checked value="male" onChange={handleChange} />
-                    </div>
-                    <div>
+                        <input type="radio" name="gender" id="male" value="male" checked={formData.gender === "male"} onChange={handleChange} />
+                       
                         <label htmlFor="female">Female</label>
-                        <input className={styles.input} type="radio" name="gender" id="female" value="female" onChange={handleChange} />
+                        <input type="radio" name="gender" id="female" value="female" checked={formData.gender === "female"} onChange={handleChange} />
                     </div>
 
                     <label className={styles.label} htmlFor="avatar">Profile Image</label>
                     <input className={styles.input} type="file" name="avatar" id="profileImg" accept="image/*" onChange={handleChange} />
+                    {previewUrl && (
+                        <div >
+                            <img src={previewUrl} alt="Preview" />
+                        </div>
+                    )}
 
                     <label className={styles.label} htmlFor="about">About Me</label>
                     <input className={styles.input} type="text" name="about" id="about" onChange={handleChange} />

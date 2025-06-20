@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Styles from "./newPost.module.css";
+import { SendData } from "../../../utils/sendData.js";
 
 export default function NewPost() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
+  const [privacy, setPrivacy] = useState("public");
   const [previewUrl, setPreviewUrl] = useState(null);
 
   const handleImageChange = (e) => {
@@ -20,11 +22,27 @@ export default function NewPost() {
     e.preventDefault();
 
     if (!content.trim()) {
-      setError("Content is required.");
+      console.log("Content is required.");
       return;
     }
-    console.log(image);
-    console.log(content);
+
+    const formData = {
+      content: content,
+      privacy: privacy,
+      image: image.name
+    }
+
+    console.log(formData);
+
+
+    const response = await SendData('/api/v1/set/Post', formData);
+
+    if (response.status !== 200) {
+      const errorBody = await response.json();
+      console.log(errorBody);
+    } else {
+      console.log('Form submitted successfully!');
+    }
   };
 
   return (
@@ -45,12 +63,50 @@ export default function NewPost() {
 
         <div>
           <label htmlFor="image">Upload Image</label><br />
-          <input type="file" id="image" accept="image/*" onChange={handleImageChange} />
+          <input type="file" name="image" id="image" accept="image/*" onChange={handleImageChange} />
           {previewUrl && (
-            <div >
+            <div>
               <img src={previewUrl} alt="Preview" />
             </div>
           )}
+        </div>
+
+        <div>
+          <label>Privacy</label>
+          <div>
+            <label>
+              <input
+                type="radio"
+                name="privacy"
+                value="public"
+                checked={privacy === "public"}
+                onChange={() => setPrivacy("public")}
+              />
+              Public
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                name="privacy"
+                value="private"
+                checked={privacy === "private"}
+                onChange={() => setPrivacy("private")}
+              />
+              Private
+            </label>
+
+            <label>
+              <input
+                type="radio"
+                name="folowors"
+                value="folowors"
+                checked={privacy === "folowors"}
+                onChange={() => setPrivacy("folowors")}
+              />
+              Folowors
+            </label>
+          </div>
         </div>
 
         <button type="submit">Post</button>

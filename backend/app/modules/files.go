@@ -1,4 +1,4 @@
-package db
+package modules
 
 func AddUserFile(uid int, filename string, size int) error {
 	// This function should insert the file info into the user_files table in your database.

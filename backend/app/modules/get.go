@@ -35,7 +35,9 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 		LEFT JOIN user_groups ug ON p.group_id = ug.group_id
 		WHERE
 			(? = 0 OR p.id < ?) AND
-			(? = 0 OR p.group_id = ?) AND (
+			(? = 0 OR p.group_id = ?) AND
+			p.privacy != 'private'
+ 			AND (
 				p.privacy = 'public'
 				OR p.user_id = ?
 				OR (p.privacy = 'friends' AND p.user_id IN (SELECT following_id FROM followed_profiles))

@@ -59,7 +59,6 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 	case "Post":
 		PostCreation(w, r, data.Sub)
 	case "GroupCreation":
-		// anas
 		GroupCreation(w, r, data.Sub)
 	case "GroupJoin":
 		GroupJoin(w, r, data.Sub)

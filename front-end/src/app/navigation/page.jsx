@@ -15,18 +15,18 @@ export default function Routing() {
 
   //TODO: if logged forbedin to use login/logout and the oposet true
   useEffect(() => {
-    const fetchAuthStatus = async () => {
-      try {
-        const response = await SendData('/api/v1/auth', null);
-        if (response.status === 200) {
-          setIsLoggedIn(true);
-        }
-      } catch (err) {
-        console.error("Auth check failed", err);
-      }
-    };
+    setIsLoggedIn(true);
+    // const fetchAuthStatus = async () => {
+    //   try {
+    //     const response = await SendData('/api/v1/auth', null);
+    //     if (response.status === 200) {
+    //     }
+    //   } catch (err) {
+    //     console.error("Auth check failed", err);
+    //   }
+    // };
 
-    fetchAuthStatus();
+    // fetchAuthStatus();
   }, []);
 
   //TODO:fucntion to get data of user from local storage

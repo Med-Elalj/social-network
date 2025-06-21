@@ -32,7 +32,6 @@ export default function ChatInput({ userId, recipientId }) {
             from: userId,
             to: recipientId,
             content: message,
-            timestamp: Date.now(),
         };
 
         ws.current.send(JSON.stringify(dm));

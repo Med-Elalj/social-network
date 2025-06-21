@@ -16,8 +16,14 @@ func Logged_IN(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		cookie, err := r.Cookie("JWT")
 		if err != nil {
-			w.WriteHeader(http.StatusForbidden)
-			fmt.Fprint(w, `{"error": "jwt cookie not found"}`)
+			// w.WriteHeader(http.StatusForbidden)
+			// fmt.Fprint(w, `{"error": "jwt cookie not found"}`)
+			fmt.Fprint(w, `[
+  { "profile_id": 1, "profile_name": "Person 1", "is_group": false },
+  { "profile_id": 2, "profile_name": "Group Chat", "is_group": true },
+  { "profile_id": 3, "profile_name": "Person 2", "is_group": false },
+  { "profile_id": 4, "profile_name": "Group Chat", "is_group": true }
+]`)
 			return
 		}
 

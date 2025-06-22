@@ -9,42 +9,58 @@ import (
 
 func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	query := `
-		WITH
-			user_groups AS (
-				SELECT group_id
-				FROM groupmember
-				WHERE person_id = ? AND active = 1
-			),
-			followed_profiles AS (
-				SELECT following_id
-				FROM follow
-				WHERE follower_id = ? AND status = 1
-			)
-		SELECT 
-			p.id,
-			p.content,
-			p.image_path,
-			p.created_at,
-			pr.display_name,
-			p.privacy,
-			(SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
-			(SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count
-		FROM
-			posts p
-		JOIN profile pr ON pr.id = p.user_id
-		LEFT JOIN user_groups ug ON p.group_id = ug.group_id
-		WHERE
-			(? = 0 OR p.id < ?) AND
-			(? = 0 OR p.group_id = ?) AND
-			p.privacy != 'private'
- 			AND (
-				p.privacy = 'public'
-				OR p.user_id = ?
-				OR (p.privacy = 'friends' AND p.user_id IN (SELECT following_id FROM followed_profiles))
-				OR (p.group_id IS NOT NULL AND ug.group_id IS NOT NULL)
-			)
-		ORDER BY p.id DESC
-		LIMIT 10;
+	WITH
+	    user_groups AS (
+	        SELECT group_id
+	        FROM groupmember
+	        WHERE person_id = ?          -- <-- Current user ID
+	          AND active = 1            -- <-- Must be an active member
+	    ),
+	    followed_profiles AS (
+	        SELECT following_id
+	        FROM follow
+	        WHERE follower_id = ?       -- <-- Current user ID again
+	          AND status = 1            -- <-- Follow relationship is accepted
+	    )
+	SELECT
+	    p.id,
+	    p.group_id,
+	    p.user_id,
+	    author.display_name AS UserName,
+	    group_profile.display_name AS GroupName,
+		author.avatar AS AvatarUser,
+    	group_profile.avatar AS AvatarGroup,
+	    p.content,
+	    p.image_path,
+	    p.created_at,
+	    (
+	        SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id
+	    ) AS comment_count,
+	    (
+	        SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id
+	    ) AS like_count
+	FROM posts p
+	JOIN profile author ON author.id = p.user_id
+	LEFT JOIN profile group_profile ON group_profile.id = p.group_id
+	LEFT JOIN user_groups ug ON p.group_id = ug.group_id
+	WHERE
+	    (? = 0 OR p.id < ?)  -- pagination
+	    AND (? = 0 OR p.group_id = ?)  -- group filter
+	    AND p.privacy != 'private'
+	    AND (
+	        p.privacy = 'public'
+	        OR p.user_id = ?  -- current user is the author
+	        OR (
+	            p.privacy = 'friends'
+	            AND p.user_id IN (SELECT following_id FROM followed_profiles)
+	        )
+	        OR (
+	            p.group_id IS NOT NULL
+	            AND ug.group_id IS NOT NULL  -- user is group member
+	        )
+	    )
+	ORDER BY p.id DESC
+	LIMIT 10;
 	`
 
 	rows, err := DB.Query(query,
@@ -63,26 +79,42 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	var posts []structs.Post
 	for rows.Next() {
 		var post structs.Post
-		err := rows.Scan(&post.ID, &post.Content, &post.ImagePath, &post.CreatedAt, &post.Username, &post.CommentCount, &post.LikeCount)
+		err := rows.Scan(
+			&post.ID,
+			&post.GroupId,
+			&post.UserId,
+			&post.UserName,
+			&post.GroupName,
+			&post.AvatarUser,
+			&post.AvatarGroup,
+			&post.Content,
+			&post.ImagePath,
+			&post.CreatedAt,
+			&post.CommentCount,
+			&post.LikeCount,
+		)
 		if err != nil {
 			logs.Errorf("Scan error: %q", err.Error())
 			return nil, err
 		}
+		// TODO:if post of group get name of group
 		posts = append(posts, post)
 	}
+
 	return posts, nil
 }
 
 func GetMembers(groupid int) ([]structs.Gusers, error) {
 	var adminid int
 
-	rows, err := DB.Query(`
+	rows, err := DB.Query(`	
 	SELECT p.id p.display_name, p.avatar
-FROM profile p
-JOIN groupmember ON p.id = groupmember.person_id
-WHERE groupmember.group_id = ?;`, groupid)
+	FROM profile p
+	JOIN groupmember ON p.id = groupmember.person_id
+	WHERE groupmember.group_id = ?;`, groupid)
 	if err != nil {
-		// anas
+		logs.Errorf("GetMembers query error: %q", err.Error())
+		return nil, err
 	}
 	defer rows.Close()
 	err = DB.QueryRow(`SELECT g.creator_id FROM group g WHERE g.id = ?;`, groupid).Scan(adminid)
@@ -104,6 +136,133 @@ WHERE groupmember.group_id = ?;`, groupid)
 		members = append(members, member)
 	}
 	return members, nil
+}
+
+func GetGroupFeed(uid int) ([]structs.Post, error) {
+	rows, err := DB.Query(`SELECT
+	    sub.id,
+	    sub.group_id,
+	    sub.user_id,
+	    sub.content,
+	    author.display_name AS UserName,
+	    group_profile.display_name AS GroupName,
+	    author.avatar AS AvatarUser,
+		group_profile.avatar AS AavatarGroup,
+	    sub.image_path,
+		sub.created_at,
+	    sub.like_count,
+	    sub.comment_count
+	FROM (
+	    SELECT
+	        p.id,
+			p.group_id,
+	        p.user_id,
+	        p.content,
+	        p.image_path,
+			p.created_at,
+	        p.group_id,
+	        (
+	            SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id
+	        ) AS like_count,
+	        (
+	            SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id
+	        ) AS comment_count,
+	        ROW_NUMBER() OVER (
+	            PARTITION BY p.group_id
+	            ORDER BY p.created_at DESC
+	        ) AS rn
+	    FROM posts p
+	    JOIN groupmember gm ON p.group_id = gm.group_id
+	    WHERE gm.person_id = ?
+	) AS sub
+	JOIN "group" g ON sub.group_id = g.id
+	JOIN profile group_profile ON group_profile.id = g.id         -- group profile
+	JOIN profile author ON author.id = sub.user_id               -- post author
+	WHERE sub.rn <= 2;
+`, uid)
+	if err != nil {
+		logs.Errorf("GetgroupFeed query error: %q", err.Error())
+		return nil, err
+	}
+
+	var posts []structs.Post
+	for rows.Next() {
+		var pt structs.Post
+		if err := rows.Scan(&pt.ID, &pt.GroupId, &pt.UserId, &pt.Content, &pt.UserName, &pt.GroupName, &pt.AvatarUser, &pt.AvatarGroup, &pt.ImagePath, &pt.CreatedAt, &pt.LikeCount, &pt.CommentCount); err != nil {
+			logs.Errorf("Error scanning groups %q", err.Error())
+			return nil, err
+		}
+		posts = append(posts, pt)
+	}
+	return posts, nil
+}
+
+func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
+	rows, err := DB.Query(`SELECT 
+	  p.id,
+	  p.display_name,
+	  p.avatar,
+	  p.description
+	FROM profile p
+	JOIN "group" g ON p.id = g.id
+	LEFT JOIN groupmember gm 
+	  ON g.id = gm.group_id AND gm.person_id = ?
+	WHERE gm.person_id IS NULL
+	ORDER BY RANDOM()
+	LIMIT 10;
+	`, uid)
+	if err != nil {
+		logs.Errorf("GetGroupToJoin query error: %q", err.Error())
+		return nil, err
+	}
+
+	var grs []structs.GroupGet
+
+	for rows.Next() {
+		var gr structs.GroupGet
+		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description); err != nil {
+			logs.Errorf("Error scanning groups %q", err.Error())
+			return nil, err
+		}
+		grs = append(grs, gr)
+	}
+	return grs, nil
+}
+
+func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
+	rows, err := DB.Query(`
+	SELECT
+	    p.id,
+	    p.display_name,
+	    p.avatar,
+	    p.description
+	FROM
+	    profile p
+	    JOIN "group" g ON p.id = g.id
+	    JOIN groupmember gm ON g.id = gm.group_id
+	WHERE
+	    gm.person_id = ?
+	ORDER BY
+	    RANDOM()
+	LIMIT
+	    10;
+	`, uid)
+	if err != nil {
+		logs.Errorf("GetGroupImIn query error: %q", err.Error())
+		return nil, err
+	}
+
+	var grs []structs.GroupGet
+
+	for rows.Next() {
+		var gr structs.GroupGet
+		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description); err != nil {
+			logs.Errorf("Error scanning groups %q", err.Error())
+			return nil, err
+		}
+		grs = append(grs, gr)
+	}
+	return grs, nil
 }
 
 // func GetComments(pid string) ([]structs.CommentGet, error) {

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"social-network/app/modules"
 	"social-network/app/security"
@@ -15,35 +14,91 @@ import (
 
 func GetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var group structs.PostGet
-	json.NewDecoder(r.Body).Decode(&group) // well be flexible to take any data
+
+	var dataToFetch map[string]interface{}
+	if err := json.NewDecoder(r.Body).Decode(&dataToFetch); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON"})
+		return
+	}
 
 	switch r.PathValue("type") {
 	case "posts":
-		posts, _ := modules.GetPosts(int(group.Start), int(group.UserId), int(group.GroupId))
+		start := int(dataToFetch["start"].(float64))
+		userId := int(dataToFetch["userId"].(float64))
+		groupId := int(dataToFetch["groupId"].(float64))
 
-		json.NewEncoder(w).Encode(map[string][]structs.Post{
+		posts, err := modules.GetPosts(start, userId, groupId)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to get posts"})
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]interface{}{
 			"posts": posts,
 		})
 	case "groupPosts":
-		posts, _ := modules.GetPosts(int(group.Start), int(group.UserId), int(group.GroupId))
+		start := int(dataToFetch["start"].(float64))
+		userId := int(dataToFetch["userId"].(float64))
+		groupId := int(dataToFetch["groupId"].(float64))
 
+		posts, err := modules.GetPosts(int(start), int(userId), int(groupId))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to get groups"})
+		}
+		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string][]structs.Post{
 			"posts": posts,
 		})
 	case "groupMembers":
-		groupid, err := strconv.Atoi(r.URL.Query().Get("gid"))
+		groupId := int(dataToFetch["groupId"].(float64))
+
+		members, err := modules.GetMembers(groupId)
 		if err != nil {
-			logs.Fatalln(err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to get groups"})
 		}
-		members, _ := modules.GetMembers(groupid)
 		json.NewEncoder(w).Encode(map[string][]structs.Gusers{
 			"members": members,
 		})
+	case "groupFeeds":
+		userId := int(dataToFetch["userId"].(float64))
+		posts, err := modules.GetGroupFeed(userId)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to get groups"})
+		}
+
+		json.NewEncoder(w).Encode(map[string][]structs.Post{
+			"posts": posts,
+		})
+	case "groupToJoin":
+		userId := int(dataToFetch["userId"].(float64))
+
+		groups, err := modules.GetGroupToJoin(userId)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to get groups"})
+			return
+		}
+		json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
+			"groups": groups,
+		})
+	case "groupImIn":
+		userId := int(dataToFetch["userId"].(float64))
+
+		groups, err := modules.GetGroupImIn(userId)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to get groups"})
+		}
+		json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
+			"groups": groups,
+		})
 	default:
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, `{"error": "Invalid request type"}`)
-		return
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request type"})
 	}
 }
 

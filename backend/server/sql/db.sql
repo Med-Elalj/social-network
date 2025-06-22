@@ -71,6 +71,17 @@ CREATE TABLE IF NOT EXISTS "message" (
   FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS "request" (
+  "sender_id" INTEGER NOT NULL,
+  "receiver_id" INTEGER NOT NULL,
+  "is_accept" BOOLEAN DEFAULT 0 CHECK (type IN (0, 1)),
+  "type" INTEGER NOT NULL DEFAULT 0 CHECK (type IN (0, 1)),
+  "created_at" DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY ("sender_id", "receiver_id", "created_at"),
+  FOREIGN KEY ("sender_id") REFERENCES "person" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS "posts" (
   "id" INTEGER PRIMARY KEY,
   "user_id" INTEGER NOT NULL,
@@ -83,11 +94,24 @@ CREATE TABLE IF NOT EXISTS "posts" (
   FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS "likes" (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL,
-  post_id INTEGER NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES person(id) ON DELETE CASCADE,
-  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-  UNIQUE (user_id, post_id)
-);
+-- CREATE TABLE IF NOT EXISTS likes (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   user_id INTEGER NOT NULL,
+--   post_id INTEGER,
+--   comment_id INTEGER,
+--   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--   FOREIGN KEY (user_id) REFERENCES person(id) ON DELETE CASCADE,
+--   FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+--   FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+--   CHECK (
+--     (
+--       post_id IS NOT NULL
+--       AND comment_id IS NULL
+--     )
+--     OR (
+--       post_id IS NULL
+--       AND comment_id IS NOT NULL
+--     )
+--   ),
+--   UNIQUE (user_id, post_id, comment_id) -- prevents duplicate likes
+-- );

@@ -8,6 +8,6 @@ export async function SendData(url, Data) {
         
         return response
     } catch (error) {
-        return        
+        return error
     }
 }

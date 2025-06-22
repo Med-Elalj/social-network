@@ -22,7 +22,7 @@ func SetupMux() *http.ServeMux {
 	// TODO STILL WORK IN PROGRESS
 	mux.HandleFunc("POST /api/v1/ws", middleware.Logged_IN(ws.HandleConnections))
 
-	mux.HandleFunc("GET /api/v1/get/{type}", middleware.Logged_IN(handlers.GetHandler))
+	mux.HandleFunc("POST /api/v1/get/{type}", middleware.Logged_IN(handlers.GetHandler))
 	mux.HandleFunc("POST /api/v1/set/{type}", middleware.Logged_IN(handlers.SetHandler))
 	return mux
 }

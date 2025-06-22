@@ -73,7 +73,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie := &http.Cookie{
 		Name:     "JWT",
 		Value:    "",
-		Path:     "/", // important!
+		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,                   // ensures deletion
 		HttpOnly: true,                 // match original

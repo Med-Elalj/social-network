@@ -16,10 +16,10 @@ func InsertUser(user structs.Register) error {
 	}
 
 	var avatar sql.NullString
-	if user.Avatar == "" {
+	if avatar.String == "" {
 		avatar = sql.NullString{String: "", Valid: false}
 	} else {
-		avatar = sql.NullString{String: string(user.Avatar), Valid: true}
+		avatar = sql.NullString{String: string(avatar.String), Valid: true}
 	}
 
 	var about sql.NullString

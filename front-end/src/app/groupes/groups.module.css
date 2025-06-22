@@ -1,0 +1,160 @@
+.content {
+    margin-top: 60px;
+    display: flex;
+    color: var(--secondary-color);
+}
+
+.first {
+    width: 20%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+    padding: 10px;
+    border-right: solid 1px var(--border-color);
+}
+
+.select {
+    border-bottom: solid 1px var(--border-color);
+    width: 100%;
+}
+
+.select>div {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 5px;
+    margin: 10px 5px;
+}
+
+.active {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.select>div>p {
+    margin-left: 10px;
+}
+
+.Requiests {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    border-bottom: var(--border-color) 1px solid;
+    color: var(--secondary-color);
+}
+
+.Requiests>h1 {
+    margin-left: 10px;
+}
+
+.RequestItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    margin-left: 10px;
+    cursor: pointer;
+    padding-right: 10px;
+    margin-bottom: 5px;
+}
+
+.Requiests>div:hover {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.Buttons a {
+    margin-left: 20px;
+    border: solid 1px var(--third-color);
+    border-radius: 10px;
+    padding: 5px 10px;
+    text-decoration: none;
+    background-color: var(--third-color);
+    color: var(--primary-color);
+}
+
+.Buttons a:hover {
+    border: solid 1px var(--hover-color);
+    background-color: var(--hover-color);
+    color: var(--secondary-color);
+}
+
+.Requiests>div>div {
+    display: flex;
+    align-items: center;
+}
+
+.Requiests h1 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: var(--third-color);
+}
+
+.second {
+    width: 80%;
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+}
+
+.groupGrid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 50px;
+    box-sizing: border-box;
+}
+
+.groupCard {
+    background-color: #1f1f1f;
+    border-radius: 12px;
+    padding: 15px;
+    height: 39vh;
+    text-align: center;
+    color: var(--secondary-color);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    transition: transform 0.2s ease;
+}
+
+.groupAvatar {
+    margin-bottom: 10px;
+    width: 100%;
+    height: 50%;
+    border-radius: 10px;
+}
+
+.groupCard:hover {
+    transform: scale(1.03);
+}
+
+.acceptBtn {
+    display: inline-block;
+    margin-top: 10px;
+    width: 80%;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background-color: var(--third-color);
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.acceptBtn:hover {
+    background-color: var(--hover-color);
+    color: var(--secondary-color);
+}
+
+
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+    }
+
+    .first,
+    .second {
+        width: 100%;
+    }
+}

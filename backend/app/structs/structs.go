@@ -19,7 +19,7 @@ type (
 	Email    string
 	Password string
 	Gender   string
-	Avatar   string
+	Avatar   sql.NullString
 	About    string
 )
 
@@ -53,7 +53,7 @@ type User struct {
 	Description sql.NullString
 	IsPublic    bool
 	IsPerson    bool
-	Avatar      sql.NullString
+	Avatar      Avatar
 }
 
 type UsersGet struct {
@@ -66,6 +66,13 @@ type Group struct {
 	Cid      ID     `json:"cid"`
 	Avatar   Avatar `json:"avatar"`
 	About    About  `json:"about"`
+}
+
+type GroupGet struct {
+	ID          ID
+	GroupName   Name
+	Avatar      sql.NullString
+	Description About
 }
 
 type GroupReq struct {
@@ -83,10 +90,16 @@ type Gusers struct {
 
 type Post struct {
 	ID           int
-	ImagePath    string
+	UserId       int
+	GroupId      sql.NullInt64
+	UserName     string
+	GroupName    sql.NullString
 	Content      string
+	ImagePath    sql.NullString
 	CreatedAt    string
-	Username     string
+	AvatarUser   sql.NullString
+	AvatarGroup  sql.NullString
+	Privacy      string
 	CommentCount int
 	LikeCount    int
 }

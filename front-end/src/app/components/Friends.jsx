@@ -22,13 +22,23 @@ export default function Friends() {
             </div>
 
             <div className={Styles.friends}>
-                <h1>Friends</h1>
-                {[1, 2, 3, 4, 5].map((_, i) => (
+                <h1>Contacts</h1>
+                {[1, 2, 3, 4].map((_, i) => (
                     <div key={i}>
+                        <div>
+                            <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                            <h5>User Name</h5>
+                        </div>
+                        <p>online</p>
+                    </div>
+                ))}
+                <div>
+                    <div>
                         <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                         <h5>User Name</h5>
                     </div>
-                ))}
+                    <p style={{ color: 'red' }}>offline</p>
+                </div>
             </div>
         </>
 

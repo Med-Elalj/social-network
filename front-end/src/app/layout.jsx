@@ -1,6 +1,14 @@
 import Routing from "./components/navigation/page";
 // import Footer from "./footer/page";
 import "./global.css";
+import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['100', '300', '400', '600', '700']
+})
+
 
 export const metadata = {
   title: "Social network",
@@ -9,7 +17,7 @@ export const metadata = {
 
 export default function Layout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.className}>
       <body>
         <Routing />
         <div>{children}</div>

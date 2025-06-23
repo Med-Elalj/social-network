@@ -1,10 +1,10 @@
-package sn
+package handlers
 
 import (
 	"net/http"
 
+	auth "social-network/app/Auth"
 	"social-network/app/handlers"
-	"social-network/app/security/middleware"
 	"social-network/app/ws"
 )
 
@@ -14,15 +14,15 @@ func SetupMux() *http.ServeMux {
 	mux.Handle("/", IndexHandler())
 
 	// auth handlers
-	mux.HandleFunc("POST /api/v1/auth", middleware.Logged_IN(handlers.Islogged))
-	mux.HandleFunc("POST /api/v1/auth/login", middleware.Logged_OUT(handlers.LoginHandler))
-	mux.HandleFunc("POST /api/v1/auth/register", middleware.Logged_OUT(handlers.RegisterHandler))
-	mux.HandleFunc("POST /api/v1/auth/logout", handlers.LogoutHandler)
+	mux.HandleFunc("POST /api/v1/auth", auth.Islogged)
+	mux.HandleFunc("POST /api/v1/auth/login", auth.LoginHandler)
+	mux.HandleFunc("POST /api/v1/auth/register", auth.RegisterHandler)
+	mux.HandleFunc("POST /api/v1/auth/logout", auth.LogoutHandler)
 
 	// TODO STILL WORK IN PROGRESS
-	mux.HandleFunc("POST /api/v1/ws", middleware.Logged_IN(ws.HandleConnections))
+	mux.HandleFunc("POST /api/v1/ws", ws.HandleConnections)
 
-	mux.HandleFunc("POST /api/v1/get/{type}", middleware.Logged_IN(handlers.GetHandler))
-	mux.HandleFunc("POST /api/v1/set/{type}", middleware.Logged_IN(handlers.SetHandler))
+	mux.HandleFunc("POST /api/v1/get/{type}", handlers.GetHandler)
+	mux.HandleFunc("POST /api/v1/set/{type}", handlers.SetHandler)
 	return mux
 }

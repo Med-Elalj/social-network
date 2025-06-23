@@ -97,6 +97,13 @@
     color: var(--secondary-color);
 }
 
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .formContainer {

@@ -27,7 +27,7 @@ def generate_self_signed_cert(cert_path, key_path):
     subject = issuer = x509.Name([
         x509.NameAttribute(NameOID.COUNTRY_NAME, u"MA"),  # Morocco country code
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Oujda Orientale"),  # Your region
-        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"Zone01Oujda talen"),  # Your org or zone name
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"Zone01Oujda"),  # Your org or zone name
         x509.NameAttribute(NameOID.COMMON_NAME, u"localhost"),
     ])
 
@@ -57,7 +57,7 @@ def generate_self_signed_cert(cert_path, key_path):
     print(f"✅ Generated TLS key: {key_path}")
 
 def write_env_file(env_path):
-    content = "JWT_SECRET_KEY=#SotialNetwork@zone01!\n"
+    content = "JWT_SECRET_KEY=#SocialNetwork@zone01!\n"
     with open(env_path, "w") as f:
         f.write(content)
     print(f"✅ Created env file: {env_path}")

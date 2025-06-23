@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	auth "social-network/app/Auth"
+	"social-network/app/Auth/jwt"
 	"social-network/app/modules"
-	"social-network/app/security"
-	"social-network/app/security/jwt"
 	"social-network/app/structs"
 	"social-network/server/logs"
 )
@@ -103,7 +103,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SetHandler(w http.ResponseWriter, r *http.Request) {
-	payload := r.Context().Value(security.UserContextKey)
+	payload := r.Context().Value(auth.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if !ok {
 		w.WriteHeader(http.StatusInternalServerError)

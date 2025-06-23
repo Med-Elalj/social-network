@@ -100,3 +100,9 @@
         font-size: 0.95rem;
     }
 }
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}

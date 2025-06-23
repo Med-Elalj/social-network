@@ -1,4 +1,4 @@
-package handlers
+package auth
 
 import (
 	"encoding/json"
@@ -6,17 +6,20 @@ import (
 	"net/http"
 	"time"
 
+	"social-network/app/Auth/jwt"
 	db "social-network/app/modules"
-	"social-network/app/security"
-	"social-network/app/security/jwt"
 	"social-network/app/structs"
 	"social-network/server/logs"
 )
 
+type contextKey string
+
+const UserContextKey contextKey = "user"
+
 // Check if user logged
 func Islogged(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	payload := r.Context().Value(security.UserContextKey)
+	payload := r.Context().Value(UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)

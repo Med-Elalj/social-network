@@ -9,9 +9,10 @@ import (
 	"net/http"
 	"sync"
 
+	auth "social-network/app/Auth"
+	"social-network/app/Auth/jwt"
 	"social-network/app/modules"
-	"social-network/app/security"
-	"social-network/app/security/jwt"
+
 	"social-network/server/logs"
 
 	"github.com/gorilla/websocket"
@@ -141,7 +142,7 @@ func deleteConnFromMap(uID int) {
 }
 
 func getUid(r *http.Request) int {
-	payload := r.Context().Value(security.UserContextKey)
+	payload := r.Context().Value(auth.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if ok {
 		return data.Sub

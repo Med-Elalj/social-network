@@ -1,16 +1,17 @@
 "use client";
+import { showNotification, usePasswordToggle } from "../utils";
 
-import { useState } from 'react';
+import { useState } from "react";
 import Styles from "./login.module.css";
-import { SendData } from '../../../utils/sendData.js';
-import { useRouter } from 'next/navigation';
-
+import { SendData } from "../../../utils/sendData.js";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+    usePasswordToggle();
     const router = useRouter();
     const [formData, setFormData] = useState({
-        login: '',
-        pwd: '',
+        login: "",
+        pwd: "",
     });
 
     const handleChange = (e) => {
@@ -21,13 +22,19 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const response = await SendData('/api/v1/auth/login', formData)
+        const response = await SendData("/api/v1/auth/login", formData);
         const res = await response.json();
         if (response.status == 200) {
             console.log("res", res);
             router.push("/");
         } else {
-            console.log(res.error || "Login failed. Please try again.");
+            showNotification(
+                res.error || "Login failed. Please try again.",
+                "error",
+                true,
+                5000
+            );
+            // console.log(res.error || "Login failed. Please try again.");
         }
     };
 
@@ -38,7 +45,9 @@ export default function Login() {
             </div>
 
             <form className={Styles.form} onSubmit={handleSubmit}>
-                <label className={Styles.label} htmlFor="login">Email or Nickname</label>
+                <label className={Styles.label} htmlFor="login">
+                    Email or Nickname
+                </label>
                 <input
                     className={Styles.input}
                     type="text"
@@ -48,17 +57,26 @@ export default function Login() {
                     required
                 />
 
-                <label className={Styles.label} htmlFor="pwd">Password</label>
-                <input
-                    className={Styles.input}
-                    type="password"
-                    name="pwd"
-                    id="password"
-                    onChange={handleChange}
-                    required
-                />
-
-                <button className={Styles.button} type="submit">Login</button>
+                <label className={Styles.label} htmlFor="pwd">
+                    Password
+                </label>
+                <div className={Styles.inputWrapper}>
+                        <input
+                            className={Styles.input}
+                            type="password"
+                            name="pwd"
+                            id="password"
+                            onChange={handleChange}
+                            required
+                        />
+                        <i className="togglePwd">
+                            <span className="icon vis_icon material-symbols-outlined">visibility</span>
+                        </i>
+                </div>
+        
+                <button className={Styles.button} type="submit">
+                    Login
+                </button>
             </form>
         </div>
     );

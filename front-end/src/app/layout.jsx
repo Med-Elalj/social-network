@@ -18,6 +18,10 @@ export const metadata = {
 export default function Layout({ children }) {
   return (
     <html lang="en" className={inter.className}>
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body>
         <Routing />
         <div>{children}</div>

@@ -29,8 +29,7 @@ body {
   cursor: pointer;
   z-index: 10;
 
-  background: -webkit-linear-gradient(rgb(0, 0, 0), yellow);
-  -webkit-background-clip: text;
+  background: -webkit-linear-gradient(var(--hover-color), var(--third-color));  -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 } 

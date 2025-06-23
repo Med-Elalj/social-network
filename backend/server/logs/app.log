@@ -37,3 +37,6 @@ INFO: 2025/06/23 15:41:23 logs.go:54: Validation failed for user input
 INFO: 2025/06/23 15:46:50 logs.go:58: Hashing password:"Pa$$w0rd!"
 got: "$2a$10$w2WTrL5Ay5JIo4CqhldHLOIZNrI9jbty0J47sAzwpIneg12CpRJli"
 INFO: 2025/06/23 15:46:59 logs.go:54: Password comparison succeeded
+INFO: 2025/06/23 17:12:47 logs.go:54: Database successfully created!
+INFO: 2025/06/23 17:13:32 logs.go:54: Password comparison succeeded
+INFO: 2025/06/23 17:14:17 logs.go:54: Database successfully created!

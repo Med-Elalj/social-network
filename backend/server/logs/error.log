@@ -8,3 +8,19 @@ ERROR: 2025/06/23 15:40:23 server.go:3487: http: TLS handshake error from [::1]:
 ERROR: 2025/06/23 15:40:25 server.go:3487: http: TLS handshake error from [::1]:47110: remote error: tls: unknown certificate
 ERROR: 2025/06/23 15:46:34 server.go:3487: http: TLS handshake error from [::1]:36966: remote error: tls: unknown certificate
 ERROR: 2025/06/23 15:46:34 server.go:3487: http: TLS handshake error from [::1]:36974: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:12:58 server.go:3487: http: TLS handshake error from [::1]:33756: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:12:58 server.go:3487: http: TLS handshake error from [::1]:33762: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:12:58 server.go:3487: http: TLS handshake error from [::1]:33770: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:12:58 server.go:3487: http: TLS handshake error from [::1]:33786: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:13:00 server.go:3487: http: TLS handshake error from [::1]:33802: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:13:00 server.go:3487: http: TLS handshake error from [::1]:33816: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:13:00 server.go:3487: http: TLS handshake error from [::1]:33828: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:13:00 server.go:3487: http: TLS handshake error from [::1]:33840: EOF
+ERROR: 2025/06/23 17:13:00 server.go:3487: http: TLS handshake error from [::1]:33854: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:13:00 server.go:3487: http: TLS handshake error from [::1]:33868: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:13:32 server.go:3487: http: TLS handshake error from [::1]:33752: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:14:19 server.go:3487: http: TLS handshake error from [::1]:58124: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:14:19 server.go:3487: http: TLS handshake error from [::1]:58128: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:14:21 server.go:3487: http: TLS handshake error from [::1]:58150: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:14:24 server.go:3487: http: TLS handshake error from [::1]:46276: remote error: tls: unknown certificate
+ERROR: 2025/06/23 17:20:30 server.go:3487: http: TLS handshake error from [::1]:50054: remote error: tls: unknown certificate

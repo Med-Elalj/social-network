@@ -52,7 +52,7 @@ export default function Routing() {
           <div className={Styles.centerSection}>
             <NavLink href="/" icon="home" pathname={pathname} />
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
-            <NavLink href="/groupes" icon="groupe" pathname={pathname} />
+            <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
           </div>
         )}
@@ -119,7 +119,7 @@ export default function Routing() {
           <>
             <NavLink href="/" icon="home" pathname={pathname} />
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
-            <NavLink href="/groupes" icon="groupe" pathname={pathname} />
+            <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
           </>
         )}

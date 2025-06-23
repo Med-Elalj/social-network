@@ -1,8 +1,8 @@
-import { SendData } from "../../../utils/sendData.js";
+import { SendData } from "../../../../utils/sendData.js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link.js";
-import Style from '../groupes/groups.module.css';
+import Style from '../groups.module.css';
 
 export default function YourGroups() {
     const [groups, setGroups] = useState([]);

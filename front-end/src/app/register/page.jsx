@@ -49,7 +49,7 @@ export default function Register() {
             // console.log('Form submitted successfully!');
             showNotification("Registration successful! Welcome to our social network!", "success", true, 5000);
             // load home page 
-            // todo: login refers to login
+            // TODO: login refers to login
         }
     };
 

@@ -40,3 +40,7 @@ INFO: 2025/06/23 15:46:59 logs.go:54: Password comparison succeeded
 INFO: 2025/06/23 17:12:47 logs.go:54: Database successfully created!
 INFO: 2025/06/23 17:13:32 logs.go:54: Password comparison succeeded
 INFO: 2025/06/23 17:14:17 logs.go:54: Database successfully created!
+INFO: 2025/06/23 17:23:05 logs.go:54: Database successfully created!
+INFO: 2025/06/23 17:25:32 logs.go:54: Password comparison succeeded
+INFO: 2025/06/23 18:00:02 logs.go:58: Hashing password:"Pa$$w0rd!"
+got: "$2a$10$hUKe1BcPPbOluOX3TNyWBu4AfZq5.5JrT2QfsulxLU4KLX.T2ggCu"

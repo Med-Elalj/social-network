@@ -1,9 +1,9 @@
 "use client"
 
 import Image from "next/image";
-import Styles from "../global.module.css";
+import Styles from "../../global.module.css";
 import { useState, useEffect } from "react";
-import { SendData } from "../../../utils/sendData.js";
+import { SendData } from "../../../../utils/sendData.js";
 
 export default function GroupPosts() {
     const [posts, setPosts] = useState([]);
@@ -25,13 +25,10 @@ export default function GroupPosts() {
         fetchData();
     }, []);
 
-
-
     return (
         <div>
             {posts && posts.map((Post, i) => (
                 <div key={i} className={Styles.post} style={{ width: '150%', marginLeft: '-40%' }}>
-                    {/* Post Header */}
                     <section className={Styles.userinfo}>
                         <div className={Styles.user}>
                             <Image
@@ -67,12 +64,10 @@ export default function GroupPosts() {
                         </div>
                     </section>
 
-                    {/* Post Content */}
                     <section className={Styles.content}>
                         {Post.Content || ""}
                     </section>
 
-                    {/* Optional Image */}
                     {/* {Post.ImagePath?.String && ( */}
                     <Image
                         src={`/db.png`}
@@ -84,7 +79,6 @@ export default function GroupPosts() {
                     />
                     {/* )} */}
 
-                    {/* Footer: Likes and Comments */}
                     <section className={Styles.footer}>
                         <div className={Styles.action}>
                             <Image src="/Like2.svg" alt="like" width={20} height={20} />

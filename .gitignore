@@ -1,7 +1,10 @@
-backend/server/private/*
+*
+!*.*
+!*/
+!*file
 backend/server/db/*
-backend/server/logs/*.log
+*.log
 front-end/.next/
-front-end/cache/
 front-end/build-manifest.json
 front-end/server/
+private/

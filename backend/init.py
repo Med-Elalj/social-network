@@ -64,7 +64,7 @@ def write_env_file(env_path):
 
 def main():
     script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
-    private_dir = os.path.abspath(os.path.join(script_dir,"server", "private"))
+    private_dir = os.path.abspath(os.path.join(script_dir,"..", "private"))
 
     # Ensure private dir exists
     os.makedirs(private_dir, exist_ok=True)

@@ -30,5 +30,5 @@ func main() {
 		ReadHeaderTimeout: 5 * time.Second,
 		ErrorLog:          logs.GetLogger("server"),
 	}
-	logs.Fatal(srv.ListenAndServeTLS("./server/private/cert.pem", "./server/private/key.pem"))
+	logs.Fatal(srv.ListenAndServeTLS("../private/cert.pem", "../private/key.pem"))
 }

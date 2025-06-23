@@ -1,4 +1,0 @@
-FATAL: 2025/06/02 23:13:51 logs.go:66: open server/private/cert.pem: no such file or directory
-FATAL: 2025/06/02 23:16:56 logs.go:66: open server/private/cert.pem: no such file or directory
-FATAL: 2025/06/02 23:17:31 logs.go:66: open server/private/cert.pem: no such file or directory
-FATAL: 2025/06/02 23:19:12 logs.go:66: open ./server/private/cert.pem: no such file or directory

@@ -23,7 +23,7 @@ type JwtPayload struct {
 
 // LoadSecret manually reads the .env file and retrieves JWT_SECRET_KEY
 func LoadSecret() string {
-	file, err := os.Open("server/private/.env")
+	file, err := os.Open("../private/.env")
 	if err != nil {
 		logs.Fatal("Error loading private/.env file", err)
 	}

@@ -114,4 +114,4 @@ CREATE TABLE IF NOT EXISTS "posts" (
 --     )
 --   ),
 --   UNIQUE (user_id, post_id, comment_id) -- prevents duplicate likes
--- );
+-- ); 

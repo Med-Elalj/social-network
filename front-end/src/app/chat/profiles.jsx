@@ -11,7 +11,7 @@ export default function Profile() {
     console.log("Resolved backend URL:", BACKEND_URL);
     const fetchConversations = async () => {
       try {
-        const response = await fetch(BACKEND_URL+"/api/v1/get/conversations", {
+        const response = await fetch(BACKEND_URL+"/api/v1/get/users", {
           method: "GET",
           credentials: "include", // Send cookies (auth)
           headers: {

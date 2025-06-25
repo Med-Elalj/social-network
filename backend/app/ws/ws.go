@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"html"
 	"log"
 	"net/http"
 	"sync"
@@ -34,8 +33,9 @@ type update struct {
 
 type message struct {
 	Sender   int    `json:"sender"`
+	SName    string `json:"author_name"`
 	Receiver int    `json:"receiver"`
-	Message  string `json:"message"`
+	Message  string `json:"content"`
 }
 
 var (
@@ -52,11 +52,19 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	uName := getUid(r)
+	uId, uName := getData(r)
+	if uId == 0 || uName == "" {
+		log.Println("Invalid user ID or username")
+		err = conn.WriteMessage(websocket.TextMessage, []byte(`{"sender":"system","content":"invalid user"}`))
+		if err != nil {
+			log.Println("Error sending invalid user message:", err)
+		}
+		return
+	}
 	// fmt.Printf("New connection: %s\n", uName)
 
-	addConnToMap(uName, conn)
-	defer deleteConnFromMap(uName)
+	addConnToMap(uId, conn)
+	defer deleteConnFromMap(uId)
 
 	for {
 		// Read message from the WebSocket connection
@@ -67,44 +75,23 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 
 		var request message
-		// if len(msg) > 7 && string(msg)[:7] == "typing:" {
-		// 	m := string(msg)[7:]
-		// 	conn, exist := sockets[m]
-		// 	if !exist || conn == nil {
-		// 		continue
-		// 	}
-
-		// 	err := conn.WriteMessage(websocket.TextMessage, []byte(`{"sender":"internal","type":"typing","username":"`+uName+`"}`))
-		// 	if err != nil {
-		// 		logs.Errorf("Error sending typing notification:", err)
-		// 	}
-		// 	continue
-		// } else if len(msg) > 11 && string(msg)[:11] == "stoptyping:" {
-		// 	m := string(msg)[11:]
-		// 	conn, exist := sockets[m]
-		// 	if !exist || conn == nil {
-		// 		continue
-		// 	}
-
-		// 	err := conn.WriteMessage(websocket.TextMessage, []byte(`{"sender":"internal","type":"stoptyping","username":"`+uName+`"}`))
-		// 	if err != nil {
-		// 		logs.Errorf("Error sending stop typing notification:", err)
-		// 	}
-		// 	continue
-		// }
 		err = json.Unmarshal(msg, &request)
 		if err != nil {
 			log.Println("Error parsing JSON:", err)
 			continue
 		}
-		request.Sender = uName
-		request.Message = html.EscapeString(request.Message)
+		request.Sender = uId
+		request.SName = uName
+		request.Receiver = 4
+		if len(request.Message) > 100 {
+			request.Message = request.Message[:100]
+		}
 		// Respond back with a JSON message
 		err = request.send()
 		var status_response string
 		if err != nil {
 			logs.Errorf("Error handling request: %q", err.Error())
-			status_response = `{"sender":"system","message":"failed to send message"}`
+			status_response = `{"author_name":"system","content":"failed to send message"}`
 			err = conn.WriteMessage(websocket.TextMessage, []byte(status_response))
 			if err != nil {
 				log.Println(err)
@@ -141,13 +128,13 @@ func deleteConnFromMap(uID int) {
 	mutex.Unlock()
 }
 
-func getUid(r *http.Request) int {
+func getUid(r *http.Request) (int, string) {
 	payload := r.Context().Value(auth.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if ok {
-		return data.Sub
+		return data.Sub, data.Username
 	} else {
-		return 0
+		return 0, ""
 	}
 }
 

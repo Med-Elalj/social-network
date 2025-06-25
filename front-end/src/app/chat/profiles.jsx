@@ -1,9 +1,12 @@
+'use client';
+
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Styles from "../global.module.css";
+import LStyle from "./style.module.css";
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export default function Profile() {
+export default function Profile({ onSelect, selectedId }) {
   const [personalDiscussions, setPersonalDiscussions] = useState([]);
   const [groupDiscussions, setGroupDiscussions] = useState([]);
 
@@ -11,7 +14,7 @@ export default function Profile() {
     console.log("Resolved backend URL:", BACKEND_URL);
     const fetchConversations = async () => {
       try {
-        const response = await fetch(BACKEND_URL+"/api/v1/get/users", {
+        const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
           method: "GET",
           credentials: "include", // Send cookies (auth)
           headers: {
@@ -38,28 +41,28 @@ export default function Profile() {
     fetchConversations();
   }, []);
 
+  const isActive = (id) => selectedId === id;
+
   return (
-    <span>
+    <section>
       <div className={Styles.groups}>
-        {personalDiscussions.map((discussion) => (
-          <div key={discussion.profile_id}>
-            <div>
-              <Image src="/iconMale.png" alt="profile" width={40} height={40} />
-              <h5>{discussion.profile_name}</h5>
-            </div>
-          </div>
-        ))}
+        {personalDiscussions.map((discussion) => profile(discussion))}
       </div>
       <div className={Styles.groups}>
-        {groupDiscussions.map((discussion) => (
-          <div key={discussion.profile_id}>
-            <div>
-              <Image src="/iconMale.png" alt="profile" width={40} height={40} />
-              <h5>{discussion.profile_name}</h5>
-            </div>
-          </div>
-        ))}
+        {groupDiscussions.map((discussion) => profile(discussion))}
       </div>
-    </span>
+    </section>
   );
+
+  function profile(discussion) {
+    return (<div key={discussion.profile_id}
+      onClick={() => onSelect([discussion.profile_id, discussion.profile_name])}
+      className={`${isActive(discussion.profile_name) ? LStyle.active : ''}`}>
+      <div>
+        <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+        <h5>{discussion.profile_name}</h5>
+      </div>
+    </div>
+    );
+  }
 }

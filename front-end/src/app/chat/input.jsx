@@ -1,36 +1,59 @@
+'use client';
+
 import React, { useState, useRef } from "react";
 import Styles from "./style.module.css";
-const WEBSOCKET_URL = process.env.NEXT_PUBLIC_BACKEND_URL + '/api/v1/ws';
+const WEBSOCKET_URL = '/api/v1/ws';
 
-export default function ChatInput({ userId, recipientId }) {
+const MY_UID = 1; // TODO IMPLEMENT
+
+export default function ChatInput({ addMessage, target }) {
     const [message, setMessage] = useState("");
     const ws = useRef(null);
+    const reconnectTimeout = useRef(null);
 
-    // Connect WebSocket on mount
     React.useEffect(() => {
-        ws.current = new WebSocket(WEBSOCKET_URL);
+        let isMounted = true;
 
-        ws.current.onopen = () => {
-            console.log("WebSocket connected");
-        };
+        function connect() {
+            ws.current = new WebSocket(WEBSOCKET_URL);
 
-        ws.current.onclose = () => {
-            console.log("WebSocket disconnected");
-        };
+            ws.current.onopen = () => {
+                console.log("WebSocket connected");
+            };
+
+            ws.current.onclose = () => {
+                console.log("WebSocket disconnected, retrying in 2s...");
+                if (isMounted) {
+                    reconnectTimeout.current = setTimeout(connect, 2000);
+                }
+            };
+
+            ws.current.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log("Received:", data);
+                if ([target[0], MY_UID].includes(data.receiver) || data.author_name === 'system') {
+                    data.sent_at = data.author_name == 'system' ? new Date().toISOString() : new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+                    addMessage(data);
+                } else {
+                    console.warn("Message not for this user:", data); // TODO NOTIFY
+                }
+            };
+        }
+
+        connect();
 
         return () => {
-            ws.current.close();
+            isMounted = false;
+            if (ws.current) ws.current.close();
+            if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
         };
-    }, []);
+    }, [target]);
 
     const sendMessage = (e) => {
         e.preventDefault();
-        if (!message.trim() || ws.current.readyState !== 1) return;
-
+        if (!message.trim() || !ws.current || ws.current.readyState !== 1) return;
         const dm = {
-            type: "dm",
-            from: userId,
-            to: recipientId,
+            receiver: target[0],
             content: message,
         };
 

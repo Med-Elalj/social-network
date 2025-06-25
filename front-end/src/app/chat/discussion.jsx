@@ -1,86 +1,114 @@
 'use client';
 
 import Image from "next/image";
-import Styles from "./style.module.css"
+import Styles from "./style.module.css";
 import Time from "./time";
-import { useEffect, useState } from "react";
-// get messages from backend POST /api/v1/get/dmhistory {person_id:123}
+import Input from "./input";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-// export async function getMessages(person_id) {
-//     const response = await fetch(`/api/v1/get/dmhistory?person_id=${person_id}`, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//         },
-//     });
+export async function getMessages(person_name, page) {
+    const response = await fetch(`/api/v1/get/dmhistory`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'target': person_name,
+            'page': page || new Date().toISOString(), // Use ISO string as page
+        },
+    });
 
-//     if (!response.ok) {
-//         throw new Error('Failed to fetch messages');
-//     }
+    if (!response.ok) {
+        throw new Error('Failed to fetch messages');
+    }
 
-//     return response.json();
-// }
+    return response.json();
+}
 
-// Sample messages data
-// This is a mockup of the messages data structure
-const messages = [
-    { id: 1, author_id: 1, author_name: "Name 1", sent_at: "2025-06-18T18:37:52Z", content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
-    { id: 2, author_id: 2, author_name: "Name 2", sent_at: "2025-06-18T18:37:50Z", content: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
-    { id: 3, author_id: 3, author_name: "Name 3", sent_at: "2025-06-18T18:37:48Z", content: "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." },
-    { id: 4, author_id: 4, author_name: "Name 4", sent_at: "2025-06-18T18:37:46Z", content: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur." },
-    { id: 5, author_id: 5, author_name: "Name 5", sent_at: "2025-06-18T18:37:44Z", content: "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
-    { id: 6, author_id: 1, author_name: "Name 1", sent_at: "2025-06-18T18:37:42Z", content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit." },
-    { id: 7, author_id: 2, author_name: "Name 2", sent_at: "2025-06-18T18:37:40Z", content: "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." },
-    { id: 8, author_id: 1, author_name: "Name 1", sent_at: "2025-06-18T17:00Z", content: "Azer" },
-];
+export default function Discussion({ person }) {
+    const [messages, setMessages] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const scrollContainerRef = useRef(null);
+    const earliestTimestampRef = useRef(null); // For pagination
 
-// export default function Groups() {
-//     return (
-//         <section>
+    const fetchInitialMessages = useCallback(async () => {
+        setLoading(true);
+        try {
+            const data = await getMessages(person[1]);
+            setMessages(data);
+            if (data != null && data.length > 0) {
+                earliestTimestampRef.current = data[0].sent_at;
+            } else {
+                setHasMore(false);
+            }
+        } catch (error) {
+            console.error("Initial fetch error:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [person]);
 
-//             {messages.map((message) => (
-//                 <div className={Styles.post} key={message.id}>
-//                     <section className={Styles.userinfo}>
+    const fetchMoreMessages = async () => {
+        if (loading || !hasMore) return;
 
-//                         <div key={message.author_id}>
-//                             <Image src="/iconMale.png" alt="notification" width={25} height={25} />
-//                             <p>{message.author_name}</p>
-//                         </div>
-//                     </section>
+        setLoading(true);
+        try {
+            const olderData = await getMessages(person[1], earliestTimestampRef.current);
+            if (olderData != null && olderData.length > 0) {
+                setMessages(prev => [...olderData, ...prev]);
+                earliestTimestampRef.current = olderData[0].sent_at;
+            } else {
+                setHasMore(false);
+            }
+        } catch (error) {
+            console.error("Fetch more error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-//                     <section className={Styles.content}>
-//                         {message.content}
-//                     </section>
+    useEffect(() => {
+        if (person) {
+            setMessages([]);
+            earliestTimestampRef.current = null;
+            setHasMore(true);
+            fetchInitialMessages();
+        }
+    }, [person, fetchInitialMessages]);
 
-//                     <section className={Styles.footer}>
-//                         <p>time/time/time</p>
-//                     </section>
-//                 </div>
-//             ))}
-//         </section>
-//     )
-// }
+    // Scroll handler
+    const handleScroll = () => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        if (el.scrollTop < 50) {
+            fetchMoreMessages();
+        }
+    };
 
-export default function Discussion({ person_id }) {
-    // const [messages, setMessages] = useState([]);
+    // If messages are too few to allow scrolling, fetch more automatically
+    useEffect(() => {
+        const el = scrollContainerRef.current;
+        if (!el || loading || !hasMore) return;
+        if (el.scrollHeight <= el.clientHeight + 10) {
+            fetchMoreMessages();
+        }
+        // eslint-disable-next-line
+    }, [messages, loading, hasMore]);
 
-    // useEffect(() => {
-    //     async function fetchMessages() {
-    //         try {
-    //             const data = await getMessages(person_id);
-    //             setMessages(data);
-    //         } catch (error) {
-    //             console.error("Error fetching messages:", error);
-    //         }
-    //     }
+    const addMsg = (message) => {
+        messages ? setMessages(prev => [...prev, message]) : setMessages([message]);
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+    };
 
-    //     fetchMessages();
-    // }, [person_id]);
-
-    return (
-        <section>
+    return person && messages ? (
+        <section
+            ref={scrollContainerRef}
+            onScroll={handleScroll}
+            style={{ height: '80vh', overflowY: 'auto' }}
+        >
             {messages.map((message) => (
-                <div className={Styles.post} key={message.id}>
+                <div className={Styles.post} key={message.sent_at}>
                     <section className={Styles.userinfo}>
                         <div>
                             <Image src="/iconMale.png" alt="notification" width={25} height={25} />
@@ -97,6 +125,13 @@ export default function Discussion({ person_id }) {
                     </section>
                 </div>
             ))}
+            {loading && <div className={Styles.post}>Loading more...</div>}
+            <Input addMessage={addMsg} target={person} />
         </section>
-    );
+    ) :
+        messages ?
+            (<div className={Styles.post}>Select a person to start chatting</div>)
+            :
+            (<div className={Styles.post}>No messages found<br /><Input addMessage={addMsg} target={person} /></div>)
+        ;
 }

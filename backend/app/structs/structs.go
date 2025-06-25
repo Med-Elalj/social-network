@@ -57,8 +57,10 @@ type User struct {
 }
 
 type UsersGet struct {
+	ID       ID     `json:"profile_id"`
 	Online   bool   `json:"online"`
-	Username string `json:"username"` // Exported field
+	Is_Group bool   `json:"is_group"`
+	Username string `json:"profile_name"` // Exported field
 }
 
 type Group struct {
@@ -129,7 +131,8 @@ type CommentGet struct {
 }
 
 type Message struct {
-	Sender  ID        `json:"sender"`
-	Content string    `json:"message"`
-	Time    time.Time `json:"time"`
+	Sender     ID        `json:"sender"`
+	SenderName string    `json:"author_name"`
+	Content    string    `json:"content"`
+	Time       time.Time `json:"sent_at"`
 }

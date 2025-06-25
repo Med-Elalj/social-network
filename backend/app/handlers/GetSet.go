@@ -96,6 +96,38 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
 			"groups": groups,
 		})
+	case "users":
+		payload := r.Context().Value(auth.UserContextKey)
+		data, ok := payload.(*jwt.JwtPayload)
+		if !ok {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		usernames, _ := modules.GetUserNames(data.Sub)
+		jsonData, _ := json.Marshal(usernames)
+		w.Write(jsonData)
+	case "dmhistory":
+		target := r.Header.Get("target")
+		page := r.Header.Get("page")
+		payload := r.Context().Value(auth.UserContextKey)
+		data, ok := payload.(*jwt.JwtPayload)
+		if !ok {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `{"error": "Sorry something went wrong"}`)
+			return
+		}
+		username := data.Username
+		dms, err := modules.GetdmHistory(username, target, page)
+		if err != nil {
+			logs.Errorf("routes.go 69 %q", err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprintf(w, `{"error": "Sorry something went wrong"}`)
+			return
+		}
+		jsonData, _ := json.Marshal(dms)
+		w.Write(jsonData)
+		// TODO get notifications
+
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request type"})

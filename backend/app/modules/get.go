@@ -2,6 +2,7 @@ package modules
 
 import (
 	"fmt"
+	"time"
 
 	"social-network/app/structs"
 	"social-network/server/logs"
@@ -307,98 +308,107 @@ func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 // 	return comments, nil
 // }
 
-// func GetUserNames(uid int) ([]structs.UsersGet, error) {
-// 	rows, err := DB.Query(`
-// 	SELECT
-// 		u.username
-// 	FROM
-// 		users u
-// 	LEFT JOIN
-// 		dms m
-// 	ON
-// 		(u.id = m.sender_id OR u.id = m.recipient_id)
-// 	AND
-// 		(m.sender_id = ? OR m.recipient_id = ? )
-// 	WHERE
-// 		u.id != ?
-// 	GROUP BY
-// 		u.id, u.username
-// 	ORDER BY
-// 		CASE WHEN MAX(m.created_at) IS NOT NULL THEN 1
-// 	    ELSE 2
-// 	END,
-// 		MAX(m.created_at) DESC,
-// 	u.username ASC;`, uid, uid, uid)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("could not execute query: %w", err)
-// 	}
-// 	defer rows.Close()
-// 	var userNames []structs.UsersGet
-// 	for rows.Next() {
-// 		var username structs.UsersGet
-// 		if err := rows.Scan(&username.Username); err != nil {
-// 			return userNames, fmt.Errorf("could not scan row: %w", err)
-// 		}
-// 		// TODO
-// 		// if _, e := helpers.Sockets[username.Username]; e {
-// 		// 	username.Online = true
-// 		// }
-// 		// userNames = append(userNames, username)
-// 	}
-// 	if err := rows.Err(); err != nil {
-// 		return userNames, fmt.Errorf("row iteration error: %w", err)
-// 	}
-// 	return userNames, nil
-// }
+func GetUserNames(uid int) ([]structs.UsersGet, error) {
+	rows, err := DB.Query(`
+	SELECT
+        p.id,
+		p.display_name,
+        NOT p.is_person AS is_group
+	FROM
+		user u
+    JOIN
+        profile p
+	LEFT JOIN
+		message m
+	ON
+		(u.id = m.sender_id OR u.id = m.receiver_id)
+	AND
+		(m.sender_id = ? OR m.receiver_id = ? )
+	WHERE
+		p.id != ?
+	GROUP BY
+		p.id, p.display_name
+	ORDER BY
+		CASE WHEN MAX(m.created_at) IS NOT NULL THEN 1
+	    ELSE 2
+	END,
+		MAX(m.created_at) DESC,
+	p.display_name ASC;`, uid, uid, uid)
+	if err != nil {
+		return nil, fmt.Errorf("could not execute query: %w", err)
+	}
+	defer rows.Close()
 
-// func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
-// 	var d time.Time
-// 	if date == "" {
-// 		d = time.Now()
-// 	} else {
-// 		var err error
-// 		d, err = time.Parse(time.RFC3339, date)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("invalid date format")
-// 		}
-// 	}
-// 	rows, err := DB.Query(`
-//         SELECT *
-//         FROM (
-//             SELECT
-//                 sender.username, d.message, d.created_at
-//             FROM
-//                 dms d
-//             JOIN
-//                 users sender ON d.sender_id = sender.id
-//             JOIN
-//                 users recipient ON d.recipient_id = recipient.id
-//             WHERE
-//                 d.created_at < ?
-//                 AND (
-//                     (sender.username = ? AND recipient.username = ?)
-//                     OR
-//                     (sender.username = ? AND recipient.username = ?)
-//                 )
-//             ORDER BY
-//                 d.created_at DESC
-//             LIMIT 10
-//         ) AS sub
-//         ORDER BY created_at ASC;
-//     `, d, uname1, uname2, uname2, uname1)
-// 	if err != nil {
-// 		logs.Errorf("Error getting messages: %q", err.Error())
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-// 	var messages []structs.Message
-// 	for rows.Next() {
-// 		var message structs.Message
-// 		if err := rows.Scan(&message.Sender, &message.Content, &message.Time); err != nil {
-// 			logs.Errorf("Error scanning message: %q", err.Error())
-// 			return nil, err
-// 		}
-// 		messages = append(messages, message)
-// 	}
-// 	return filter(messages, d), nil
-// }
+	var userS []structs.UsersGet
+
+	for rows.Next() {
+		var user structs.UsersGet
+		if err := rows.Scan(&user.ID, &user.Username, &user.Is_Group); err != nil {
+			return userS, fmt.Errorf("could not scan row: %w", err)
+		}
+		// TODO IMPLEMENT ONLINE STATUS
+		// if _, e := helpers.Sockets[username.Username]; e {
+		// 	username.Online = true
+		// }
+		userS = append(userS, user)
+	}
+
+	if err := rows.Err(); err != nil {
+		return userS, fmt.Errorf("row iteration error: %w", err)
+	}
+
+	return userS, nil
+}
+
+func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
+	var d time.Time
+	if date == "" {
+		d = time.Now()
+	} else {
+		var err error
+		d, err = time.Parse(time.RFC3339, date)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date format")
+		}
+	}
+	rows, err := DB.Query(`
+        SELECT *
+        FROM (
+            SELECT
+                sender.id,sender.display_name, d.content, d.created_at
+            FROM
+                message d
+            JOIN
+                profile sender ON d.sender_id = sender.id
+            JOIN
+                profile recipient ON d.receiver_id = recipient.id
+            WHERE
+                d.created_at < ?
+                AND (
+                    (sender.display_name = ? AND recipient.display_name = ?)
+                    OR
+                    (sender.display_name = ? AND recipient.display_name = ?)
+                )
+            ORDER BY
+                d.created_at DESC
+            LIMIT 10
+        ) AS sub
+        ORDER BY created_at ASC;
+    `, d, uname1, uname2, uname2, uname1)
+	if err != nil {
+		logs.Errorf("Error getting messages: %q", err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	var messages []structs.Message
+	for rows.Next() {
+		var message structs.Message
+		if err := rows.Scan(&message.Sender, &message.SenderName, &message.Content, &message.Time); err != nil {
+			logs.Errorf("Error scanning message: %q", err.Error())
+			return nil, err
+		}
+		messages = append(messages, message)
+	}
+	return filter(messages, d), nil
+}

@@ -128,7 +128,7 @@ func deleteConnFromMap(uID int) {
 	mutex.Unlock()
 }
 
-func getUid(r *http.Request) (int, string) {
+func getData(r *http.Request) (int, string) {
 	payload := r.Context().Value(auth.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if ok {

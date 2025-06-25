@@ -30,7 +30,7 @@ func GroupJoin(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 
 	// TODO notif to group creator
-	structs.JsRespond(w, "person send req group successfully", http.StatusOK)
+	structs.JsRespond(w, "user send req group successfully", http.StatusOK)
 }
 
 func GroupUactive(w http.ResponseWriter, r *http.Request, uid int) {
@@ -54,7 +54,7 @@ func GroupUactive(w http.ResponseWriter, r *http.Request, uid int) {
 	if !modules.InsertUGroup(group, uid) {
 		structs.JsRespond(w, "group joining failed", http.StatusInternalServerError)
 	}
-	structs.JsRespond(w, "person joined group successfully", http.StatusOK)
+	structs.JsRespond(w, "user joined group successfully", http.StatusOK)
 }
 
 func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {

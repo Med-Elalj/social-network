@@ -2,9 +2,16 @@ package modules
 
 import (
 	"database/sql"
-	"os"
+	"fmt"
+	"log"
+	"path/filepath"
 
 	"social-network/server/logs"
+
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/sqlite"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var DB *sql.DB
@@ -14,21 +21,35 @@ func SetDb(db *sql.DB) {
 }
 
 func SetTables() *sql.DB {
-	dB, err := sql.Open("sqlite3", "server/db/main.db")
+	db, err := sql.Open("sqlite3", "server/db/main.db")
 	if err != nil {
 		logs.Fatalf("Error opening database: %v", err)
 	}
 
-	sqlContent, err := os.ReadFile("./server/sql/db.sql")
+	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
 	if err != nil {
-		logs.Fatalf("Error reading SQL file: %v", err)
+		log.Fatal("driver instance error:", err)
 	}
 
-	_, err = dB.Exec(string(sqlContent))
+	absPath, err := filepath.Abs("server/sql/migrations")
 	if err != nil {
-		logs.Fatalf("Error executing SQL: %v", err)
+		log.Fatal("unable to resolve migration path:", err)
 	}
-	logs.Println("Database successfully created!")
-	DB = dB
-	return dB
+	fmt.Println("Migration path:", absPath)
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://"+absPath,
+		"sqlite3",
+		driver,
+	)
+	if err != nil {
+		log.Fatal("migration instance error:", err)
+	}
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal("migration failed:", err)
+	}
+
+	logs.Println("✅ Database migrations applied!")
+	DB = db
+	return db
 }

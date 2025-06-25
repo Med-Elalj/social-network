@@ -13,7 +13,7 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	    user_groups AS (
 	        SELECT group_id
 	        FROM groupmember
-	        WHERE person_id = ?          -- <-- Current user ID
+	        WHERE user_id = ?          -- <-- Current user ID
 	          AND active = 1            -- <-- Must be an active member
 	    ),
 	    followed_profiles AS (
@@ -110,7 +110,7 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
 	rows, err := DB.Query(`	
 	SELECT p.id p.display_name, p.avatar
 	FROM profile p
-	JOIN groupmember ON p.id = groupmember.person_id
+	JOIN groupmember ON p.id = groupmember.user_id
 	WHERE groupmember.group_id = ?;`, groupid)
 	if err != nil {
 		logs.Errorf("GetMembers query error: %q", err.Error())
@@ -173,7 +173,7 @@ func GetGroupFeed(uid int) ([]structs.Post, error) {
 	        ) AS rn
 	    FROM posts p
 	    JOIN groupmember gm ON p.group_id = gm.group_id
-	    WHERE gm.person_id = ?
+	    WHERE gm.user_id = ?
 	) AS sub
 	JOIN "group" g ON sub.group_id = g.id
 	JOIN profile group_profile ON group_profile.id = g.id         -- group profile
@@ -206,8 +206,8 @@ func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
 	FROM profile p
 	JOIN "group" g ON p.id = g.id
 	LEFT JOIN groupmember gm 
-	  ON g.id = gm.group_id AND gm.person_id = ?
-	WHERE gm.person_id IS NULL
+	  ON g.id = gm.group_id AND gm.user_id = ?
+	WHERE gm.user_id IS NULL
 	ORDER BY RANDOM()
 	LIMIT 10;
 	`, uid)
@@ -241,7 +241,7 @@ func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 	    JOIN "group" g ON p.id = g.id
 	    JOIN groupmember gm ON g.id = gm.group_id
 	WHERE
-	    gm.person_id = ?
+	    gm.user_id = ?
 	ORDER BY
 	    RANDOM()
 	LIMIT

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS "profile" (
+  "id" INTEGER PRIMARY KEY,
+  "display_name" TEXT NOT NULL UNIQUE,
+  "avatar" TEXT DEFAULT NULL,
+  "description" TEXT DEFAULT NULL,
+  "is_public" BOOLEAN DEFAULT true,
+  "is_user" BOOLEAN NOT NULL,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP) NOT NULL
+);

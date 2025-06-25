@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS "group" (
+  "id" INTEGER PRIMARY KEY,
+  "creator_id" INTEGER NOT NULL,
+  FOREIGN KEY ("id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("creator_id") REFERENCES "user" ("id") ON DELETE CASCADE
+);

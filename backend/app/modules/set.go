@@ -29,7 +29,7 @@ func InsertUser(user structs.Register) error {
 		about = sql.NullString{String: string(user.About), Valid: true}
 	}
 
-	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_person) VALUES (?,?,?, 1)`, user.UserName, avatar, about)
+	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_user) VALUES (?,?,?, 1)`, user.UserName, avatar, about)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -41,7 +41,7 @@ func InsertUser(user structs.Register) error {
 		return err
 	}
 
-	_, err = tx.Exec(`INSERT INTO person (id, email, first_name, last_name, password_hash, date_of_birth, gender)
+	_, err = tx.Exec(`INSERT INTO user (id, email, first_name, last_name, password_hash, date_of_birth, gender)
 	VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		profileID, user.Email, user.Fname, user.Lname, user.Password, user.Birthdate, user.Gender)
 	if err != nil {
@@ -97,7 +97,7 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 		return nil, err
 	}
 
-	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_person) VALUES (?,?,?, 0)`, gp.UserName, gp.Avatar, gp.About)
+	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_user) VALUES (?,?,?, 0)`, gp.UserName, gp.Avatar, gp.About)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -122,7 +122,7 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 		tx.Rollback()
 		return nil, err
 	}
-	_, err = tx.Exec(`INSERT INTO groupmember (group_id, person_id, active)
+	_, err = tx.Exec(`INSERT INTO groupmember (group_id, user_id, active)
 	VALUES (?, ?, ?)`,
 		ID, gp.Cid, 3)
 	if err != nil {
@@ -143,12 +143,12 @@ func InsertUGroup(gu structs.GroupReq, uid int) bool {
 	if err != nil {
 		return false
 	}
-	person := 0
+	user := 0
 	active := 0
 	if uid == adminid {
 		active++
 	}
-	err = DB.QueryRow(`SELECT g.person_id FROM groupmember g WHERE g.group_id = ?;`, gu.Gid).Scan(person)
+	err = DB.QueryRow(`SELECT g.user_id FROM groupmember g WHERE g.group_id = ?;`, gu.Gid).Scan(user)
 	if err == sql.ErrNoRows {
 		if uid == gu.Uid {
 			active++
@@ -156,13 +156,13 @@ func InsertUGroup(gu structs.GroupReq, uid int) bool {
 		query = `
 				INSERT
 				INTO groupmember
-				(group_id, person_id, active)
+				(group_id, user_id, active)
 				VALUES
 				(?, ?, ?)`
 	} else {
 		return false
 	}
-	if person != 0 {
+	if user != 0 {
 		active++
 	}
 	_, err = DB.Exec(query,

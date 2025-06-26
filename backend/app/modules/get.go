@@ -36,10 +36,7 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	    p.created_at,
 	    (
 	        SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id
-	    ) AS comment_count,
-	    (
-	        SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id
-	    ) AS like_count
+	    ) AS comment_count
 	FROM posts p
 	JOIN profile author ON author.id = p.user_id
 	LEFT JOIN profile group_profile ON group_profile.id = p.group_id
@@ -92,7 +89,6 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 			&post.ImagePath,
 			&post.CreatedAt,
 			&post.CommentCount,
-			&post.LikeCount,
 		)
 		if err != nil {
 			logs.Errorf("Scan error: %q", err.Error())
@@ -313,7 +309,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	SELECT
         p.id,
 		p.display_name,
-        NOT p.is_person AS is_group
+        NOT p.is_user AS is_group
 	FROM
 		user u
     JOIN
@@ -395,6 +391,7 @@ func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
         ) AS sub
         ORDER BY created_at ASC;
     `, d, uname1, uname2, uname2, uname1)
+	fmt.Println("Query executed for DM history with date:", d, "uname1:", uname1, "uname2:", uname2)
 	if err != nil {
 		logs.Errorf("Error getting messages: %q", err.Error())
 		return nil, err
@@ -410,5 +407,6 @@ func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
 		}
 		messages = append(messages, message)
 	}
+	fmt.Println("Messages fetched:", messages)
 	return filter(messages, d), nil
 }

@@ -20,9 +20,9 @@ func SetupMux() *http.ServeMux {
 	mux.HandleFunc("POST /api/v1/auth/register", auth.RegisterHandler)
 	mux.HandleFunc("POST /api/v1/auth/logout", auth.LogoutHandler)
 
-	mux.HandleFunc("/api/v1/ws", ws.HandleConnections)
+	mux.HandleFunc("/api/v1/ws", middleware.Logged_IN(ws.HandleConnections))
 
-	mux.HandleFunc("POST /api/v1/get/{type}", handlers.GetHandler)
-	mux.HandleFunc("POST /api/v1/set/{type}", handlers.SetHandler)
+	mux.HandleFunc("POST /api/v1/get/{type}", middleware.Logged_IN(handlers.GetHandler))
+	mux.HandleFunc("POST /api/v1/set/{type}", middleware.Logged_IN(handlers.SetHandler))
 	return mux
 }

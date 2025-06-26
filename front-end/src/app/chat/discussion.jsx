@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 
 export async function getMessages(person_name, page) {
     const response = await fetch(`/api/v1/get/dmhistory`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'target': person_name,

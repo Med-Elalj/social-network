@@ -3,6 +3,7 @@
 !*/
 !*file
 backend/server/db/*
+*.db
 *.log
 front-end/.next/
 front-end/build-manifest.json

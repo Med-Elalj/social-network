@@ -54,7 +54,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 
 	uId, uName := getData(r)
 	if uId == 0 || uName == "" {
-		log.Println("Invalid user ID or username")
+		log.Println("Invalid user ID or username", uId, uName)
 		err = conn.WriteMessage(websocket.TextMessage, []byte(`{"sender":"system","content":"invalid user"}`))
 		if err != nil {
 			log.Println("Error sending invalid user message:", err)
@@ -82,7 +82,6 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		}
 		request.Sender = uId
 		request.SName = uName
-		request.Receiver = 4
 		if len(request.Message) > 100 {
 			request.Message = request.Message[:100]
 		}

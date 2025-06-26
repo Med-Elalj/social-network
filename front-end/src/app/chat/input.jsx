@@ -4,8 +4,6 @@ import React, { useState, useRef } from "react";
 import Styles from "./style.module.css";
 const WEBSOCKET_URL = '/api/v1/ws';
 
-const MY_UID = 1; // TODO IMPLEMENT
-
 export default function ChatInput({ addMessage, target }) {
     const [message, setMessage] = useState("");
     const ws = useRef(null);
@@ -31,7 +29,7 @@ export default function ChatInput({ addMessage, target }) {
             ws.current.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 console.log("Received:", data);
-                if ([target[0], MY_UID].includes(data.receiver) || data.author_name === 'system') {
+                if ([data.sender, data.receiver].includes(target[0]) || data.author_name === 'system') {
                     data.sent_at = data.author_name == 'system' ? new Date().toISOString() : new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
                     addMessage(data);
                 } else {

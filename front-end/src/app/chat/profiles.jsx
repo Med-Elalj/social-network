@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Styles from "../global.module.css";
 import LStyle from "./style.module.css";
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
 
 export default function Profile({ onSelect, selectedId }) {
   const [personalDiscussions, setPersonalDiscussions] = useState([]);
@@ -15,7 +15,7 @@ export default function Profile({ onSelect, selectedId }) {
     const fetchConversations = async () => {
       try {
         const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
-          method: "GET",
+          method: "POST",
           credentials: "include", // Send cookies (auth)
           headers: {
             "Content-Type": "application/json"
@@ -43,17 +43,6 @@ export default function Profile({ onSelect, selectedId }) {
 
   const isActive = (id) => selectedId === id;
 
-  return (
-    <section>
-      <div className={Styles.groups}>
-        {personalDiscussions.map((discussion) => profile(discussion))}
-      </div>
-      <div className={Styles.groups}>
-        {groupDiscussions.map((discussion) => profile(discussion))}
-      </div>
-    </section>
-  );
-
   function profile(discussion) {
     return (<div key={discussion.profile_id}
       onClick={() => onSelect([discussion.profile_id, discussion.profile_name])}
@@ -65,4 +54,15 @@ export default function Profile({ onSelect, selectedId }) {
     </div>
     );
   }
+
+  return (
+    <section>
+      <div className={Styles.groups}>
+        {personalDiscussions.map((discussion) => profile(discussion))}
+      </div>
+      <div className={Styles.groups}>
+        {groupDiscussions.map((discussion) => profile(discussion))}
+      </div>
+    </section>
+  );
 }

@@ -16,12 +16,13 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var dataToFetch map[string]interface{}
-	if err := json.NewDecoder(r.Body).Decode(&dataToFetch); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON"})
-		return
+	if r.Body != nil && r.ContentLength != 0 {
+		if err := json.NewDecoder(r.Body).Decode(&dataToFetch); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Invalid JSON"})
+			return
+		}
 	}
-
 	switch r.PathValue("type") {
 	case "posts":
 		start := int(dataToFetch["start"].(float64))

@@ -1,0 +1,235 @@
+.container {
+    margin-top: 60px;
+    display: flex;
+    color: var(--secondary-color);
+}
+
+.first {
+    border-right: solid 1px var(--border-color);
+    position: fixed;
+    top: 35;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 30%;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1vh;
+}
+
+.header img {
+    cursor: pointer;
+}
+
+.users {
+    display: flex;
+    flex-direction: column;
+}
+
+.message {
+    color: var(--secondary-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.user {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+    padding: 0 0.5vw;
+    cursor: pointer;
+}
+
+.user:hover {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.user.active {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.user:not(.active):hover {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.last {
+    margin-left: auto;
+}
+
+.userImageWrapper {
+    position: relative;
+    display: inline-block;
+    /* or flex */
+}
+
+.activeIndicator {
+    position: absolute;
+    bottom: 4px;
+    right: 5px;
+    width: 12px;
+    height: 12px;
+    background-color: #4caf50;
+    border: 2px solid #4caf50;
+    border-radius: 50%;
+    box-shadow: 0 0 4px #4caf50aa;
+}
+
+.select {
+    border-bottom: solid 1px var(--border-color);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1vh;
+}
+
+.select>div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 10px 5px;
+    width: 10vw;
+}
+
+.active {
+    background-color: var(--border-color);
+    border-radius: 10px;
+}
+
+.select>div>p {
+    margin-left: 10px;
+}
+
+.second {
+    width: 70%;
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+    margin-left: 30%;
+}
+
+.chat {
+    background-color: var(--border-color);
+    width: 97%;
+    height: 89vh;
+    margin-top: 2vh;
+    border-radius: 10px;
+}
+
+.top {
+    height: 10%;
+    width: 100%;
+    border-bottom: 1px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 1rem;
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.emptyChat {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted-color);
+}
+
+.userInfo h5,
+.userInfo h6 {
+    margin: 0;
+    line-height: 1.3;
+}
+
+.body {
+    height: 80%;
+    width: 100%;
+    border-bottom: 1px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 1rem;
+}
+
+.bottom {
+    height: 10%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    gap: 1rem;
+}
+
+.bottom img {
+    width: 10%;
+    cursor: pointer;
+}
+
+.bottom input {
+    width: 80%;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--third-color);
+    border-radius: 6px;
+    transition: border 0.2s ease-in-out;
+    width: 100%;
+    background-color: #2a2a2a;
+    color: var(--secondary-color);
+    box-sizing: border-box;
+}
+
+.body {
+    flex: 1;
+    padding: 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1vh;
+}
+
+.user1,
+.user2 {
+    padding: 8px 16px;
+    width: auto;
+    border-radius: var(--radius-md);
+    position: relative;
+}
+
+.user1 {
+    align-self: flex-start;
+    background-color: var(--hover-color);
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+
+.user2 {
+    align-self: flex-end;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    margin-right: 20px;
+}
+
+.user1>div,
+.user2>div {
+    display: flex;
+}

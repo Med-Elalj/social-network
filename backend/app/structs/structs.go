@@ -80,7 +80,6 @@ type GroupGet struct {
 type GroupReq struct {
 	Gid    int `json:"gid"`
 	Uid    int `json:"uid"`
-	Active int `json:"active"`
 }
 
 type Gusers struct {

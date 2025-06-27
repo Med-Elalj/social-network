@@ -117,18 +117,18 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 		return nil, err
 	}
 
-	ID, err = res.LastInsertId()
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	_, err = tx.Exec(`INSERT INTO groupmember (group_id, user_id, active)
-	VALUES (?, ?, ?)`,
-		ID, gp.Cid, 3)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
+	// _, err = res.LastInsertId()
+	// if err != nil {
+	// 	tx.Rollback()
+	// 	return nil, err
+	// }
+	// _, err = tx.Exec(`INSERT INTO groupmember (group_id, user_id, active)
+	// VALUES (?, ?, ?)`,
+	// 	ID, gp.Cid, 3)
+	// if err != nil {
+	// 	tx.Rollback()
+	// 	return nil, err
+	// }
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -138,36 +138,39 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 
 func InsertUGroup(gu structs.GroupReq, uid int) bool {
 	var adminid int
-	var query string
+	// var query string
 	err := DB.QueryRow(`SELECT g.creator_id FROM group g WHERE g.id = ?;`, gu.Gid).Scan(adminid)
 	if err != nil {
 		return false
 	}
-	user := 0
-	active := 0
-	if uid == adminid {
-		active++
-	}
-	err = DB.QueryRow(`SELECT g.user_id FROM groupmember g WHERE g.group_id = ?;`, gu.Gid).Scan(user)
+	status := -1
+	// if uid == adminid {
+	//     active++
+	// }
+	err = DB.QueryRow(`SELECT status FROM follow f WHERE f.following_id = ? and f.follower_id = ?;`, gu.Gid,gu.Uid).Scan(status)
 	if err == sql.ErrNoRows {
-		if uid == gu.Uid {
-			active++
+		if gu.Uid != uid && uid != adminid {
+			// TODO: user to another user send request to gu.uid when accepting he up to 0
+			return true
 		}
-		query = `
-				INSERT
-				INTO groupmember
-				(group_id, user_id, active)
-				VALUES
-				(?, ?, ?)`
-	} else {
-		return false
-	}
-	if user != 0 {
-		active++
-	}
-	_, err = DB.Exec(query,
-		gu.Gid,
-		gu.Uid)
+		_, err = DB.Exec(`
+                INSERTgu.Ugu.Uid != uidid != uid
+                INTO follow
+                (following_id, follower_id, status)
+                VALUES
+                (?, ?, ?)`,
+			gu.Gid,
+			gu.Uid, 0)
+	} else if status == 0 {
+		_, err = DB.Exec(`
+                update
+                INTO follow
+                status
+                VALUES
+                (1) Where following_id = ? and follower_id = ?`, gu.Gid, uid)
+	} else if status == 2 {
+		logs.Println("user blocked from groupjoining")
+	} 
 	if err != nil {
 		logs.Println("Database insertion error:", err)
 		return false

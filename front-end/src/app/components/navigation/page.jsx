@@ -88,7 +88,7 @@ export default function Routing() {
                   </span>
                   {isOpen && (
                     <div className={Styles.dropdownMenu}>
-                      <Link href={`/profile/nickname`} onClick={() => setIsOpen(false)}>Profile</Link>
+                      <Link href={`/profile`} onClick={() => setIsOpen(false)}>Profile</Link>
                       <button
                         onClick={async () => {
                           await LogoutAndRedirect(router);

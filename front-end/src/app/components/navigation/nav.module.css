@@ -129,7 +129,7 @@
     position: absolute;
     top: 100%;
     right: 0;
-    background: var(--border-color);
+    background: var(--primary-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     border-radius: 4px;
     overflow: hidden;
@@ -139,13 +139,14 @@
     flex-direction: column;
 }
 
-.dropdownMenu.notification{
-    width: 250px;
+.dropdownMenu.notification {
+    width: 25vw;
 }
 
-.dropdownMenu.notification a{
-    height: 30px;
+.dropdownMenu.notification a {
+    height: auto;
     overflow-y: hidden;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .dropdownWrapper:hover .dropdownMenu {
@@ -163,6 +164,7 @@
     text-align: left;
     transition: background 0.2s ease;
     font-weight: bold;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .dropdownMenu button:hover,
@@ -215,7 +217,7 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        background-color:var(--primary-color);
+        background-color: var(--primary-color);
         border-top: 1px solid var(--border-color);
         justify-content: space-around;
         padding: 10px 0;

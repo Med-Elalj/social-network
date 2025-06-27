@@ -106,24 +106,35 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 }
 
 func GetMembers(groupid int) ([]structs.Gusers, error) {
-	var adminid int
-
 	rows, err := DB.Query(`    
-    SELECT p.id p.display_name, p.avatar
-    FROM profile p
-    JOIN follow ON p.id = follow.follower_id
-    WHERE follow.following_id = ?;`, groupid)
+	   SELECT
+	    p.id,
+	    p.display_name,
+	    p.avatar
+	FROM
+	    profile p
+	    JOIN follow ON p.id = follow.follower_id
+	WHERE
+	    follow.status != 0
+	    AND follow.status != 2
+	    AND follow.following_id = ?;`, groupid)
 	if err != nil {
 		logs.Errorf("GetMembers query error: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
-	err = DB.QueryRow(`SELECT g.creator_id FROM group g WHERE g.id = ?;`, groupid).Scan(adminid)
-	if err != nil {
-		return []structs.Gusers{}, fmt.Errorf("error fetching user: %v", err)
-	}
+
 	var admin structs.Gusers
-	err = DB.QueryRow(`select p.id p.display_name, p.avatar from profile p where p.id = ?`, adminid).Scan(admin.Uid, admin.Name, admin.Avatar)
+	err = DB.QueryRow(`SELECT
+		    p.id,
+		    p.display_name,
+		    p.avatar
+		FROM
+		    profile p
+		JOIN
+		    "group" g ON g.creator_id = p.id
+		WHERE
+		    g.id = ?;`, groupid).Scan(admin.Uid, admin.Name, admin.Avatar)
 	if err != nil {
 		//
 	}

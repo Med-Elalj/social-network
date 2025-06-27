@@ -109,7 +109,7 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 		return nil, err
 	}
 
-	res, err = tx.Exec(`INSERT INTO group (id, creator_id)
+	res, err = tx.Exec(`INSERT INTO "group" (id, creator_id)
 	VALUES (?, ?)`,
 		ID, gp.Cid)
 	if err != nil {
@@ -139,7 +139,7 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 func InsertUGroup(gu structs.GroupReq, uid int) bool {
 	var adminid int
 	// var query string
-	err := DB.QueryRow(`SELECT g.creator_id FROM group g WHERE g.id = ?;`, gu.Gid).Scan(adminid)
+	err := DB.QueryRow(`SELECT g.creator_id FROM "group" g WHERE g.id = ?;`, gu.Gid).Scan(adminid)
 	if err != nil {
 		return false
 	}
@@ -147,15 +147,14 @@ func InsertUGroup(gu structs.GroupReq, uid int) bool {
 	// if uid == adminid {
 	//     active++
 	// }
-	err = DB.QueryRow(`SELECT status FROM follow f WHERE f.following_id = ? and f.follower_id = ?;`, gu.Gid,gu.Uid).Scan(status)
+	err = DB.QueryRow(`SELECT status FROM follow f WHERE f.following_id = ? and f.follower_id = ?;`, gu.Gid, gu.Uid).Scan(status)
 	if err == sql.ErrNoRows {
 		if gu.Uid != uid && uid != adminid {
 			// TODO: user to another user send request to gu.uid when accepting he up to 0
 			return true
 		}
 		_, err = DB.Exec(`
-                INSERTgu.Ugu.Uid != uidid != uid
-                INTO follow
+                INSERT INTO follow
                 (following_id, follower_id, status)
                 VALUES
                 (?, ?, ?)`,
@@ -163,14 +162,16 @@ func InsertUGroup(gu structs.GroupReq, uid int) bool {
 			gu.Uid, 0)
 	} else if status == 0 {
 		_, err = DB.Exec(`
-                update
-                INTO follow
-                status
-                VALUES
-                (1) Where following_id = ? and follower_id = ?`, gu.Gid, uid)
+                UPDATE follow
+				SET
+				    status = 1
+				WHERE
+				    following_id = ?
+				    AND follower_id = ?;`, gu.Gid, uid)
 	} else if status == 2 {
+		//TODO
 		logs.Println("user blocked from groupjoining")
-	} 
+	}
 	if err != nil {
 		logs.Println("Database insertion error:", err)
 		return false

@@ -150,8 +150,6 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 		GroupCreation(w, r, data.Sub)
 	case "GroupJoin":
 		GroupJoin(w, r, data.Sub)
-	case "GroupUactive":
-		GroupUactive(w, r, data.Sub)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, `{"error": "page not found"}`)

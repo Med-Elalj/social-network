@@ -85,7 +85,7 @@ export default function Home() {
             </section>
 
             {/* Post Image (optional) */}
-            {/* {Post.ImagePath?.String ? (
+            {Post.ImagePath?.String ? (
               <Image
                 src={`${Post.ImagePath.String}`}
                 alt="post"
@@ -94,7 +94,7 @@ export default function Home() {
                 sizes="(max-width: 768px) 100vw, 250px"
                 style={{ height: 'auto', width: '100%', borderRadius: '10px' }}
               />
-            ) : ( */}
+            ) : (
               <Image
                 src="/db.png"
                 alt="default post"
@@ -103,8 +103,7 @@ export default function Home() {
                 sizes="(max-width: 768px) 100vw, 250px"
                 style={{ height: 'auto', width: '100%', borderRadius: '10px' }}
               />
-            {/* )} */}
-
+            )}
 
             <section className={Styles.footer}>
               <div className={Styles.action}>

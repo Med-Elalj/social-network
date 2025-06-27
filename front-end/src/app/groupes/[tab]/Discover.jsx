@@ -4,13 +4,13 @@ import Image from "next/image";
 import Link from "next/link.js";
 import Style from '../groups.module.css';
 
-export default function YourGroups() {
+export default function Discover() {
     const [groups, setGroups] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
             const formData = { userId: 1 };
-            const response = await SendData("/api/v1/get/groupImIn", formData);
+            const response = await SendData("/api/v1/get/groupToJoin", formData);
             const body = await response.json();
 
             if (response.status !== 200) {
@@ -38,7 +38,7 @@ export default function YourGroups() {
                     />
                     <h4>{Group.GroupName}</h4>
                     <p>{Group.Description}</p>
-                    <Link href="/view" className={Style.acceptBtn}>View Group</Link>
+                    <Link href="/join" className={Style.acceptBtn}>Join Group</Link>
                 </div>
             ))}
         </div>

@@ -34,7 +34,6 @@ export default function Login() {
                 true,
                 5000
             );
-            // console.log(res.error || "Login failed. Please try again.");
         }
     };
 

@@ -65,7 +65,6 @@ type UsersGet struct {
 
 type Group struct {
 	UserName Name   `json:"username"`
-	Cid      ID     `json:"cid"`
 	Avatar   Avatar `json:"avatar"`
 	About    About  `json:"about"`
 }
@@ -78,8 +77,8 @@ type GroupGet struct {
 }
 
 type GroupReq struct {
-	Gid    int `json:"gid"`
-	Uid    int `json:"uid"`
+	Gid int `json:"gid"`
+	Uid int `json:"uid"`
 }
 
 type Gusers struct {

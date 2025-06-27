@@ -91,7 +91,7 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 	return true
 }
 
-func InsertGroup(gp structs.Group) (sql.Result, error) {
+func InsertGroup(gp structs.Group, uid int) (sql.Result, error) {
 	tx, err := DB.Begin()
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 
 	res, err = tx.Exec(`INSERT INTO group (id, creator_id)
 	VALUES (?, ?)`,
-		ID, gp.Cid)
+		ID, uid)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -134,48 +134,6 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 	}
 
 	return res, nil
-}
-
-func InsertUGroup(gu structs.GroupReq, uid int) bool {
-	var adminid int
-	// var query string
-	err := DB.QueryRow(`SELECT g.creator_id FROM group g WHERE g.id = ?;`, gu.Gid).Scan(adminid)
-	if err != nil {
-		return false
-	}
-	status := -1
-	// if uid == adminid {
-	//     active++
-	// }
-	err = DB.QueryRow(`SELECT status FROM follow f WHERE f.following_id = ? and f.follower_id = ?;`, gu.Gid,gu.Uid).Scan(status)
-	if err == sql.ErrNoRows {
-		if gu.Uid != uid && uid != adminid {
-			// TODO: user to another user send request to gu.uid when accepting he up to 0
-			return true
-		}
-		_, err = DB.Exec(`
-                INSERTgu.Ugu.Uid != uidid != uid
-                INTO follow
-                (following_id, follower_id, status)
-                VALUES
-                (?, ?, ?)`,
-			gu.Gid,
-			gu.Uid, 0)
-	} else if status == 0 {
-		_, err = DB.Exec(`
-                update
-                INTO follow
-                status
-                VALUES
-                (1) Where following_id = ? and follower_id = ?`, gu.Gid, uid)
-	} else if status == 2 {
-		logs.Println("user blocked from groupjoining")
-	} 
-	if err != nil {
-		logs.Println("Database insertion error:", err)
-		return false
-	}
-	return true
 }
 
 // func InsertComment(comment structs.CommentInfo, uid int) bool {

@@ -3,16 +3,42 @@
 import { useState } from "react";
 import Style from "./chat.module.css";
 import Image from "next/image";
+import { useEffect } from "react";
 import Users from "./[tab]/Users";
 import Unread from "./[tab]/Unread";
 import Groups from "./[tab]/Groups";
 
 export default function Chat() {
     const [activeTab, setActiveTab] = useState("all");
-    const [selectedUser, setSelectedUser] = useState(null); // ✅ FIXED HERE
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [image, setImage] = useState(null);
+    // const [previewUrl, setPreviewUrl] = useState(null);
+    const [content, setContent] = useState("");
+
+    useEffect(() => {
+        setContent("");
+        setImage(null);
+        // setPreviewUrl(null);
+    }, [selectedUser]);
+
 
     const handleTabClick = (selectedTab) => {
         setActiveTab(selectedTab);
+    };
+
+    const handleMediaChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file);
+            // setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const handleSend = async (e) => {
+
+        console.log(image);
+        console.log(content);
+
     };
 
     return (
@@ -41,7 +67,7 @@ export default function Chat() {
                     {selectedUser ? (
                         <>
                             <div className={Style.top}>
-                                <Image src={`/${selectedUser.avatar}` || "iconMale.png"} width={50} height={50} alt="userProfile" />
+                                <Image src={`/${selectedUser.avatar ?? "iconMale.png"}`} width={50} height={50} alt="userProfile" />
                                 <div className={Style.userInfo}>
                                     <h5>{selectedUser.name}</h5>
                                     <h6
@@ -49,47 +75,64 @@ export default function Chat() {
                                             color: selectedUser.status === "online" ? "green" : "red",
                                         }}
                                     >
-                                        {selectedUser.status || "offline"}
+                                        {selectedUser.status}
                                     </h6>
+
                                 </div>
                             </div>
 
                             <div className={Style.body}>
                                 {/* {selectedUser.role === 'sender' && ( */}
                                 <div className={Style.user1}>
-                                    <div>
-                                        <p>{selectedUser.name}</p>
-                                        <p>00.00 10-07-2002</p>
-                                    </div>
+                                    <p>{selectedUser.name}</p>
                                     <p>Lorem ipsum dolor...</p>
+                                    <p>00.00 10-07-2002</p>
                                 </div>
                                 {/* )} */}
 
                                 {/* {selectedUser.role === 'receiver' && ( */}
                                 <div className={Style.user2}>
-                                    <div>
-                                        <p>{selectedUser.name}</p>
-                                        <p>00.00 10-07-2002</p>
-                                    </div>
+                                    <p>{selectedUser.name}</p>
                                     <p>Lorem ipsum dolor...</p>
+                                    <p>00.00 10-07-2002</p>
                                 </div>
                                 {/* )} */}
 
                                 <div className={Style.user1}>
-                                    <div>
-                                        <p>{selectedUser.name}</p>
-                                        <p>00.00 10-07-2002</p>
-                                    </div>
+                                    <p>{selectedUser.name}</p>
                                     <p>Lorem ipsum dolor...</p>
+                                    <p>00.00 10-07-2002</p>
                                 </div>
 
                             </div>
 
                             <div className={Style.bottom}>
-                                <Image src="upload.svg" width={30} height={30} alt="upload" />
-                                <input type="text" name="message" id="message" />
-                                <Image src="send.svg" width={30} height={30} alt="upload" />
+                                <div>
+                                    <label htmlFor="media" style={{ cursor: "pointer" }}>
+                                        <Image src="upload.svg" width={30} height={30} alt="upload" />
+                                    </label>
+                                    <input
+                                        type="file"
+                                        name="media"
+                                        style={{ display: "none" }}
+                                        id="media"
+                                        accept="image/*,video/*"
+                                        onChange={handleMediaChange}
+                                    />
+                                </div>
+
+                                <input type="text" name="message" id="message" value={content} onChange={(e) => setContent(e.target.value)} />
+
+                                <Image
+                                    src="send.svg"
+                                    width={30}
+                                    height={30}
+                                    alt="send"
+                                    onClick={handleSend}
+                                    style={{ cursor: "pointer", marginRight: "3%" }}
+                                />
                             </div>
+
                         </>
                     ) : (
                         <div className={Style.emptyChat}>

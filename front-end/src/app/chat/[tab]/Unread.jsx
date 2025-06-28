@@ -6,9 +6,9 @@ export default function Users({ onUserSelect }) {
     const [activeIndex, setActiveIndex] = useState(null);
 
     const users = [
-        { name: "User 1", message: "Lorem ipsum, dolor sit amet consectetu" },
-        { name: "User 2", message: "Lorem ipsum, dolor sit amet consectetu" },
-        { name: "User 3", message: "Lorem ipsum, dolor sit amet consectetu" },
+        { name: "User 1", message: "Lorem ipsum, dolor sit amet consectetu", status:"online" },
+        { name: "User 2", message: "Lorem ipsum, dolor sit amet consectetu", status:"oflline" },
+        { name: "User 3", message: "Lorem ipsum, dolor sit amet consectetu", status:"oflline" },
     ];
 
     const handleUserClick = (user, index) => {
@@ -27,7 +27,7 @@ export default function Users({ onUserSelect }) {
                             onClick={() => handleUserClick(user,index)}
                         >
                             <div className={Style.userImageWrapper}>
-                                <Image src="/iconMale.png" width={50} height={50} alt="userProfile" />
+                                <Image src={`/${user.avatar ?? "iconMale.png"}`} width={50} height={50} alt="userProfile" />
                                 {activeIndex === index && <span className={Style.activeIndicator} />}
                             </div>
                             <div>
@@ -35,7 +35,7 @@ export default function Users({ onUserSelect }) {
                                 <p>{user.message}</p>
                             </div>
                             {activeIndex === index && (
-                                <Image className={Style.last} src="/iconMale.png" width={20} height={20} alt="userProfile" />
+                                <Image className={Style.last} src={`/${user.avatar ?? "iconMale.png"}`} width={20} height={20} alt="userProfile" />
                             )}
                         </div>
                     ))}

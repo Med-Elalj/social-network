@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation';
 export default function NewPost() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
-  const [privacy, setPrivacy] = useState("public");
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [privacy, setPrivacy] = useState("public");
   const router = useRouter();
 
   const handleImageChange = (e) => {
@@ -66,7 +66,7 @@ export default function NewPost() {
             <img src="/Image.svg" alt="Upload" width="24" height="24" />&nbsp;&nbsp;
             Upload Image
           </label>
-          <input type="file" name="image" style={{ display: "none" }} id="image" accept="image/*" onChange={handleImageChange} />
+          <input type="file" name="image" style={{ display: "none" }} id="image" accept="image/*,video/*" onChange={handleImageChange} />
           {previewUrl && (
             <div>
               <img src={previewUrl} alt="Preview" />

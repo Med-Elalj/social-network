@@ -39,7 +39,7 @@ export default function Users({ onUserSelect }) {
                                 <p>{user.message}</p>
                             </div>
                             {activeIndex === index && (
-                                <Image className={Style.last} src="/iconMale.png" width={20} height={20} alt="userProfile" />
+                                <Image className={Style.last} src={`/${user.avatar ?? "iconMale.png"}`} width={20} height={20} alt="userProfile" />
                             )}
                         </div>
                     ))}

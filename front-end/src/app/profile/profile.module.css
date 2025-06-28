@@ -1,0 +1,84 @@
+.container {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+.header {
+    height: 30%;
+    position: relative;
+    z-index: -1;
+}
+
+.body {
+    height: 73%;
+    margin-top: -3vh;
+}
+
+.first {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 4;
+}
+
+.ProfileInfo {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    opacity: 10;
+    width: 60%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1vw;
+    color: var(--secondary-color);
+}
+
+.ProfileInfo .top {
+    margin: 0 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ProfileInfo .top img {
+    width: 8vw;
+    height: 8vw;
+    border-radius: 50%;
+}
+
+.center>span {
+    display: flex;
+}
+
+.center>span>h5:first-child {
+    color: var(--primary-color);
+}
+
+.ProfileInfo>button {
+    background-color: var(--third-color);
+    border: 1px solid var(--third-color);
+    height: 4vh;
+    margin: 1vh 0;
+    border-radius: 10px;
+    font-size: large;
+    cursor: pointer;
+}
+
+.ProfileInfo>button:hover {
+    background-color: var(--hover-color);
+    border: 1px solid var(--hover-color);
+    color:var(--secondary-color)
+}
+
+.ProfileInfo>button:last-child {
+    background-color: red;
+    border: 1px solid red;
+}
+
+.ProfileInfo>button:last-child:hover {
+    opacity: 0.5;
+}

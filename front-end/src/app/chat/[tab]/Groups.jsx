@@ -24,10 +24,15 @@ export default function Groups({ onUserSelect }) {
                         <div
                             key={index}
                             className={`${Style.user} ${activeIndex === index ? Style.active : ""}`}
-                            onClick={() => handleUserClick(group,index)}
+                            onClick={() => handleUserClick(group, index)}
                         >
                             <div className={Style.userImageWrapper}>
-                                <Image src="/iconMale.png" width={50} height={50} alt="userProfile" />
+                                <Image
+                                    src={`/${group.avatar ?? "iconMale.png"}`}
+                                    width={50}
+                                    height={50}
+                                    alt="userProfile"
+                                />
                             </div>
                             <h4>{group.name}</h4>
                         </div>

@@ -91,7 +91,7 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 	return true
 }
 
-func InsertGroup(gp structs.Group) (sql.Result, error) {
+func InsertGroup(gp structs.Group, uid int) (sql.Result, error) {
 	tx, err := DB.Begin()
 	if err != nil {
 		return nil, err
@@ -111,68 +111,29 @@ func InsertGroup(gp structs.Group) (sql.Result, error) {
 
 	res, err = tx.Exec(`INSERT INTO group (id, creator_id)
 	VALUES (?, ?)`,
-		ID, gp.Cid)
+		ID, uid)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 
-	ID, err = res.LastInsertId()
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	_, err = tx.Exec(`INSERT INTO groupmember (group_id, user_id, active)
-	VALUES (?, ?, ?)`,
-		ID, gp.Cid, 3)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
+	// _, err = res.LastInsertId()
+	// if err != nil {
+	// 	tx.Rollback()
+	// 	return nil, err
+	// }
+	// _, err = tx.Exec(`INSERT INTO groupmember (group_id, user_id, active)
+	// VALUES (?, ?, ?)`,
+	// 	ID, gp.Cid, 3)
+	// if err != nil {
+	// 	tx.Rollback()
+	// 	return nil, err
+	// }
 	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
 	return res, nil
-}
-
-func InsertUGroup(gu structs.GroupReq, uid int) bool {
-	var adminid int
-	var query string
-	err := DB.QueryRow(`SELECT g.creator_id FROM group g WHERE g.id = ?;`, gu.Gid).Scan(adminid)
-	if err != nil {
-		return false
-	}
-	user := 0
-	active := 0
-	if uid == adminid {
-		active++
-	}
-	err = DB.QueryRow(`SELECT g.user_id FROM groupmember g WHERE g.group_id = ?;`, gu.Gid).Scan(user)
-	if err == sql.ErrNoRows {
-		if uid == gu.Uid {
-			active++
-		}
-		query = `
-				INSERT
-				INTO groupmember
-				(group_id, user_id, active)
-				VALUES
-				(?, ?, ?)`
-	} else {
-		return false
-	}
-	if user != 0 {
-		active++
-	}
-	_, err = DB.Exec(query,
-		gu.Gid,
-		gu.Uid)
-	if err != nil {
-		logs.Println("Database insertion error:", err)
-		return false
-	}
-	return true
 }
 
 // func InsertComment(comment structs.CommentInfo, uid int) bool {

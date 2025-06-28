@@ -108,11 +108,11 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 func GetMembers(groupid int) ([]structs.Gusers, error) {
 	var adminid int
 
-	rows, err := DB.Query(`	
-	SELECT p.id p.display_name, p.avatar
-	FROM profile p
-	JOIN groupmember ON p.id = groupmember.user_id
-	WHERE groupmember.group_id = ?;`, groupid)
+	rows, err := DB.Query(`    
+    SELECT p.id p.display_name, p.avatar
+    FROM profile p
+    JOIN follow ON p.id = follow.follower_id
+    WHERE follow.following_id = ?;`, groupid)
 	if err != nil {
 		logs.Errorf("GetMembers query error: %q", err.Error())
 		return nil, err
@@ -122,17 +122,18 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
 	if err != nil {
 		return []structs.Gusers{}, fmt.Errorf("error fetching user: %v", err)
 	}
+	var admin structs.Gusers
+	err = DB.QueryRow(`select p.id p.display_name, p.avatar from profile p where p.id = ?`, adminid).Scan(admin.Uid, admin.Name, admin.Avatar)
+	if err != nil {
+		//
+	}
 	var members []structs.Gusers
+	members = append(members, admin)
 	for rows.Next() {
 		var member structs.Gusers
 		if err := rows.Scan(member.Uid, member.Name, member.Avatar); err != nil {
 			logs.Errorf("Error scanning message: %q", err.Error())
 			return nil, err
-		}
-		if member.Uid == adminid {
-			member.Adm = true
-		} else {
-			member.Adm = false
 		}
 		members = append(members, member)
 	}

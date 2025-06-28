@@ -14,7 +14,7 @@ import (
 func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		logs.Println("Error reading request body:", err)
+		logs.ErrorLog.Println("Error reading request body:", err)
 		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 		return
 	}

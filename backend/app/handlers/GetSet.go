@@ -120,7 +120,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		username := data.Username
 		dms, err := modules.GetdmHistory(username, target, page)
 		if err != nil {
-			logs.Errorf("routes.go 69 %q", err.Error())
+			logs.ErrorLog.Printf("routes.go 69 %q", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprintf(w, `{"error": "Sorry something went wrong"}`)
 			return
@@ -157,7 +157,7 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, `{"error": "page not found"}`)
-		logs.Errorf("Invalid request to /set/: %s", r.PathValue("type"))
+		logs.ErrorLog.Printf("Invalid request to /set/: %s", r.PathValue("type"))
 		return
 	}
 }

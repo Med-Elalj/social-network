@@ -19,7 +19,7 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	    ),
 	    followed_profiles AS (
 	        SELECT following_id
-	        FROM follow
+	        FROM followlogs
 	        WHERE follower_id = ?       -- <-- Current user ID again
 	          AND status = 1            -- <-- Follow relationship is accepted
 	    )
@@ -72,7 +72,7 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 		uid, // post owner visibility
 	)
 	if err != nil {
-		logs.Errorf("GetPosts query error: %q", err.Error())
+		logs.ErrorLog.Printf("GetPosts query error: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
@@ -95,7 +95,7 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 			&post.LikeCount,
 		)
 		if err != nil {
-			logs.Errorf("Scan error: %q", err.Error())
+			logs.ErrorLog.Printf("Scan error: %q", err.Error())
 			return nil, err
 		}
 		// TODO:if post of group get name of group
@@ -114,7 +114,7 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
     JOIN follow ON p.id = follow.follower_id
     WHERE follow.following_id = ?;`, groupid)
 	if err != nil {
-		logs.Errorf("GetMembers query error: %q", err.Error())
+		logs.ErrorLog.Printf("GetMembers query error: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
@@ -132,7 +132,7 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
 	for rows.Next() {
 		var member structs.Gusers
 		if err := rows.Scan(member.Uid, member.Name, member.Avatar); err != nil {
-			logs.Errorf("Error scanning message: %q", err.Error())
+			logs.ErrorLog.Printf("Error scanning message: %q", err.Error())
 			return nil, err
 		}
 		members = append(members, member)
@@ -183,7 +183,7 @@ func GetGroupFeed(uid int) ([]structs.Post, error) {
 	WHERE sub.rn <= 2;
 `, uid)
 	if err != nil {
-		logs.Errorf("GetgroupFeed query error: %q", err.Error())
+		logs.ErrorLog.Printf("GetgroupFeed query error: %q", err.Error())
 		return nil, err
 	}
 
@@ -191,7 +191,7 @@ func GetGroupFeed(uid int) ([]structs.Post, error) {
 	for rows.Next() {
 		var pt structs.Post
 		if err := rows.Scan(&pt.ID, &pt.GroupId, &pt.UserId, &pt.Content, &pt.UserName, &pt.GroupName, &pt.AvatarUser, &pt.AvatarGroup, &pt.ImagePath, &pt.CreatedAt, &pt.LikeCount, &pt.CommentCount); err != nil {
-			logs.Errorf("Error scanning groups %q", err.Error())
+			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
 			return nil, err
 		}
 		posts = append(posts, pt)
@@ -214,7 +214,7 @@ func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
 	LIMIT 10;
 	`, uid)
 	if err != nil {
-		logs.Errorf("GetGroupToJoin query error: %q", err.Error())
+		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
 		return nil, err
 	}
 
@@ -223,7 +223,7 @@ func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
 	for rows.Next() {
 		var gr structs.GroupGet
 		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description); err != nil {
-			logs.Errorf("Error scanning groups %q", err.Error())
+			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
 			return nil, err
 		}
 		grs = append(grs, gr)
@@ -250,7 +250,7 @@ func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 	    10;
 	`, uid)
 	if err != nil {
-		logs.Errorf("GetGroupImIn query error: %q", err.Error())
+		logs.ErrorLog.Printf("GetGroupImIn query error: %q", err.Error())
 		return nil, err
 	}
 
@@ -259,7 +259,7 @@ func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 	for rows.Next() {
 		var gr structs.GroupGet
 		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description); err != nil {
-			logs.Errorf("Error scanning groups %q", err.Error())
+			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
 			return nil, err
 		}
 		grs = append(grs, gr)
@@ -397,7 +397,7 @@ func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
         ORDER BY created_at ASC;
     `, d, uname1, uname2, uname2, uname1)
 	if err != nil {
-		logs.Errorf("Error getting messages: %q", err.Error())
+		logs.ErrorLog.Printf("Error getting messages: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
@@ -406,7 +406,7 @@ func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
 	for rows.Next() {
 		var message structs.Message
 		if err := rows.Scan(&message.Sender, &message.SenderName, &message.Content, &message.Time); err != nil {
-			logs.Errorf("Error scanning message: %q", err.Error())
+			logs.ErrorLog.Printf("Error scanning message: %q", err.Error())
 			return nil, err
 		}
 		messages = append(messages, message)

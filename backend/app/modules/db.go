@@ -16,14 +16,10 @@ import (
 
 var DB *sql.DB
 
-func SetDb(db *sql.DB) {
-	DB = db
-}
-
 func SetTables() *sql.DB {
 	db, err := sql.Open("sqlite3", "server/db/main.db")
 	if err != nil {
-		logs.Fatalf("Error opening database: %v", err)
+		logs.FatalLog.Fatalln("Error opening database:", err)
 	}
 
 	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
@@ -49,7 +45,6 @@ func SetTables() *sql.DB {
 		log.Fatal("migration failed:", err)
 	}
 
-	logs.Println("✅ Database migrations applied!")
-	DB = db
+	logs.InfoLog.Println("✅ Database migrations applied!")
 	return db
 }

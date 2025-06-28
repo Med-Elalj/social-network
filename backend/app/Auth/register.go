@@ -17,7 +17,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&user)
 
 	if err := user.ValidateRegister(); len(err) != 0 {
-		logs.Println("Validation failed for user input")
+		logs.ErrorLog.Println("Validation failed for user input")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"error": err,
@@ -32,7 +32,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	err := db.InsertUser(user)
 	if err != nil {
 		fmt.Println(err)
-		logs.Println("Error inserting user into database:", err)
+		logs.ErrorLog.Println("Error inserting user into database:", err)
 		if structs.SqlConstraint(&err) {
 			w.WriteHeader(http.StatusConflict)
 			fmt.Fprintf(w, `{"error": %q}`, err.Error())

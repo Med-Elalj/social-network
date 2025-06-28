@@ -17,7 +17,8 @@ run-frontend:
 	@echo "\033[1m\033[92m✅ Frontend service is running!\033[0m"
 
 run-backend:
-	@cd ./backend && go run . > /dev/null 2>&1 &
+#@cd ./backend && go run . > /dev/null 2>&1 &
+	@cd ./backend && go run .
 	@echo "\033[1m\033[94m🚀 Starting backend...\033[0m"
 	@until nc -z localhost 8080; do sleep 1; done
 	@echo "\033[1m\033[92m✅ Backend service is running!\033[0m"
@@ -99,4 +100,3 @@ fclean: dockerClean clean
 re: clean all
 
 .PHONY: all run-frontend run-backend
-

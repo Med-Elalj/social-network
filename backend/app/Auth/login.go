@@ -27,7 +27,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	 	WHERE pe.email = ? OR pr.display_name = ?;`, credentials.NoE, credentials.NoE).Scan(&id, &userName, &storedPassword)
 
 	if err != nil || !credentials.Password.Verify([]byte(storedPassword)) {
-		logs.Println("Login failed for user:", credentials.NoE)
+		logs.ErrorLog.Println("Login failed for user:", credentials.NoE)
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, `{"error": "Invalid username or password"}`)
 		return

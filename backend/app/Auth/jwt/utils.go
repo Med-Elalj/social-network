@@ -25,7 +25,7 @@ type JwtPayload struct {
 func LoadSecret() string {
 	file, err := os.Open("../private/.env")
 	if err != nil {
-		logs.Fatal("Error loading private/.env file", err)
+		logs.FatalLog.Fatalln("Error loading private/.env file", err)
 	}
 	defer file.Close()
 
@@ -37,7 +37,7 @@ func LoadSecret() string {
 		}
 	}
 
-	logs.Fatal("JWT_SECRET_KEY not found in private/.env file")
+	logs.FatalLog.Fatalln("JWT_SECRET_KEY not found in private/.env file")
 	return ""
 }
 
@@ -55,7 +55,7 @@ func signMessage(message string) string {
 	if secretKey == "" {
 		secretKey = LoadSecret()
 		if secretKey == "" {
-			logs.Fatal("JWT_SECRET_KEY is not set")
+			logs.FatalLog.Fatalln("JWT_SECRET_KEY is not set")
 		}
 	}
 	h := hmac.New(sha256.New, []byte(secretKey))

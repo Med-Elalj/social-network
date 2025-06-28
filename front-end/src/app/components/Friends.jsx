@@ -14,8 +14,12 @@ export default function Friends() {
                             <h5>Username</h5>
                         </div>
                         <div className={Styles.Buttons}>
-                            <Link href="/accept">Accept</Link>
-                            <Link href="/reject">Reject</Link>
+                            <Link href="/accept">
+                                <Image src="/accept.svg" alt="accept" width={30} height={30} />
+                            </Link>
+                            <Link href="/reject">
+                                <Image src="/reject.svg" alt="reject" width={30} height={30} />
+                            </Link>
                         </div>
                     </div>
                 ))}

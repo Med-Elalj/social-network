@@ -27,8 +27,9 @@ export default function GroupPosts() {
 
     return (
         <div>
-            {posts && posts.map((Post, i) => (
-                <div key={i} className={Styles.post} style={{ width: '150%', marginLeft: '-40%' }}>
+            {/* {posts && posts.map((Post, i) => ( */}
+            {posts && [1, 2, 3].map((Post, i) => (
+                <div key={i} className={Styles.post} >
                     <section className={Styles.userinfo}>
                         <div className={Styles.user}>
                             <Image
@@ -60,7 +61,8 @@ export default function GroupPosts() {
                             </div>
                         </div>
                         <div>
-                            <p>{Post.CreatedAt.replace('T', ' ').slice(0, -1)}</p>
+                            {/* <p>{Post.CreatedAt.replace('T', ' ').slice(0, -1)}</p> */}
+                            <p>time</p>
                         </div>
                     </section>
 

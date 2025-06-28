@@ -66,22 +66,6 @@
     border-radius: 10px;
 }
 
-.Buttons a {
-    margin-left: 20px;
-    border: solid 1px var(--third-color);
-    border-radius: 10px;
-    padding: 5px 10px;
-    text-decoration: none;
-    background-color: var(--third-color);
-    color: var(--primary-color);
-}
-
-.Buttons a:hover {
-    border: solid 1px var(--hover-color);
-    background-color: var(--hover-color);
-    color: var(--secondary-color);
-}
-
 .Requiests>div>div {
     display: flex;
     align-items: center;
@@ -91,6 +75,10 @@
     font-size: 1.5rem;
     margin-bottom: 20px;
     color: var(--third-color);
+}
+
+.Buttons a{
+margin-left: 20px;
 }
 
 .second {
@@ -114,7 +102,7 @@
     background-color: #1f1f1f;
     border-radius: 12px;
     padding: 15px;
-    height: 39vh;
+    height: 20vh;
     text-align: center;
     color: var(--secondary-color);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -281,13 +269,93 @@
     margin-top: auto;
 }
 
+/* Tablets and small desktops */
+@media (max-width: 1024px) {
+    .first {
+        position: relative;
+        width: 30%;
+        border-right: none;
+        border-bottom: solid 1px var(--border-color);
+        padding: 10px;
+        height: auto;
+    }
+
+    .second {
+        margin-left: 0;
+        width: 65%;
+    }
+
+    .groupGrid {
+        padding: 30px;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    .container {
+        width: 95%;
+        padding-left: 2%;
+    }
+}
+
+/* Mobile devices */
 @media (max-width: 768px) {
     .content {
         flex-direction: column;
+        margin-top: 20px;
     }
 
-    .first,
-    .second {
+    .first {
         width: 100%;
+        padding: 10px;
+        /* overflow: visible; */
+        /* position: relative; */
+    }
+
+    .second {
+        width: 90%;
+        margin: 3% 5%;
+        padding: 20px 0;
+        padding-bottom: 10%;
+        margin-bottom: 60px;
+    }
+
+    .groupGrid {
+        padding: 15px;
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .groupCard {
+        /* height: auto; */
+        padding: 10px;
+    }
+
+    .CreateForm {
+        padding: 10px;
+    }
+
+    .CreateForm label,
+    .CreateForm input,
+    .CreateForm select {
+        font-size: 0.95rem;
+    }
+
+    .form {
+        gap: 10px;
+        flex-grow: 0;
+    }
+
+    .container {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+    }
+
+    .header {
+        height: 20vh;
+    }
+
+    .navPreview h5 {
+        margin-left: 2%;
+        font-size: 0.85rem;
     }
 }

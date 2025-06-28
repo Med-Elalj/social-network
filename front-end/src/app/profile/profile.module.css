@@ -15,6 +15,8 @@
 .body {
     height: 73%;
     margin-top: -3vh;
+    display: flex;
+    margin-bottom: 10vh;
 }
 
 .first {
@@ -22,13 +24,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 4;
 }
 
 .ProfileInfo {
     background-color: var(--border-color);
     border-radius: 10px;
-    opacity: 10;
+    opacity: 1;
     width: 60%;
     height: auto;
     display: flex;
@@ -45,8 +46,6 @@
 }
 
 .ProfileInfo .top img {
-    width: 8vw;
-    height: 8vw;
     border-radius: 50%;
 }
 
@@ -71,14 +70,248 @@
 .ProfileInfo>button:hover {
     background-color: var(--hover-color);
     border: 1px solid var(--hover-color);
-    color:var(--secondary-color)
-}
-
-.ProfileInfo>button:last-child {
-    background-color: red;
-    border: 1px solid red;
+    color: var(--secondary-color)
 }
 
 .ProfileInfo>button:last-child:hover {
     opacity: 0.5;
+}
+
+.numbers {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.numbers>span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.numbers>span:hover,
+.numbers>span:hover {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.numbers>span>h5 {
+    margin: 0 -5px;
+}
+
+.second {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5vh;
+    gap: 2vh;
+}
+
+.post {
+    background-color: var(--border-color);
+    margin: 0 auto;
+    padding: 0 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-color);
+    margin-right: 10%;
+}
+
+.userinfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.userinfo>div {
+    display: flex;
+    align-items: center;
+}
+
+.user {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.user img,
+.user> :first-child {
+    flex-shrink: 0;
+}
+
+.user p:first-child {
+    margin: 0;
+}
+
+.user p:last-child {
+    margin: 4px 0 0 0;
+    font-size: 0.9rem;
+    color: gray;
+    line-height: 1.2;
+}
+
+.texts p {
+    margin: 0;
+}
+
+.texts p+p {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: gray;
+}
+
+.userinfo>div>p {
+    margin-left: 5px;
+}
+
+.content {
+    margin: 20px 0;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px 0;
+}
+
+.footer>.action>img {
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.footer .action {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.end {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4vh;
+}
+
+.requists {
+    background-color: var(--border-color);
+    color: var(--secondary-color);
+    width: 60%;
+    height: auto;
+    border-radius: 10px;
+    padding: 1vh;
+}
+
+.requists>div {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    padding: 0 1vw;
+}
+
+.followList {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    width: 80%;
+}
+
+.followList h1 {
+    margin-left: 20px;
+}
+
+.NewUser {
+    background-color: var(--secondary-color);
+    border-radius: 10px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    margin: 20px 50px;
+    justify-content: space-between;
+    padding: 0 1vw;
+    width: 80%;
+}
+
+.requists>div a,
+.NewUser a {
+    color: var(--third-color);
+    text-decoration: none;
+}
+
+.requists>div>div,
+.NewUser>div {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+
+.requists>div:hover {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    opacity: 0.7;
+    border: 1px solid var(--third-color);
+}
+
+@media (max-width: 1024px) {
+    .body {
+        flex-direction: column;
+    }
+
+    .first,
+    .second,
+    .end {
+        width: 100%;
+        margin-top: 2vh;
+        align-items: center;
+    }
+
+    .second {
+        order: 2;
+        padding-bottom: 12vh;
+    }
+
+    .ProfileInfo {
+        width: 90%;
+    }
+
+    .post {
+        margin: 0 auto !important;
+    }
+
+    .post:last-child {
+        margin-bottom: 10vh;
+    }
+
+    .end {
+        order: 1;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .requists {
+        width: 37vw;
+    }
+
+    .footer {
+        justify-content: space-around;
+    }
+}
+
+@media (max-width: 480px) {
+    .requists {
+        width: 80vw;
+    }
+
+    .end {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
 }

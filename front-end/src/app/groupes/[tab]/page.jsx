@@ -155,12 +155,16 @@ export default function Groupes() {
                             {[1, 2, 3].map((_, i) => (
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
-                                        <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                                        <Image src="/iconMale.png" alt="profile" width={25} height={25} />
                                         <h5>Username</h5>
                                     </div>
                                     <div className={Style.Buttons}>
-                                        <Link href="/accept">Accept</Link>
-                                        <Link href="/reject">Reject</Link>
+                                        <Link href="/accept">
+                                            <Image src="/accept.svg" alt="accept" width={25} height={25} />
+                                        </Link>
+                                        <Link href="/reject">
+                                            <Image src="/reject.svg" alt="reject" width={25} height={25} />
+                                        </Link>
                                     </div>
                                 </div>
                             ))}

@@ -7,7 +7,7 @@
 .first {
     border-right: solid 1px var(--border-color);
     position: fixed;
-    top: 35;
+    top: 35px;
     height: 100%;
     overflow-y: auto;
     padding: 20px;
@@ -230,4 +230,49 @@
     align-self: flex-end;
     background-color: var(--primary-color);
     margin-right: 2vw;
+}
+
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .first {
+        position: relative;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 40px;
+    }
+
+    .second {
+        width: 100%;
+        margin-left: 0;
+        margin-bottom: 70px;
+    }
+
+    .chat {
+        width: 100%;
+        height: 80vh;
+        margin-top: 1vh;
+    }
+
+    .bottom input {
+        font-size: 0.9rem;
+    }
+
+    .select>div {
+        width: 30%;
+    }
+
+    .select>div>p {
+        display: none;
+    }
+
+    .user {
+        padding: 0 0vw;
+        font-size: small;        
+    }
 }

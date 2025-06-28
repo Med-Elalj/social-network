@@ -102,7 +102,7 @@ export default function NewPost() {
             <label>
               <input
                 type="radio"
-                name="folowors"
+                name="privacy"
                 value="folowors"
                 checked={privacy === "folowors"}
                 onChange={() => setPrivacy("folowors")}

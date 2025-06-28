@@ -26,7 +26,8 @@ export default function Discover() {
 
     return (
         <div className={Style.groupGrid}>
-            {groups && groups.map((Group, i) => (
+            {/* {groups && groups.map((Group, i) => ( */}
+            {[1, 2, 3].map((Group, i) => (
                 <div className={Style.groupCard} key={Group.ID}>
                     <Image
                         src={Group.Avatar?.String || "/db.png"}

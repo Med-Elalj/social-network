@@ -46,7 +46,7 @@ export default function Chat() {
             <div className={Style.first}>
                 <div className={Style.header}>
                     <h1>Chats</h1>
-                    <Image src="/newMessage.svg" width={35} height={35} alt="newMessage" />
+                    <Image src="/newMessage.svg" width={25} height={25} alt="newMessage" />
                 </div>
 
                 <div className={Style.select}>
@@ -109,7 +109,7 @@ export default function Chat() {
                             <div className={Style.bottom}>
                                 <div>
                                     <label htmlFor="media" style={{ cursor: "pointer" }}>
-                                        <Image src="upload.svg" width={30} height={30} alt="upload" />
+                                        <Image src="upload.svg" width={25} height={25} alt="upload" />
                                     </label>
                                     <input
                                         type="file"
@@ -125,11 +125,11 @@ export default function Chat() {
 
                                 <Image
                                     src="send.svg"
-                                    width={30}
-                                    height={30}
+                                    width={25}
+                                    height={25}
                                     alt="send"
                                     onClick={handleSend}
-                                    style={{ cursor: "pointer", marginRight: "3%" }}
+                                    style={{ cursor: "pointer", marginRight: "6%" }}
                                 />
                             </div>
 
@@ -156,7 +156,7 @@ function Tab({ name, icon, activeTab, onClick }) {
             className={`${Style.tab} ${activeTab === name ? Style.active : ""}`}
             onClick={() => onClick(name)}
         >
-            <Image src={`/${icon}.svg`} alt={name} width={30} height={30} />
+            <Image src={`/${icon}.svg`} alt={name} width={25} height={25} />
             <p>{name}</p>
         </div>
     );

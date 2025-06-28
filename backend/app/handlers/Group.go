@@ -37,7 +37,7 @@ func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	// 	return
 	// }
 	// group.Cid = structs.ID(uid)
-	_, err = modules.InsertGroup(group)
+	_, err = modules.InsertGroup(group, uid)
 	if err != nil {
 		structs.JsRespond(w, "group creation failed", http.StatusInternalServerError)
 	}

@@ -19,7 +19,7 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	    ),
 	    followed_profiles AS (
 	        SELECT following_id
-	        FROM followlogs
+	        FROM follow
 	        WHERE follower_id = ?       -- <-- Current user ID again
 	          AND status = 1            -- <-- Follow relationship is accepted
 	    )

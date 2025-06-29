@@ -19,4 +19,5 @@ func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message": "Post Added successfully",
-	})}
+	})
+}

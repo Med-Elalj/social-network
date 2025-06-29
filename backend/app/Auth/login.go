@@ -33,7 +33,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login successful for user:", userName, "ID:", id)
 	authorize(w, r, id)
 	JsRespond(w, "Login successful", 200)
-	
+
 	// json.NewEncoder(w).Encode(map[string]interface{}{
 	// 	"message": "Login successful",
 	// })

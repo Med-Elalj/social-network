@@ -7,18 +7,16 @@ import (
 	"encoding/base64"
 	"os"
 	"strings"
-	"time"
 
 	"social-network/server/logs"
 )
 
-const Time_to_Expire = time.Hour * 6
-
 type JwtPayload struct {
-	Sub      int    `json:"sub,string"`
-	Username string `json:"username"`
-	Iat      int64  `json:"iat"`
-	Exp      int64  `json:"exp"`
+	Sub       int    `json:"sub,string"`
+	Username  string `json:"username"`
+	SessionID string `json:"sid"`
+	Iat       int64  `json:"iat"`
+	Exp       int64  `json:"exp"`
 }
 
 // LoadSecret manually reads the .env file and retrieves JWT_SECRET_KEY

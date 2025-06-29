@@ -2,52 +2,50 @@ package auth
 
 import (
 	"log"
+	"net/http"
 	"time"
 
 	"social-network/app/Auth/jwt"
 	database "social-network/app/modules"
 	"social-network/server/logs"
 
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
 )
 
-// Todo: send errors in js notifications
-// todo: check for session id
-
-func CheckSession(userID int, username string) (string, string, error) {
+func CheckSession(r *http.Request, userID int, username string) (jwtToken, sessionID, refreshToken string, err error) {
 	InvalidateSessions(userID)
 
-	// Create a new session if there's no active session
-	sessionID, err := createSession(userID)
+	userAgent := r.Header.Get("User-Agent")
+	ip := jwt.GetIP(r)
+
+	// 1. Create DB session with refresh token
+	sessionID, refreshToken, err = createSession(userID, userAgent, ip)
+	if err != nil {
+		return "", "", "", err
+	}
+
+	// 2. Generate JWT
+	payload := jwt.CreateJwtPayload(AuthExpiration.JwtExpiration, userID, sessionID)
+	jwtToken = jwt.Generate(payload)
+
+	return jwtToken, sessionID, refreshToken, nil
+}
+
+func createSession(userID int, userAgent string, ip string) (string, string, error) {
+	sessionID := uuid.New().String()
+	refreshToken := jwt.GenerateToken(32) // 32 random bytes
+
+	expiresAt := time.Now().Add(AuthExpiration.SessionExpiration)
+
+	_, err := database.DB.Exec(`
+		INSERT INTO sessions (user_id, session_id, refresh_token, expires_at, ip_address, user_agent)
+		VALUES (?, ?, ?, ?, ?, ?)
+	`, userID, sessionID, refreshToken, expiresAt, ip, userAgent)
 	if err != nil {
 		return "", "", err
 	}
 
-	payload := jwt.CreateJwtPayload(userID, username)
-	jwtToken := jwt.Generate(payload)
-
-	return jwtToken, sessionID, nil
-}
-
-func createSession(userID int) (string, error) {
-	// Generate unique session ID (UUID or random string)
-	sessionID, err := uuid.NewV4()
-	if err != nil {
-		return "", err
-	}
-	// Set session expiration time from int64
-	expiresAt := time.Now().Add(time.Duration(jwt.Time_to_Expire))
-
-	// Insert the session into the database
-	_, err = database.DB.Exec(`
-        INSERT INTO sessions (user_id, session_id , expires_at) 
-        VALUES (?, ?, ?)
-    `, userID, sessionID.String(), expiresAt)
-	if err != nil {
-		return "", err
-	}
-
-	return sessionID.String(), nil
+	return sessionID, refreshToken, nil
 }
 
 func SessionExists(userID int, sessionID string) (bool, error) {

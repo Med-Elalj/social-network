@@ -14,7 +14,7 @@ export default function Routing() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const pathname = usePathname();
   const router = useRouter();
-
+// todo: check login
   useEffect(() => {
     const fetchAuthStatus = async () => {
       try {

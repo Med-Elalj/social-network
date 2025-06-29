@@ -16,6 +16,7 @@ func SetupMux() *http.ServeMux {
 
 	// auth handlers
 	mux.HandleFunc("POST /api/v1/auth", middleware.Logged_IN(auth.Islogged))
+	mux.HandleFunc("POST /api/v1/refresh", middleware.Logged_IN(handlers.RefreshHandler))
 	mux.HandleFunc("POST /api/v1/auth/login", auth.LoginHandler)
 	mux.HandleFunc("POST /api/v1/auth/register", auth.RegisterHandler)
 	mux.HandleFunc("POST /api/v1/auth/logout", auth.LogoutHandler)

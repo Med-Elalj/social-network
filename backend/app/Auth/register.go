@@ -10,7 +10,50 @@ import (
 	"social-network/server/logs"
 )
 
-// Register handler
+// func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+// 	var user structs.Register
+
+// 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+// 		http.Error(w, `{"error": "Invalid JSON"}`, http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	if validationErrors := user.ValidateRegister(); len(validationErrors) != 0 {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		json.NewEncoder(w).Encode(map[string]interface{}{
+// 			"error": validationErrors,
+// 		})
+// 		return
+// 	}
+
+// 	if err := db.InsertUser(user); err != nil {
+// 		logs.ErrorLog.Println("DB error inserting user:", err)
+// 		if structs.SqlConstraint(&err) {
+// 			w.WriteHeader(http.StatusConflict)
+// 			json.NewEncoder(w).Encode(map[string]string{
+// 				"error": err.Error(),
+// 			})
+// 		} else {
+// 			w.WriteHeader(http.StatusInternalServerError)
+// 			json.NewEncoder(w).Encode(map[string]string{
+// 				"error": "Registration failed. Try again later.",
+// 			})
+// 		}
+// 		return
+// 	}
+
+// 	// Get inserted user ID from DB safely (optional: RETURNING id)
+// 	userID := GetElemVal("id", "user", `display_name = "`+string(user.UserName)+`"`).(int)
+// 	fmt.Println("Registered user ID:", userID)
+
+// 	// authorize(w, r, userID)
+
+//		// Write response after cookies are set
+//		w.WriteHeader(http.StatusOK)
+//		json.NewEncoder(w).Encode(map[string]interface{}{
+//			"message": "Registration successful",
+//		})
+//	}
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user structs.Register
 

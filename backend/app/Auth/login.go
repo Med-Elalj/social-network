@@ -35,15 +35,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	cookie := &http.Cookie{
 		Name:     "JWT",
-		Value:    jwt.Generate(jwt.CreateJwtPayload(id, userName)),
+		Value:    jwt.Generate(jwt.CreateJwtPayload(time.Duration(AuthExpiration.JwtExpiration.Seconds()), id, userName)),
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
-		Expires:  time.Now().Add(jwt.Time_to_Expire),
+		Expires:  time.Now().Add(AuthExpiration.JwtExpiration),
 	}
 
 	http.SetCookie(w, cookie)
+
+	// authorize(w, r, id)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(map[string]interface{}{

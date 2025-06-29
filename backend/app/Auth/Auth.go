@@ -4,44 +4,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"social-network/app/Auth/jwt"
+	"social-network/server/logs"
 )
 
-type contextKey string
+func authorize(w http.ResponseWriter, r *http.Request, userID int) {
+	username := GetElemVal("username", "users", `id = "`+strconv.Itoa(userID)+`"`).(string)
 
-const UserContextKey contextKey = "user"
+	jwtToken, sessionID, refreshToken, err := CheckSession(r, userID, username)
+	if err != nil {
+		logs.ErrorLog.Println(err)
+		http.Error(w, "Session error", http.StatusInternalServerError)
+		return
+	}
 
-func authorize(w http.ResponseWriter, userID int) {
-	// username := getElemVal("username", "users", `id = "`+strconv.Itoa(userID)+`"`).(string)
-	// jwt, sessionID, err := CheckSession(userID, username)
-	// if err != nil {
-	// 	helpers.ErrorLog.Println(err)
-	// }
+	// Access Token
+	SetCookie(w, "JWT", jwtToken, int(AuthExpiration.JwtExpiration.Seconds()))
+	// Session ID & Refresh Token (HttpOnly)
+	SetCookie(w, "session_id", sessionID, int(AuthExpiration.SessionExpiration.Seconds()))
+	SetCookie(w, "refresh_token", refreshToken, int(AuthExpiration.SessionExpiration.Seconds()))
 
-	// http.SetCookie(w, &http.Cookie{
-	// 	Name:     "jwt",
-	// 	Value:    jwt,
-	// 	Path:     "/",
-	// 	Secure:   true,
-	// 	HttpOnly: true,
-	// 	SameSite: http.SameSiteStrictMode,
-	// 	Expires:  time.Now().Add(60 * time.Minute),
-	// })
-
-	// // Set the Session ID in a separate HttpOnly cookie
-	// http.SetCookie(w, &http.Cookie{
-	// 	Name:     "ssid",
-	// 	Value:    sessionID,
-	// 	Path:     "/",
-	// 	Secure:   true,
-	// 	HttpOnly: true,
-	// 	SameSite: http.SameSiteStrictMode,
-	// 	Expires:  time.Now().Add(60 * time.Minute),
-	// })
-
-	// w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
 }
 
 func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {

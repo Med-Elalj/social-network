@@ -86,8 +86,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	w.WriteHeader(200)
+	userID := GetElemVal("id", "profile", `display_name = "`+string(user.UserName)+`"`).(int64)
+	fmt.Println("Registered user ID:", userID)
+	authorize(w, r, int(userID))
+	JsRespond(w, "Registration successful", http.StatusOK)
+	// w.WriteHeader(200)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"message": "Login successful",
 	})

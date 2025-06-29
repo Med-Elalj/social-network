@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -16,7 +17,7 @@ func CheckSession(r *http.Request, userID int, username string) (jwtToken, sessi
 	InvalidateSessions(userID)
 
 	userAgent := r.Header.Get("User-Agent")
-	ip := jwt.GetIP(r)
+	ip := GetIP(r)
 
 	// 1. Create DB session with refresh token
 	sessionID, refreshToken, err = createSession(userID, userAgent, ip)
@@ -25,17 +26,16 @@ func CheckSession(r *http.Request, userID int, username string) (jwtToken, sessi
 	}
 
 	// 2. Generate JWT
-	payload := jwt.CreateJwtPayload(AuthExpiration.JwtExpiration, userID, sessionID)
+	payload := jwt.CreateJwtPayload(AuthInfo.JwtExpiration, userID, username, sessionID)
 	jwtToken = jwt.Generate(payload)
-
+	fmt.Println("JWT Token:", jwtToken, "Session ID:", sessionID, "Refresh Token:", refreshToken)
 	return jwtToken, sessionID, refreshToken, nil
 }
 
 func createSession(userID int, userAgent string, ip string) (string, string, error) {
-	sessionID := uuid.New().String()
-	refreshToken := jwt.GenerateToken(32) // 32 random bytes
-
-	expiresAt := time.Now().Add(AuthExpiration.SessionExpiration)
+	sessionID := uuid.NewString()
+	refreshToken := uuid.NewString()
+	expiresAt := time.Now().Add(AuthInfo.SessionExpiration)
 
 	_, err := database.DB.Exec(`
 		INSERT INTO sessions (user_id, session_id, refresh_token, expires_at, ip_address, user_agent)
@@ -44,7 +44,6 @@ func createSession(userID int, userAgent string, ip string) (string, string, err
 	if err != nil {
 		return "", "", err
 	}
-
 	return sessionID, refreshToken, nil
 }
 

@@ -14,18 +14,38 @@ export default function Routing() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const pathname = usePathname();
   const router = useRouter();
-// todo: check login
+
   useEffect(() => {
     const fetchAuthStatus = async () => {
       try {
-        const response = await SendData('/api/v1/auth', null);
-        setIsLoggedIn(response.status === 200);
+        const response = await fetch('/api/v1/auth/status', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        });
+
+        // First check if the response is OK
+        if (!response.ok) {
+          setIsLoggedIn(false);
+          return;
+        }
+
+        // Parse the response as JSON only once
+        const data = await response.json();
+        setIsLoggedIn(data.authenticated === true);
+        console.log("Auth status:", data.authenticated);
       } catch (err) {
         setIsLoggedIn(false);
+        console.error("Auth check error:", err);
       }
     };
+
     fetchAuthStatus();
-  });
+  }, [pathname]);  
+
 
   const validPaths = ["/", "/login", "/register", "/newPost", "/groupes", "/chat", "/profile/nickname"];
 

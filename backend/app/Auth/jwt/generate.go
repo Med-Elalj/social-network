@@ -9,15 +9,16 @@ import (
 
 var secretKey string
 
-func CreateJwtPayload(expiration time.Duration, id int, username string) JwtPayload {
+func CreateJwtPayload(expiration time.Duration, id int, username string, sessionID string) JwtPayload {
 	iat := time.Now().Unix()
 	exp := iat + int64(expiration.Seconds())
 
 	return JwtPayload{
-		Sub:      id,
-		Username: username,
-		Iat:      iat,
-		Exp:      exp,
+		Sub:       id,
+		Username:  username,
+		SessionID: sessionID,
+		Iat:       iat,
+		Exp:       exp,
 	}
 }
 

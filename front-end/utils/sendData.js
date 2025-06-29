@@ -3,6 +3,7 @@ export async function SendData(url, Data) {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(Data),
         })
         

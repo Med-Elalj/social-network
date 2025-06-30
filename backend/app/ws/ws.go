@@ -116,12 +116,24 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 	mutex.Lock()
 	defer mutex.Unlock()
 	if conn, exists := sockets[uID]; exists {
-		log.Printf("User %d already connected\n", uID)
-		conn.Close()
-	} else {
-		for _, v := range sockets {
-			if err := v.WriteJSON(update{"internal", "toggle", fmt.Sprint(uID), true}); err != nil {
-				logs.ErrorLog.Printf("azer %v", err)
+		if c, is := conn.(*websocket.Conn); is {
+			c.Close()
+			sockets[uID] = connection
+		} else {
+			return false
+		}
+	}
+	groups, err := modules.GetGroupImIn(uID)
+	if err != nil {
+		logs.ErrorLog.Printf("add conn to map %q", err)
+	}
+	for _, v := range groups {
+		id := int(v.ID)
+		if ws, ok := sockets[id]; ok {
+			if g, ok := ws.(*group); ok {
+				g.subs[id] = struct{}{}
+			} else {
+				logs.ErrorLog.Fatalln("user with group id", sockets, uID, groups, id)
 			}
 		} else {
 			g := group{}
@@ -136,9 +148,13 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 func deleteConnFromMap(uID int) {
 	mutex.Lock()
 	delete(sockets, uID)
-	for _, v := range sockets {
-		if err := v.WriteJSON(update{"internal", "toggle", fmt.Sprint(uID), false}); err != nil {
-			logs.ErrorLog.Printf("qsdf %v", err)
+	for _, profile := range sockets {
+		if ws, is := profile.(*websocket.Conn); is {
+			if err := ws.WriteJSON(update{"internal", "toggle", fmt.Sprint(uID), false}); err != nil {
+				logs.ErrorLog.Printf("qsdf %v", err)
+			}
+		} else {
+			log.Fatalln("deleting group", uID, sockets)
 		}
 	}
 	mutex.Unlock()
@@ -194,7 +210,7 @@ func (g *group) WriteMessage(messageType int, data []byte) error {
 			if ws, is := profile.(*websocket.Conn); is {
 				ws.WriteMessage(websocket.TextMessage, data)
 			} else {
-				logs.Errorf("how did we get here ??%v %v %v\n", sockets, id, data)
+				logs.ErrorLog.Printf("how did we get here ??%v %v %v\n", sockets, id, data)
 			}
 		} else {
 			delete(g.subs, id)

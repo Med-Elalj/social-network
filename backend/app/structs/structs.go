@@ -15,29 +15,12 @@ type (
 	ID             int
 	CommentContent string
 
-	Name     string
-	Email    string
-	Password string
-	Gender   string
-	Avatar   sql.NullString
-	About    string
+	Avatar sql.NullString
 )
 
-type Register struct {
-	UserName  Name     `json:"username"`
-	Email     Email    `json:"email"`
-	Birthdate string   `json:"birthdate"`
-	Fname     Name     `json:"fname"`
-	Lname     Name     `json:"lname"`
-	Password  Password `json:"password"`
-	Gender    Gender   `json:"gender"`
-	Avatar    Avatar   `json:"avatar"`
-	About     About    `json:"about"`
-}
-
 type Login struct {
-	NoE      NameOrEmail `json:"login"`
-	Password Password    `json:"pwd"`
+	NoE      string `json:"login"`
+	Password string `json:"pwd"`
 }
 
 type User struct {
@@ -64,17 +47,17 @@ type UsersGet struct {
 }
 
 type Group struct {
-	GroupName Name           `json:"groupName"`
+	GroupName string         `json:"groupName"`
 	Avatar    sql.NullString `json:"avatar"`
-	About     About          `json:"about"`
+	About     string         `json:"about"`
 	Privacy   PostPrivacy    `json:"privacy"`
 }
 
 type GroupGet struct {
 	ID          ID
-	GroupName   Name
+	GroupName   string
 	Avatar      sql.NullString
-	Description About
+	Description string
 }
 
 type GroupReq struct {

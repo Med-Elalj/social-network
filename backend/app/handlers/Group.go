@@ -18,15 +18,13 @@ func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 
 	fmt.Println(group)
 
-	
-
 	err := modules.InsertGroup(group, uid)
 	if err != nil {
-		structs.JsRespond(w, "group creation failed", http.StatusInternalServerError)
+		auth.JsRespond(w, "group creation failed", http.StatusInternalServerError)
 		logs.ErrorLog.Println("Error inserting group into database:", err)
 		return
 	}
-	structs.JsRespond(w, "group Created successfully", http.StatusOK)
+	auth.JsRespond(w, "group Created successfully", http.StatusOK)
 }
 
 func GroupToJoinHandler(w http.ResponseWriter, r *http.Request, uid int) {

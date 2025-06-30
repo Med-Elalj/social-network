@@ -1,60 +1,9 @@
 package modules
 
 import (
-	"database/sql"
-
 	"social-network/app/structs"
 	"social-network/server/logs"
 )
-
-// Insert new user
-func InsertUser(user structs.Register) error {
-	user.Password.Hash()
-	tx, err := DB.Begin()
-	if err != nil {
-		return err
-	}
-
-	var avatar sql.NullString
-	if avatar.String == "" {
-		avatar = sql.NullString{String: "", Valid: false}
-	} else {
-		avatar = sql.NullString{String: string(avatar.String), Valid: true}
-	}
-
-	var about sql.NullString
-	if user.About == "" {
-		about = sql.NullString{String: "", Valid: false}
-	} else {
-		about = sql.NullString{String: string(user.About), Valid: true}
-	}
-
-	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_user) VALUES (?,?,?, 1)`, user.UserName, avatar, about)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	profileID, err := res.LastInsertId()
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	_, err = tx.Exec(`INSERT INTO user (id, email, first_name, last_name, password_hash, date_of_birth, gender)
-	VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		profileID, user.Email, user.Fname, user.Lname, user.Password, user.Birthdate, user.Gender)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		return err
-	}
-
-	return nil
-}
 
 // Insert new post
 func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {

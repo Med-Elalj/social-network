@@ -26,10 +26,6 @@ func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Session not found", http.StatusUnauthorized)
 		return
 	}
-	if session.Revoked {
-		http.Error(w, "Session revoked", http.StatusUnauthorized)
-		return
-	}
 	if session.RefreshToken != rtCookie.Value {
 		http.Error(w, "Invalid refresh token", http.StatusUnauthorized)
 		return
@@ -60,11 +56,12 @@ func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate new access token (JWT)
-	username := auth.GetElemVal("display_name", "profile", "id= "+strconv.Itoa(session.UserID)).(string)
+	username, _ := auth.GetElemVal[string]("display_name", "profile", "id="+strconv.Itoa(session.UserID))
 	jwtToken := jwt.Generate(jwt.CreateJwtPayload(auth.AuthInfo.JwtExpiration, session.UserID, username, session.SessionID))
 
-	auth.SetCookie(w, auth.AuthInfo.JwtTokenName, jwtToken, int(auth.AuthInfo.JwtExpiration.Seconds()))                     // 15 min
-	auth.SetCookie(w, auth.AuthInfo.RefreshTokenName, newRefreshToken, int(auth.AuthInfo.RefreshTokenExpiration.Seconds())) // 7 days
+	auth.SetCookie(w, auth.AuthInfo.JwtTokenName, jwtToken, int(auth.AuthInfo.JwtExpiration.Seconds())) // 15 min
+	auth.SetCookie(w, auth.AuthInfo.RefreshTokenName, newRefreshToken,
+		int(auth.AuthInfo.RefreshTokenExpiration.Seconds()-auth.AuthInfo.JwtExpiration.Seconds())) // 7 days
 
 	auth.JsRespond(w, "Refresh token updated", http.StatusOK)
 }

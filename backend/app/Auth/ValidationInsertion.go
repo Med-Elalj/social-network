@@ -1,36 +1,12 @@
-package structs
+package auth
 
 import (
+	"database/sql"
 	"regexp"
 	"time"
 
-	"social-network/server/logs"
-
-	"golang.org/x/crypto/bcrypt"
+	"social-network/app/modules"
 )
-
-// verify password
-func (p Password) Verify(password []byte) bool {
-	if _, err := bcrypt.Cost([]byte(p)); err == nil {
-		err := bcrypt.CompareHashAndPassword([]byte(p), password)
-		if err != nil {
-			logs.ErrorLog.Println("Password comparison failed:", err)
-			return false
-		}
-		logs.InfoLog.Println("Password comparison succeeded")
-	} else if _, err := bcrypt.Cost([]byte(password)); err == nil {
-		err := bcrypt.CompareHashAndPassword([]byte(password), []byte(p))
-		if err != nil {
-			logs.ErrorLog.Println("Password comparison failed:", err)
-			return false
-		}
-		logs.InfoLog.Println("Password comparison succeeded")
-	} else {
-		logs.ErrorLog.Println("Password comparison failed: invalid hash or password format")
-		return false
-	}
-	return true
-}
 
 // Validate register form
 func (r Register) ValidateRegister() []string {
@@ -86,13 +62,50 @@ func (r Register) ValidateRegister() []string {
 	return errors
 }
 
-// Generate hash code
-func (p *Password) Hash() {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(*p), bcrypt.DefaultCost)
+// Insert new user
+func InsertUser(user Register) (int64, error) {
+	tx, err := modules.DB.Begin()
 	if err != nil {
-		logs.FatalLog.Fatalln(err.Error())
-		return
+		return -1, err
 	}
-	logs.InfoLog.Printf("Hashing password:%q\ngot: %q", *p, Password(bytes))
-	*p = Password(bytes)
+
+	var avatar sql.NullString
+	if avatar.String == "" {
+		avatar = sql.NullString{String: "", Valid: false}
+	} else {
+		avatar = sql.NullString{String: string(avatar.String), Valid: true}
+	}
+
+	var about sql.NullString
+	if user.About == "" {
+		about = sql.NullString{String: "", Valid: false}
+	} else {
+		about = sql.NullString{String: string(user.About), Valid: true}
+	}
+
+	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_user) VALUES (?,?,?, 1)`, user.UserName, avatar, about)
+	if err != nil {
+		tx.Rollback()
+		return -1, err
+	}
+
+	profileID, err := res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return -1, err
+	}
+
+	_, err = tx.Exec(`INSERT INTO user (id, email, first_name, last_name, password_hash, date_of_birth, gender)
+	VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		profileID, user.Email, user.Fname, user.Lname, HashPassword(user.Password), user.Birthdate, user.Gender)
+	if err != nil {
+		tx.Rollback()
+		return -1, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return -1, err
+	}
+
+	return profileID, nil
 }

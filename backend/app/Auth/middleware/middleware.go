@@ -19,12 +19,14 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 		payload, err := jwt.JWTVerify(jwtCookie.Value)
 		if err != nil {
+			auth.ClearCookie(w, auth.AuthInfo.JwtTokenName)
 			http.Error(w, "Unauthorized - invalid JWT", http.StatusUnauthorized)
 			return
 		}
 
 		// Check if JWT's session ID matches cookie
 		if payload.SessionID != ssidCookie.Value {
+			auth.ClearCookie(w, auth.AuthInfo.JwtTokenName)
 			http.Error(w, "Unauthorized - session ID mismatch", http.StatusUnauthorized)
 			return
 		}
@@ -32,6 +34,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Query DB for session details (including stored IP and User-Agent)
 		session, err := auth.GetSessionByID(payload.SessionID)
 		if err != nil {
+			auth.ClearCookie(w, auth.AuthInfo.JwtTokenName)
 			http.Error(w, "Unauthorized - session not found", http.StatusUnauthorized)
 			return
 		}
@@ -39,14 +42,15 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// verify IP & User-Agent bind to session
 		clientIP := auth.GetIP(r)
 		if session.IP != clientIP {
+			auth.ClearCookie(w, auth.AuthInfo.SessionIDName)
 			http.Error(w, "Unauthorized - IP mismatch", http.StatusUnauthorized)
 			return
 		}
 		if session.UserAgent != r.UserAgent() {
+			auth.ClearCookie(w, auth.AuthInfo.SessionIDName)
 			http.Error(w, "Unauthorized - User-Agent mismatch", http.StatusUnauthorized)
 			return
 		}
-		// fmt.Println("MiddleWare done checking session details")
 		// Put user info in context for handlers to use
 		ctx := context.WithValue(r.Context(), auth.UserContextKey, payload)
 		next.ServeHTTP(w, r.WithContext(ctx))

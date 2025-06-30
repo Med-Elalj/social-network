@@ -1,8 +1,6 @@
 package auth
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -14,7 +12,7 @@ import (
 )
 
 func CheckSession(r *http.Request, userID int, username string) (jwtToken, sessionID, refreshToken string, err error) {
-	InvalidateSessions(userID)
+	invalidateSessions(userID)
 
 	userAgent := r.Header.Get("User-Agent")
 	ip := GetIP(r)
@@ -28,7 +26,6 @@ func CheckSession(r *http.Request, userID int, username string) (jwtToken, sessi
 	// 2. Generate JWT
 	payload := jwt.CreateJwtPayload(AuthInfo.JwtExpiration, userID, username, sessionID)
 	jwtToken = jwt.Generate(payload)
-	fmt.Println("JWT Token:", jwtToken, "Session ID:", sessionID, "Refresh Token:", refreshToken)
 	return jwtToken, sessionID, refreshToken, nil
 }
 
@@ -58,49 +55,10 @@ func SessionExists(userID int, sessionID string) (bool, error) {
 	return count == 1, nil
 }
 
-func CheckActiveSession(userID int) ([]string, error) {
-	var sessions []string
-	rows, err := database.DB.Query(`
-        SELECT session_id 
-        FROM sessions 
-        WHERE user_id = ?
-		ORDER BY expires_at DESC
-    `, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var SessionID string
-		if err := rows.Scan(&SessionID); err != nil {
-			return nil, err
-		}
-		sessions = append(sessions, SessionID)
-	}
-	return sessions, nil
-}
-
-func InvalidateSessions(userID int) error {
-	// Fetch active session ID
-	activeSessions, _ := CheckActiveSession(userID)
-
-	// Get all sessions associated with the user
-	if len(activeSessions) > 0 {
-		for _, sessionID := range activeSessions {
-			err := invalidateSession(sessionID)
-			if err != nil {
-				log.Printf("Error invalidating session %s: %v", sessionID, err)
-			}
-		}
-	}
-	return nil
-}
-
-func invalidateSession(session_id string) error {
+func invalidateSessions(user_id int) error {
 	_, err := database.DB.Exec(`
         DELETE FROM sessions 
-        WHERE session_id = ?
-    `, session_id)
+        WHERE user_id = ?
+    `, user_id)
 	return err
 }

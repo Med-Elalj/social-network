@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	auth "social-network/app/Auth"
 	"social-network/app/modules"
 	"social-network/app/structs"
 	"social-network/server/logs"
@@ -15,7 +16,7 @@ func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	json.NewDecoder(r.Body).Decode(&post)
 
 	if !modules.InsertPost(post, uid, nil) {
-		structs.JsRespond(w, "Post creation failed", http.StatusBadRequest)
+		auth.JsRespond(w, "Post creation failed", http.StatusBadRequest)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
@@ -50,7 +51,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 
 	posts, err := modules.GetPosts(start, uid, groupId)
 	if err != nil {
-		structs.JsRespond(w, "Get Posts failed", http.StatusBadRequest)
+		auth.JsRespond(w, "Get Posts failed", http.StatusBadRequest)
 		logs.ErrorLog.Println(err)
 		return
 	}

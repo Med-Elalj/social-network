@@ -40,10 +40,10 @@ type User struct {
 }
 
 type UsersGet struct {
-	ID       ID     `json:"profile_id"`
+	ID       ID     `json:"id"`
 	Online   bool   `json:"online"`
 	Is_Group bool   `json:"is_group"`
-	Username string `json:"profile_name"` // Exported field
+	Username string `json:"name"` // Exported field
 }
 
 type Group struct {

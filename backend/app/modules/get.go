@@ -321,7 +321,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	SELECT
         p.id,
 		p.display_name,
-        NOT p.is_person AS is_group
+        NOT p.is_user AS is_group
 	FROM
 		user u
     JOIN

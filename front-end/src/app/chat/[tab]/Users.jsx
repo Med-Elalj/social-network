@@ -2,15 +2,11 @@ import { useState } from "react";
 import Style from "../chat.module.css";
 import Image from "next/image";
 
-export default function Users({ onUserSelect }) {
+export default function Users({ users, onUserSelect }) {
     const [activeIndex, setActiveIndex] = useState(null);
 
-    const users = [
-        { avatar: "iconMale.png", name: "User 1", message: "Lorem ipsum, dolor sit amet consectetu", status: "online" },
-        { avatar: "iconFemale.png", name: "User 2", message: "Lorem ipsum, dolor sit amet consectetu", status: "online" },
-        { avatar: "iconMale.png", name: "User 3", message: "Lorem ipsum, dolor sit amet consectetu", status: "offline" },
-    ];
     const handleUserClick = (user, index) => {
+        console.log("click", user)
         setActiveIndex(index);
         onUserSelect(user);
     };
@@ -21,7 +17,7 @@ export default function Users({ onUserSelect }) {
                 <>
                     {users.map((user, index) => (
                         <div
-                            key={index}
+                            key={user.id}
                             className={`${Style.user} ${activeIndex === index ? Style.active : ""}`}
                             onClick={() => handleUserClick(user, index)}
                         >

@@ -2,14 +2,8 @@ import { useState } from "react";
 import Style from "../chat.module.css";
 import Image from "next/image";
 
-export default function Groups({ onUserSelect }) {
+export default function Groups({ groups, onUserSelect }) {
     const [activeIndex, setActiveIndex] = useState(null);
-
-    const groups = [
-        { name: "Group 1" },
-        { name: "Group 2" },
-        { name: "Group 3" },
-    ];
 
     const handleUserClick = (group, index) => {
         setActiveIndex(index);

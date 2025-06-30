@@ -5,8 +5,9 @@ import Style from "./chat.module.css";
 import Image from "next/image";
 import { useEffect } from "react";
 import Users from "./[tab]/Users";
-import Unread from "./[tab]/Unread";
 import Groups from "./[tab]/Groups";
+import Messages from "./messages.jsx"
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
 
 export default function Chat() {
     const [activeTab, setActiveTab] = useState("all");
@@ -14,8 +15,15 @@ export default function Chat() {
     const [image, setImage] = useState(null);
     // const [previewUrl, setPreviewUrl] = useState(null);
     const [content, setContent] = useState("");
+    const [personalDiscussions, setPersonalDiscussions] = useState([]);
+    const [groupDiscussions, setGroupDiscussions] = useState([]);
+
+    GetUsers(setPersonalDiscussions, setGroupDiscussions)
+
 
     useEffect(() => {
+        if (selectedUser) console.log("second console of click", selectedUser)
+
         setContent("");
         setImage(null);
         // setPreviewUrl(null);
@@ -51,14 +59,12 @@ export default function Chat() {
 
                 <div className={Style.select}>
                     <Tab name="all" icon="messages" activeTab={activeTab} onClick={handleTabClick} />
-                    <Tab name="unread" icon="unread" activeTab={activeTab} onClick={handleTabClick} />
                     <Tab name="groups" icon="groupe" activeTab={activeTab} onClick={handleTabClick} />
                 </div>
 
                 {{
-                    all: <Users onUserSelect={setSelectedUser} />,
-                    unread: <Unread onUserSelect={setSelectedUser} />,
-                    groups: <Groups onUserSelect={setSelectedUser} />
+                    all: <Users users={personalDiscussions} onUserSelect={setSelectedUser} />,
+                    groups: <Groups groups={groupDiscussions} onUserSelect={setSelectedUser} />
                 }[activeTab] || <p>Invalid tab</p>}
             </div>
 
@@ -82,28 +88,7 @@ export default function Chat() {
                             </div>
 
                             <div className={Style.body}>
-                                {/* {selectedUser.role === 'sender' && ( */}
-                                <div className={Style.user1}>
-                                    <p>{selectedUser.name}</p>
-                                    <p>Lorem ipsum dolor...</p>
-                                    <p>00.00 10-07-2002</p>
-                                </div>
-                                {/* )} */}
-
-                                {/* {selectedUser.role === 'receiver' && ( */}
-                                <div className={Style.user2}>
-                                    <p>{selectedUser.name}</p>
-                                    <p>Lorem ipsum dolor...</p>
-                                    <p>00.00 10-07-2002</p>
-                                </div>
-                                {/* )} */}
-
-                                <div className={Style.user1}>
-                                    <p>{selectedUser.name}</p>
-                                    <p>Lorem ipsum dolor...</p>
-                                    <p>00.00 10-07-2002</p>
-                                </div>
-
+                                <Messages user={selectedUser} />
                             </div>
 
                             <div className={Style.bottom}>
@@ -160,4 +145,38 @@ function Tab({ name, icon, activeTab, onClick }) {
             <p>{name}</p>
         </div>
     );
+}
+
+function GetUsers(setPersonalDiscussions, setGroupDiscussions) {
+
+    useEffect(() => {
+        console.log("Resolved backend URL:", BACKEND_URL);
+        const fetchConversations = async () => {
+            try {
+                const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Conversations:", data);
+                // Filter data by profile.isgroup
+                const personal = (data || []).filter(profile => profile.is_group === false);
+                const groups = (data || []).filter(profile => profile.is_group === true);
+                setPersonalDiscussions(personal);
+                setGroupDiscussions(groups);
+            } catch (error) {
+                console.error("Error fetching conversations:", error);
+            }
+        };
+
+        fetchConversations();
+    }, []);
 }

@@ -39,9 +39,19 @@ type message struct {
 }
 
 var (
-	sockets = make(map[int]*websocket.Conn)
+	sockets = make(map[int]profile)
 	mutex   sync.Mutex
 )
+
+type profile interface {
+	WriteMessage(messageType int, data []byte) error
+}
+
+type group struct {
+	sync.Mutex
+	subs map[int]struct{}
+	id   int
+}
 
 func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket connection
@@ -63,7 +73,9 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 	// fmt.Printf("New connection: %s\n", uName)
 
-	addConnToMap(uId, conn)
+	if !addConnToMap(uId, conn) {
+		return
+	}
 	defer deleteConnFromMap(uId)
 
 	for {
@@ -100,8 +112,9 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func addConnToMap(uID int, conn *websocket.Conn) {
+func addConnToMap(uID int, connection *websocket.Conn) bool {
 	mutex.Lock()
+	defer mutex.Unlock()
 	if conn, exists := sockets[uID]; exists {
 		log.Printf("User %d already connected\n", uID)
 		conn.Close()
@@ -110,10 +123,14 @@ func addConnToMap(uID int, conn *websocket.Conn) {
 			if err := v.WriteJSON(update{"internal", "toggle", fmt.Sprint(uID), true}); err != nil {
 				logs.ErrorLog.Printf("azer %v", err)
 			}
+		} else {
+			g := group{}
+			g.subs = map[int]struct{}{uID: {}}
+			g.id = id
+			sockets[id] = &g
 		}
 	}
-	sockets[uID] = conn
-	mutex.Unlock()
+	return true
 }
 
 func deleteConnFromMap(uID int) {
@@ -149,23 +166,44 @@ func (m *message) send() error {
 		log.Println("Error marshaling response:", err)
 		return err
 	}
-	conn, exist := sockets[m.Sender]
-	if !exist || conn == nil {
+	if profile, exist := sockets[m.Sender]; !exist {
 		log.Printf("User %d not found or not connected\n", m.Receiver)
 		return fmt.Errorf("user not found or not connected")
+	} else {
+		err = profile.WriteMessage(websocket.TextMessage, responseData)
+		if err != nil {
+			log.Println(err)
+			return errors.New("failed to send message to receiver with error: " + err.Error())
+		}
 	}
 
-	err = conn.WriteMessage(websocket.TextMessage, responseData)
-	if err != nil {
-		log.Println(err)
-		return errors.New("failed to send message to receiver with error: " + err.Error())
-	}
-
-	conn, exist = sockets[m.Receiver]
-	if !exist || conn == nil {
+	if profile, exist := sockets[m.Receiver]; !exist {
 		return nil
+	} else {
+		profile.WriteMessage(websocket.TextMessage, responseData)
 	}
+	return nil
+}
 
-	conn.WriteMessage(websocket.TextMessage, responseData)
+func (g *group) WriteMessage(messageType int, data []byte) error {
+	g.Lock()
+	defer g.Unlock()
+
+	for id := range g.subs {
+		if profile, exist := sockets[id]; !exist {
+			if ws, is := profile.(*websocket.Conn); is {
+				ws.WriteMessage(websocket.TextMessage, data)
+			} else {
+				logs.Errorf("how did we get here ??%v %v %v\n", sockets, id, data)
+			}
+		} else {
+			delete(g.subs, id)
+		}
+	}
+	if len(g.subs) == 0 {
+		mutex.Lock()
+		delete(sockets, g.id)
+		mutex.Unlock()
+	}
 	return nil
 }

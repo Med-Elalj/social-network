@@ -4,8 +4,11 @@ import { useState } from 'react';
 import Styles from './register.module.css';
 import { SendData } from '../../../utils/sendData.js';
 import { showNotification, usePasswordToggle } from '../utils.jsx';
+import { useRouter } from 'next/navigation';
+
 
 export default function Register() {
+    const Router = useRouter();
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -48,8 +51,7 @@ export default function Register() {
         } else {
             // console.log('Form submitted successfully!');
             showNotification("Registration successful! Welcome to our social network!", "success", true, 5000);
-            // load home page 
-            // TODO: login refers to login
+            Router.push('/');
         }
     };
 

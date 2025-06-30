@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
-	"social-network/app/Auth/jwt"
 	db "social-network/app/modules"
 	"social-network/app/structs"
 
@@ -27,26 +25,16 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	 	WHERE pe.email = ? OR pr.display_name = ?;`, credentials.NoE, credentials.NoE).Scan(&id, &userName, &storedPassword)
 
 	if err != nil || !credentials.Password.Verify([]byte(storedPassword)) {
-		logs.Println("Login failed for user:", credentials.NoE)
+		logs.ErrorLog.Println("Login failed for user:", credentials.NoE)
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, `{"error": "Invalid username or password"}`)
 		return
 	}
+	fmt.Println("Login successful for user:", userName, "ID:", id)
+	authorize(w, r, id)
+	JsRespond(w, "Login successful", 200)
 
-	cookie := &http.Cookie{
-		Name:     "JWT",
-		Value:    jwt.Generate(jwt.CreateJwtPayload(id, userName)),
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		Expires:  time.Now().Add(jwt.Time_to_Expire),
-	}
-
-	http.SetCookie(w, cookie)
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Login successful",
-	})
+	// json.NewEncoder(w).Encode(map[string]interface{}{
+	// 	"message": "Login successful",
+	// })
 }

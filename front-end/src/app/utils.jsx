@@ -16,7 +16,7 @@ function playSound(name) {
         sound.play().catch((e) => console.warn("Playback failed:", e));
     }
 }
-
+//todo: reduce body opacity a little when using notification
 export function showNotification(
   message,
   type = "success",

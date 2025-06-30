@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
-import { SendData } from "../../../utils/sendData.js";
+import { GetData } from "../../../utils/sendData.js";
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -10,7 +10,7 @@ export default function Groups() {
   useEffect(() => {
     const fetchData = async () => {
       const formData = { userId: 1 };
-      const response = await SendData("/api/v1/get/groupToJoin", formData);
+      const response = await GetData("/api/v1/get/groupToJoin", formData);
       const body = await response.json();
 
       if (response.status !== 200) {

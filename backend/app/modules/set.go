@@ -60,7 +60,7 @@ func InsertUser(user structs.Register) error {
 func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 	tx, err := DB.Begin()
 	if err != nil {
-		logs.Fatal(err)
+		logs.FatalLog.Fatalln("Database transaction error:", err)
 		return false
 	}
 
@@ -75,18 +75,18 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 	)
 	if err != nil {
 		tx.Rollback()
-		logs.Errorf("Database insertion error: %q", err.Error())
+		logs.ErrorLog.Printf("Database insertion error: %q", err.Error())
 		return false
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		logs.Errorf("Transaction commit error: %q", err.Error())
+		logs.ErrorLog.Printf("Transaction commit error: %q", err.Error())
 		return false
 	}
 
 	lastInsertID, _ := res.LastInsertId()
-	logs.Println("Post inserted with ID ", lastInsertID)
+	logs.InfoLog.Println("Post inserted with ID ", lastInsertID)
 
 	return true
 }

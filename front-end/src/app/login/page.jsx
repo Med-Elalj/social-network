@@ -23,19 +23,34 @@ export default function Login() {
         e.preventDefault();
 
         const response = await SendData("/api/v1/auth/login", formData);
-        const res = await response.json();
-        if (response.status == 200) {
-            console.log("res", res);
+
+        console.log("login Response status:", response.status);
+
+        if (response.ok) {
+            const res = await response.json();
             router.push("/");
-        } else {
             showNotification(
-                res.error || "Login failed. Please try again.",
+                "Login successful!",
+                "success",
+                true,
+                5000
+            );
+        } else {
+            // parse error response body too
+            let errorBody;
+            try {
+                errorBody = await response.json();
+            } catch {
+                errorBody = { error: "Unknown error" };
+            }
+            showNotification(
+                errorBody.error || "Login failed. Please try again.",
                 "error",
                 true,
                 5000
             );
         }
-    };
+    }; 1
 
     return (
         <div className={Styles.container}>
@@ -60,19 +75,21 @@ export default function Login() {
                     Password
                 </label>
                 <div className={Styles.inputWrapper}>
-                        <input
-                            className={Styles.input}
-                            type="password"
-                            name="pwd"
-                            id="password"
-                            onChange={handleChange}
-                            required
-                        />
-                        <i className="togglePwd">
-                            <span className="icon vis_icon material-symbols-outlined">visibility</span>
-                        </i>
+                    <input
+                        className={Styles.input}
+                        type="password"
+                        name="pwd"
+                        id="password"
+                        onChange={handleChange}
+                        required
+                    />
+                    <i className="togglePwd">
+                        <span className="icon vis_icon material-symbols-outlined">
+                            visibility
+                        </span>
+                    </i>
                 </div>
-        
+
                 <button className={Styles.button} type="submit">
                     Login
                 </button>

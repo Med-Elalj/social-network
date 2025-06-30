@@ -89,7 +89,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		err = request.send()
 		var status_response string
 		if err != nil {
-			logs.Errorf("Error handling request: %q", err.Error())
+			logs.ErrorLog.Printf("Error handling request: %q", err.Error())
 			status_response = `{"author_name":"system","content":"failed to send message"}`
 			err = conn.WriteMessage(websocket.TextMessage, []byte(status_response))
 			if err != nil {
@@ -108,7 +108,7 @@ func addConnToMap(uID int, conn *websocket.Conn) {
 	} else {
 		for _, v := range sockets {
 			if err := v.WriteJSON(update{"internal", "toggle", fmt.Sprint(uID), true}); err != nil {
-				logs.Errorf("azer %v", err)
+				logs.ErrorLog.Printf("azer %v", err)
 			}
 		}
 	}
@@ -121,7 +121,7 @@ func deleteConnFromMap(uID int) {
 	delete(sockets, uID)
 	for _, v := range sockets {
 		if err := v.WriteJSON(update{"internal", "toggle", fmt.Sprint(uID), false}); err != nil {
-			logs.Errorf("qsdf %v", err)
+			logs.ErrorLog.Printf("qsdf %v", err)
 		}
 	}
 	mutex.Unlock()
@@ -141,7 +141,7 @@ func (m *message) send() error {
 	err := modules.AddDm(m.Sender, m.Receiver, m.Message)
 	if err != nil {
 		err = errors.New("failed to store message in db with error: " + err.Error())
-		logs.Errorf("Error storing message in database: %v", err)
+		logs.ErrorLog.Printf("Error storing message in database: %v", err)
 		return err
 	}
 	responseData, err := json.Marshal(m)

@@ -1,13 +1,16 @@
 "use client";
 
-import { usePathname } from 'next/navigation';
-import { SendData } from '../../../../utils/sendData.js';
-import { useState, useEffect } from 'react';
+import { usePathname } from "next/navigation";
+import { SendData } from "../../../../utils/sendData.js";
+import { useState, useEffect } from "react";
 import { LogoutAndRedirect } from "../Logout.jsx";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from 'next/image';
+import Image from "next/image";
 import Styles from "./nav.module.css";
+import { refreshAccessToken } from "./auth.jsx"; // Adjust the import path as neededq
+
+const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
 export default function Routing() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,16 +21,43 @@ export default function Routing() {
   useEffect(() => {
     const fetchAuthStatus = async () => {
       try {
-        const response = await SendData('/api/v1/auth', null);
-        setIsLoggedIn(response.status === 200);
+        const response = await fetch("/api/v1/auth/status", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
+
+        // First check if the response is OK
+        if (!response.ok) {
+          setIsLoggedIn(false);
+          return;
+        }
+
+        // Parse the response as JSON only once
+        const data = await response.json();
+        setIsLoggedIn(data.authenticated === true);
+        console.log("Auth status:", data.authenticated);
       } catch (err) {
         setIsLoggedIn(false);
+        console.error("Auth check error:", err);
       }
     };
-    fetchAuthStatus();
-  });
 
-  const validPaths = ["/", "/login", "/register", "/newPost", "/groupes", "/chat", "/profile/nickname"];
+    fetchAuthStatus();
+  }, [pathname]);
+
+  const validPaths = [
+    "/",
+    "/login",
+    "/register",
+    "/newPost",
+    "/groupes",
+    "/chat",
+    "/profile/nickname",
+  ];
 
   useEffect(() => {
     if (isLoggedIn === null) return;
@@ -35,17 +65,33 @@ export default function Routing() {
     if (!validPaths.includes(pathname)) return;
 
     if (isLoggedIn && (pathname === "/login" || pathname === "/register")) {
-      router.push('/' || pathname);
-    } else if (!isLoggedIn && pathname !== "/login" && pathname !== "/register") {
+      router.push("/" || pathname);
+    } else if (
+      !isLoggedIn &&
+      pathname !== "/login" &&
+      pathname !== "/register"
+    ) {
       router.push("/login");
     }
   }, [isLoggedIn, pathname]);
+
+  useEffect(() => {
+    console.log("🔄 Setting up token refresh interval...");
+
+    const interval = setInterval(() => {
+      refreshAccessToken();
+    }, RefreshFrequency);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div>
       <div className={Styles.nav}>
         <div className={Styles.leftSection}>
-          <Link className={Styles.loginTitle} href="/">Social Network</Link>
+          <Link className={Styles.loginTitle} href="/">
+            Social Network
+          </Link>
         </div>
 
         {isLoggedIn && (
@@ -67,12 +113,33 @@ export default function Routing() {
                   onMouseLeave={() => setIsOpen(false)}
                 >
                   <span>
-                    <Image src="/notification.svg" alt="notification" width={25} height={25} />
+                    <Image
+                      src="/notification.svg"
+                      alt="notification"
+                      width={25}
+                      height={25}
+                    />
                   </span>
                   {isOpen && (
-                    <div className={`${Styles.dropdownMenu} ${Styles.notification}`}>
-                      <Link href={`/`} onClick={() => setIsOpen(false)}>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</Link>
-                      <Link href={`/`} onClick={() => setIsOpen(false)}>test2</Link>
+                    <div
+                      className={`${Styles.dropdownMenu} ${Styles.notification}`}
+                    >
+                      <Link href={`/`} onClick={() => setIsOpen(false)}>
+                        Lorem Ipsum is simply dummy text of the printing and
+                        typesetting industry. Lorem Ipsum has been the
+                        industry's standard dummy text ever since the 1500s,
+                        when an unknown printer took a galley of type and
+                        scrambled it to make a type specimen book. It has
+                        survived not only five centuries, but also the leap into
+                        electronic typesetting, remaining essentially unchanged.
+                        It was popularised in the 1960s with the release of
+                        Letraset sheets containing Lorem Ipsum passages, and
+                        more recently with desktop publishing software like
+                        Aldus PageMaker including versions of Lorem Ipsum.
+                      </Link>
+                      <Link href={`/`} onClick={() => setIsOpen(false)}>
+                        test2
+                      </Link>
                     </div>
                   )}
                 </div>
@@ -84,11 +151,18 @@ export default function Routing() {
                   onMouseLeave={() => setIsOpen(false)}
                 >
                   <span className={Styles.iconUser}>
-                    <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                    <Image
+                      src="/iconMale.png"
+                      alt="profile"
+                      width={40}
+                      height={40}
+                    />
                   </span>
                   {isOpen && (
                     <div className={Styles.dropdownMenu}>
-                      <Link href={`/profile`} onClick={() => setIsOpen(false)}>Profile</Link>
+                      <Link href={`/profile`} onClick={() => setIsOpen(false)}>
+                        Profile
+                      </Link>
                       <button
                         onClick={async () => {
                           await LogoutAndRedirect(router);
@@ -106,8 +180,24 @@ export default function Routing() {
             </>
           ) : (
             <>
-              <Link className={`${Styles.linkWithIcon} ${pathname === "/login" ? Styles.active : ""}`} href="/login" onClick={() => setIsOpen(false)}>Login</Link>
-              <Link className={`${Styles.linkWithIcon} ${pathname === "/register" ? Styles.active : ""}`} href="/register" onClick={() => setIsOpen(false)}>Register</Link>
+              <Link
+                className={`${Styles.linkWithIcon} ${
+                  pathname === "/login" ? Styles.active : ""
+                }`}
+                href="/login"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Link>
+              <Link
+                className={`${Styles.linkWithIcon} ${
+                  pathname === "/register" ? Styles.active : ""
+                }`}
+                href="/register"
+                onClick={() => setIsOpen(false)}
+              >
+                Register
+              </Link>
             </>
           )}
         </div>
@@ -124,16 +214,33 @@ export default function Routing() {
           </>
         )}
       </div>
-    </div >
+    </div>
   );
 }
 
 function NavLink({ href, icon, pathname }) {
   return (
-    <Link className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""}`} href={href}>
+    <Link
+      className={`${Styles.linkWithIcon} ${
+        pathname === href ? Styles.active : ""
+      }`}
+      href={href}
+    >
       <span className={Styles.iconWrapper}>
-        <Image src={`/${icon}2.svg`} alt={`${icon}-hover`} width={25} height={25} className={Styles.iconHover} />
-        <Image src={`/${icon}.svg`} alt={icon} width={25} height={25} className={Styles.iconDefault} />
+        <Image
+          src={`/${icon}2.svg`}
+          alt={`${icon}-hover`}
+          width={25}
+          height={25}
+          className={Styles.iconHover}
+        />
+        <Image
+          src={`/${icon}.svg`}
+          alt={icon}
+          width={25}
+          height={25}
+          className={Styles.iconDefault}
+        />
       </span>
     </Link>
   );

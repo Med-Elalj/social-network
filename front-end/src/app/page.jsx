@@ -4,7 +4,7 @@ import Styles from "./global.module.css";
 import Groups from "./components/Groups";
 import Friends from "./components/Friends";
 import Image from 'next/image';
-import { SendData } from "../../utils/sendData";
+import { GetData } from "../../utils/sendData";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -16,7 +16,7 @@ export default function Home() {
         userId: 1,
         groupId: 0,
       };
-      const response = await SendData("/api/v1/get/posts", formData);
+      const response = await GetData("/api/v1/get/posts", formData);
       const Body = await response.json();
       if (response.status !== 200) {
         console.log(Body);

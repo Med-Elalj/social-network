@@ -5,20 +5,19 @@ import (
 	"net/http"
 	"time"
 
-	sn "social-network/app"
-	db "social-network/app/modules"
+	routes "social-network/app"
+	database "social-network/app/modules"
 	logs "social-network/server/logs"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var mux = sn.SetupMux()
+var mux = routes.SetupMux()
 
 func main() {
-	logs.InitFiles()
-	db.SetTables()
+	database.DB = database.SetTables()
 	// upload.EnsureUploadDir()
-	defer db.DB.Close()
+	defer database.DB.Close()
 	fmt.Println("Server is running at https://localhost:8080")
 	srv := &http.Server{
 		Addr:    ":8080",
@@ -28,7 +27,7 @@ func main() {
 		WriteTimeout:      15 * time.Second,
 		IdleTimeout:       60 * time.Second,
 		ReadHeaderTimeout: 5 * time.Second,
-		ErrorLog:          logs.GetLogger("server"),
+		ErrorLog:          logs.ErrorLog,
 	}
-	logs.Fatal(srv.ListenAndServeTLS("../private/cert.pem", "../private/key.pem"))
+	logs.FatalLog.Fatalln(srv.ListenAndServeTLS("../private/cert.pem", "../private/key.pem"))
 }

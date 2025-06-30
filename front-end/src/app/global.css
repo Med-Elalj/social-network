@@ -1,10 +1,5 @@
-html {
-    overflow-y: scroll;
-    scrollbar-width: thin;
-    scrollbar-color: #ddd #ffffff;
-}
-
 :root {
+  --dark-bg: rgb(26, 26 ,26, 90%);
   --primary-color: #1a1a1a;
   --secondary-color: #e0e0e0;
   --hover-color: #8D6B0D;
@@ -12,11 +7,17 @@ html {
   --border-color: #333333;
 }
 
+html {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd #ffffff;
+}
+
 body {
-    overflow-x: hidden;
-    margin: 0;
-    padding: 0;
-    background-color: var(--primary-color);
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: var(--primary-color);
 }
 
 /* Icon */
@@ -29,10 +30,11 @@ body {
   cursor: pointer;
   z-index: 10;
 
-  background: -webkit-linear-gradient(var(--hover-color), var(--third-color));  -webkit-background-clip: text;
+  background: -webkit-linear-gradient(var(--hover-color), var(--third-color));
+  -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-} 
+}
 
 
 /* Toast Notifications */
@@ -50,7 +52,7 @@ body {
   min-width: 45%;
   box-shadow: 10px 7px 14px -5px rgba(81, 121, 233, 0.342);
   transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  z-index: 1000;
+  z-index: 100 !important;
   opacity: 0;
 }
 

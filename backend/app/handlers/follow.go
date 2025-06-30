@@ -13,13 +13,13 @@ import (
 func FollowersJoin(w http.ResponseWriter, r *http.Request, uid int) {
 	gid, err := strconv.Atoi(r.Header.Get("follow_target"))
 	if err != nil {
-		logs.Println("Error converting group ID:", err)
+		logs.ErrorLog.Println("Error converting group ID:", err)
 		structs.JsRespond(w, "group id is required", http.StatusBadRequest)
 		return
 	}
 
 	if err := modules.InsertFollow(uid, gid); err != nil {
-		logs.Println("Error inserting follow relationship:", err)
+		logs.ErrorLog.Println("Error inserting follow relationship:", err)
 		structs.JsRespond(w, "group joining failed", http.StatusInternalServerError)
 	}
 
@@ -31,13 +31,13 @@ func FollowersJoin(w http.ResponseWriter, r *http.Request, uid int) {
 func FollowersLeave(w http.ResponseWriter, r *http.Request, uid int) {
 	gid, err := strconv.Atoi(r.Header.Get("follow_target"))
 	if err != nil {
-		logs.Println("Error converting group ID:", err)
+		logs.ErrorLog.Println("Error converting group ID:", err)
 		structs.JsRespond(w, "group id is required", http.StatusBadRequest)
 		return
 	}
 
 	if err := modules.DeleteFollow(uid, gid); err != nil {
-		logs.Println("Error deleting follow relationship:", err)
+		logs.ErrorLog.Println("Error deleting follow relationship:", err)
 		structs.JsRespond(w, "group leaving failed", http.StatusInternalServerError)
 		return
 	}
@@ -55,12 +55,12 @@ func FollowersAccept(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 	folower_id, err := strconv.Atoi(r.Header.Get("follower_target"))
 	if err != nil {
-		logs.Println("Error converting group ID:", err)
+		logs.ErrorLog.Println("Error converting group ID:", err)
 		structs.JsRespond(w, "follower_id as header is required", http.StatusBadRequest)
 		return
 	}
 	if err := modules.AcceptFollow(uid, gid, folower_id); err != nil {
-		logs.Println("Error accepting follow relationship:", err)
+		logs.ErrorLog.Println("Error accepting follow relationship:", err)
 		structs.JsRespond(w, "group accepting failed", http.StatusInternalServerError)
 		return
 	}

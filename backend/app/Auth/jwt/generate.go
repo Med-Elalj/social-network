@@ -9,15 +9,16 @@ import (
 
 var secretKey string
 
-func CreateJwtPayload(id int, username string) JwtPayload {
+func CreateJwtPayload(expiration time.Duration, id int, username string, sessionID string) JwtPayload {
 	iat := time.Now().Unix()
-	exp := iat + int64(Time_to_Expire.Seconds())
+	exp := iat + int64(expiration.Seconds())
 
 	return JwtPayload{
-		Sub:      id,
-		Username: username,
-		Iat:      iat,
-		Exp:      exp,
+		Sub:       id,
+		Username:  username,
+		SessionID: sessionID,
+		Iat:       iat,
+		Exp:       exp,
 	}
 }
 
@@ -60,6 +61,9 @@ func JWTVerify(token string) (*JwtPayload, error) {
 	if err != nil {
 		return nil, errors.New("invalid payload JSON")
 	}
-
+	now := time.Now().Unix()
+	if payload.Exp < now {
+		return nil, errors.New("token expired")
+	}
 	return &payload, nil
 }

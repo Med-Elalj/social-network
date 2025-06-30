@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Styles from "../../global.module.css";
 import { useState, useEffect } from "react";
-import { SendData } from "../../../../utils/sendData.js";
+import { GetData } from "../../../../utils/sendData.js";
 
 export default function GroupPosts() {
     const [posts, setPosts] = useState([]);
@@ -11,7 +11,7 @@ export default function GroupPosts() {
     useEffect(() => {
         const fetchData = async () => {
             const formData = { userId: 1 };
-            const response = await SendData("/api/v1/get/groupFeeds", formData);
+            const response = await GetData("/api/v1/get/groupFeeds", formData);
             const body = await response.json();
 
             if (response.status !== 200) {

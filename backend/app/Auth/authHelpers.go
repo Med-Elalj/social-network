@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
@@ -92,14 +93,12 @@ func GetElemVal(selectedElem, from, where string) any {
 }
 
 func GetIP(r *http.Request) string {
-	// Use headers if behind proxy
-	if ip := r.Header.Get("X-Real-IP"); ip != "" {
-		return ip
-	}
-	if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
-		return ip
-	}
-	return r.RemoteAddr
+	// todo: if hosted, remove comment
+	// if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
+	// 	return strings.TrimSpace(strings.Split(ip, ",")[0])
+	// }
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	return ip
 }
 
 func JsRespond(w http.ResponseWriter, message string, code int) {

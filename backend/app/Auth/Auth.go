@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"social-network/app/Auth/jwt"
+	"social-network/app/modules"
 	"social-network/server/logs"
 )
 
@@ -36,8 +37,8 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// 1. Get cookies
-	jwtCookie, errJWT := r.Cookie("JWT")
-	sidCookie, errSID := r.Cookie("session_id")
+	jwtCookie, errJWT := r.Cookie(AuthInfo.JwtTokenName)
+	sidCookie, errSID := r.Cookie(AuthInfo.SessionIDName)
 
 	if errJWT != nil || errSID != nil {
 		ClearCookie(w, AuthInfo.JwtTokenName)
@@ -80,11 +81,23 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 // Logout handler
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	// Clear cookies
+	// delete from db
+	sidCookie, errSID := r.Cookie(AuthInfo.SessionIDName)
+	if errSID != nil {
+		http.Error(w, "Unauthorized - missing cookies", http.StatusUnauthorized)
+		return
+	}
+	rtCookie, errRT := r.Cookie(AuthInfo.RefreshTokenName)
+	if errRT != nil {
+		http.Error(w, "Unauthorized - missing cookies", http.StatusUnauthorized)
+		return
+	}
+	modules.DB.Exec(`UPDATE sessions SET revoked = 1 WHERE session_id = ? AND refresh_token = ?`, sidCookie.Value, rtCookie.Value)
+	// Clear session cookies
 	ClearCookie(w, AuthInfo.JwtTokenName)
 	ClearCookie(w, AuthInfo.SessionIDName)
 	ClearCookie(w, AuthInfo.RefreshTokenName)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Logout successful",
 	})

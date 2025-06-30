@@ -1,4 +1,4 @@
-import { SendData } from "../../../../utils/sendData.js";
+import { GetData } from "../../../../utils/sendData.js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link.js";
@@ -10,7 +10,7 @@ export default function YourGroups() {
     useEffect(() => {
         const fetchData = async () => {
             const formData = { userId: 1 };
-            const response = await SendData("/api/v1/get/groupImIn", formData);
+            const response = await GetData("/api/v1/get/groupImIn", formData);
             const body = await response.json();
 
             if (response.status !== 200) {

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -20,7 +19,6 @@ func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing cookies", http.StatusUnauthorized)
 		return
 	}
-
 	// Validate session ID and refresh token
 	session, err := auth.GetSessionByID(sidCookie.Value)
 	// Check if session exists and is valid
@@ -48,7 +46,6 @@ func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User-Agent mismatch", http.StatusUnauthorized)
 		return
 	}
-	fmt.Println("refreshtok.go Session details:", session)
 
 	// Rotate refresh token
 	newRefreshToken := uuid.NewString()
@@ -63,12 +60,11 @@ func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate new access token (JWT)
-	username := auth.GetElemVal("display_name", "profile", "pr.id = "+strconv.Itoa(session.UserID)).(string)
-	fmt.Println("rerfreshtok.go Username from DB:", username)
+	username := auth.GetElemVal("display_name", "profile", "id= "+strconv.Itoa(session.UserID)).(string)
 	jwtToken := jwt.Generate(jwt.CreateJwtPayload(auth.AuthInfo.JwtExpiration, session.UserID, username, session.SessionID))
 
 	auth.SetCookie(w, auth.AuthInfo.JwtTokenName, jwtToken, int(auth.AuthInfo.JwtExpiration.Seconds()))                     // 15 min
 	auth.SetCookie(w, auth.AuthInfo.RefreshTokenName, newRefreshToken, int(auth.AuthInfo.RefreshTokenExpiration.Seconds())) // 7 days
 
-	w.Write([]byte("Access token refreshed"))
+	auth.JsRespond(w, "Refresh token updated", http.StatusOK)
 }

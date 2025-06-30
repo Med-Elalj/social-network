@@ -1,6 +1,10 @@
 "use client";
 
+// import { useEffect } from 'react';
+
 export async function refreshAccessToken() {
+  console.log("🔄 Attempting to refresh access token...");
+  
   try {
     const res = await fetch('/api/v1/auth/refresh', {
       method: 'POST',
@@ -38,10 +42,3 @@ export async function fetchWithAuth(url, options = {}) {
 
   return res;
 }
-useEffect(() => {
-  const interval = setInterval(() => {
-    refreshAccessToken();
-  }, 14 * 60 * 1000); 
-
-  return () => clearInterval(interval);
-}, []);

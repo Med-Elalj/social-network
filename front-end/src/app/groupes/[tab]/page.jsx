@@ -9,6 +9,7 @@ import GroupPosts from "./GroupPosts.jsx";
 import Discover from "./Discover.jsx";
 import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
+import { SendData } from "../../../../utils/sendData.js";
 
 export default function Groupes() {
     const router = useRouter();
@@ -37,12 +38,28 @@ export default function Groupes() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        console.log(GroupName);
-        console.log(privacy);
-        console.log(about);
-        console.log(image);
+        const fetchData = async () => {
+            // let pr = privacy == "public" ? 1 : 0;
 
-    };
+            const formData = {
+                "groupName": GroupName,
+                "privacy": privacy,
+                "about": about,
+                "avatar": image
+            };
+
+            const response = await SendData("/api/v1/set/GroupCreation", formData);
+            const Body = await response.json();
+            if (response.status !== 200) {
+                console.log(Body);
+            } else {
+                router.push('/groupes/feed')
+                console.log('Posts fetched successfully!');
+            }
+        };
+
+        fetchData();
+    }
 
     useEffect(() => {
         setActiveTab(tab || "feed");

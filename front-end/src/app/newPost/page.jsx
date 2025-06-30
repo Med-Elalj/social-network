@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation';
 export default function NewPost() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
   const [privacy, setPrivacy] = useState("public");
+  const [previewUrl, setPreviewUrl] = useState(null);
   const router = useRouter();
 
   const handleImageChange = (e) => {
@@ -31,8 +31,8 @@ export default function NewPost() {
     const formData = {
       content: content,
       privacy: privacy,
-      image: image.name
-    }
+      image: image ? image.name : null
+    }    
 
     const response = await SendData('/api/v1/set/Post', formData);
 

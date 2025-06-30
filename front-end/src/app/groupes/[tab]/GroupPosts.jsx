@@ -10,8 +10,7 @@ export default function GroupPosts() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const formData = { userId: 1 };
-            const response = await GetData("/api/v1/get/groupFeeds", formData);
+            const response = await GetData("/api/v1/get/groupFeeds");
             const body = await response.json();
 
             if (response.status !== 200) {
@@ -27,8 +26,7 @@ export default function GroupPosts() {
 
     return (
         <div>
-            {/* {posts && posts.map((Post, i) => ( */}
-            {posts && [1, 2, 3].map((Post, i) => (
+            {posts && posts.map((Post, i) => (
                 <div key={i} className={Styles.post} >
                     <section className={Styles.userinfo}>
                         <div className={Styles.user}>
@@ -61,8 +59,7 @@ export default function GroupPosts() {
                             </div>
                         </div>
                         <div>
-                            {/* <p>{Post.CreatedAt.replace('T', ' ').slice(0, -1)}</p> */}
-                            <p>time</p>
+                            <p>{Post.CreatedAt.replace('T', ' ').slice(0, -1)}</p>
                         </div>
                     </section>
 
@@ -70,16 +67,16 @@ export default function GroupPosts() {
                         {Post.Content || ""}
                     </section>
 
-                    {/* {Post.ImagePath?.String && ( */}
-                    <Image
-                        src={`/db.png`}
-                        alt="post image"
-                        width={250}
-                        height={200}
-                        sizes="(max-width: 768px) 100vw, 250px"
-                        style={{ height: "auto", width: "100%", borderRadius: "10px" }}
-                    />
-                    {/* )} */}
+                    {Post.ImagePath?.String && (
+                        <Image
+                            src={`/db.png`}
+                            alt="post image"
+                            width={250}
+                            height={200}
+                            sizes="(max-width: 768px) 100vw, 250px"
+                            style={{ height: "auto", width: "100%", borderRadius: "10px" }}
+                        />
+                    )}
 
                     <section className={Styles.footer}>
                         <div className={Styles.action}>

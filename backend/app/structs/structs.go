@@ -64,9 +64,10 @@ type UsersGet struct {
 }
 
 type Group struct {
-	UserName Name   `json:"username"`
-	Avatar   Avatar `json:"avatar"`
-	About    About  `json:"about"`
+	GroupName Name           `json:"groupName"`
+	Avatar    sql.NullString `json:"avatar"`
+	About     About          `json:"about"`
+	Privacy   PostPrivacy    `json:"privacy"`
 }
 
 type GroupGet struct {

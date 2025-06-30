@@ -4,7 +4,7 @@ import Styles from "./global.module.css";
 import Groups from "./components/Groups";
 import Friends from "./components/Friends";
 import Image from 'next/image';
-import { GetData } from "../../utils/sendData";
+import { GetData, SendData } from "../../utils/sendData";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -13,10 +13,8 @@ export default function Home() {
     const fetchData = async () => {
       const formData = {
         start: 0,
-        userId: 1,
-        groupId: 0,
       };
-      const response = await GetData("/api/v1/get/posts", formData);
+      const response = await SendData("/api/v1/get/posts", formData);
       const Body = await response.json();
       if (response.status !== 200) {
         console.log(Body);
@@ -94,16 +92,8 @@ export default function Home() {
                 sizes="(max-width: 768px) 100vw, 250px"
                 style={{ height: 'auto', width: '100%', borderRadius: '10px' }}
               />
-            ) : (
-              <Image
-                src="/db.png"
-                alt="default post"
-                width={250}
-                height={200}
-                sizes="(max-width: 768px) 100vw, 250px"
-                style={{ height: 'auto', width: '100%', borderRadius: '10px' }}
-              />
-            )}
+            ) : ""
+            }
 
             <section className={Styles.footer}>
               <div className={Styles.action}>

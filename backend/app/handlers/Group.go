@@ -3,43 +3,77 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 
+	auth "social-network/app/Auth"
 	"social-network/app/modules"
 	"social-network/app/structs"
 	"social-network/server/logs"
 )
 
 func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		logs.ErrorLog.Println("Error reading request body:", err)
-		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
-		return
-	}
-
-	if len(body) == 0 {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, `{"error": "Request body cannot be empty"}`)
-		return
-	}
-
 	var group structs.Group
 
 	json.NewDecoder(r.Body).Decode(&group)
 
-	// validating what in group creation
-	// if err := group.Validate(); err != nil {
-	// 	logs.Println("Validation failed for group:", err)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	fmt.Fprintf(w, `{"error": %q}`, err.Error())
-	// 	return
-	// }
-	// group.Cid = structs.ID(uid)
-	_, err = modules.InsertGroup(group, uid)
+	fmt.Println(group)
+
+	
+
+	err := modules.InsertGroup(group, uid)
 	if err != nil {
 		structs.JsRespond(w, "group creation failed", http.StatusInternalServerError)
+		logs.ErrorLog.Println("Error inserting group into database:", err)
+		return
 	}
-	structs.JsRespond(w, "group posted successfully", http.StatusOK)
+	structs.JsRespond(w, "group Created successfully", http.StatusOK)
+}
+
+func GroupToJoinHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	groups, err := modules.GetGroupToJoin(uid)
+	if err != nil {
+		auth.JsRespond(w, "Failed to get groups to", http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
+		"groups": groups,
+	})
+}
+
+func GroupMembersHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	var groupId int
+
+	json.NewDecoder(r.Body).Decode(&groupId)
+
+	members, err := modules.GetMembers(groupId)
+	if err != nil {
+		auth.JsRespond(w, "Failed to get group members", http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string][]structs.Gusers{
+		"members": members,
+	})
+}
+
+func GroupFeedsHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	posts, err := modules.GetGroupFeed(uid)
+	if err != nil {
+		auth.JsRespond(w, "Failed to get group feeds", http.StatusBadRequest)
+		return
+	}
+
+	json.NewEncoder(w).Encode(map[string][]structs.Post{
+		"posts": posts,
+	})
+}
+
+func GroupImInHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	groups, err := modules.GetGroupImIn(uid)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to get groups"})
+	}
+	json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
+		"groups": groups,
+	})
 }

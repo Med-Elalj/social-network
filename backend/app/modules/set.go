@@ -64,13 +64,20 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 		return false
 	}
 
+	var image interface{}
+	if post.Image == "" {
+		image = nil
+	} else {
+		image = post.Image
+	}
+
 	res, err := tx.Exec(`
         INSERT INTO posts (user_id, group_id, content, image_path, privacy)
         VALUES (?, ?, ?, ?, ?)`,
 		uid,
 		gid,
 		post.Content,
-		post.Image,
+		image,
 		post.Privacy,
 	)
 	if err != nil {
@@ -91,30 +98,35 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 	return true
 }
 
-func InsertGroup(gp structs.Group, uid int) (sql.Result, error) {
+func InsertGroup(gp structs.Group, uid int) error {
 	tx, err := DB.Begin()
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_user) VALUES (?,?,?, 0)`, gp.UserName, gp.Avatar, gp.About)
+	var Privacy int
+	if gp.Privacy == "public" {
+		Privacy = 1
+	} else {
+		Privacy = 0
+	}
+	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description,is_public, is_user) VALUES (?,?,?,?, 0)`, gp.GroupName, gp.Avatar, gp.About, Privacy)
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return err
 	}
 
 	ID, err := res.LastInsertId()
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return err
 	}
 
-	res, err = tx.Exec(`INSERT INTO group (id, creator_id)
+	_, err = tx.Exec(`INSERT INTO "group" (id, creator_id)
 	VALUES (?, ?)`,
 		ID, uid)
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return err
 	}
 
 	// _, err = res.LastInsertId()
@@ -130,10 +142,10 @@ func InsertGroup(gp structs.Group, uid int) (sql.Result, error) {
 	// 	return nil, err
 	// }
 	if err := tx.Commit(); err != nil {
-		return nil, err
+		return err
 	}
 
-	return res, nil
+	return nil
 }
 
 // func InsertComment(comment structs.CommentInfo, uid int) bool {

@@ -23,7 +23,7 @@ func SetupMux() *http.ServeMux {
 
 	mux.HandleFunc("/api/v1/ws", middleware.AuthMiddleware(ws.HandleConnections))
 
-	mux.HandleFunc("GET /api/v1/get/{type}", middleware.AuthMiddleware(handlers.GetHandler))
+	mux.HandleFunc("/api/v1/get/{type}", middleware.AuthMiddleware(handlers.GetHandler))
 	mux.HandleFunc("POST /api/v1/set/{type}", middleware.AuthMiddleware(handlers.SetHandler))
 	return mux
 }

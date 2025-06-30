@@ -9,8 +9,7 @@ export default function Groups() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const formData = { userId: 1 };
-      const response = await GetData("/api/v1/get/groupToJoin", formData);
+      const response = await GetData("/api/v1/get/groupToJoin");
       const body = await response.json();
 
       if (response.status !== 200) {

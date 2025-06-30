@@ -9,8 +9,7 @@ export default function Discover() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const formData = { userId: 1 };
-            const response = await GetData("/api/v1/get/groupToJoin", formData);
+            const response = await GetData("/api/v1/get/groupToJoin");
             const body = await response.json();
 
             if (response.status !== 200) {
@@ -26,8 +25,7 @@ export default function Discover() {
 
     return (
         <div className={Style.groupGrid}>
-            {/* {groups && groups.map((Group, i) => ( */}
-            {[1, 2, 3].map((Group, i) => (
+            {groups && groups.map((Group, _) => (
                 <div className={Style.groupCard} key={Group.ID}>
                     <Image
                         src={Group.Avatar?.String || "/db.png"}

@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	auth "social-network/app/Auth"
 	"social-network/app/modules"
 	"social-network/app/structs"
 	"social-network/server/logs"
@@ -39,7 +40,7 @@ func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	// group.Cid = structs.ID(uid)
 	_, err = modules.InsertGroup(group, uid)
 	if err != nil {
-		structs.JsRespond(w, "group creation failed", http.StatusInternalServerError)
+		auth.JsRespond(w, "group creation failed", http.StatusInternalServerError)
 	}
-	structs.JsRespond(w, "group posted successfully", http.StatusOK)
+	auth.JsRespond(w, "group posted successfully", http.StatusOK)
 }

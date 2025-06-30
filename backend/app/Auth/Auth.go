@@ -1,10 +1,8 @@
 package auth
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"social-network/app/Auth/jwt"
 	"social-network/app/modules"
@@ -12,7 +10,12 @@ import (
 )
 
 func authorize(w http.ResponseWriter, r *http.Request, userID int) {
-	username := GetElemVal("display_name", "profile", `id = "`+strconv.Itoa(userID)+`"`).(string)
+	username, err := GetElemVal[string]("display_name", "profile", `id = ?`, userID)
+	if err != nil {
+		logs.ErrorLog.Println("Error getting username:", err)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 
 	jwtToken, sessionID, refreshToken, err := CheckSession(r, userID, username)
 	if err != nil {
@@ -27,10 +30,6 @@ func authorize(w http.ResponseWriter, r *http.Request, userID int) {
 	SetCookie(w, AuthInfo.SessionIDName, sessionID, int(AuthInfo.SessionExpiration.Seconds()))
 	// Refresh Token
 	SetCookie(w, AuthInfo.RefreshTokenName, refreshToken, int(AuthInfo.SessionExpiration.Seconds()))
-
-	w.Header().Set("Content-Type", "application/json")
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,10 +70,6 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4. Optionally: set user in context
-	ctx := context.WithValue(r.Context(), UserContextKey, payload)
-	r = r.WithContext(ctx)
-
 	// 5. Respond with success
 	json.NewEncoder(w).Encode(map[string]bool{"authenticated": true})
 }
@@ -82,17 +77,16 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 // Logout handler
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	// delete from db
-	sidCookie, errSID := r.Cookie(AuthInfo.SessionIDName)
-	if errSID != nil {
-		http.Error(w, "Unauthorized - missing cookies", http.StatusUnauthorized)
+	sidCookie, _ := r.Cookie(AuthInfo.SessionIDName)
+	rtCookie, _ := r.Cookie(AuthInfo.RefreshTokenName)
+	// Invalidate session in DB
+	_, err := modules.DB.Exec(`DELETE FROM sessions WHERE session_id = ? AND refresh_token = ?`, sidCookie.Value, rtCookie.Value)
+	if err != nil {
+		logs.ErrorLog.Println("Error deleting session:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
-	rtCookie, errRT := r.Cookie(AuthInfo.RefreshTokenName)
-	if errRT != nil {
-		http.Error(w, "Unauthorized - missing cookies", http.StatusUnauthorized)
-		return
-	}
-	modules.DB.Exec(`UPDATE sessions SET revoked = 1 WHERE session_id = ? AND refresh_token = ?`, sidCookie.Value, rtCookie.Value)
+
 	// Clear session cookies
 	ClearCookie(w, AuthInfo.JwtTokenName)
 	ClearCookie(w, AuthInfo.SessionIDName)

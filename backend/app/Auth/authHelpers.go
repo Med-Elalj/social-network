@@ -9,7 +9,10 @@ import (
 	"time"
 
 	"social-network/app/modules"
+	"social-network/app/structs"
 	"social-network/server/logs"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type contextKey string
@@ -23,6 +26,17 @@ type authInfo struct {
 	JwtTokenName           string
 	SessionIDName          string
 	RefreshTokenName       string
+}
+type Register struct {
+	UserName  string         `json:"username"`
+	Email     string         `json:"email"`
+	Birthdate string         `json:"birthdate"`
+	Fname     string         `json:"fname"`
+	Lname     string         `json:"lname"`
+	Password  string         `json:"password"`
+	Gender    string         `json:"gender"`
+	Avatar    structs.Avatar `json:"avatar"`
+	About     string         `json:"about"`
 }
 
 var AuthInfo = authInfo{
@@ -40,7 +54,6 @@ type Session struct {
 	RefreshToken string
 	IP           string
 	UserAgent    string
-	Revoked      bool
 
 	ExpiresAt time.Time
 }
@@ -75,21 +88,22 @@ func ClearCookie(w http.ResponseWriter, name string) {
 	})
 }
 
-func GetElemVal(selectedElem, from, where string) any {
-	var res any
+func GetElemVal[T any](selectedElem, from, whereClause string, args ...any) (T, error) {
+	var res T
 
-	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s", selectedElem, from, where)
+	query := fmt.Sprintf("SELECT %s FROM %s WHERE %s", selectedElem, from, whereClause)
 
-	err := modules.DB.QueryRow(query).Scan(&res)
+	err := modules.DB.QueryRow(query, args...).Scan(&res)
 	if err != nil {
+		var zero T
 		if err == sql.ErrNoRows {
-			res = ""
-		} else {
-			logs.ErrorLog.Println("Database error:", err)
+			return zero, nil // no result, return empty value
 		}
+		logs.ErrorLog.Println("Database error:", err)
+		return zero, err
 	}
 
-	return res
+	return res, nil
 }
 
 func GetIP(r *http.Request) string {
@@ -99,15 +113,6 @@ func GetIP(r *http.Request) string {
 	// }
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 	return ip
-}
-
-func JsRespond(w http.ResponseWriter, message string, code int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(responseMessage{
-		Message: message,
-		Code:    code,
-	})
 }
 
 func GetSessionByID(sessionID string) (Session, error) {
@@ -128,4 +133,41 @@ func GetSessionByID(sessionID string) (Session, error) {
 		return session, fmt.Errorf("session not found")
 	}
 	return session, nil
+}
+
+func ChangePassword(password string, userID int64) {
+	query := `UPDATE user SET password_hash = ? WHERE id = ?`
+	_, err := modules.DB.Exec(query, HashPassword(password), userID)
+	if err != nil {
+		logs.ErrorLog.Fatalln("Failed to change password:", err)
+	}
+}
+
+func HashPassword(password string) string {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		logs.ErrorLog.Fatalln(err.Error())
+		return ""
+	}
+	return string(bytes)
+}
+
+func CheckPassword(password string, userID int) bool {
+	var hashedPassword string
+
+	query := `SELECT password_hash FROM user WHERE id = ?`
+	err := modules.DB.QueryRow(query, userID).Scan(&hashedPassword)
+	if err != nil {
+		logs.ErrorLog.Fatalln(err.Error())
+	}
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
+}
+
+func JsRespond(w http.ResponseWriter, message string, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(responseMessage{
+		Message: message,
+		Code:    code,
+	})
 }

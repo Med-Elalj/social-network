@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	auth "social-network/app/Auth"
 	"social-network/app/modules"
-	"social-network/app/structs"
 	"social-network/server/logs"
 )
 
@@ -14,17 +14,17 @@ func FollowersJoin(w http.ResponseWriter, r *http.Request, uid int) {
 	gid, err := strconv.Atoi(r.Header.Get("follow_target"))
 	if err != nil {
 		logs.ErrorLog.Println("Error converting group ID:", err)
-		structs.JsRespond(w, "group id is required", http.StatusBadRequest)
+		auth.JsRespond(w, "group id is required", http.StatusBadRequest)
 		return
 	}
 
 	if err := modules.InsertFollow(uid, gid); err != nil {
 		logs.ErrorLog.Println("Error inserting follow relationship:", err)
-		structs.JsRespond(w, "group joining failed", http.StatusInternalServerError)
+		auth.JsRespond(w, "group joining failed", http.StatusInternalServerError)
 	}
 
 	// TODO notif to group creator
-	structs.JsRespond(w, "user send req group successfully", http.StatusOK)
+	auth.JsRespond(w, "user send req group successfully", http.StatusOK)
 }
 
 // needs header "follow_target" the id of the profile you want to unfollow
@@ -32,18 +32,18 @@ func FollowersLeave(w http.ResponseWriter, r *http.Request, uid int) {
 	gid, err := strconv.Atoi(r.Header.Get("follow_target"))
 	if err != nil {
 		logs.ErrorLog.Println("Error converting group ID:", err)
-		structs.JsRespond(w, "group id is required", http.StatusBadRequest)
+		auth.JsRespond(w, "group id is required", http.StatusBadRequest)
 		return
 	}
 
 	if err := modules.DeleteFollow(uid, gid); err != nil {
 		logs.ErrorLog.Println("Error deleting follow relationship:", err)
-		structs.JsRespond(w, "group leaving failed", http.StatusInternalServerError)
+		auth.JsRespond(w, "group leaving failed", http.StatusInternalServerError)
 		return
 	}
 
 	// TODO notif to group creator
-	structs.JsRespond(w, "user left group successfully", http.StatusOK)
+	auth.JsRespond(w, "user left group successfully", http.StatusOK)
 }
 
 // needs header "follower_target" the id of the follower you want to accept
@@ -56,15 +56,15 @@ func FollowersAccept(w http.ResponseWriter, r *http.Request, uid int) {
 	folower_id, err := strconv.Atoi(r.Header.Get("follower_target"))
 	if err != nil {
 		logs.ErrorLog.Println("Error converting group ID:", err)
-		structs.JsRespond(w, "follower_id as header is required", http.StatusBadRequest)
+		auth.JsRespond(w, "follower_id as header is required", http.StatusBadRequest)
 		return
 	}
 	if err := modules.AcceptFollow(uid, gid, folower_id); err != nil {
 		logs.ErrorLog.Println("Error accepting follow relationship:", err)
-		structs.JsRespond(w, "group accepting failed", http.StatusInternalServerError)
+		auth.JsRespond(w, "group accepting failed", http.StatusInternalServerError)
 		return
 	}
 
 	// TODO notif to group creator
-	structs.JsRespond(w, "user accepted group successfully", http.StatusOK)
+	auth.JsRespond(w, "user accepted group successfully", http.StatusOK)
 }

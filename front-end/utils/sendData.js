@@ -12,6 +12,7 @@ export async function SendData(url, Data) {
         return error
     }
 }
+
 export async function GetData(url, Data) {   
     try {
         const response = await fetch(url, {

@@ -7,6 +7,5 @@ CREATE TABLE IF NOT EXISTS sessions (
     expires_at TIMESTAMP NOT NULL,
     ip_address TEXT,
     user_agent TEXT,
-    revoked BOOLEAN DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

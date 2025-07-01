@@ -1,20 +1,19 @@
 'use client';
 
-// import Image from "next/image";
 import Style from "./chat.module.css";
 import ChatInput from "./input";
 import Time from "./time";
-import { useEffect, useRef, useState, useCallback } from "react";
-const me = 0
+import { useEffect, useRef, useState } from "react";
+
+const me = 0;
 
 export async function getMessages(person_name, page) {
-    console.log("persone name", person_name)
     const response = await fetch(`/api/v1/get/dmhistory`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'target': person_name,
-            'page': page || new Date().toISOString(), // Use ISO string as page
+            'page': page,
         },
     });
 
@@ -22,90 +21,64 @@ export async function getMessages(person_name, page) {
         throw new Error('Failed to fetch messages');
     }
 
-    return response.json();
+    return await response.json();
 }
 
 export default function Messages({ user }) {
     const [messages, setMessages] = useState([]);
+    const [hasMore, setHasMore] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const scrollContainerRef = useRef(null);
-    const earliestTimestampRef = useRef(null); // For pagination
+    const [page, setPage] = useState(0);
 
-    const fetchInitialMessages = useCallback(async () => {
-        setLoading(true);
-        try {
-            const data = await getMessages(user.name);
-            setMessages(data);
-            if (data != null && data.length > 0) {
-                earliestTimestampRef.current = data[0].sent_at;
-            } else {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error("Initial fetch error:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, [user]);
-
-    const fetchMoreMessages = async () => {
-        if (loading || !hasMore) return;
-
-        setLoading(true);
-        try {
-            const olderData = await getMessages(user[1].name, earliestTimestampRef.current);
-            if (olderData != null && olderData.length > 0) {
-                setMessages(prev => [...olderData, ...prev]);
-                earliestTimestampRef.current = olderData[0].sent_at;
-            } else {
-                setHasMore(false);
-            }
-        } catch (error) {
-            console.error("Fetch more error:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const containerRef = useRef(null);
+    const prevScrollHeight = useRef(0);
 
     useEffect(() => {
         if (user) {
-            console.log("1")
             setMessages([]);
-            earliestTimestampRef.current = null;
-            setHasMore(true);
-            fetchInitialMessages();
+            setPage(1);
+            setLoading(true);
         }
-    }, [user, fetchInitialMessages]);
+    }, [user]);
 
-    // Scroll handler
-    const handleScroll = () => {
-        const el = scrollContainerRef.current;
-        if (!el) return;
-        if (el.scrollTop < 50) {
-            fetchMoreMessages();
-        }
-    };
-
-    // If messages are too few to allow scrolling, fetch more automatically
     useEffect(() => {
-        const el = scrollContainerRef.current;
-        if (!el || loading || !hasMore) return;
-        // if (el.scrollHeight <= el.clientHeight + 10) {
-        //     fetchMoreMessages();
-        // }
-        // eslint-disable-next-line
-    }, [messages, loading, hasMore]);
+        const fetchMessages = async () => {
+            try {
+                const data = await getMessages(user.name, page);
+                if (data) {
+                    const newMessages = data.messages;
+                    newMessages == null ? setMessages([]) : setMessages((prev) => [...newMessages, ...prev]);
+                    setHasMore(data.has_more);
 
-    const addMsg = (message) => {
-        messages ? setMessages(prev => [...prev, message]) : setMessages([message]);
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+                    setTimeout(() => {
+                        if (containerRef.current && prevScrollHeight.current) {
+                            const newHeight = containerRef.current.scrollHeight;
+                            containerRef.current.scrollTop = newHeight - prevScrollHeight.current;
+                        }
+                    }, 0);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            }
+        };
+
+        if (loading && page > 0) {
+            fetchMessages();
+        }
+    }, [loading, page]);
+
+    const handleScroll = (e) => {
+        const container = e.target;
+        if (container.scrollTop < 50 && hasMore && !loading) {
+            prevScrollHeight.current = container.scrollHeight;
+            setLoading(true);
+            setPage((prev) => prev + 1);
         }
     };
+
+
     if (user && messages) {
         return <section
-            ref={scrollContainerRef}
             onScroll={handleScroll}
             style={{ height: '80vh', overflowY: 'auto' }}
         >
@@ -138,7 +111,7 @@ export default function Messages({ user }) {
         messages ?
             (<h1>Select a person to start chatting</h1>)
             :
-            (<h1>No messages found<br /><ChatInput addMessage={addMsg} target={user} /></h1>)
+            (<h1>No messages found<br /><ChatInput addMessage={setMessages} target={user} /></h1>)
             ;
     }
 }

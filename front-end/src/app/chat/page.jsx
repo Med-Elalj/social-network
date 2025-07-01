@@ -31,6 +31,7 @@ export default function Chat() {
 
 
     const handleTabClick = (selectedTab) => {
+        console.log(selectedTab)
         setActiveTab(selectedTab);
     };
 

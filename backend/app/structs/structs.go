@@ -118,3 +118,8 @@ type Message struct {
 	Content    string    `json:"content"`
 	Time       time.Time `json:"sent_at"`
 }
+
+type Chat struct {
+	Messages []Message `json:"messages"`
+	HasMore  bool      `json:"has_more"`
+}

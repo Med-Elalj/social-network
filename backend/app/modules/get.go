@@ -368,17 +368,14 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	return userS, nil
 }
 
-func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
+func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
 	var d time.Time
-	if date == "" {
-		d = time.Now()
-	} else {
-		var err error
-		d, err = time.Parse(time.RFC3339, date)
-		if err != nil {
-			return nil, fmt.Errorf("invalid date format")
-		}
-	}
+	var chat structs.Chat
+
+	pageSize := 10
+
+	offset := (page - 1) * pageSize
+
 	rows, err := DB.Query(`
         SELECT *
         FROM (
@@ -399,24 +396,33 @@ func GetdmHistory(uname1, uname2, date string) ([]structs.Message, error) {
                 )
             ORDER BY
                 d.created_at DESC
-            LIMIT 10
+            LIMIT 11
         ) AS sub
         ORDER BY created_at ASC;
-    `, d, uname1, uname2, uname2, uname1)
+    `, d, uname1, uname2, uname2, uname1, offset)
 	if err != nil {
 		logs.ErrorLog.Printf("Error getting messages: %q", err.Error())
-		return nil, err
+		return chat, err
 	}
 	defer rows.Close()
 
-	var messages []structs.Message
+	// var messages []structs.Message
+	var count int
 	for rows.Next() {
+		if count == 10 {
+			chat.HasMore = true
+			break
+		}
+
 		var message structs.Message
 		if err := rows.Scan(&message.Sender, &message.SenderName, &message.Content, &message.Time); err != nil {
 			logs.ErrorLog.Printf("Error scanning message: %q", err.Error())
-			return nil, err
+			return chat, err
 		}
-		messages = append(messages, message)
+		chat.Messages = append(chat.Messages, message)
+		count++
 	}
-	return filter(messages, d), nil
+	chat.Messages = filter(chat.Messages, d)
+
+	return chat, nil
 }

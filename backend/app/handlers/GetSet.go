@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	auth "social-network/app/Auth"
 	"social-network/app/Auth/jwt"
@@ -45,7 +46,12 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(jsonData)
 	case "dmhistory":
 		target := r.Header.Get("target")
-		page := r.Header.Get("page")
+		page, err := strconv.Atoi(r.Header.Get("page"))
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, `{error": "expected page valur"}`)
+			return
+		}
 		payload := r.Context().Value(auth.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)
 		if !ok {

@@ -49,6 +49,7 @@ export default function ChatInput({ addMessage, target }) {
 
     const sendMessage = (e) => {
         e.preventDefault();
+        console.log("here")
         if (!message.trim() || !ws.current || ws.current.readyState !== 1) return;
         const dm = {
             receiver: target[0],

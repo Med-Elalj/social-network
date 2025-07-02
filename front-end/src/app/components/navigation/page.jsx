@@ -39,6 +39,9 @@ export default function Routing() {
         // Parse the response as JSON only once
         const data = await response.json();
         setIsLoggedIn(data.authenticated === true);
+        if (data.authenticated === false) {
+          router.push("/login");
+        }
         console.log("Auth status:", data.authenticated);
       } catch (err) {
         setIsLoggedIn(false);

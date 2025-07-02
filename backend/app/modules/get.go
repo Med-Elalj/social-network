@@ -10,50 +10,58 @@ import (
 
 func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	query := `
-WITH
-    user_groups AS (
-        SELECT g.id FROM "group" g WHERE g.creator_id = ?
-        UNION
-        SELECT g.id FROM "group" g JOIN follow f ON f.following_id = g.id
-        WHERE f.follower_id = ? AND f.status = 1
-    ),
-    followed_profiles AS (
-        SELECT following_id FROM follow
-        WHERE follower_id = ? AND status = 1
-    )
-SELECT
-    p.id,
-    p.group_id,
-    p.user_id,
-    author.display_name AS UserName,
-    group_profile.display_name AS GroupName,
-    author.avatar AS AvatarUser,
-    group_profile.avatar AS AvatarGroup,
-    p.content,
-    p.image_path,
-    p.created_at,
-    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
-    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count
-FROM posts p
-JOIN profile author ON author.id = p.user_id
-LEFT JOIN profile group_profile ON group_profile.id = p.group_id
-LEFT JOIN follow f ON p.group_id = f.follower_id
-WHERE
-    (? = 0 OR p.id < ?)
-    AND (? = 0 OR p.group_id = ?)
-    AND p.privacy != 'private'
-    AND (
-        p.privacy = 'public'
-        OR p.user_id = ?
-        OR (p.privacy = 'friends' AND p.user_id IN (SELECT following_id FROM followed_profiles))
-        OR (p.group_id IS NOT NULL AND f.follower_id IS NOT NULL)
-    )
-ORDER BY p.id DESC
-LIMIT 10;
+		WITH
+		    user_groups AS (
+		        SELECT g.id FROM "group" g WHERE g.creator_id = ?
+		        UNION
+		        SELECT g.id FROM "group" g JOIN follow f ON f.following_id = g.id
+		        WHERE f.follower_id = ? AND f.status = 1
+		    ),
+		    followed_profiles AS (
+		        SELECT following_id FROM follow
+		        WHERE follower_id = ? AND status = 1
+		    )
+		SELECT
+		    p.id,
+		    p.group_id,
+		    p.user_id,
+		    author.display_name AS UserName,
+		    group_profile.display_name AS GroupName,
+		    author.avatar AS AvatarUser,
+		    group_profile.avatar AS AvatarGroup,
+		    p.content,
+		    p.image_path,
+		    p.created_at,
+		    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
+		    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
+			CASE 
+		    WHEN EXISTS (
+		        SELECT 1 FROM likes l 
+		        WHERE l.user_id = ? AND l.post_id = p.id AND l.comment_id IS NULL
+		    ) THEN 1
+		    ELSE 0
+		    END AS is_liked
+		FROM posts p
+		JOIN profile author ON author.id = p.user_id
+		LEFT JOIN profile group_profile ON group_profile.id = p.group_id
+		LEFT JOIN follow f ON p.group_id = f.follower_id
+		WHERE
+		    (? = 0 OR p.id < ?)
+		    AND (? = 0 OR p.group_id = ?)
+		    AND p.privacy != 'private'
+		    AND (
+		        p.privacy = 'public'
+		        OR p.user_id = ?
+		        OR (p.privacy = 'friends' AND p.user_id IN (SELECT following_id FROM followed_profiles))
+		        OR (p.group_id IS NOT NULL AND f.follower_id IS NOT NULL)
+		    )
+		ORDER BY p.id DESC
+		LIMIT 10;
 	`
 
 	rows, err := DB.Query(query,
 		uid, uid, // user_groups params
+		uid,          // liked by user or not
 		uid,          // followed_profiles param
 		start, start, // pagination params
 		groupId, groupId, // group filter params
@@ -81,6 +89,7 @@ LIMIT 10;
 			&post.CreatedAt,
 			&post.CommentCount,
 			&post.LikeCount,
+			&post.IsLiked,
 		)
 		if err != nil {
 			logs.ErrorLog.Printf("Scan error: %q", err.Error())
@@ -134,40 +143,85 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
 
 func GetGroupFeed(uid int) ([]structs.Post, error) {
 	rows, err := DB.Query(`
-		WITH user_groups AS (
-		  SELECT id FROM "group" WHERE creator_id = ?
-		  UNION
-		  SELECT following_id FROM follow WHERE follower_id = ? AND status = 1
-		),
-		posts_with_rn AS (
-		  SELECT
-		    p.*,
-		    ROW_NUMBER() OVER (PARTITION BY p.group_id ORDER BY p.created_at DESC) AS rn
-		  FROM posts p
-		  JOIN user_groups ug ON p.group_id = ug.id
-		)
+		WITH
+		    user_groups AS (
+		        SELECT
+		            id
+		        FROM
+		            "group"
+		        WHERE
+		            creator_id = ?
+		        UNION
+		        SELECT
+		            following_id
+		        FROM
+		            follow
+		        WHERE
+		            follower_id = ?
+		            AND status = 1
+		    ),
+		    posts_with_rn AS (
+		        SELECT
+		            p.*,
+		            ROW_NUMBER() OVER (
+		                PARTITION BY
+		                    p.group_id
+		                ORDER BY
+		                    p.created_at DESC
+		            ) AS rn
+		        FROM
+		            posts p
+		            JOIN user_groups ug ON p.group_id = ug.id
+		    )
 		SELECT
-		  pwr.id,
-		  pwr.group_id,
-		  pwr.user_id,
-		  pwr.content,
-		  author.display_name AS UserName,
-		  group_profile.display_name AS GroupName,
-		  author.avatar AS AvatarUser,
-		  group_profile.avatar AS AvatarGroup,
-		  pwr.image_path,
-		  pwr.created_at,
-		  (
-		    SELECT COUNT(*) FROM likes l WHERE l.post_id = pwr.id
-		  ) AS like_count,
-		  (
-		    SELECT COUNT(*) FROM comments c WHERE c.post_id = pwr.id
-		  ) AS comment_count
-		FROM posts_with_rn pwr
-		JOIN profile author ON author.id = pwr.user_id
-		JOIN profile group_profile ON group_profile.id = pwr.group_id
-		WHERE pwr.rn <= 2
-		ORDER BY pwr.group_id, pwr.created_at DESC;`, uid, uid)
+		    pwr.id,
+		    pwr.group_id,
+		    pwr.user_id,
+		    pwr.content,
+		    author.display_name AS UserName,
+		    group_profile.display_name AS GroupName,
+		    author.avatar AS AvatarUser,
+		    group_profile.avatar AS AvatarGroup,
+		    pwr.image_path,
+		    pwr.created_at,
+		    (
+		        SELECT
+		            COUNT(*)
+		        FROM
+		            likes l
+		        WHERE
+		            l.post_id = pwr.id
+		    ) AS like_count,
+		    (
+		        SELECT
+		            COUNT(*)
+		        FROM
+		            comments c
+		        WHERE
+		            c.post_id = pwr.id
+		    ) AS comment_count,
+		    CASE
+		        WHEN EXISTS (
+		            SELECT
+		                1
+		            FROM
+		                likes l
+		            WHERE
+		                l.user_id = ?
+		                AND l.post_id = pwr.id
+		                AND l.comment_id IS NULL
+		        ) THEN 1
+		        ELSE 0
+		    END AS is_liked
+		FROM
+		    posts_with_rn pwr
+		    JOIN profile author ON author.id = pwr.user_id
+		    JOIN profile group_profile ON group_profile.id = pwr.group_id
+		WHERE
+		    pwr.rn <= 2
+		ORDER BY
+		    pwr.group_id,
+		    pwr.created_at DESC;`, uid, uid, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("GetgroupFeed query error: %q", err.Error())
 		return nil, err
@@ -176,7 +230,7 @@ func GetGroupFeed(uid int) ([]structs.Post, error) {
 	var posts []structs.Post
 	for rows.Next() {
 		var pt structs.Post
-		if err := rows.Scan(&pt.ID, &pt.GroupId, &pt.UserId, &pt.Content, &pt.UserName, &pt.GroupName, &pt.AvatarUser, &pt.AvatarGroup, &pt.ImagePath, &pt.CreatedAt, &pt.LikeCount, &pt.CommentCount); err != nil {
+		if err := rows.Scan(&pt.ID, &pt.GroupId, &pt.UserId, &pt.Content, &pt.UserName, &pt.GroupName, &pt.AvatarUser, &pt.AvatarGroup, &pt.ImagePath, &pt.CreatedAt, &pt.LikeCount, &pt.CommentCount, &pt.IsLiked); err != nil {
 			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
 			return nil, err
 		}

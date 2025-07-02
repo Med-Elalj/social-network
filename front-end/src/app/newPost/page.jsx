@@ -4,7 +4,6 @@ import { useState } from "react";
 import Styles from "./newPost.module.css";
 import { SendData } from "../../../utils/sendData.js";
 import { useRouter } from 'next/navigation';
-
 export default function NewPost() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
@@ -32,15 +31,15 @@ export default function NewPost() {
       content: content,
       privacy: privacy,
       image: image ? image.name : null
-    }    
+    };
 
-    const response = await SendData('/api/v1/set/Post', formData);
+    const response = await SendData("/api/v1/set/Post", formData);
 
     if (response.status !== 200) {
       const errorBody = await response.json();
       console.log(errorBody);
     } else {
-      console.log('Form submitted successfully!');
+      console.log("Form submitted successfully!");
       router.push("/");
     }
   };
@@ -50,6 +49,7 @@ export default function NewPost() {
       <h2>Create New Post</h2>
 
       <form onSubmit={handleSubmit}>
+        {/* Content Field */}
         <div>
           <label htmlFor="content">Content</label><br />
           <textarea
@@ -61,12 +61,20 @@ export default function NewPost() {
           />
         </div>
 
+        {/* Upload Image */}
         <div className={Styles.upload}>
           <label htmlFor="image" style={{ cursor: "pointer" }}>
             <img src="/Image.svg" alt="Upload" width="24" height="24" />&nbsp;&nbsp;
             Upload Image
           </label>
-          <input type="file" name="image" style={{ display: "none" }} id="image" accept="image/*,video/*" onChange={handleImageChange} />
+          <input
+            type="file"
+            name="image"
+            id="image"
+            style={{ display: "none" }}
+            accept="image/*,video/*"
+            onChange={handleImageChange}
+          />
           {previewUrl && (
             <div>
               <img src={previewUrl} alt="Preview" />
@@ -74,42 +82,20 @@ export default function NewPost() {
           )}
         </div>
 
-        <div>
-          <label>Privacy</label>
-          <div>
-            <label>
-              <input
-                type="radio"
-                name="privacy"
-                value="public"
-                checked={privacy === "public"}
-                onChange={() => setPrivacy("public")}
-              />
-              Public
-            </label>
-
-            <label>
-              <input
-                type="radio"
-                name="privacy"
-                value="private"
-                checked={privacy === "private"}
-                onChange={() => setPrivacy("private")}
-              />
-              Private
-            </label>
-
-            <label>
-              <input
-                type="radio"
-                name="privacy"
-                value="folowors"
-                checked={privacy === "folowors"}
-                onChange={() => setPrivacy("folowors")}
-              />
-              Folowors
-            </label>
-          </div>
+        {/* Dropdown Privacy */}
+        <div className={Styles.dropdown}>
+          <label htmlFor="privacy">Privacy</label><br />
+          <select
+            id="privacy"
+            className={Styles.input}
+            value={privacy}
+            onChange={(e) => setPrivacy(e.target.value)}
+            style={{ padding: "0.5rem", marginTop: "0.5rem" }}
+          >
+            <option value="public">Public</option>
+            <option value="private">Private</option>
+            <option value="folowors">Folowors</option>
+          </select>
         </div>
 
         <button type="submit">Post</button>

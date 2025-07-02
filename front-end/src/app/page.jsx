@@ -4,8 +4,9 @@ import Styles from "./global.module.css";
 import Groups from "./components/Groups";
 import Friends from "./components/Friends";
 import Image from 'next/image';
-import { GetData, SendData } from "../../utils/sendData";
+import { SendData } from "../../utils/sendData";
 import { useEffect, useState } from "react";
+import LikeDeslike from "./utils.jsx";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -37,7 +38,7 @@ export default function Home() {
       {/* Center Content */}
       <div className={Styles.centerContent}>
         {posts && posts.map((Post) => (
-          <div key={Post.ID} className={Styles.post} style={{ width: '80%', marginLeft: '10%' }}>
+          <div key={Post.ID} className={Styles.post}>
             <section className={Styles.userinfo}>
               <div className={Styles.user}>
                 {/* Main Avatar */}
@@ -96,10 +97,13 @@ export default function Home() {
             }
 
             <section className={Styles.footer}>
-              <div className={Styles.action}>
-                <Image src="/Like2.svg" alt="like" width={20} height={20} />
-                <p>{Post.LikeCount}</p>
-              </div>
+              {/* TODO:add to websocket to be updated for all users */}
+              <LikeDeslike
+                PostID={Post.ID}
+                isLiked={Post.IsLiked}
+                currentLikeCount={Post.LikeCount}
+              />
+
               <div className={Styles.action}>
                 <Image src="/comment.svg" alt="comment" width={20} height={20} />
                 <p>{Post.CommentCount}</p>

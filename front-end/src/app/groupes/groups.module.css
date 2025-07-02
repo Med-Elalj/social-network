@@ -77,8 +77,8 @@
     color: var(--third-color);
 }
 
-.Buttons a{
-margin-left: 20px;
+.Buttons a {
+    margin-left: 20px;
 }
 
 .second {
@@ -87,6 +87,7 @@ margin-left: 20px;
     align-items: center;
     display: flex;
     margin-left: 20%;
+    margin-top: 60px;
 }
 
 .groupGrid {
@@ -267,6 +268,86 @@ margin-left: 20px;
 
 .buttonWrapper {
     margin-top: auto;
+}
+
+.post {
+    background-color: var(--border-color);
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-color);
+    width: 50vw;
+}
+
+.userinfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.userinfo>div {
+    display: flex;
+    align-items: center;
+}
+
+.user {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.user img,
+.user> :first-child {
+    flex-shrink: 0;
+}
+
+.user p:first-child {
+    margin: 0;
+}
+
+.user p:last-child {
+    margin: 4px 0 0 0;
+    font-size: 0.9rem;
+    color: gray;
+    line-height: 1.2;
+}
+
+.texts p {
+    margin: 0;
+}
+
+.texts p+p {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: gray;
+}
+
+
+.userinfo>div>p {
+    margin-left: 5px;
+}
+
+.content {
+    margin: 20px 0;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px 0;
+}
+
+.footer>.action>img {
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.footer .action {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
 }
 
 /* Tablets and small desktops */

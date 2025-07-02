@@ -40,6 +40,27 @@
   color: var(--secondary-color);
 }
 
+.dropdown {
+  padding:.5rem 0;
+  color: var(--secondary-color);
+}
+
+.input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    transition: border 0.2s ease-in-out;
+    width: 20%;
+    background-color: #2a2a2a;
+    color: var(--secondary-color);
+    box-sizing: border-box;
+    cursor: pointer
+}
+
 .form img {
   max-width: 100%;
   height: auto;

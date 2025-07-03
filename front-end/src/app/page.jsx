@@ -7,9 +7,12 @@ import Image from 'next/image';
 import { SendData } from "../../utils/sendData";
 import { useEffect, useState } from "react";
 import LikeDeslike from "./utils.jsx";
+import Comments from "./comments.jsx";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
+  const [openComments, setOpenComments] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       const formData = {
@@ -104,10 +107,19 @@ export default function Home() {
                 currentLikeCount={Post.LikeCount}
               />
 
-              <div className={Styles.action}>
+              <div className={Styles.action} onClick={() => setOpenComments(Post.ID)}>
                 <Image src="/comment.svg" alt="comment" width={20} height={20} />
                 <p>{Post.CommentCount}</p>
               </div>
+
+              {openComments === Post.ID && (
+                <div className={Styles.commentPopup} onClick={() => setOpenComments(null)}>
+                  <div onClick={e => e.stopPropagation()}>
+                    <Comments post={Post} onClose={() => setOpenComments(null)} />
+                  </div>
+                </div>
+              )}
+
             </section>
           </div>
         ))}

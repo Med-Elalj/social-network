@@ -71,7 +71,7 @@ export default function GroupPosts() {
 
                     {Post.ImagePath?.String && (
                         <Image
-                            src={`/db.png`}
+                            src={`/${Post.ImagePath.String}`}
                             alt="post image"
                             width={250}
                             height={200}

@@ -10,6 +10,7 @@
     height: 30%;
     position: relative;
     z-index: -1;
+    opacity: .5;
 }
 
 .body {
@@ -27,7 +28,8 @@
 }
 
 .ProfileInfo {
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     border-radius: 10px;
     opacity: 1;
     width: 60%;
@@ -54,7 +56,7 @@
 }
 
 .center>span>h5:first-child {
-    color: var(--primary-color);
+    color: var(--border-color);
 }
 
 .ProfileInfo>button {
@@ -69,7 +71,7 @@
 
 .ProfileInfo>button:hover {
     background-color: var(--hover-color);
-    border: 1px solid var(--hover-color);
+    border: 1px solid var(--secondary-color);
     color: var(--secondary-color)
 }
 
@@ -111,11 +113,11 @@
 }
 
 .post {
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
     margin: 0 auto;
     padding: 0 20px;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     color: var(--secondary-color);
     margin-right: 10%;
 }
@@ -197,7 +199,8 @@
 }
 
 .requists {
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     color: var(--secondary-color);
     width: 60%;
     height: auto;
@@ -253,7 +256,6 @@
     background-color: var(--border-color);
     border-radius: 10px;
     opacity: 0.7;
-    border: 1px solid var(--third-color);
 }
 
 @media (max-width: 1024px) {

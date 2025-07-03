@@ -28,11 +28,9 @@
 }
 
 .centerContent {
-  /* margin: 0 20vw; */
   margin-top: 60px;
   width: 60vw;
   margin-left: 20vw;
-  /* padding: 40px; */
   box-sizing: border-box;
   background-color: var(--primary-color);
   color: var(--secondary-color);
@@ -138,11 +136,12 @@
 }
 
 .post {
-  background-color: var(--border-color);
+  background-color: var(--primary-color);
   margin: 0 10vw 4vh 10vw;
   padding: 0 20px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
   color: var(--secondary-color);
   width: 40vw;
 }
@@ -214,6 +213,21 @@
   margin-left: 10px;
   display: flex;
   align-items: center;
+}
+
+.commentPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50vw;
+  height: 70vh;
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
+  border-radius: 8px;
+  display: flex;
+  z-index: 1000;
 }
 
 /* Medium screens (tablets) */

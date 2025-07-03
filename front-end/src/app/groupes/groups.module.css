@@ -140,10 +140,10 @@
 
 .container {
     margin-top: 20px;
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
     width: 80%;
     height: 85vh;
-    border: solid 1px var(--border-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     border-radius: 10px;
     padding-left: 2.5%;
 }
@@ -180,7 +180,8 @@
 }
 
 .example {
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     width: 95%;
     height: 23vh;
     border-radius: 10px;
@@ -271,12 +272,12 @@
 }
 
 .post {
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
     margin-top: 20px;
     margin-bottom: 20px;
     padding: 0 20px;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     color: var(--secondary-color);
     width: 50vw;
 }

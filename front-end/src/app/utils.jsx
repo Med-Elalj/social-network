@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+
 
 // Notifications
 let notificationCooldown = false;
@@ -17,6 +19,12 @@ function playSound(name) {
     }
 }
 //todo: reduce body opacity a little when using notification
+
+export const CapitalizeFirstLetter = (str) => {
+  if (typeof str !== "string") return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function showNotification(
   message,
   type = "success",
@@ -94,7 +102,6 @@ export function showNotification(
   }
 }
 
-import { useEffect } from "react";
 
 export function usePasswordToggle() {
   useEffect(() => {

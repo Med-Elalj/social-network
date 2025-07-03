@@ -9,7 +9,7 @@ import (
 	"social-network/server/logs"
 )
 
-func authorize(w http.ResponseWriter, r *http.Request, userID int) {
+func Authorize(w http.ResponseWriter, r *http.Request, userID int) {
 	username, err := GetElemVal[string]("display_name", "profile", `id = ?`, userID)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting username:", err)

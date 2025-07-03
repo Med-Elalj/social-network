@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"regexp"
 	"time"
+	"unicode"
 
 	"social-network/app/modules"
 )
@@ -83,7 +84,21 @@ func InsertUser(user Register) (int64, error) {
 		about = sql.NullString{String: string(user.About), Valid: true}
 	}
 
-	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_user) VALUES (?,?,?, 1)`, user.UserName, avatar, about)
+	// Insert into profile table
+	res, err := tx.Exec(`
+    INSERT INTO profile (
+        email, first_name, last_name, display_name, date_of_birth, gender, avatar, description, is_user
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+`,
+		user.Email,
+		user.Fname,
+		user.Lname,
+		user.UserName,
+		user.Birthdate,
+		user.Gender,
+		avatar,
+		about,
+	)
 	if err != nil {
 		tx.Rollback()
 		return -1, err
@@ -95,9 +110,11 @@ func InsertUser(user Register) (int64, error) {
 		return -1, err
 	}
 
-	_, err = tx.Exec(`INSERT INTO user (id, email, first_name, last_name, password_hash, date_of_birth, gender)
-	VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		profileID, user.Email, user.Fname, user.Lname, HashPassword(user.Password), user.Birthdate, user.Gender)
+	// Insert only the password into user table, linking by profile ID
+	_, err = tx.Exec(`INSERT INTO user (id, password_hash) VALUES (?, ?)`,
+		profileID,
+		HashPassword(user.Password),
+	)
 	if err != nil {
 		tx.Rollback()
 		return -1, err
@@ -108,4 +125,28 @@ func InsertUser(user Register) (int64, error) {
 	}
 
 	return profileID, nil
+}
+
+func hasSpecial(s string) bool {
+	for _, ch := range s {
+		if unicode.IsPunct(ch) || unicode.IsSymbol(ch) {
+			return true
+		}
+	}
+	return false
+}
+
+func IsValidPassword(password string) bool {
+	if len(password) < 8 || len(password) > 30 {
+		return false
+	}
+
+	hasDigit := regexp.MustCompile(`[0-9]`)
+	hasLower := regexp.MustCompile(`[a-z]`)
+	hasUpper := regexp.MustCompile(`[A-Z]`)
+
+	return hasDigit.MatchString(password) &&
+		hasLower.MatchString(password) &&
+		hasUpper.MatchString(password) &&
+		hasSpecial(password)
 }

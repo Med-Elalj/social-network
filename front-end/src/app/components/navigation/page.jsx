@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Styles from "./nav.module.css";
-import { refreshAccessToken } from "./auth.jsx"; // Adjust the import path as neededq
+import { refreshAccessToken } from "../../../../utils/sendData.js";
 
 const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
@@ -56,7 +56,8 @@ export default function Routing() {
     "/newPost",
     "/groupes",
     "/chat",
-    "/profile/nickname",
+    "/profile",
+    "/api/v1/profile"
   ];
 
   useEffect(() => {

@@ -2,7 +2,6 @@ package modules
 
 import (
 	"fmt"
-	"time"
 
 	"social-network/app/structs"
 	"social-network/server/logs"
@@ -369,12 +368,16 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 }
 
 func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
-	var d time.Time
+	// var d time.Time
 	var chat structs.Chat
 
 	pageSize := 10
 
 	offset := (page - 1) * pageSize
+
+	fmt.Println("uname1: ", uname1)
+	fmt.Println("uname2: ", uname2)
+	fmt.Println("page: ", page)
 
 	rows, err := DB.Query(`
         SELECT *
@@ -388,18 +391,16 @@ func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
             JOIN
                 profile recipient ON d.receiver_id = recipient.id
             WHERE
-                d.created_at < ?
-                AND (
-                    (sender.display_name = ? AND recipient.display_name = ?)
-                    OR
-                    (sender.display_name = ? AND recipient.display_name = ?)
-                )
+                (sender.display_name = ? AND recipient.display_name = ?)
+                OR
+                (sender.display_name = ? AND recipient.display_name = ?)
+            
             ORDER BY
                 d.created_at DESC
-            LIMIT 11
+            LIMIT 11 OFFSET ?
         ) AS sub
         ORDER BY created_at ASC;
-    `, d, uname1, uname2, uname2, uname1, offset)
+    `, uname1, uname2, uname2, uname1, offset)
 	if err != nil {
 		logs.ErrorLog.Printf("Error getting messages: %q", err.Error())
 		return chat, err
@@ -422,7 +423,7 @@ func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
 		chat.Messages = append(chat.Messages, message)
 		count++
 	}
-	chat.Messages = filter(chat.Messages, d)
+	fmt.Println("before", chat.Messages)
 
 	return chat, nil
 }

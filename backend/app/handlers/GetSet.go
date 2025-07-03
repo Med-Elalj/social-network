@@ -49,7 +49,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		page, err := strconv.Atoi(r.Header.Get("page"))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(w, `{error": "expected page valur"}`)
+			fmt.Fprintf(w, `{error": "expected page value"}`)
 			return
 		}
 		payload := r.Context().Value(auth.UserContextKey)

@@ -29,14 +29,16 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var dataToFetch map[string]interface{}
 	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
 	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		logs.ErrorLog.Println("Error decoding request body:", err)
+		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	// Parse start
 	startFloat, ok := dataToFetch["start"].(float64)
 	if !ok {
-		http.Error(w, "'start' must be a number", http.StatusBadRequest)
+		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
+		auth.JsRespond(w, "Invalid 'start' value", http.StatusBadRequest)
 		return
 	}
 	start := int(startFloat)

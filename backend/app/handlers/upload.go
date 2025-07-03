@@ -6,24 +6,26 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	auth "social-network/app/Auth"
 )
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		auth.JsRespond(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, "File upload error: "+err.Error(), http.StatusBadRequest)
+		auth.JsRespond(w, "File upload error: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
 	// Create uploads directory with explicit permissions
 	if err := os.MkdirAll("uploads", 0o755); err != nil {
-		http.Error(w, "Could not create directory", http.StatusInternalServerError)
+		auth.JsRespond(w, "Could not create directory", http.StatusInternalServerError)
 		return
 	}
 
@@ -33,13 +35,13 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	dst, err := os.Create(filePath)
 	if err != nil {
-		http.Error(w, "Unable to save file: "+err.Error(), http.StatusInternalServerError)
+		auth.JsRespond(w, "Unable to save file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer dst.Close()
 
 	if _, err := io.Copy(dst, file); err != nil {
-		http.Error(w, "Error copying file: "+err.Error(), http.StatusInternalServerError)
+		auth.JsRespond(w, "Error copying file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 

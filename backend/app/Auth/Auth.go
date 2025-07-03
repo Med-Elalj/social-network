@@ -13,14 +13,14 @@ func Authorize(w http.ResponseWriter, r *http.Request, userID int) {
 	username, err := GetElemVal[string]("display_name", "profile", `id = ?`, userID)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting username:", err)
-		http.Error(w, "Bad request", http.StatusBadRequest)
+		JsRespond(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
 	jwtToken, sessionID, refreshToken, err := CheckSession(r, userID, username)
 	if err != nil {
 		logs.ErrorLog.Println(err)
-		http.Error(w, "Session error", http.StatusInternalServerError)
+		JsRespond(w, "Session error", http.StatusInternalServerError)
 		return
 	}
 
@@ -83,7 +83,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := modules.DB.Exec(`DELETE FROM sessions WHERE session_id = ? AND refresh_token = ?`, sidCookie.Value, rtCookie.Value)
 	if err != nil {
 		logs.ErrorLog.Println("Error deleting session:", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		JsRespond(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 

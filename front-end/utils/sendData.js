@@ -23,62 +23,48 @@ export async function refreshAccessToken() {
   }
 }
 
-// async function fetchWithAuth(url, options = {}) {
-//   let res = await fetch(url, {
-//     ...options,
-//     credentials: 'include',
-//   });
+async function fetchWithAuth(url, options = {}) {
+  let res = await fetch(url, {
+    ...options,
+    credentials: 'include',
+  });
 
-//   if (res.status === 401) {
-//     const refreshed = await refreshAccessToken();
-//     if (refreshed) {
-//       res = await fetch(url, {
-//         ...options,
-//         credentials: 'include',
-//       });
-//     }
-//   }
+  if (res.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      res = await fetch(url, {
+        ...options,
+        credentials: 'include',
+      });
+    }
+  }
 
-//   return res;
-// }
+  return res;
+}
 
-// export async function SendData(url, data) {
-//   return await fetchWithAuth(url, {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify(data),
-//   });
-// }
+export async function SendData(url, data) {
+  return await fetchWithAuth(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
 
-// export async function GetData(url, params = {}) {
-//   // Build query string if any params are passed
-//   const query = new URLSearchParams(params).toString();
-//   const fullUrl = query ? `${url}?${query}` : url;
+export async function GetData(url, params = {}) {
+  // Build query string if any params are passed
+  const query = new URLSearchParams(params).toString();
+  const fullUrl = query ? `${url}?${query}` : url;
 
-//   return await fetchWithAuth(fullUrl, {
-//     method: 'GET',
-//     headers: { 'Content-Type': 'application/json' },
-//   });
-// }
-export async function SendData(url, Data) {   
+  return await fetchWithAuth(fullUrl, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function SendAuthData(url, Data) {   
     try {
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(Data),
-        })
-        
-        return response
-    } catch (error) {
-        return error
-    }
-}
-
-export async function GetData(url, Data) {   
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify(Data),

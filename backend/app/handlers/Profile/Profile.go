@@ -56,14 +56,14 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		&profile.CreatedAt,
 	)
 	fmt.Println("Profile data:", profile)
-	
+
 	// 4. Handle SQL errors
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "Profile not found", http.StatusNotFound)
+			auth.JsRespond(w, "Profile not found", http.StatusNotFound)
 		} else {
 			logs.ErrorLog.Println("DB error:", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			auth.JsRespond(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 		return
 	}
@@ -72,6 +72,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(profile); err != nil {
 		logs.ErrorLog.Println("Error encoding JSON:", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		auth.JsRespond(w, "Internal Server Error", http.StatusInternalServerError)
 	}
 }

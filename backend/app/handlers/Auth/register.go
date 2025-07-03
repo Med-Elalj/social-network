@@ -14,7 +14,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var user auth.Register
 
 	json.NewDecoder(r.Body).Decode(&user)
-
+	if len(user.UserName) == 0 {
+		user.UserName = auth.GenerateNickname(user.Fname, user.Lname)
+		if user.UserName == "" {
+			auth.JsRespond(w, "Please enter a valid username.", http.StatusBadRequest)
+		}
+	}
 	if err := user.ValidateRegister(); len(err) != 0 {
 		logs.ErrorLog.Println("Validation failed for user input")
 		w.WriteHeader(http.StatusBadRequest)

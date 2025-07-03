@@ -58,7 +58,7 @@ useEffect(() => {
               >
                 <Image src="/db.png" alt="cover" fill />
               </div>
-              <h4>{CapitalizeFirstLetter(profileData?.display_name)}</h4>
+              <h4>@{CapitalizeFirstLetter(profileData?.display_name)}</h4>
             </div>
             <div className={Style.tabs}>
               <button onClick={() => setActiveTab("info")}>Info</button>

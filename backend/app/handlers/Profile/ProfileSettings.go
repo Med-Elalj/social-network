@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -15,42 +16,47 @@ func ProfileSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	payload := r.Context().Value(auth.UserContextKey)
 	data, ok := payload.(*jwt.JwtPayload)
 	if !ok {
-		http.Error(w, "Unauthorized - invalid user context", http.StatusUnauthorized)
+		auth.JsRespond(w, "Unauthorized - invalid user context", http.StatusUnauthorized)
 		return
 	}
 
+	fmt.Println(r.PathValue("type"))
 	// Step 2: Match request by "type" in path
 	switch r.PathValue("type") {
-	case "updateProfile":
-		UpdateProfileSettings(w, r, data.Sub)
+	case "updateUsername":
+		UpdateUsername(w, r, data.Sub)
 	case "updatePassword":
-		UpdatePasswordSettings(w, r, data.Sub)
-	case "updateEmail":
-		UpdateEmailSettings(w, r, data.Sub)
+		UpdatePassword(w, r, data.Sub)
 	case "delete":
-		DeleteUserProfile(w, r, data.Sub)
+		DeleteProfile(w, r, data.Sub)
 	default:
-		http.Error(w, "Invalid action type", http.StatusBadRequest)
+		auth.JsRespond(w, "Invalid action type", http.StatusBadRequest)
 	}
 }
 
-func UpdateProfileSettings(w http.ResponseWriter, r *http.Request, userID int) {
+func UpdateUsername(w http.ResponseWriter, r *http.Request, userID int) {
 	var body struct {
 		Nickname string `json:"nickname" validate:"required,min=2,max=50"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		auth.JsRespond(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
 	if body.Nickname == "" {
-		http.Error(w, "Missing nickname", http.StatusBadRequest)
+		auth.JsRespond(w, "Missing nickname", http.StatusBadRequest)
+		return
+	}
+	if !auth.IsValidNickname(body.Nickname) {
+		auth.JsRespond(w, "Nickname must be 3-13 characters and use letters or underscores.", http.StatusBadRequest)
+		return
+	}
+	if auth.NicknameExists(body.Nickname) {
+		auth.JsRespond(w, "Nickname already exists", http.StatusConflict)
 		return
 	}
 
-	// Do DB update using userID
-	// Example: db.Exec("UPDATE users SET nickname = ? WHERE id = ?", body.Nickname, userID)
 	if _, err := modules.DB.Exec("UPDATE profile SET display_name = ? WHERE id = ?", body.Nickname, userID); err != nil {
 		logs.ErrorLog.Println("Failed to update nickname:", err)
 		auth.JsRespond(w, "Failed to update nickname", http.StatusInternalServerError)
@@ -59,69 +65,61 @@ func UpdateProfileSettings(w http.ResponseWriter, r *http.Request, userID int) {
 	auth.JsRespond(w, "Nickname updated", http.StatusOK)
 }
 
-func UpdateEmailSettings(w http.ResponseWriter, r *http.Request, userID int) {
-	// This function should handle email, not nickname
-	var body struct {
-		Email string `json:"email"` // Not nickname!
-	}
-	// Validation and response messages should also reference email
-
-	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
-		return
-	}
-
-	if body.Email == "" {
-		http.Error(w, "Missing email", http.StatusBadRequest)
-		return
-	}
-
-	if _, err := modules.DB.Exec("UPDATE profile SET email = ? WHERE id = ?", body.Email, userID); err != nil {
-		logs.ErrorLog.Println("Failed to update email:", err)
-		auth.JsRespond(w, "Failed to update email", http.StatusInternalServerError)
-		return
-	}
-
-	auth.JsRespond(w, "Nickname updated", http.StatusOK)
-}
-
-func UpdatePasswordSettings(w http.ResponseWriter, r *http.Request, userID int) {
+func UpdatePassword(w http.ResponseWriter, r *http.Request, userID int) {
 	var body struct {
 		CurrentPassword string `json:"currentPassword"`
 		NewPassword     string `json:"newPassword"`
+		ConfirmPassword string `json:"confirmPassword"`
 	}
 	if body.CurrentPassword == "" || body.NewPassword == "" {
-		http.Error(w, "Both current and new passwords are required", http.StatusBadRequest)
-		return
-	}
-
-	if len(body.NewPassword) < 8 {
-		http.Error(w, "New password must be at least 8 characters", http.StatusBadRequest)
+		auth.JsRespond(w, "Both current and new passwords are required", http.StatusBadRequest)
 		return
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		auth.JsRespond(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-
-	// Example: check password, hash new password, update in DB
-	// user, _ := db.GetUserByID(userID)
-	// if !CheckPasswordHash(body.CurrentPassword, user.PasswordHash) { ... }
-
+	if !(auth.IsValidPassword(body.NewPassword) && auth.IsValidPassword(body.ConfirmPassword) && body.NewPassword != body.ConfirmPassword) {
+		auth.JsRespond(w, "New Password is not valid", http.StatusBadRequest)
+		return
+	}
+	if !auth.CheckPassword(body.CurrentPassword, userID) {
+		auth.JsRespond(w, "Current password is incorrect", http.StatusBadRequest)
+		return
+	}
+	auth.ChangePassword(body.NewPassword, int64(userID))
 	auth.JsRespond(w, "Password updated", http.StatusOK)
 }
 
-func DeleteUserProfile(w http.ResponseWriter, r *http.Request, userID int) {
+func DeleteProfile(w http.ResponseWriter, r *http.Request, userID int) {
 	var body struct {
-		ConfirmDelete bool `json:"confirmDelete"`
+		ConfirmDelete  bool   `json:"confirmDelete"`
+		DeletePassword string `json:"deletePassword"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		auth.JsRespond(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
-	// Confirm deletion logic
-	// db.Exec("DELETE FROM users WHERE id = ?", userID)
-
+	if body.DeletePassword == "" {
+		auth.JsRespond(w, "Delete password is required", http.StatusBadRequest)
+		return
+	}
+	if !auth.CheckPassword(body.DeletePassword, userID) {
+		auth.JsRespond(w, "Delete password is incorrect", http.StatusBadRequest)
+		return
+	}
+	// Confirm deletion
+	if !body.ConfirmDelete {
+		auth.JsRespond(w, "Please confirm deletion", http.StatusBadRequest)
+		return
+	}
+	// Delete user profile from the database
+	if _, err := modules.DB.Exec("DELETE FROM profile WHERE id = ?", userID); err != nil {
+		logs.ErrorLog.Println("Failed to delete user profile:", err)
+		auth.JsRespond(w, "Failed to delete user profile", http.StatusInternalServerError)
+		return
+	}
+	logs.InfoLog.Println("User profile deleted successfully for user ID:", userID)
 	auth.JsRespond(w, "User deleted", http.StatusOK)
 }

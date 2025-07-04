@@ -35,7 +35,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	userID, err := auth.InsertUser(user)
 	if err != nil {
-		fmt.Println(err)
 		logs.ErrorLog.Println("Error inserting user into database:", err)
 		if structs.SqlConstraint(&err) {
 			auth.JsRespond(w, "Username or email already exists", http.StatusConflict)

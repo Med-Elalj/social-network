@@ -171,7 +171,6 @@ func HashPassword(password string) string {
 
 func CheckPassword(password string, userID int) bool {
 	var hashedPassword string
-	fmt.Println("Checking password for user ID:", userID)
 	query := `SELECT password_hash FROM user WHERE id = ?`
 	err := modules.DB.QueryRow(query, userID).Scan(&hashedPassword)
 	if err != nil {

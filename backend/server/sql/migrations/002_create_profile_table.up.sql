@@ -12,3 +12,9 @@ CREATE TABLE IF NOT EXISTS "profile" (
   "is_user" BOOLEAN NOT NULL,
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP) NOT NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_profile_email ON profile(email);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_profile_display_name ON profile(display_name);
+CREATE INDEX IF NOT EXISTS idx_profile_created_at ON profile(created_at);
+CREATE INDEX IF NOT EXISTS idx_profile_is_public ON profile(is_public);
+CREATE INDEX IF NOT EXISTS idx_profile_is_user ON profile(is_user);

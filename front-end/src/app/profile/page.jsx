@@ -8,13 +8,16 @@ import Posts from "./[tab]/Posts";
 import Following from "./[tab]/Following";
 import Followers from "./[tab]/Followers";
 import Settings from "./[tab]/Settings";
-import { GetData } from "../../../utils/sendData.js";
+import { GetData, SendData } from "../../../utils/sendData.js";
 import { CapitalizeFirstLetter } from "../utils.jsx";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("info"); // "info" | "settings" | "connections"
   const [activeSection, setActiveSection] = useState("posts"); // used inside connections tab
   const [profileData, setProfileData] = useState(null); // State to hold profile data
+  const [isPublic, setIsPublic] = useState(false); // State to hold public profile status
+    const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -60,6 +63,16 @@ useEffect(() => {
               </div>
               <h4>@{CapitalizeFirstLetter(profileData?.display_name)}</h4>
             </div>
+            <div className="privacy-toggle">
+      <label>
+        <input
+          type="checkbox"
+        />
+        <span className="slider"></span>
+      </label>
+      <span>{isPublic ? 'Public' : 'Private'}</span>
+    </div>
+
             <div className={Style.tabs}>
               <button onClick={() => setActiveTab("info")}>Info</button>
               <button onClick={() => setActiveTab("connections")}>

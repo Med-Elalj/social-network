@@ -40,10 +40,12 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		clientIP := auth.GetIP(r)
 		if session.IP != clientIP {
 			auth.JsRespond(w, "Unauthorized - IP mismatch", http.StatusUnauthorized)
+			auth.ClearCookie(w, auth.AuthInfo.JwtTokenName)
 			return
 		}
 		if session.UserAgent != r.UserAgent() {
 			auth.JsRespond(w, "Unauthorized - User-Agent mismatch", http.StatusUnauthorized)
+			auth.ClearCookie(w, auth.AuthInfo.JwtTokenName)
 			return
 		}
 		// Put user info in context for handlers to use

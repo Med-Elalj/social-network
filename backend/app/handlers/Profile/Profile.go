@@ -55,7 +55,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		&profile.IsUser,
 		&profile.CreatedAt,
 	)
-	fmt.Println("Profile data:", profile)
 
 	// 4. Handle SQL errors
 	if err != nil {

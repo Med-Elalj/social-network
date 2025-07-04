@@ -29,9 +29,46 @@ func ProfileSettingsHandler(w http.ResponseWriter, r *http.Request) {
 		UpdatePassword(w, r, data.Sub)
 	case "delete":
 		DeleteProfile(w, r, data.Sub)
+	case "changePrivacy":
+		ChangePrivacy(w, r, data.Sub)
 	default:
 		auth.JsRespond(w, "Invalid action type", http.StatusBadRequest)
 	}
+}
+
+func ChangePrivacy(w http.ResponseWriter, r *http.Request, userID int) {
+	// Define request structure
+	var body struct {
+		Privacy bool `json:"privacy"`
+	}
+
+	// Decode JSON body
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		logs.ErrorLog.Println("JSON decode error:", err)
+		auth.JsRespond(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	// Validate input
+	if r.Body == http.NoBody {
+		auth.JsRespond(w, "Request body is required", http.StatusBadRequest)
+		return
+	}
+
+	// Update database
+	_, err := modules.DB.Exec(
+		"UPDATE profile SET is_public = ? WHERE id = ?",
+		body.Privacy,
+		userID,
+	)
+	if err != nil {
+		logs.ErrorLog.Println("Database update error:", err)
+		auth.JsRespond(w, "Failed to update privacy setting", http.StatusInternalServerError)
+		return
+	}
+	// Success response
+	auth.JsRespond(w, "Privacy setting updated", http.StatusOK)
+	logs.InfoLog.Printf("Privacy setting updated to %v for user ID: %d", body.Privacy, userID)
 }
 
 func UpdateUsername(w http.ResponseWriter, r *http.Request, userID int) {

@@ -3,3 +3,4 @@ CREATE TABLE IF NOT EXISTS user (
   "password_hash" TEXT NOT NULL,
   FOREIGN KEY (id) REFERENCES profile(id) ON DELETE CASCADE
 );
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_id ON user(id);

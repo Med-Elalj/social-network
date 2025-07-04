@@ -12,24 +12,52 @@ import Comments from "./comments.jsx";
 export default function Home() {
   const [posts, setPosts] = useState([]);
   const [openComments, setOpenComments] = useState(null);
+  const [lastPostID, setLastPostID] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const formData = {
-        start: 0,
-      };
+      if (isLoading || !hasMore) return;
+
+      setIsLoading(true);
+
+      const formData = { start: lastPostID }; // now it's lastPostID
       const response = await SendData("/api/v1/get/posts", formData);
       const Body = await response.json();
+
       if (response.status !== 200) {
         console.log(Body);
       } else {
-        setPosts(Body.posts);
-        console.log('Posts fetched successfully!');
+        const newPosts = Body.posts;
+        if (!newPosts || newPosts.length === 0) {
+          setHasMore(false);
+        } else {
+          setPosts((prev) => [...prev, ...newPosts]);
+
+          const newLastID = newPosts[newPosts.length - 1].ID;
+          setLastPostID(newLastID);
+        }
       }
+
+      setIsLoading(false);
     };
 
     fetchData();
-  }, []);
+  }, [lastPostID]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 50;
+
+      if (nearBottom && !isLoading && hasMore) {
+        fetchData();
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isLoading, hasMore]);
 
   return (
     <div className={Styles.global}>
@@ -89,7 +117,7 @@ export default function Home() {
             {/* Post Image (optional) */}
             {Post.ImagePath?.String ? (
               <Image
-                src={`${Post.ImagePath.String}`}
+                src={`/${Post.ImagePath.String}`}
                 alt="post"
                 width={250}
                 height={200}
@@ -102,7 +130,8 @@ export default function Home() {
             <section className={Styles.footer}>
               {/* TODO:add to websocket to be updated for all users */}
               <LikeDeslike
-                PostID={Post.ID}
+                EntityID={Post.ID}
+                EntityType={"post"}
                 isLiked={Post.IsLiked}
                 currentLikeCount={Post.LikeCount}
               />
@@ -115,14 +144,18 @@ export default function Home() {
               {openComments === Post.ID && (
                 <div className={Styles.commentPopup} onClick={() => setOpenComments(null)}>
                   <div onClick={e => e.stopPropagation()}>
-                    <Comments post={Post} onClose={() => setOpenComments(null)} />
+                    <Comments Post={Post} onClose={() => setOpenComments(null)} />
                   </div>
                 </div>
               )}
-
             </section>
           </div>
         ))}
+        {isLoading && (
+          <div style={{ textAlign: "center", margin: "20px" }}>
+            <p>Loading more posts...</p>
+          </div>
+        )}
       </div>
 
 

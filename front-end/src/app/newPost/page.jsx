@@ -33,6 +33,9 @@ export default function NewPost() {
       image: image ? image.name : null
     };
 
+    console.log(image);
+    
+
     const response = await SendData("/api/v1/set/Post", formData);
 
     if (response.status !== 200) {

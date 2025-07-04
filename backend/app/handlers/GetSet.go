@@ -23,6 +23,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.PathValue("type") {
 	case "posts":
 		GetPostsHandler(w, r, data.Sub)
+	case "comments":
+		GetCommentsHandler(w, r, data.Sub)
 	case "groupPosts":
 		GetPostsHandler(w, r, data.Sub)
 	case "groupMembers":

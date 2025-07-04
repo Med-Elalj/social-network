@@ -39,8 +39,6 @@ export default function Groupes() {
         e.preventDefault();
 
         const fetchData = async () => {
-            // let pr = privacy == "public" ? 1 : 0;
-
             const formData = {
                 "groupName": GroupName,
                 "privacy": privacy,

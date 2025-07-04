@@ -15,7 +15,7 @@ import (
 var DB *sql.DB
 
 func SetTables() *sql.DB {
-	db, err := sql.Open("sqlite3", "server/db/main.db")
+	db, err := sql.Open("sqlite3", "file:server/db/main.db?_busy_timeout=5000")
 	if err != nil {
 		logs.FatalLog.Fatalln("Error opening database:", err)
 	}
@@ -40,6 +40,16 @@ func SetTables() *sql.DB {
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		logs.FatalLog.Fatalln("migration failed:", err)
+	}
+
+	_, err = db.Exec("PRAGMA foreign_keys=ON;")
+	if err != nil {
+		logs.ErrorLog.Println("Failed to enable WAL mode:", err)
+	}
+
+	_, err = db.Exec("PRAGMA  journal_mode=WAL;")
+	if err != nil {
+		logs.ErrorLog.Println("Failed to enable WAL mode:", err)
 	}
 
 	logs.InfoLog.Println("✅ Database migrations applied!")

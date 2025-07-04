@@ -124,7 +124,7 @@ export function usePasswordToggle() {
 }
 
 // Like/Dislike button 
-export default function LikeDeslike({ PostID, isLiked, currentLikeCount }) {
+export default function LikeDeslike({ EntityID, EntityType,isLiked, currentLikeCount }) {
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(currentLikeCount);
@@ -135,8 +135,8 @@ export default function LikeDeslike({ PostID, isLiked, currentLikeCount }) {
     setLoading(true);
 
     const likeInfo = {
-      entity_id: PostID,
-      entity_type: "post",
+      entity_id: EntityID,
+      entity_type: EntityType,
       is_liked: liked
     };
 

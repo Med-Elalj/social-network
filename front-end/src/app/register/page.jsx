@@ -22,6 +22,7 @@ export default function Register() {
     });
     const [previewUrl, setPreviewUrl] = useState(null);
     usePasswordToggle();
+    
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === 'avatar') {

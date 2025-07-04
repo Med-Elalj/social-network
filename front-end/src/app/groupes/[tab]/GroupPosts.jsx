@@ -95,9 +95,9 @@ export default function GroupPosts() {
                     </section>
                 </div>
             )) :
-                <div>
+                <div className={Styles.noPosts}>
                     <h3>Join groups to see feeds</h3>
-                    <Link href="/groups/discover">Descover groups</Link>
+                    <Link href="/groupes/discover">Descover groups</Link>
                 </div>
             }
         </div>

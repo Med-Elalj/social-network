@@ -10,28 +10,25 @@ export default function Comments({ Post, onClose }) {
     const [content, setContent] = useState("");
     const [Comments, setComments] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const formData = {
-                post_id: Post.ID,
-                start: 0
-            };
-            const response = await SendData("/api/v1/get/comments", formData);
-
-            if (response.status !== 200) {
-                const errorBody = await response.text();
-                console.error("Error fetching comments:", errorBody);
-            } else {
-                const Body = await response.json();
-                setComments(Body.comments);
-                console.log(Body);
-                console.log('Comments fetched successfully!');
-            }
+    const fetchData = async () => {
+        const formData = {
+            post_id: Post.ID,
+            start: 0
         };
+        const response = await SendData("/api/v1/get/comments", formData);
 
-        fetchData();
-    }, [content]);
+        if (response.status !== 200) {
+            const errorBody = await response.text();
+            console.error("Error fetching comments:", errorBody);
+        } else {
+            const Body = await response.json();
+            setComments(Body.comments);
+            console.log(Body);
+            console.log('Comments fetched successfully!');
+        }
+    };
 
+    useEffect(() => { fetchData(); }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,9 +50,11 @@ export default function Comments({ Post, onClose }) {
             console.log(errorBody);
         } else {
             setContent("");
+            fetchData();
             console.log(Body.message);
         }
     };
+
     return (
         <div className={Styles.commentPopup}>
             <button className={Styles.closeBtn} onClick={onClose}>

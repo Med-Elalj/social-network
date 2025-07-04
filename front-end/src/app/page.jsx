@@ -16,39 +16,37 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (isLoading || !hasMore) return;
+  const fetchData = async () => {
+    if (isLoading || !hasMore) return;
+    setIsLoading(true);
+    console.log(isLoading, hasMore, lastPostID);
 
-      setIsLoading(true);
+    const formData = { start: lastPostID };
+    const response = await SendData("/api/v1/get/posts", formData);
+    const Body = await response.json();
 
-      const formData = { start: lastPostID }; // now it's lastPostID
-      const response = await SendData("/api/v1/get/posts", formData);
-      const Body = await response.json();
-
-      if (response.status !== 200) {
-        console.log(Body);
+    if (response.status !== 200) {
+      console.log(Body);
+    } else {
+      const newPosts = Body.posts;
+      if (!newPosts || newPosts.length === 0) {
+        setHasMore(false);
       } else {
-        const newPosts = Body.posts;
-        if (!newPosts || newPosts.length === 0) {
-          setHasMore(false);
-        } else {
-          setPosts((prev) => [...prev, ...newPosts]);
-
-          const newLastID = newPosts[newPosts.length - 1].ID;
-          setLastPostID(newLastID);
-        }
+        setPosts((prev) => [...prev, ...newPosts]);
+        const newLastID = newPosts[newPosts.length - 1].ID;
+        setLastPostID(newLastID);
       }
+    }
 
-      setIsLoading(false);
-    };
+    setIsLoading(false);
+  };
 
-    fetchData();
-  }, [lastPostID]);
+  useEffect(() => { fetchData(); }, [lastPostID]);
 
   useEffect(() => {
     const handleScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 50;
+      console.log(nearBottom && !isLoading && hasMore);
 
       if (nearBottom && !isLoading && hasMore) {
         fetchData();

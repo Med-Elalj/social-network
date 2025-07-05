@@ -13,7 +13,11 @@ export const WebSocketProvider = ({ children }) => {
 
   const [newMessage, setNewMessage] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [target, setTarget] = useState(null);
+  const target = useRef(null);
+
+  const setTarget = (newTarget) => {
+    target.current = newTarget;
+  };
 
   const connectWebSocket = () => {
     if (ws.current) ws.current.close();
@@ -29,7 +33,8 @@ export const WebSocketProvider = ({ children }) => {
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log("data received via websocket: ", data);
-      if ([data.sender, data.receiver].includes(target)) {
+      console.log("the target is: ", target.current);
+      if ([data.sender, data.receiver].includes(target.current)) {
         data.sent_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
         setNewMessage(data);
       } else {
@@ -54,7 +59,7 @@ export const WebSocketProvider = ({ children }) => {
 
     ws.current.onerror = (err) => {
       console.error("⚠️ WebSocket error:", err);
-      ws.current?.close(); 
+      ws.current?.close();
     };
   };
 
@@ -67,7 +72,7 @@ export const WebSocketProvider = ({ children }) => {
         clearTimeout(reconnectTimeout.current);
       }
     };
-  }, []); 
+  }, []);
 
   const sendMessage = (msg) => {
     if (ws.current?.readyState === WebSocket.OPEN) {
@@ -100,7 +105,6 @@ export const WebSocketProvider = ({ children }) => {
       }}
     >
       {children}
-      
     </WebSocketContext.Provider>
   );
 };

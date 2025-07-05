@@ -122,6 +122,8 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 		} else {
 			return false
 		}
+	} else {
+		sockets[uID] = connection
 	}
 	groups, err := modules.GetGroupImIn(uID)
 	if err != nil {

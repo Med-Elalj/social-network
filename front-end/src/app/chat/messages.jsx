@@ -29,7 +29,7 @@ export default function Messages({ user }) {
   const [messages, setMessages] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { newMessage } = useWebSocket();
+  const { newMessage, setTarget } = useWebSocket();
   const [page, setPage] = useState(0);
 
   const containerRef = useRef(null);
@@ -129,7 +129,6 @@ export default function Messages({ user }) {
       <h1>
         No messages found
         <br />
-        <ChatInput addMessage={setMessages} target={user} />
       </h1>
     );
   }

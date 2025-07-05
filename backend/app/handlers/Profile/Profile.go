@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	auth "social-network/app/Auth"
 	"social-network/app/Auth/jwt"
@@ -27,6 +28,7 @@ type Profile struct {
 }
 
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ProfileHandler called")
 	// 1. Extract Payload from context
 	payload, ok := r.Context().Value(auth.UserContextKey).(*jwt.JwtPayload)
 	if ok {
@@ -55,7 +57,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		&profile.IsUser,
 		&profile.CreatedAt,
 	)
-
 	// 4. Handle SQL errors
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -73,4 +74,54 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		logs.ErrorLog.Println("Error encoding JSON:", err)
 		auth.JsRespond(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+func PublicProfileHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("PublicProfileHandler called")
+	nickname := strings.TrimPrefix(r.URL.Path, "/api/v1/profile/")
+	nickname = strings.TrimSpace(nickname)
+	fmt.Printf("Public profile requested for nickname: %s\n", nickname)
+	// Basic validation
+	if nickname == "" {
+		http.Error(w, "Nickname required", http.StatusBadRequest)
+		return
+	}
+
+	// Optional: Validate format (letters, numbers, underscores only)
+	if !auth.IsValidNickname(nickname) {
+		http.Error(w, "Invalid nickname format", http.StatusBadRequest)
+		return
+	}
+
+	// Query the public profile
+	var profile Profile
+	err := modules.DB.QueryRow(`
+		SELECT email, first_name, last_name, display_name, date_of_birth, gender,
+		       avatar, description, is_public, is_user, created_at
+		FROM profile
+		WHERE display_name = ? AND is_public = 1
+	`, nickname).Scan(
+		&profile.Email,
+		&profile.FirstName,
+		&profile.LastName,
+		&profile.DisplayName,
+		&profile.DateOfBirth,
+		&profile.Gender,
+		&profile.Avatar,
+		&profile.Description,
+		&profile.IsPublic,
+		&profile.IsUser,
+		&profile.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Profile not found or is private", http.StatusNotFound)
+		} else {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(profile)
 }

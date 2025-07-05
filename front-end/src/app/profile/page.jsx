@@ -3,30 +3,74 @@
 import Style from "./profile.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Posts from "./[tab]/Posts";
 import Following from "./[tab]/Following";
 import Followers from "./[tab]/Followers";
 import Settings from "./[tab]/Settings";
 import { GetData, SendData } from "../../../utils/sendData.js";
-import { CapitalizeFirstLetter } from "../utils.jsx";
+import { CapitalizeFirstLetter, showNotification } from "../utils.jsx";
+import { useRouter } from "next/navigation";
 
+// ✅ Named sub-component
+function PrivacyToggle({ isPublic, setIsPublic }) {
+  const [loading, setLoading] = useState(false);
+
+  const handlePrivacyChange = async () => {
+    setLoading(true);
+
+    console.log("Sending:", { privacy: !isPublic });
+    const res = await SendData("/api/v1/settings/changePrivacy", {
+      privacy: !isPublic,
+    });
+
+    const result = await res.json();
+    setLoading(false);
+
+    if (res.ok) {
+      setIsPublic((prev) => !prev);
+      showNotification("Privacy setting updated successfully!",
+        "success");
+    } else {
+      showNotification(result.error, "error");
+    }
+  };
+
+  return (
+    <div className={Style.privacyToggle}>
+        <p>Your profile is {isPublic ? "Public" : "Private"}</p>
+      <label className={Style.switch}>
+        <input
+          type="checkbox"
+          checked={isPublic}
+          onChange={handlePrivacyChange}
+          disabled={loading}
+        />
+        <span className={Style.slider}></span>
+      </label>
+    </div>
+  );
+}
+
+// ✅ Main default component
 export default function Profile() {
-  const [activeTab, setActiveTab] = useState("info"); // "info" | "settings" | "connections"
-  const [activeSection, setActiveSection] = useState("posts"); // used inside connections tab
-  const [profileData, setProfileData] = useState(null); // State to hold profile data
-  const [isPublic, setIsPublic] = useState(false); // State to hold public profile status
-    const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("info");
+  const [activeSection, setActiveSection] = useState("posts");
+  const [profileData, setProfileData] = useState(null);
+  const [isPublic, setIsPublic] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await GetData("/api/v1/profile");
-        // Check if the response is OK
-    
         if (res.status === 200) {
-            const data = await res.json();
-            setProfileData(data);
+          const data = await res.json();
+          setProfileData(data);
+          // router.replace(`/profile/@${data.display_name}`);
+          if (typeof data.is_public === "boolean") {
+            setIsPublic(data.is_public);
+          }
         } else {
           console.error("Failed to fetch profile data");
         }
@@ -34,16 +78,16 @@ export default function Profile() {
         console.error("Error fetching profile data:", error);
       }
     };
-
-     fetchProfile();
+    fetchProfile();
   }, []);
-useEffect(() => {
-  if (activeTab === "settings") {
-    setActiveSection("Settings");
-  }
-}, [activeTab]);
-  return (
 
+  useEffect(() => {
+    if (activeTab === "settings") {
+      setActiveSection("Settings");
+    }
+  }, [activeTab]);
+
+  return (
     <div className={Style.container}>
       <div className={Style.header}>
         <Image src="/db.png" fill alt="cover" />
@@ -63,16 +107,7 @@ useEffect(() => {
               </div>
               <h4>@{CapitalizeFirstLetter(profileData?.display_name)}</h4>
             </div>
-            <div className="privacy-toggle">
-      <label>
-        <input
-          type="checkbox"
-        />
-        <span className="slider"></span>
-      </label>
-      <span>{isPublic ? 'Public' : 'Private'}</span>
-    </div>
-
+            <PrivacyToggle isPublic={isPublic} setIsPublic={setIsPublic} />
             <div className={Style.tabs}>
               <button onClick={() => setActiveTab("info")}>Info</button>
               <button onClick={() => setActiveTab("connections")}>
@@ -86,14 +121,18 @@ useEffect(() => {
                   <span>
                     <h5>About me:</h5>&nbsp;&nbsp;
                     <h5>
-                      {profileData?.description ? profileData?.description : "No description provided."}
+                      {profileData?.description
+                        ? profileData?.description
+                        : "No description provided."}
                     </h5>
                   </span>
                 </div>
                 <div className={Style.center}>
                   <span>
                     <h5>Full Name :</h5>&nbsp;&nbsp;
-                    <h5>{profileData?.first_name} {profileData?.last_name}</h5>
+                    <h5>
+                      {profileData?.first_name} {profileData?.last_name}
+                    </h5>
                   </span>
                   <span>
                     <h5>Email :</h5>&nbsp;&nbsp;
@@ -101,7 +140,12 @@ useEffect(() => {
                   </span>
                   <span>
                     <h5>Age :</h5>&nbsp;&nbsp;
-                    <h5>{(new Date().getFullYear() - new Date(profileData?.date_of_birth).getFullYear()).toString()}</h5>
+                    <h5>
+                      {(
+                        new Date().getFullYear() -
+                        new Date(profileData?.date_of_birth).getFullYear()
+                      ).toString()}
+                    </h5>
                   </span>
                   <span>
                     <h5>Birthdate :</h5>&nbsp;&nbsp;
@@ -110,11 +154,10 @@ useEffect(() => {
                 </div>
               </>
             )}
-            
+
             {activeTab === "settings" && (
-                <>
-                  <span onClick={() => setActiveSection("Settings")}>
-                  </span>
+              <>
+                <span onClick={() => setActiveSection("Settings")}></span>
               </>
             )}
 
@@ -142,13 +185,14 @@ useEffect(() => {
         </div>
 
         <div className={Style.second}>
+          {activeSection === "Settings" && <Settings />}
+          
           {activeSection === "posts" && <Posts />}
 
           {activeSection === "followers" && <Followers />}
 
           {activeSection === "following" && <Following />}
 
-          {activeSection === "Settings" && <Settings />}
         </div>
 
         <div className={Style.end}>

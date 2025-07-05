@@ -16,7 +16,7 @@ export default function Home() {
       };
       const response = await SendData("/api/v1/get/posts", formData);
       const Body = await response.json();
-      if (response.status !== 200) {
+      if (!response.ok) {
         console.log(Body);
       } else {
         setPosts(Body.posts);

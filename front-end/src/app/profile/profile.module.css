@@ -1,4 +1,10 @@
-.container {
+.tabs button:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}.container {
     margin-top: 60px;
     display: flex;
     flex-direction: column;
@@ -36,6 +42,12 @@
     flex-direction: column;
     padding: 1vw;
     color: var(--secondary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.ProfileInfo:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .ProfileInfo .top {
@@ -47,6 +59,94 @@
 
 .ProfileInfo .top img {
     border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+/* Profile image container improvements */
+.ProfileInfo .top > div {
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--primary-color);
+    box-shadow: 0 4px 16px rgba(0, 123, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.ProfileInfo .top > div:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 123, 255, 0.3);
+}
+
+.ProfileInfo .top h4 {
+    margin: 15px 0 10px 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Enhanced suggestion section */
+.requists h3 {
+    margin: 0 0 15px 0;
+    padding: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    text-align: center;
+}
+
+/* Enhanced user items in suggestions */
+.requists > div {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    padding: 12px 1vw;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.requists > div:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--primary-color);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.requists > div > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.requists > div img {
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+.requists > div:hover img {
+    transform: scale(1.05);
+}
+
+.requists > div h5 {
+    margin: 0;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Link styling improvements */
+.requists a {
+    display: flex;
+    align-items: center;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.requists a:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    transform: scale(1.1);
 }
 
 .center>span {
@@ -65,12 +165,20 @@
     border-radius: 10px;
     font-size: large;
     cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 .ProfileInfo>button:hover {
     background-color: var(--hover-color);
     border: 1px solid var(--hover-color);
-    color: var(--secondary-color)
+    color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ProfileInfo>button:active {
+    transform: translateY(0);
 }
 
 .ProfileInfo>button:last-child:hover {
@@ -80,6 +188,7 @@
 .numbers {
     display: flex;
     justify-content: space-evenly;
+    margin: 1vh 0;
 }
 
 .numbers>span {
@@ -87,14 +196,16 @@
     flex-direction: column;
     align-items: center;
     cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
-.numbers>span:hover,
 .numbers>span:hover {
     background-color: var(--primary-color);
-    border-radius: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
 .numbers>span>h5 {
@@ -114,10 +225,17 @@
     background-color: var(--border-color);
     margin: 0 auto;
     padding: 0 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
     color: var(--secondary-color);
     margin-right: 10%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.post:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
 }
 
 .userinfo {
@@ -140,10 +258,16 @@
 .user img,
 .user> :first-child {
     flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.user img:hover {
+    transform: scale(1.1);
 }
 
 .user p:first-child {
     margin: 0;
+    font-weight: 500;
 }
 
 .user p:last-child {
@@ -155,6 +279,7 @@
 
 .texts p {
     margin: 0;
+    line-height: 1.5;
 }
 
 .texts p+p {
@@ -169,6 +294,7 @@
 
 .content {
     margin: 20px 0;
+    line-height: 1.6;
 }
 
 .footer {
@@ -180,12 +306,25 @@
 .footer>.action>img {
     cursor: pointer;
     margin-right: 5px;
+    transition: all 0.3s ease;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.footer>.action>img:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    transform: scale(1.1);
 }
 
 .footer .action {
     margin-left: 10px;
     display: flex;
     align-items: center;
+    transition: all 0.3s ease;
+}
+
+.footer .action:hover {
+    color: var(--primary-color);
 }
 
 .end {
@@ -201,8 +340,14 @@
     color: var(--secondary-color);
     width: 60%;
     height: auto;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 1vh;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.requists:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .requists>div {
@@ -211,17 +356,33 @@
     align-items: center;
     margin-bottom: 10px;
     justify-content: space-between;
-    padding: 0 1vw;
+    padding: 8px 1vw;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.requists>div:hover {
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid var(--third-color);
+    transform: translateX(4px);
 }
 
 .followList {
     background-color: var(--border-color);
-    border-radius: 10px;
+    border-radius: 12px;
     width: 80%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.followList:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .followList h1 {
     margin-left: 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
 .NewUser {
@@ -232,14 +393,27 @@
     align-items: center;
     margin: 20px 50px;
     justify-content: space-between;
-    padding: 0 1vw;
+    padding: 12px 1vw;
     width: 80%;
+    transition: all 0.3s ease;
+}
+
+.NewUser:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .requists>div a,
 .NewUser a {
     color: var(--third-color);
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.requists>div a:hover,
+.NewUser a:hover {
+    color: var(--primary-color);
 }
 
 .requists>div>div,
@@ -249,22 +423,220 @@
     gap: 1vw;
 }
 
-.requists>div:hover {
-    background-color: var(--border-color);
-    border-radius: 10px;
-    opacity: 0.7;
-    border: 1px solid var(--third-color);
-}
-
 .aboutMe {
-    /* display: flex; */
-    /* flex-direction: column; */
     align-items: center;
-    /* justify-content: center; */
     padding: 20px;
     background-color: var(--border-color);
-    border-radius: 10px;
+    border-radius: 12px;
     width: 80%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+    line-height: 1.6;
+}
+
+.aboutMe:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 15px 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.tabs button {
+    padding: 10px 18px;
+    background: none;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.tabs button.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Center content styling */
+.center {
+    margin: 15px 0;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.center > span {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.center > span > h5:first-child {
+    color: var(--primary-color);
+    font-weight: 600;
+    min-width: 120px;
+}
+
+.center > span > h5:last-child {
+    color: var(--secondary-color);
+    font-weight: 400;
+}
+
+/* Buttons container for actions */
+.Buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.Buttons a {
+    display: flex;
+    align-items: center;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.Buttons a:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.Buttons img {
+    transition: transform 0.3s ease;
+}
+
+.Buttons a:hover img {
+    transform: scale(1.1);
+}
+
+.button {
+    padding: 12px 18px;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.button:hover {
+    background-color: #eaeaea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.button:active {
+    transform: translateY(0);
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.button:active,
+.button.settingsActive {
+    background-color: var(--third-color);
+    color: var(--secondary-color);
+    border-color: var(--third-color);
+}
+
+.privacy-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    align-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+.privacy-label {
+    font-size: 0.95rem;
+    color: #444;
+    font-weight: 500;
+}
+
+.message {
+    font-size: 0.85rem;
+    color: green;
+    font-weight: 500;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4caf50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
 }
 
 @media (max-width: 1024px) {
@@ -324,72 +696,4 @@
         flex-direction: column;
         align-items: center;
     }
-
-}
-
-/* Tabs */
-.tabs {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 15px 0;
-}
-
-.tabs button {
-  padding: 8px 16px;
-  background: none;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tabs button:hover, .tabs button.active {
-  background-color: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-}
-
-.button {
-  padding: 10px 16px;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.button:hover {
-  background-color: #eaeaea;
-}
-
-.inputWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 15px; /* Add some spacing between inputs */
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-.input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-}/* Minimal additions to profile.module.css */
-
-/* Active button state for settings */
-.button:active,
-.button.settingsActive {
-  background-color: var(--third-color);
-  color: var(--secondary-color);
-  border-color: var(--third-color);
 }

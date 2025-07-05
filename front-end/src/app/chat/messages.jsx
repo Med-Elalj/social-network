@@ -2,7 +2,6 @@
 
 import { useWebSocket } from "../context/WebSocketContext";
 import Style from "./chat.module.css";
-import ChatInput from "./input";
 import Time from "./time";
 import { useEffect, useRef, useState } from "react";
 
@@ -29,7 +28,7 @@ export default function Messages({ user }) {
   const [messages, setMessages] = useState([]);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { newMessage, setTarget } = useWebSocket();
+  const { newMessage } = useWebSocket();
   const [page, setPage] = useState(0);
 
   const containerRef = useRef(null);

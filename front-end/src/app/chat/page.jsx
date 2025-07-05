@@ -6,108 +6,115 @@ import Image from "next/image";
 import { useEffect } from "react";
 import Users from "./[tab]/Users";
 import Groups from "./[tab]/Groups";
-import Messages from "./messages.jsx"
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
+import Messages from "./messages.jsx";
+import ChatInput from "./input.jsx";
+import { useWebSocket } from "../context/WebSocketContext.jsx";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
 
 export default function Chat() {
-    const [activeTab, setActiveTab] = useState("all");
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [image, setImage] = useState(null);
-    // const [previewUrl, setPreviewUrl] = useState(null);
-    const [content, setContent] = useState("");
-    const [personalDiscussions, setPersonalDiscussions] = useState([]);
-    const [groupDiscussions, setGroupDiscussions] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [image, setImage] = useState(null);
+  // const [previewUrl, setPreviewUrl] = useState(null);
+  const [content, setContent] = useState("");
+  const [newMessage, setNewMessage] = useState(null)
+  const [personalDiscussions, setPersonalDiscussions] = useState([]);
+  const [groupDiscussions, setGroupDiscussions] = useState([]);
+  const {setTarget}=useWebSocket()
 
-    GetUsers(setPersonalDiscussions, setGroupDiscussions)
+  GetUsers(setPersonalDiscussions, setGroupDiscussions);
 
+  useEffect(() => {
+    if (selectedUser) setTarget(selectedUser.id);
 
-    useEffect(() => {
-        if (selectedUser) console.log("second console of click", selectedUser)
+    setContent("");
+    setImage(null);
+    // setPreviewUrl(null);
+  }, [selectedUser]);
 
-        setContent("");
-        setImage(null);
-        // setPreviewUrl(null);
-    }, [selectedUser]);
+  const handleTabClick = (selectedTab) => {
+    console.log("selected tab: ",selectedTab);
+    setActiveTab(selectedTab);
+  };
 
+  const handleMediaChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      // setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
 
-    const handleTabClick = (selectedTab) => {
-        console.log(selectedTab)
-        setActiveTab(selectedTab);
-    };
+  return (
+    <div className={Style.container}>
+      <div className={Style.first}>
+        <div className={Style.header}>
+          <h1>Chats</h1>
+          <Image
+            src="/newMessage.svg"
+            width={25}
+            height={25}
+            alt="newMessage"
+          />
+        </div>
 
-    const handleMediaChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImage(file);
-            // setPreviewUrl(URL.createObjectURL(file));
-        }
-    };
+        <div className={Style.select}>
+          <Tab
+            name="all"
+            icon="messages"
+            activeTab={activeTab}
+            onClick={handleTabClick}
+          />
+          <Tab
+            name="groups"
+            icon="groupe"
+            activeTab={activeTab}
+            onClick={handleTabClick}
+          />
+        </div>
 
-    const handleSend = async (e) => {
+        {{
+          all: (
+            <Users users={personalDiscussions} onUserSelect={setSelectedUser} />
+          ),
+          groups: (
+            <Groups groups={groupDiscussions} onUserSelect={setSelectedUser} />
+          ),
+        }[activeTab] || <p>Invalid tab</p>}
+      </div>
 
-        console.log(image);
-        console.log(content);
-
-    };
-
-    return (
-        <div className={Style.container}>
-            <div className={Style.first}>
-                <div className={Style.header}>
-                    <h1>Chats</h1>
-                    <Image src="/newMessage.svg" width={25} height={25} alt="newMessage" />
+      <div className={Style.second}>
+        <div className={Style.chat}>
+          {selectedUser ? (
+            <>
+              <div className={Style.top}>
+                <Image
+                  src={`/${selectedUser.avatar ?? "iconMale.png"}`}
+                  width={50}
+                  height={50}
+                  alt="userProfile"
+                />
+                <div className={Style.userInfo}>
+                  <h5>{selectedUser.name}</h5>
+                  <h6
+                    style={{
+                      color: selectedUser.status === "online" ? "green" : "red",
+                    }}
+                  >
+                    {selectedUser.status}
+                  </h6>
                 </div>
+              </div>
 
-                <div className={Style.select}>
-                    <Tab name="all" icon="messages" activeTab={activeTab} onClick={handleTabClick} />
-                    <Tab name="groups" icon="groupe" activeTab={activeTab} onClick={handleTabClick} />
-                </div>
+              <div className={Style.body}>
+                <Messages user={selectedUser}/>
+              </div>
 
-                {{
-                    all: <Users users={personalDiscussions} onUserSelect={setSelectedUser} />,
-                    groups: <Groups groups={groupDiscussions} onUserSelect={setSelectedUser} />
-                }[activeTab] || <p>Invalid tab</p>}
-            </div>
+              <div className={Style.bottom}>
 
-            <div className={Style.second}>
-                <div className={Style.chat}>
-                    {selectedUser ? (
-                        <>
-                            <div className={Style.top}>
-                                <Image src={`/${selectedUser.avatar ?? "iconMale.png"}`} width={50} height={50} alt="userProfile" />
-                                <div className={Style.userInfo}>
-                                    <h5>{selectedUser.name}</h5>
-                                    <h6
-                                        style={{
-                                            color: selectedUser.status === "online" ? "green" : "red",
-                                        }}
-                                    >
-                                        {selectedUser.status}
-                                    </h6>
 
-                                </div>
-                            </div>
-
-                            <div className={Style.body}>
-                                <Messages user={selectedUser} />
-                            </div>
-
-                            <div className={Style.bottom}>
-                                <div>
-                                    <label htmlFor="media" style={{ cursor: "pointer" }}>
-                                        <Image src="upload.svg" width={25} height={25} alt="upload" />
-                                    </label>
-                                    <input
-                                        type="file"
-                                        name="media"
-                                        style={{ display: "none" }}
-                                        id="media"
-                                        accept="image/*,video/*"
-                                        onChange={handleMediaChange}
-                                    />
-                                </div>
-
-                                <input type="text" name="message" id="message" value={content} onChange={(e) => setContent(e.target.value)} />
+                {/* <input type="text" name="message" id="message" value={content} onChange={(e) => setContent(e.target.value)} />
 
                                 <Image
                                     src="send.svg"
@@ -116,68 +123,69 @@ export default function Chat() {
                                     alt="send"
                                     onClick={handleSend}
                                     style={{ cursor: "pointer", marginRight: "6%" }}
-                                />
-                            </div>
-
-                        </>
-                    ) : (
-                        <div className={Style.emptyChat}>
-                            {activeTab == "groups"
-                                ?
-                                <h1>Select a group to start chat</h1>
-                                :
-                                <h1>Select a user to start chat</h1>
-                            }
-                        </div>
-                    )}
-                </div>
+                                /> */}
+                <ChatInput target={selectedUser.id} />
+              </div>
+            </>
+          ) : (
+            <div className={Style.emptyChat}>
+              {activeTab == "groups" ? (
+                <h1>Select a group to start chat</h1>
+              ) : (
+                <h1>Select a user to start chat</h1>
+              )}
             </div>
+          )}
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 function Tab({ name, icon, activeTab, onClick }) {
-    return (
-        <div
-            className={`${Style.tab} ${activeTab === name ? Style.active : ""}`}
-            onClick={() => onClick(name)}
-        >
-            <Image src={`/${icon}.svg`} alt={name} width={25} height={25} />
-            <p>{name}</p>
-        </div>
-    );
+  return (
+    <div
+      className={`${Style.tab} ${activeTab === name ? Style.active : ""}`}
+      onClick={() => onClick(name)}
+    >
+      <Image src={`/${icon}.svg`} alt={name} width={25} height={25} />
+      <p>{name}</p>
+    </div>
+  );
 }
 
 function GetUsers(setPersonalDiscussions, setGroupDiscussions) {
+  useEffect(() => {
+    console.log("Resolved backend URL:", BACKEND_URL);
+    const fetchConversations = async () => {
+      try {
+        const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
-    useEffect(() => {
-        console.log("Resolved backend URL:", BACKEND_URL);
-        const fetchConversations = async () => {
-            try {
-                const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+        const data = await response.json();
+        // Filter data by profile.isgroup
+        const personal = (data || []).filter(
+          (profile) => profile.is_group === false
+        );
+        const groups = (data || []).filter(
+          (profile) => profile.is_group === true
+        );
+        setPersonalDiscussions(personal);
+        setGroupDiscussions(groups);
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      }
+    };
 
-                const data = await response.json();
-                console.log("Conversations:", data);
-                // Filter data by profile.isgroup
-                const personal = (data || []).filter(profile => profile.is_group === false);
-                const groups = (data || []).filter(profile => profile.is_group === true);
-                setPersonalDiscussions(personal);
-                setGroupDiscussions(groups);
-            } catch (error) {
-                console.error("Error fetching conversations:", error);
-            }
-        };
-
-        fetchConversations();
-    }, []);
+    fetchConversations();
+  }, []);
 }

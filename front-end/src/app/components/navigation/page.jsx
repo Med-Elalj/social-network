@@ -9,6 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Styles from "./nav.module.css";
 import { refreshAccessToken } from "./auth.jsx"; // Adjust the import path as neededq
+import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 
 const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
@@ -17,6 +18,7 @@ export default function Routing() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const pathname = usePathname();
   const router = useRouter();
+  const { closeWebSocket, isConnected } = useWebSocket();
 
   useEffect(() => {
     const fetchAuthStatus = async () => {
@@ -166,6 +168,7 @@ export default function Routing() {
                       <button
                         onClick={async () => {
                           await LogoutAndRedirect(router);
+                          if (isConnected) closeWebSocket();
                           setIsOpen(false);
                           setIsLoggedIn(false);
                         }}

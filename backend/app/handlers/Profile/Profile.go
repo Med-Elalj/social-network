@@ -77,9 +77,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func PublicProfileHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("PublicProfileHandler called")
-	nickname := strings.TrimPrefix(r.URL.Path, "/api/v1/profile/")
-	nickname = strings.TrimSpace(nickname)
+	nickname := strings.TrimSpace(r.PathValue("name"))
 	fmt.Printf("Public profile requested for nickname: %s\n", nickname)
 	// Basic validation
 	if nickname == "" {
@@ -87,19 +85,19 @@ func PublicProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Optional: Validate format (letters, numbers, underscores only)
-	if !auth.IsValidNickname(nickname) {
-		http.Error(w, "Invalid nickname format", http.StatusBadRequest)
+	// Check if nickname exists in the database
+	exists := auth.NicknameExists(nickname)
+	if !exists {
+		auth.JsRespond(w, "Nickname does not exist", http.StatusNotFound)
 		return
 	}
-
 	// Query the public profile
 	var profile Profile
 	err := modules.DB.QueryRow(`
 		SELECT email, first_name, last_name, display_name, date_of_birth, gender,
 		       avatar, description, is_public, is_user, created_at
 		FROM profile
-		WHERE display_name = ? AND is_public = 1
+		WHERE LOWER(display_name) = LOWER(?) 
 	`, nickname).Scan(
 		&profile.Email,
 		&profile.FirstName,
@@ -113,6 +111,13 @@ func PublicProfileHandler(w http.ResponseWriter, r *http.Request) {
 		&profile.IsUser,
 		&profile.CreatedAt,
 	)
+	if profile.IsUser && !profile.IsPublic {
+		profile.Email = ""
+		profile.FirstName = ""
+		profile.LastName = ""
+		profile.DateOfBirth = ""
+		profile.Gender = ""
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			http.Error(w, "Profile not found or is private", http.StatusNotFound)

@@ -10,7 +10,6 @@ import Followers from "./[tab]/Followers";
 import Settings from "./[tab]/Settings";
 import { GetData, SendData } from "../../../utils/sendData.js";
 import { CapitalizeFirstLetter, showNotification } from "../utils.jsx";
-import { useRouter } from "next/navigation";
 
 // ✅ Named sub-component
 function PrivacyToggle({ isPublic, setIsPublic }) {
@@ -29,8 +28,7 @@ function PrivacyToggle({ isPublic, setIsPublic }) {
 
     if (res.ok) {
       setIsPublic((prev) => !prev);
-      showNotification("Privacy setting updated successfully!",
-        "success");
+      showNotification("Privacy setting updated successfully!", "success");
     } else {
       showNotification(result.error, "error");
     }
@@ -38,7 +36,7 @@ function PrivacyToggle({ isPublic, setIsPublic }) {
 
   return (
     <div className={Style.privacyToggle}>
-        <p>Your profile is {isPublic ? "Public" : "Private"}</p>
+      <p>Your profile is {isPublic ? "Public" : "Private"}</p>
       <label className={Style.switch}>
         <input
           type="checkbox"
@@ -58,7 +56,6 @@ export default function Profile() {
   const [activeSection, setActiveSection] = useState("posts");
   const [profileData, setProfileData] = useState(null);
   const [isPublic, setIsPublic] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -67,7 +64,6 @@ export default function Profile() {
         if (res.status === 200) {
           const data = await res.json();
           setProfileData(data);
-          // router.replace(`/profile/@${data.display_name}`);
           if (typeof data.is_public === "boolean") {
             setIsPublic(data.is_public);
           }
@@ -186,13 +182,12 @@ export default function Profile() {
 
         <div className={Style.second}>
           {activeSection === "Settings" && <Settings />}
-          
+
           {activeSection === "posts" && <Posts />}
 
           {activeSection === "followers" && <Followers />}
 
           {activeSection === "following" && <Following />}
-
         </div>
 
         <div className={Style.end}>

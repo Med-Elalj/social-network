@@ -57,7 +57,7 @@ export default function Routing() {
     "/groupes",
     "/chat",
     "/profile",
-    "/api/v1/profile"
+    "/profile/[nickname]",
   ];
 
   useEffect(() => {
@@ -76,15 +76,18 @@ export default function Routing() {
     }
   }, [isLoggedIn, pathname]);
 
-  useEffect(() => {
-    console.log("🔄 Setting up token refresh interval...");
+useEffect(() => {
+  if (!isLoggedIn) return;
 
-    const interval = setInterval(() => {
-      refreshAccessToken();
-    }, RefreshFrequency);
+  console.log("🔄 Setting up token refresh interval...");
 
-    return () => clearInterval(interval);
-  }, []);
+  const interval = setInterval(() => {
+    refreshAccessToken();
+  }, RefreshFrequency);
+
+  return () => clearInterval(interval);
+}, [isLoggedIn]);
+
 
   return (
     <div>

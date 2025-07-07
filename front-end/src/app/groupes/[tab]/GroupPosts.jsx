@@ -1,9 +1,11 @@
 "use client"
 
 import Image from "next/image";
-import Styles from "../../global.module.css";
+import Link from 'next/link';
+import Styles from "../groups.module.css";
 import { useState, useEffect } from "react";
 import { GetData } from "../../../../utils/sendData.js";
+import LikeDeslike from "../../utils.jsx";
 
 export default function GroupPosts() {
     const [posts, setPosts] = useState([]);
@@ -26,7 +28,7 @@ export default function GroupPosts() {
 
     return (
         <div>
-            {posts && posts.map((Post, i) => (
+            {posts ? posts.map((Post, i) => (
                 <div key={i} className={Styles.post} >
                     <section className={Styles.userinfo}>
                         <div className={Styles.user}>
@@ -69,7 +71,7 @@ export default function GroupPosts() {
 
                     {Post.ImagePath?.String && (
                         <Image
-                            src={`/db.png`}
+                            src={`/${Post.ImagePath.String}`}
                             alt="post image"
                             width={250}
                             height={200}
@@ -79,17 +81,25 @@ export default function GroupPosts() {
                     )}
 
                     <section className={Styles.footer}>
-                        <div className={Styles.action}>
-                            <Image src="/Like2.svg" alt="like" width={20} height={20} />
-                            <p>{Post.LikeCount ?? 0}</p>
-                        </div>
+                        {/* TODO:add to websocket to be updated for all users */}
+                        <LikeDeslike
+                            PostID={Post.ID}
+                            isLiked={Post.IsLiked}
+                            currentLikeCount={Post.LikeCount}
+                        />
+
                         <div className={Styles.action}>
                             <Image src="/comment.svg" alt="comment" width={20} height={20} />
                             <p>{Post.CommentCount ?? 0}</p>
                         </div>
                     </section>
                 </div>
-            ))}
+            )) :
+                <div className={Styles.noPosts}>
+                    <h3>Join groups to see feeds</h3>
+                    <Link href="/groupes/discover">Descover groups</Link>
+                </div>
+            }
         </div>
     );
 }

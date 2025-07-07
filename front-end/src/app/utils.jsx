@@ -1,22 +1,31 @@
 "use client";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { SendData } from "../../utils/sendData.js";
 
 // Notifications
 let notificationCooldown = false;
 function playSound(name) {
-    if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return;
 
-    const sounds = {
-        alert: new Audio("/sounds/alert.mp3"),
-        notification: new Audio("/sounds/notification.mp3"),
-    };
+  const sounds = {
+    alert: new Audio("/sounds/alert.mp3"),
+    notification: new Audio("/sounds/notification.mp3"),
+  };
 
-    const sound = sounds[name];
-    if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch((e) => console.warn("Playback failed:", e));
-    }
+  const sound = sounds[name];
+  if (sound) {
+    sound.currentTime = 0;
+    sound.play().catch((e) => console.warn("Playback failed:", e));
+  }
 }
 //todo: reduce body opacity a little when using notification
+
+export const CapitalizeFirstLetter = (str) => {
+  if (typeof str !== "string") return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function showNotification(
   message,
   type = "success",
@@ -94,8 +103,7 @@ export function showNotification(
   }
 }
 
-import { useEffect } from "react";
-
+// Password toggle
 export function usePasswordToggle() {
   useEffect(() => {
     const handleClick = (event) => {
@@ -119,4 +127,57 @@ export function usePasswordToggle() {
     document.addEventListener("click", handleClick);
     return () => document.removeEventListener("click", handleClick);
   }, []);
+}
+
+// Like/Dislike button 
+export default function LikeDeslike({ EntityID, EntityType,isLiked, currentLikeCount }) {
+  const [loading, setLoading] = useState(false);
+  const [liked, setLiked] = useState(isLiked);
+  const [likeCount, setLikeCount] = useState(currentLikeCount);
+
+  const handleLikeDeslike = async () => {
+    if (loading) return;
+
+    setLoading(true);
+
+    const likeInfo = {
+      entity_id: EntityID,
+      entity_type: EntityType,
+      is_liked: liked
+    };
+
+    try {
+      setLiked(!liked);
+      setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+
+      const response = await SendData("/api/v1/set/like", likeInfo);
+      const body = await response.json();
+
+      if (response.status === 200) {
+        console.log('Like/Dislike processed successfully!');
+      } else {
+        console.log(body);
+        setLiked(liked);
+        setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+      }
+    } catch (error) {
+      console.error("Error while processing like/dislike:", error);
+      setLiked(liked);
+      setLikeCount(liked ? likeCount - 1 : likeCount + 1);
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div onClick={handleLikeDeslike} style={{ cursor: "pointer",marginRight:"10px",display:"flex",alignItems:"center" }}>
+      <Image
+        src={liked ? "/Like.svg" : "/Like2.svg"}
+        alt={liked ? "liked" : "like"}
+        width={20}
+        height={20}
+      />
+      <p style={{ marginLeft: "5px" }}>{likeCount}</p>
+    </div>
+  );
 }

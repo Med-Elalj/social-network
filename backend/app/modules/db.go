@@ -18,12 +18,16 @@ import (
 var DB *sql.DB
 
 func SetTables() *sql.DB {
-	db, err := sql.Open("sqlite3", "server/db/main.db")
+	db, err := sql.Open("sqlite3", "file:server/db/main.db?_busy_timeout=5000")
 	if err != nil {
 		fmt.Println(err)
 		logs.FatalLog.Fatalln("Error opening database:", err)
 	}
-
+	// Set the database to use foreign keys
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		logs.FatalLog.Fatalln("Failed to enable foreign keys:", err)
+	}
 	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
 	if err != nil {
 		fmt.Println(err)
@@ -63,6 +67,26 @@ func SetTables() *sql.DB {
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		fmt.Println(err)
 		logs.FatalLog.Fatalln("migration failed:", err)
+	}
+
+	_, err = db.Exec("PRAGMA foreign_keys=ON;")
+	if err != nil {
+		logs.ErrorLog.Println("Failed to enable WAL mode:", err)
+	}
+
+	_, err = db.Exec("PRAGMA  journal_mode=WAL;")
+	if err != nil {
+		logs.ErrorLog.Println("Failed to enable WAL mode:", err)
+	}
+
+	_, err = db.Exec("PRAGMA foreign_keys=ON;")
+	if err != nil {
+		logs.ErrorLog.Println("Failed to enable WAL mode:", err)
+	}
+
+	_, err = db.Exec("PRAGMA  journal_mode=WAL;")
+	if err != nil {
+		logs.ErrorLog.Println("Failed to enable WAL mode:", err)
 	}
 
 	fmt.Println("✅ migration applied!")

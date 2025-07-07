@@ -24,6 +24,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.PathValue("type") {
 	case "posts":
 		GetPostsHandler(w, r, data.Sub)
+	case "comments":
+		GetCommentsHandler(w, r, data.Sub)
 	case "groupPosts":
 		GetPostsHandler(w, r, data.Sub)
 	case "groupMembers":
@@ -95,6 +97,10 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 		FollowersLeave(w, r, data.Sub)
 	case "acceptFollow":
 		FollowersAccept(w, r, data.Sub)
+	case "like":
+		LikeDislike(w, r, data.Sub)
+	case "comment":
+		CreateComment(w, r, data.Sub)
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, `{"error": "page not found"}`)

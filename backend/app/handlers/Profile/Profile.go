@@ -1,0 +1,132 @@
+package handlers
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+
+	auth "social-network/app/Auth"
+	"social-network/app/Auth/jwt"
+	"social-network/app/modules"
+	"social-network/server/logs"
+)
+
+type Profile struct {
+	Email       string         `json:"email"`
+	FirstName   string         `json:"first_name"`
+	LastName    string         `json:"last_name"`
+	DisplayName string         `json:"display_name"`
+	DateOfBirth string         `json:"date_of_birth,omitempty"`
+	Gender      string         `json:"gender"`
+	Avatar      sql.NullString `json:"avatar"`
+	Description string         `json:"description"`
+	IsPublic    bool           `json:"is_public"`
+	IsUser      bool           `json:"is_user"`
+	CreatedAt   string         `json:"created_at"`
+}
+
+func ProfileHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ProfileHandler called")
+	// 1. Extract Payload from context
+	payload, ok := r.Context().Value(auth.UserContextKey).(*jwt.JwtPayload)
+	if ok {
+		fmt.Printf("User ID: %d, Username: %s\n", payload.Sub, payload.Username)
+	}
+	uid := payload.Sub
+
+	// 2. Prepare a Profile struct to hold data
+	profile := &Profile{}
+
+	// 3. Query the database
+	err := modules.DB.QueryRow(`
+		SELECT email, first_name, last_name, display_name, date_of_birth, gender,
+		       avatar, description, is_public, is_user, created_at
+		FROM profile WHERE id = ?
+	`, uid).Scan(
+		&profile.Email,
+		&profile.FirstName,
+		&profile.LastName,
+		&profile.DisplayName,
+		&profile.DateOfBirth,
+		&profile.Gender,
+		&profile.Avatar,
+		&profile.Description,
+		&profile.IsPublic,
+		&profile.IsUser,
+		&profile.CreatedAt,
+	)
+	// 4. Handle SQL errors
+	if err != nil {
+		if err == sql.ErrNoRows {
+			auth.JsRespond(w, "Profile not found", http.StatusNotFound)
+		} else {
+			logs.ErrorLog.Println("DB error:", err)
+			auth.JsRespond(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// 5. Encode result as JSON
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(profile); err != nil {
+		logs.ErrorLog.Println("Error encoding JSON:", err)
+		auth.JsRespond(w, "Internal Server Error", http.StatusInternalServerError)
+	}
+}
+
+func PublicProfileHandler(w http.ResponseWriter, r *http.Request) {
+	nickname := strings.TrimSpace(r.PathValue("name"))
+	fmt.Printf("Public profile requested for nickname: %s\n", nickname)
+	// Basic validation
+	if nickname == "" {
+		http.Error(w, "Nickname required", http.StatusBadRequest)
+		return
+	}
+
+	// Check if nickname exists in the database
+	exists := auth.NicknameExists(nickname)
+	if !exists {
+		auth.JsRespond(w, "Nickname does not exist", http.StatusNotFound)
+		return
+	}
+	// Query the public profile
+	var profile Profile
+	err := modules.DB.QueryRow(`
+		SELECT email, first_name, last_name, display_name, date_of_birth, gender,
+		       avatar, description, is_public, is_user, created_at
+		FROM profile
+		WHERE LOWER(display_name) = LOWER(?) 
+	`, nickname).Scan(
+		&profile.Email,
+		&profile.FirstName,
+		&profile.LastName,
+		&profile.DisplayName,
+		&profile.DateOfBirth,
+		&profile.Gender,
+		&profile.Avatar,
+		&profile.Description,
+		&profile.IsPublic,
+		&profile.IsUser,
+		&profile.CreatedAt,
+	)
+	if profile.IsUser && !profile.IsPublic {
+		profile.Email = ""
+		profile.FirstName = ""
+		profile.LastName = ""
+		profile.DateOfBirth = ""
+		profile.Gender = ""
+	}
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Profile not found or is private", http.StatusNotFound)
+		} else {
+			http.Error(w, "Database error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(profile)
+}

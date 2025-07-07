@@ -3,20 +3,67 @@ package auth
 import (
 	"database/sql"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	"social-network/app/modules"
 )
+
+func GenerateNickname(firstName, lastName string) string {
+	firstName = strings.ToLower(firstName)
+	lastName = strings.ToLower(lastName)
+
+	if len(firstName) == 0 || len(lastName) == 0 {
+		return ""
+	}
+
+	// Try with increasing portions of firstName
+	for i := 1; i <= len(firstName); i++ {
+		nickname := firstName[:i] + lastName
+		if !NicknameExists(nickname) {
+			return nickname
+		}
+	}
+
+	// Fallback: add number suffix
+	for suffix := 1; suffix <= 9999; suffix++ {
+		nickname := firstName + lastName + strconv.Itoa(suffix)
+		if !NicknameExists(nickname) {
+			return nickname
+		}
+	}
+
+	return ""
+}
+
+func NicknameExists(nickname string) bool {
+	_, exists := EntryExists("display_name", nickname, "profile", true)
+	return exists
+}
+
+func IsValidNickname(nickname string) bool {
+	if len(nickname) < 3 || len(nickname) > 13 {
+		return false
+	}
+	if !regexp.MustCompile(`^[a-zA-Z_]{3,30}$`).MatchString(nickname) {
+		return false
+	}
+	if strings.Contains(nickname, " ") {
+		return false
+	}
+	return true
+}
 
 // Validate register form
 func (r Register) ValidateRegister() []string {
 	var errors []string
 	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+\-]{3,}@[a-zA-Z0-9.\-]{3,}\.[a-zA-Z]{2,}$`)
-	nameRegex := regexp.MustCompile(`^[a-zA-Z_]{3,30}$`)
 	layout := "2006-01-02"
 
 	// Username
-	if len(r.UserName) < 3 || len(r.UserName) > 13 || !nameRegex.MatchString(string(r.UserName)) {
+	if !IsValidNickname(r.UserName) {
 		errors = append(errors, "Username must be 3-13 characters and use letters or underscores.")
 	}
 
@@ -83,7 +130,21 @@ func InsertUser(user Register) (int64, error) {
 		about = sql.NullString{String: string(user.About), Valid: true}
 	}
 
-	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description, is_user) VALUES (?,?,?, 1)`, user.UserName, avatar, about)
+	// Insert into profile table
+	res, err := tx.Exec(`
+    INSERT INTO profile (
+        email, first_name, last_name, display_name, date_of_birth, gender, avatar, description, is_user
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+`,
+		user.Email,
+		user.Fname,
+		user.Lname,
+		user.UserName,
+		user.Birthdate,
+		user.Gender,
+		avatar,
+		about,
+	)
 	if err != nil {
 		tx.Rollback()
 		return -1, err
@@ -95,9 +156,11 @@ func InsertUser(user Register) (int64, error) {
 		return -1, err
 	}
 
-	_, err = tx.Exec(`INSERT INTO user (id, email, first_name, last_name, password_hash, date_of_birth, gender)
-	VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		profileID, user.Email, user.Fname, user.Lname, HashPassword(user.Password), user.Birthdate, user.Gender)
+	// Insert only the password into user table, linking by profile ID
+	_, err = tx.Exec(`INSERT INTO user (id, password_hash) VALUES (?, ?)`,
+		profileID,
+		HashPassword(user.Password),
+	)
 	if err != nil {
 		tx.Rollback()
 		return -1, err
@@ -108,4 +171,28 @@ func InsertUser(user Register) (int64, error) {
 	}
 
 	return profileID, nil
+}
+
+func hasSpecial(s string) bool {
+	for _, ch := range s {
+		if unicode.IsPunct(ch) || unicode.IsSymbol(ch) {
+			return true
+		}
+	}
+	return false
+}
+
+func IsValidPassword(password string) bool {
+	if len(password) < 8 || len(password) > 30 {
+		return false
+	}
+
+	hasDigit := regexp.MustCompile(`[0-9]`)
+	hasLower := regexp.MustCompile(`[a-z]`)
+	hasUpper := regexp.MustCompile(`[A-Z]`)
+
+	return hasDigit.MatchString(password) &&
+		hasLower.MatchString(password) &&
+		hasUpper.MatchString(password) &&
+		hasSpecial(password)
 }

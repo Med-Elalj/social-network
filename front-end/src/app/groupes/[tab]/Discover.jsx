@@ -24,23 +24,29 @@ export default function Discover() {
     }, []);
 
     return (
-        <div className={Style.groupGrid}>
-            {groups && groups.map((Group, _) => (
-                <div className={Style.groupCard} key={Group.ID}>
-                    <Image
-                        src={Group.Avatar?.String || "/db.png"}
-                        alt="profile"
-                        width={50}
-                        height={50}
-                        sizes="(max-width: 768px) 100vw, 250px"
-                        className={Style.groupAvatar}
-                    />
-                    <h4>{Group.GroupName}</h4>
-                    <p>{Group.Description}</p>
-                    <Link href="/join" className={Style.acceptBtn}>Join Group</Link>
-                </div>
-            ))}
+        <div className={groups ? Style.groupGrid : Style.noPosts}>
+            {groups ? (
+                groups.map((Group) => (
+                    <div className={Style.groupCard} key={Group.ID}>
+                        <Image
+                            src={Group.Avatar?.String || "/db.png"}
+                            alt="profile"
+                            width={50}
+                            height={50}
+                            sizes="(max-width: 768px) 100vw, 250px"
+                            className={Style.groupAvatar}
+                        />
+                        <h4>{Group.GroupName}</h4>
+                        <p>{Group.Description}</p>
+                        <Link href="/join" className={Style.acceptBtn}>Join Group</Link>
+                    </div>
+                ))
+            ) : (
+                <>
+                    <h3>Join groups to see feeds</h3>
+                    <Link href="/groupes/create">Create a group</Link>
+                </>
+            )}
         </div>
-
-    )
+    );
 }

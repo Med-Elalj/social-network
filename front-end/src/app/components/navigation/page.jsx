@@ -41,6 +41,9 @@ export default function Routing() {
         // Parse the response as JSON only once
         const data = await response.json();
         setIsLoggedIn(data.authenticated === true);
+        if (data.authenticated === false) {
+          router.push("/login");
+        }
         console.log("Auth status:", data.authenticated);
       } catch (err) {
         setIsLoggedIn(false);
@@ -58,7 +61,8 @@ export default function Routing() {
     "/newPost",
     "/groupes",
     "/chat",
-    "/profile/nickname",
+    "/profile",
+    "/profile/[nickname]",
   ];
 
   useEffect(() => {
@@ -77,15 +81,18 @@ export default function Routing() {
     }
   }, [isLoggedIn, pathname]);
 
-  useEffect(() => {
-    console.log("🔄 Setting up token refresh interval...");
+useEffect(() => {
+  if (!isLoggedIn) return;
 
-    const interval = setInterval(() => {
-      refreshAccessToken();
-    }, RefreshFrequency);
+  console.log("🔄 Setting up token refresh interval...");
 
-    return () => clearInterval(interval);
-  }, []);
+  const interval = setInterval(() => {
+    refreshAccessToken();
+  }, RefreshFrequency);
+
+  return () => clearInterval(interval);
+}, [isLoggedIn]);
+
 
   return (
     <div>

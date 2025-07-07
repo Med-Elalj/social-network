@@ -86,6 +86,7 @@ type Post struct {
 	Privacy      string
 	CommentCount int
 	LikeCount    int
+	IsLiked      bool
 }
 
 type PostGet struct {
@@ -105,11 +106,24 @@ type CommentInfo struct {
 	Content CommentContent `json:"content"`
 }
 
+type Comments struct {
+	ID         ID
+	Author     string
+	AvatarUser sql.NullString
+	Content    string
+	CreatedAt  time.Time
+	LikeCount  int
+	IsLiked    bool
+}
+
 type CommentGet struct {
-	Pid          ID        `json:"pid"`
-	Author       string    `json:"author"`
-	Content      string    `json:"content"`
-	CreationTime time.Time `json:"creation_time"`
+	Post_id int `json:"post_id"`
+	Start   int `json:"start"`
+}
+type LikeInfo struct {
+	EntityID   ID     `json:"entity_id"`
+	EntityType string `json:"entity_type"`
+	IsLiked    bool   `json:"is_liked"`
 }
 
 type Message struct {

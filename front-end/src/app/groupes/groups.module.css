@@ -77,8 +77,8 @@
     color: var(--third-color);
 }
 
-.Buttons a{
-margin-left: 20px;
+.Buttons a {
+    margin-left: 20px;
 }
 
 .second {
@@ -87,6 +87,7 @@ margin-left: 20px;
     align-items: center;
     display: flex;
     margin-left: 20%;
+    margin-top: 60px;
 }
 
 .groupGrid {
@@ -139,10 +140,10 @@ margin-left: 20px;
 
 .container {
     margin-top: 20px;
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
     width: 80%;
     height: 85vh;
-    border: solid 1px var(--border-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     border-radius: 10px;
     padding-left: 2.5%;
 }
@@ -179,7 +180,8 @@ margin-left: 20px;
 }
 
 .example {
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     width: 95%;
     height: 23vh;
     border-radius: 10px;
@@ -267,6 +269,104 @@ margin-left: 20px;
 
 .buttonWrapper {
     margin-top: auto;
+}
+
+.post {
+    background-color: var(--primary-color);
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
+    color: var(--secondary-color);
+    width: 50vw;
+}
+
+.userinfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.userinfo>div {
+    display: flex;
+    align-items: center;
+}
+
+.user {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.user img,
+.user> :first-child {
+    flex-shrink: 0;
+}
+
+.user p:first-child {
+    margin: 0;
+}
+
+.user p:last-child {
+    margin: 4px 0 0 0;
+    font-size: 0.9rem;
+    color: gray;
+    line-height: 1.2;
+}
+
+.texts p {
+    margin: 0;
+}
+
+.texts p+p {
+    margin-top: 4px;
+    font-size: 0.9rem;
+    color: gray;
+}
+
+
+.userinfo>div>p {
+    margin-left: 5px;
+}
+
+.content {
+    margin: 20px 0;
+}
+
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px 0;
+}
+
+.footer>.action>img {
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.footer .action {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.noPosts {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-color);
+}
+
+.noPosts a {
+    color: var(--third-color);
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
 }
 
 /* Tablets and small desktops */

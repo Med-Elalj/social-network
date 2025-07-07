@@ -24,8 +24,8 @@ export default function YourGroups() {
     }, []);
 
     return (
-        <div className={Style.groupGrid}>
-            {groups && groups.map((Group, _) => (
+        <div className={groups ? Style.groupGrid : Style.noPosts}>
+            {groups ? (groups.map((Group, _) => (
                 <div className={Style.groupCard} key={Group.ID}>
                     <Image
                         src={Group.Avatar?.String || "/db.png"}
@@ -39,7 +39,13 @@ export default function YourGroups() {
                     <p>{Group.Description}</p>
                     <Link href="/view" className={Style.acceptBtn}>View Group</Link>
                 </div>
-            ))}
+            ))) : (
+                <>
+                    <h3>Join groups or create one</h3>
+                    <Link href="/groupes/create">Create a group</Link>
+                    <Link href="/groupes/discover">Join a group</Link>
+                </>
+            )}
         </div>
 
     )

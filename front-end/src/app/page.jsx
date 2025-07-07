@@ -4,28 +4,58 @@ import Styles from "./global.module.css";
 import Groups from "./components/Groups";
 import Friends from "./components/Friends";
 import Image from 'next/image';
-import { GetData, SendData } from "../../utils/sendData";
+import { SendData } from "../../utils/sendData";
 import { useEffect, useState } from "react";
+import LikeDeslike from "./utils.jsx";
+import Comments from "./comments.jsx";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      const formData = {
-        start: 0,
-      };
-      const response = await SendData("/api/v1/get/posts", formData);
-      const Body = await response.json();
-      if (response.status !== 200) {
-        console.log(Body);
+  const [openComments, setOpenComments] = useState(null);
+  const [lastPostID, setLastPostID] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchData = async () => {
+    if (isLoading || !hasMore) return;
+    setIsLoading(true);
+    console.log(isLoading, hasMore, lastPostID);
+
+    const formData = { start: lastPostID };
+    const response = await SendData("/api/v1/get/posts", formData);
+    const Body = await response.json();
+
+    if (response.status !== 200) {
+      console.log(Body);
+    } else {
+      const newPosts = Body.posts;
+      if (!newPosts || newPosts.length === 0) {
+        setHasMore(false);
       } else {
-        setPosts(Body.posts);
-        console.log('Posts fetched successfully!');
+        setPosts((prev) => [...prev, ...newPosts]);
+        const newLastID = newPosts[newPosts.length - 1].ID;
+        setLastPostID(newLastID);
+      }
+    }
+
+    setIsLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, [lastPostID]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 50;
+      console.log(nearBottom && !isLoading && hasMore);
+
+      if (nearBottom && !isLoading && hasMore) {
+        fetchData();
       }
     };
 
-    fetchData();
-  }, []);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isLoading, hasMore]);
 
   return (
     <div className={Styles.global}>
@@ -37,7 +67,7 @@ export default function Home() {
       {/* Center Content */}
       <div className={Styles.centerContent}>
         {posts && posts.map((Post) => (
-          <div key={Post.ID} className={Styles.post} style={{ width: '80%', marginLeft: '10%' }}>
+          <div key={Post.ID} className={Styles.post}>
             <section className={Styles.userinfo}>
               <div className={Styles.user}>
                 {/* Main Avatar */}
@@ -85,7 +115,7 @@ export default function Home() {
             {/* Post Image (optional) */}
             {Post.ImagePath?.String ? (
               <Image
-                src={`${Post.ImagePath.String}`}
+                src={`/${Post.ImagePath.String}`}
                 alt="post"
                 width={250}
                 height={200}
@@ -96,17 +126,34 @@ export default function Home() {
             }
 
             <section className={Styles.footer}>
-              <div className={Styles.action}>
-                <Image src="/Like2.svg" alt="like" width={20} height={20} />
-                <p>{Post.LikeCount}</p>
-              </div>
-              <div className={Styles.action}>
+              {/* TODO:add to websocket to be updated for all users */}
+              <LikeDeslike
+                EntityID={Post.ID}
+                EntityType={"post"}
+                isLiked={Post.IsLiked}
+                currentLikeCount={Post.LikeCount}
+              />
+
+              <div className={Styles.action} onClick={() => setOpenComments(Post.ID)}>
                 <Image src="/comment.svg" alt="comment" width={20} height={20} />
                 <p>{Post.CommentCount}</p>
               </div>
+
+              {openComments === Post.ID && (
+                <div className={Styles.commentPopup} onClick={() => setOpenComments(null)}>
+                  <div onClick={e => e.stopPropagation()}>
+                    <Comments Post={Post} onClose={() => setOpenComments(null)} />
+                  </div>
+                </div>
+              )}
             </section>
           </div>
         ))}
+        {isLoading && (
+          <div style={{ textAlign: "center", margin: "20px" }}>
+            <p>Loading more posts...</p>
+          </div>
+        )}
       </div>
 
 

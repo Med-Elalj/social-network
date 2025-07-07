@@ -3,7 +3,7 @@ import { showNotification, usePasswordToggle } from "../utils";
 
 import { useState } from "react";
 import Styles from "./login.module.css";
-import { SendData } from "../../../utils/sendData.js";
+import { SendAuthData} from "../../../utils/sendData.js";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 
@@ -24,7 +24,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await SendData("/api/v1/auth/login", formData);
+        const response = await SendAuthData("/api/v1/auth/login", formData);
 
     console.log("login Response status:", response.status);
 

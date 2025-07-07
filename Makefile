@@ -25,7 +25,7 @@ run-backend:
 
 get-keys:
 	clear
-	@if [ ! -f ./private/.env ]; then \
+	@if [ ! -d ./private ]; then \
 		echo "\033[1m\033[93m🔑 Keys file not found, generating...\033[0m"; \
 		echo "\033[1m\033[90m────────────────────────────────────────────────────────\033[0m"; \
 		cd ./backend && python3 init.py > /dev/null ; \
@@ -34,6 +34,7 @@ get-keys:
 		echo "\033[1m\033[90m────────────────────────────────────────────────────────\033[0m"; \
 		echo "\033[1m\033[93m⚠️  Keys file already exists, skipping generation.\033[0m"; \
 	fi
+
 
 # docker:
 # 	@echo "\033[1m\033[92mGetting docker ready for first use\nPlease Wait...\033[0m"

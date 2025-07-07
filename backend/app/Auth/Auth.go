@@ -9,18 +9,18 @@ import (
 	"social-network/server/logs"
 )
 
-func authorize(w http.ResponseWriter, r *http.Request, userID int) {
+func Authorize(w http.ResponseWriter, r *http.Request, userID int) {
 	username, err := GetElemVal[string]("display_name", "profile", `id = ?`, userID)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting username:", err)
-		http.Error(w, "Bad request", http.StatusBadRequest)
+		JsRespond(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
 	jwtToken, sessionID, refreshToken, err := CheckSession(r, userID, username)
 	if err != nil {
 		logs.ErrorLog.Println(err)
-		http.Error(w, "Session error", http.StatusInternalServerError)
+		JsRespond(w, "Session error", http.StatusInternalServerError)
 		return
 	}
 
@@ -62,7 +62,17 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 3. Check if session is still active in DB
 	validSession, err := SessionExists(payload.Sub, sessionID)
-	if err != nil || !validSession {
+	if err != nil || !validSession || sessionID != payload.SessionID {
+		ClearCookie(w, AuthInfo.JwtTokenName)
+		ClearCookie(w, AuthInfo.SessionIDName)
+		ClearCookie(w, AuthInfo.RefreshTokenName)
+		json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
+		return
+	}
+	// 4. Check if IP and User-Agent match
+	Session, _ := GetSessionByID(sidCookie.Value)
+	clientIP := GetIP(r)
+	if Session.IP != clientIP || Session.UserAgent != r.UserAgent() {
 		ClearCookie(w, AuthInfo.JwtTokenName)
 		ClearCookie(w, AuthInfo.SessionIDName)
 		ClearCookie(w, AuthInfo.RefreshTokenName)
@@ -83,7 +93,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := modules.DB.Exec(`DELETE FROM sessions WHERE session_id = ? AND refresh_token = ?`, sidCookie.Value, rtCookie.Value)
 	if err != nil {
 		logs.ErrorLog.Println("Error deleting session:", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		JsRespond(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 

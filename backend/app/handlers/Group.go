@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -15,8 +14,6 @@ func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var group structs.Group
 
 	json.NewDecoder(r.Body).Decode(&group)
-
-	fmt.Println(group)
 
 	err := modules.InsertGroup(group, uid)
 	if err != nil {

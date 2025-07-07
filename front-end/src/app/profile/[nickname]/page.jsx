@@ -78,7 +78,7 @@ export default function PubProfile() {
                   </span>
                 </div>
 
-                {profileData?.isPublic && (
+                {profileData?.isPublic === true && (
                   <div className={Style.center}>
                     <span>
                       <h5>Full Name:</h5>&nbsp;&nbsp;

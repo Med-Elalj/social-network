@@ -1,14 +1,13 @@
 "use client";
-
 import { usePathname } from "next/navigation";
-import { SendData } from "../../../../utils/sendData.js";
 import { useState, useEffect } from "react";
+import { GetData } from "../../../../utils/sendData.js";
 import { LogoutAndRedirect } from "../Logout.jsx";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Styles from "./nav.module.css";
-import { refreshAccessToken } from "./auth.jsx"; // Adjust the import path as neededq
+import { refreshAccessToken } from "../../../../utils/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 
 const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
@@ -41,9 +40,6 @@ export default function Routing() {
         // Parse the response as JSON only once
         const data = await response.json();
         setIsLoggedIn(data.authenticated === true);
-        if (data.authenticated === false) {
-          router.push("/login");
-        }
         console.log("Auth status:", data.authenticated);
       } catch (err) {
         setIsLoggedIn(false);
@@ -53,6 +49,31 @@ export default function Routing() {
 
     fetchAuthStatus();
   }, [pathname]);
+
+  // 🛰️ Route Protection
+  // const publicRoutes = [ "/login", "/register"];
+  // const protectedRoutes = ["/chat", "/groupes", "/profile/*", "/newPost"];
+
+  // const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+  // const isProtected = protectedRoutes.some((route) =>
+  //   pathname.startsWith(route)
+  // );
+
+  // ⛔ Route Redirect
+  // useEffect(() => {
+  //   console.log("Checking route redirection for:", pathname);
+  //   if (isLoggedIn === null) return;
+
+  //   if (!isLoggedIn && isProtected) {
+  //     console.log("Redirecting to /login", isLoggedIn);
+  //     router.push("/login");
+  //   }
+
+  //   if (isLoggedIn && isPublic) {
+  //     console.log("Redirecting to /",isLoggedIn);
+  //     router.push("/");
+  //   }
+  // }, [isLoggedIn, pathname]);
 
   const validPaths = [
     "/",
@@ -81,18 +102,17 @@ export default function Routing() {
     }
   }, [isLoggedIn, pathname]);
 
-useEffect(() => {
-  if (!isLoggedIn) return;
+  useEffect(() => {
+    if (!isLoggedIn) return;
 
-  console.log("🔄 Setting up token refresh interval...");
+    console.log("🔄 Setting up token refresh interval...");
 
-  const interval = setInterval(() => {
-    refreshAccessToken();
-  }, RefreshFrequency);
+    const interval = setInterval(() => {
+      refreshAccessToken();
+    }, RefreshFrequency);
 
-  return () => clearInterval(interval);
-}, [isLoggedIn]);
-
+    return () => clearInterval(interval);
+  }, [isLoggedIn]);
 
   return (
     <div>

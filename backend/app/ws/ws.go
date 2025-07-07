@@ -57,17 +57,17 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	// Upgrade the HTTP connection to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		logs.ErrorLog.Println(err)
 		return
 	}
 	defer conn.Close()
 
 	uId, uName := getData(r)
 	if uId == 0 || uName == "" {
-		log.Println("Invalid user ID or username", uId, uName)
+		logs.ErrorLog.Println("Invalid user ID or username", uId, uName)
 		err = conn.WriteMessage(websocket.TextMessage, []byte(`{"sender":"system","content":"invalid user"}`))
 		if err != nil {
-			log.Println("Error sending invalid user message:", err)
+			logs.ErrorLog.Println("Error sending invalid user message:", err)
 		}
 		return
 	}
@@ -89,7 +89,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 		var request message
 		err = json.Unmarshal(msg, &request)
 		if err != nil {
-			log.Println("Error parsing JSON:", err)
+			logs.ErrorLog.Println("Error parsing JSON:", err)
 			continue
 		}
 		request.Sender = uId
@@ -105,7 +105,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 			status_response = `{"author_name":"system","content":"failed to send message"}`
 			err = conn.WriteMessage(websocket.TextMessage, []byte(status_response))
 			if err != nil {
-				log.Println(err)
+				logs.ErrorLog.Println(err)
 				return
 			}
 		}
@@ -156,7 +156,7 @@ func deleteConnFromMap(uID int) {
 				logs.ErrorLog.Printf("qsdf %v", err)
 			}
 		} else {
-			log.Fatalln("deleting group", uID, sockets)
+			logs.InfoLog.Println("deleting group", uID, sockets)
 		}
 	}
 	mutex.Unlock()
@@ -181,16 +181,16 @@ func (m *message) send() error {
 	}
 	responseData, err := json.Marshal(m)
 	if err != nil {
-		log.Println("Error marshaling response:", err)
+		logs.ErrorLog.Println("Error marshaling response:", err)
 		return err
 	}
 	if profile, exist := sockets[m.Sender]; !exist {
-		log.Printf("User %d not found or not connected\n", m.Receiver)
+		logs.ErrorLog.Printf("User %d not found or not connected\n", m.Receiver)
 		return fmt.Errorf("user not found or not connected")
 	} else {
 		err = profile.WriteMessage(websocket.TextMessage, responseData)
 		if err != nil {
-			log.Println(err)
+			logs.ErrorLog.Println(err)
 			return errors.New("failed to send message to receiver with error: " + err.Error())
 		}
 	}

@@ -4,7 +4,7 @@ package requests
 // 	body, err := io.ReadAll(r.Body)
 // 	if err != nil {
 // 		logs.Println("Error reading request body:", err)
-// 		http.Error(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
+// 		auth.JsRespond(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 // 		return
 // 	}
 

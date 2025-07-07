@@ -106,6 +106,23 @@ func GetElemVal[T any](selectedElem, from, whereClause string, args ...any) (T, 
 	return res, nil
 }
 
+func EntryExists(elem, value, from string, checkLower bool) (int, bool) {
+	var count int
+
+	query := fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE %s = ?", from, elem)
+	if checkLower {
+		query = fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE LOWER(%s) = LOWER(?)", from, elem)
+	}
+
+	err := modules.DB.QueryRow(query, value).Scan(&count)
+	if err != nil {
+		logs.ErrorLog.Println("Database error:", err)
+		return -1, false
+	}
+
+	return count, count > 0
+}
+
 func GetIP(r *http.Request) string {
 	// todo: if hosted, remove comment
 	// if ip := r.Header.Get("X-Forwarded-For"); ip != "" {
@@ -154,7 +171,6 @@ func HashPassword(password string) string {
 
 func CheckPassword(password string, userID int) bool {
 	var hashedPassword string
-
 	query := `SELECT password_hash FROM user WHERE id = ?`
 	err := modules.DB.QueryRow(query, userID).Scan(&hashedPassword)
 	if err != nil {

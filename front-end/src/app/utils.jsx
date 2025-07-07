@@ -20,6 +20,12 @@ function playSound(name) {
   }
 }
 //todo: reduce body opacity a little when using notification
+
+export const CapitalizeFirstLetter = (str) => {
+  if (typeof str !== "string") return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function showNotification(
   message,
   type = "success",

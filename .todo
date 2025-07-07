@@ -1,0 +1,5 @@
+Nickname is optional, use first name if there's no Nickname, cant use for login tho
+add a edit nickname in profile page
+ADD CORS
+ADD RateLimiter
+add follow and following for public profile

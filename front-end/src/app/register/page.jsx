@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Styles from './register.module.css';
-import { SendData } from '../../../utils/sendData.js';
+import { SendAuthData } from "../../../utils/sendData.js";
 import { showNotification, usePasswordToggle } from '../utils.jsx';
 import { useRouter } from 'next/navigation';
 
@@ -43,7 +43,7 @@ export default function Register() {
 
         console.log('Submitting form...', formData);
 
-        const response = await SendData('/api/v1/auth/register', formData);
+        const response = await SendAuthData('/api/v1/auth/register', formData);
 
         if (response.status !== 200) {
             const errorBody = await response.json();

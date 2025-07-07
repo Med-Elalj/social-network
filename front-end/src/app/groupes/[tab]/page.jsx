@@ -9,7 +9,8 @@ import GroupPosts from "./GroupPosts.jsx";
 import Discover from "./Discover.jsx";
 import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
-import { SendData } from "../../../../utils/sendData.js";
+import { GetData } from "../../../../utils/sendData.js";
+import { showNotification } from "../../utils.jsx";
 
 export default function Groupes() {
     const router = useRouter();
@@ -46,10 +47,11 @@ export default function Groupes() {
                 "avatar": image
             };
 
-            const response = await SendData("/api/v1/set/GroupCreation", formData);
+            const response = await GetData("/api/v1/set/GroupCreation", formData);
             const Body = await response.json();
-            if (response.status !== 200) {
+            if (!response.ok) {
                 console.log(Body);
+                showNotification("error", "Error creating group: " + Body.message);
             } else {
                 router.push('/groupes/feed')
                 console.log('Posts fetched successfully!');

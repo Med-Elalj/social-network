@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	auth "social-network/app/Auth"
 	db "social-network/app/modules"
 )
 
@@ -44,13 +45,13 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxFileSize+1024)
 
 	if err := r.ParseMultipartForm(maxFileSize + 1024); err != nil {
-		http.Error(w, "File too large or invalid form", http.StatusBadRequest)
+		auth.JsRespond(w, "File too large or invalid form", http.StatusBadRequest)
 		return
 	}
 
 	file, header, err := r.FormFile(formFieldName)
 	if err != nil {
-		http.Error(w, "No file found in form", http.StatusBadRequest)
+		auth.JsRespond(w, "No file found in form", http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
@@ -58,18 +59,18 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	// Read into memory buffer for analysis
 	tmpData, err := io.ReadAll(io.LimitReader(file, maxFileSize+1))
 	if err != nil {
-		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+		auth.JsRespond(w, "Failed to read file", http.StatusInternalServerError)
 		return
 	}
 	if len(tmpData) > maxFileSize {
-		http.Error(w, "File exceeds 1MB size limit", http.StatusRequestEntityTooLarge)
+		auth.JsRespond(w, "File exceeds 1MB size limit", http.StatusRequestEntityTooLarge)
 		return
 	}
 
 	// Check image validity
 	reader := strings.NewReader(string(tmpData))
 	if !isValidImage(reader, header.Header.Get("Content-Type")) {
-		http.Error(w, "Invalid or unsupported image format", http.StatusBadRequest)
+		auth.JsRespond(w, "Invalid or unsupported image format", http.StatusBadRequest)
 		return
 	}
 
@@ -95,7 +96,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, uid int) {
 			newDestPath := filepath.Join(uploadDir, newFilename)
 			if _, err := os.Stat(newDestPath); os.IsNotExist(err) {
 				if err := os.WriteFile(newDestPath, tmpData, 0o644); err != nil {
-					http.Error(w, "Failed to save file", http.StatusInternalServerError)
+					auth.JsRespond(w, "Failed to save file", http.StatusInternalServerError)
 					return
 				}
 				filename = newFilename
@@ -109,7 +110,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		}
 	} else {
 		if err := os.WriteFile(destPath, tmpData, 0o644); err != nil {
-			http.Error(w, "Failed to save file", http.StatusInternalServerError)
+			auth.JsRespond(w, "Failed to save file", http.StatusInternalServerError)
 			return
 		}
 	}
@@ -120,7 +121,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		if err != nil {
 			log.Printf("Failed to delete file %s after DB update failure: %v", destPath, err)
 		}
-		http.Error(w, "Failed to update user files in database", http.StatusInternalServerError)
+		auth.JsRespond(w, "Failed to update user files in database", http.StatusInternalServerError)
 		return
 	}
 

@@ -39,6 +39,7 @@ func createSession(userID int, userAgent string, ip string) (string, string, err
 		VALUES (?, ?, ?, ?, ?, ?)
 	`, userID, sessionID, refreshToken, expiresAt, ip, userAgent)
 	if err != nil {
+		logs.ErrorLog.Println("DB error in createSession:", err)
 		return "", "", err
 	}
 	return sessionID, refreshToken, nil

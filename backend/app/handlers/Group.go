@@ -10,11 +10,23 @@ import (
 	"social-network/server/logs"
 )
 
+func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
+	var event structs.GroupEvent
+
+	json.NewDecoder(r.Body).Decode(&event)
+	err := modules.Insertevent(event, uid)
+	if err != nil {
+		auth.JsRespond(w, "event adding failed", http.StatusInternalServerError)
+		logs.ErrorLog.Println("Error inserting event into database:", err)
+		return
+	}
+	auth.JsRespond(w, "event adding successfully", http.StatusOK)
+}
+
 func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var group structs.Group
 
 	json.NewDecoder(r.Body).Decode(&group)
-
 	err := modules.InsertGroup(group, uid)
 	if err != nil {
 		auth.JsRespond(w, "group creation failed", http.StatusInternalServerError)

@@ -5,4 +5,5 @@ import (
 )
 
 func ChangePasswordHandler(w http.ResponseWriter, r *http.Request, uid int) {
+		
 }

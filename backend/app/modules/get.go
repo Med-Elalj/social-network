@@ -100,6 +100,36 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	return posts, nil
 }
 
+//anas
+func getevents(group_id int) ([]structs.GroupEvent, error){
+	rows, err := DB.Query(`    
+	SELECT
+		p.id,
+	    p.user_id,
+	    p.content,
+		p.image_path,
+		p.created_at
+	FROM
+	    posts p
+	    JOIN group ON p.group_id = group.id
+	WHERE
+	    group.id = ? AND p.privacy = ?;`, group_id,"event")
+	if err != nil {
+		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
+		return nil, err
+	}
+	var events []structs.GroupEvent
+	for rows.Next() {
+		var event structs.GroupEvent
+		if err := rows.Scan(event.ID,event.Userid, event.Description, event.Title,event.Timeof); err != nil {
+			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
+			return nil, err
+		}
+		events = append(events, event)
+	}
+	return events, nil
+}
+
 func GetMembers(groupid int) ([]structs.Gusers, error) {
 	var adminid int
 

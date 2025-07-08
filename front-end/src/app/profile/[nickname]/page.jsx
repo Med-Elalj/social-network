@@ -16,6 +16,7 @@ export default function PubProfile() {
   const [activeSection, setActiveSection] = useState("posts");
   const [profileData, setProfileData] = useState(null);
   const params = useParams();
+  const [notFound, setNotFound] = useState(false);
   const nickname = params.nickname;
 
   useEffect(() => {
@@ -26,10 +27,13 @@ export default function PubProfile() {
           const data = await res.json();
           setProfileData(data);
         } else {
-          console.error("Profile not found or private");
+          setNotFound(true);
+          console.log("Profile not found", nickname);
+          
         }
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.error("Error fetching profile:", err);
+        setNotFound(true);
       }
     };
 
@@ -37,7 +41,20 @@ export default function PubProfile() {
       fetchProfile();
     }
   }, [nickname]);
-
+  if (notFound) {
+    return (
+      <div style={{ padding: "4rem", textAlign: "center", marginTop: "60px" }}>
+        <Image src="/404.svg" alt="404" width={500} height={500} />
+        <h1 style={{ color: "#8D6B0D" }}>404 - Profile Not Found</h1>
+        <p style={{ color: "#e0e0e0" }}>
+          Sorry, this profile doesn't exist.
+        </p>
+        <Link href="/" style={{ color: "#8D6B0D" }}>
+          <p>Go back home</p>
+        </Link>
+      </div>
+    );
+  }
   return (
     <div className={Style.container}>
       <div className={Style.header}>

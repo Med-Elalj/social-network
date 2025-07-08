@@ -13,13 +13,12 @@ export default function Home() {
   const [posts, setPosts] = useState([]);
   const [openComments, setOpenComments] = useState(null);
   const [lastPostID, setLastPostID] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  {/*const [isLoading, setIsLoading] = useState(false);*/}
+  {/*const [hasMore, setHasMore] = useState(true);*/}
 
   const fetchData = async () => {
-    if (isLoading || !hasMore) return;
-    setIsLoading(true);
-    console.log(isLoading, hasMore, lastPostID);
+    {/*if (isLoading || !hasMore) return;*/}
+    {/*setIsLoading(true);*/}
 
     const formData = { start: lastPostID };
     const response = await SendData("/api/v1/get/posts", formData);
@@ -28,22 +27,23 @@ export default function Home() {
     if (response.status !== 200) {
       console.log(Body);
     } else {
-      const newPosts = Body.posts;
+      {/*const newPosts = Body.posts;
       if (!newPosts || newPosts.length === 0) {
         setHasMore(false);
       } else {
         setPosts((prev) => [...prev, ...newPosts]);
         const newLastID = newPosts[newPosts.length - 1].ID;
         setLastPostID(newLastID);
-      }
+      }*/}
+      setPosts(Body.posts);
     }
 
-    setIsLoading(false);
+    {/*setIsLoading(false);*/}
   };
 
   useEffect(() => { fetchData(); }, [lastPostID]);
 
-  useEffect(() => {
+  {/*useEffect(() => {
     const handleScroll = () => {
       const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 50;
       console.log(nearBottom && !isLoading && hasMore);
@@ -55,7 +55,7 @@ export default function Home() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLoading, hasMore]);
+  }, [isLoading, hasMore]);*/}
 
   return (
     <div className={Styles.global}>
@@ -149,11 +149,11 @@ export default function Home() {
             </section>
           </div>
         ))}
-        {isLoading && (
+        {/*{isLoading && (
           <div style={{ textAlign: "center", margin: "20px" }}>
             <p>Loading more posts...</p>
           </div>
-        )}
+        )}*/}
       </div>
 
 

@@ -58,7 +58,7 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     ws.current.onerror = (err) => {
-      console.error("⚠️ WebSocket error:", err);
+     console.error("⚠️ WebSocket error:", err);
       ws.current?.close();
     };
   };

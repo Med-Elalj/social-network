@@ -13,7 +13,7 @@ export default function Groups() {
       const body = await response.json();
 
       if (response.status !== 200) {
-        console.error(body);
+        await console.error(body);
       } else {
         setGroups(body.groups);
         console.log("Groups fetched successfully!");

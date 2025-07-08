@@ -3,11 +3,14 @@
 import { useState } from 'react';
 import Styles from './register.module.css';
 import { SendAuthData } from "../../../utils/sendData.js";
-import { showNotification, usePasswordToggle } from '../utils.jsx';
+import { useNotification } from '../context/notificationContext.jsx';
+import { usePasswordToggle } from '../utils.jsx';
 import { useRouter } from 'next/navigation';
+import { useWebSocket } from '../context/WebSocketContext.jsx'
 
 
 export default function Register() {
+    const { connectWebSocket } = useWebSocket()
     const Router = useRouter();
     const [formData, setFormData] = useState({
         username: '',
@@ -21,8 +24,9 @@ export default function Register() {
         about: null,
     });
     const [previewUrl, setPreviewUrl] = useState(null);
+    const { showNotification } = useNotification();
     usePasswordToggle();
-    
+
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === 'avatar') {
@@ -48,11 +52,12 @@ export default function Register() {
         if (response.status !== 200) {
             const errorBody = await response.json();
             // console.log(errorBody);
-            showNotification(errorBody.error || "Registration failed. Please try again.", "error", true, 5000);
+            showNotification(errorBody.error || "Registration failed. Please try again.", "error", 5000);
         } else {
             // console.log('Form submitted successfully!');
-            showNotification("Registration successful! Welcome to our social network!", "success", true, 5000);
+            showNotification("Registration successful! Welcome to our social network!", "success", 5000);
             Router.push('/');
+            connectWebSocket();
         }
     };
 
@@ -71,13 +76,13 @@ export default function Register() {
 
                     <label className={Styles.label} htmlFor="lname">Last Name</label>
                     <input className={Styles.input} type="text" name="lname" id="lastName" onChange={handleChange} />
-                    
+
                     <label className={Styles.label} htmlFor="username">Nickname</label>
                     <input className={Styles.input} type="text" name="username" id="nickName" onChange={handleChange} />
 
                     <label className={Styles.label} htmlFor="email">Email</label>
                     <input className={Styles.input} type="email" name="email" id="email" onChange={handleChange} />
-                    
+
                     <label className={Styles.label} htmlFor="password">Password</label>
                     {/* <input className={styles.input} type="password" name="password" id="password" onChange={handleChange} /> */}
                     <div className={Styles.inputWrapper}>

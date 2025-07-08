@@ -9,11 +9,13 @@ import Following from "./[tab]/Following";
 import Followers from "./[tab]/Followers";
 import Settings from "./[tab]/Settings";
 import { GetData, SendData } from "../../../utils/sendData.js";
-import { CapitalizeFirstLetter, showNotification } from "../utils.jsx";
+import { useNotification } from "../context/notificationContext.jsx";
+import { CapitalizeFirstLetter } from "../utils.jsx";
 
 // ✅ Named sub-component
 function PrivacyToggle({ isPublic, setIsPublic }) {
   const [loading, setLoading] = useState(false);
+  const { showNotification } = useNotification();
 
   const handlePrivacyChange = async () => {
     setLoading(true);
@@ -28,7 +30,7 @@ function PrivacyToggle({ isPublic, setIsPublic }) {
 
     if (res.ok) {
       setIsPublic((prev) => !prev);
-      showNotification("Privacy setting updated successfully!", "success");
+      showNotification("Privacy setting updated successfully!", "success")
     } else {
       showNotification(result.error, "error");
     }

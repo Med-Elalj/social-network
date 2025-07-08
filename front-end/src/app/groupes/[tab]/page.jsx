@@ -10,7 +10,7 @@ import Discover from "./Discover.jsx";
 import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { GetData } from "../../../../utils/sendData.js";
-import { showNotification } from "../../utils.jsx";
+import { useNotification } from "../../context/notificationContext.jsx";
 
 export default function Groupes() {
     const router = useRouter();
@@ -23,6 +23,7 @@ export default function Groupes() {
     const [privacy, setPrivacy] = useState("public");
     const [about, setAbout] = useState("");
     const [previewUrl, setPreviewUrl] = useState(null);
+    const { showNotification } = useNotification();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -51,7 +52,7 @@ export default function Groupes() {
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);
-                showNotification("error", "Error creating group: " + Body.message);
+                showNotification("Error creating group: " + Body.message, "error");
             } else {
                 router.push('/groupes/feed')
                 console.log('Posts fetched successfully!');

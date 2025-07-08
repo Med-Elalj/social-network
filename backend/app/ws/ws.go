@@ -127,7 +127,7 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 		sockets[uID] = connection
 	}
 
-	// u := update{"<system>", uID, "online", true}
+	u = update{"<system>", uID, "online", true}
 	err := u.send()
 	if err != nil {
 		logs.ErrorLog.Printf("Error sending update message: %v", err)

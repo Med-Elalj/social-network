@@ -101,19 +101,22 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 }
 
 //anas
-func getevents(group_id int) ([]structs.GroupEvent, error){
+func GetEvents(group_id int , uid int) ([]structs.GroupEvent, error){
 	rows, err := DB.Query(`    
 	SELECT
-		p.id,
-	    p.user_id,
-	    p.content,
-		p.image_path,
-		p.created_at
+		e.id,
+	    e.user_id,
+	    e.desc,
+		e.title,
+		e.timeof,
+		e.created_at
+		eu.respond
 	FROM
-	    posts p
+	    event e
 	    JOIN group ON p.group_id = group.id
+		JOIN userevents eu ON e.id = eu.event_id
 	WHERE
-	    group.id = ? AND p.privacy = ?;`, group_id,"event")
+	    group.id = ? AND eu.user_id = ?;`, group_id, uid,"event")
 	if err != nil {
 		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
 		return nil, err
@@ -121,7 +124,7 @@ func getevents(group_id int) ([]structs.GroupEvent, error){
 	var events []structs.GroupEvent
 	for rows.Next() {
 		var event structs.GroupEvent
-		if err := rows.Scan(event.ID,event.Userid, event.Description, event.Title,event.Timeof); err != nil {
+		if err := rows.Scan(event.ID,event.Userid, event.Description, event.Title,event.Timeof,event.CreationTime,event.Respond); err != nil {
 			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
 			return nil, err
 		}

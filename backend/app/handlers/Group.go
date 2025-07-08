@@ -10,6 +10,21 @@ import (
 	"social-network/server/logs"
 )
 
+
+func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	var groupId int
+	json.NewDecoder(r.Body).Decode(&groupId)
+	events, err := modules.GetEvents(groupId,uid)
+	if err != nil {
+		auth.JsRespond(w, "Failed to get group events", http.StatusBadRequest)
+		logs.ErrorLog.Println("Error getting group events:", err)
+		return
+	}
+	json.NewEncoder(w).Encode(map[string][]structs.GroupEvent{
+		"events": events,
+	})
+}
+
 func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.GroupEvent
 

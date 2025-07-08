@@ -115,6 +115,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 func addConnToMap(uID int, connection *websocket.Conn) bool {
 	mutex.Lock()
 	defer mutex.Unlock()
+	var u update
 	if conn, exists := sockets[uID]; exists {
 		if c, is := conn.(*websocket.Conn); is {
 			c.Close()
@@ -126,7 +127,7 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 		sockets[uID] = connection
 	}
 
-	u := update{"<system>", uID, "online", true}
+	// u := update{"<system>", uID, "online", true}
 	err := u.send()
 	if err != nil {
 		logs.ErrorLog.Printf("Error sending update message: %v", err)
@@ -278,14 +279,20 @@ func (u *update) sendToUser() error {
 	return nil
 }
 
-// NotifyUser sends a notification to a user with the specified command and value.
-
 func NotifyUser(uId int, command string, value any) error {
 	u := update{"<system>", uId, command, value}
 	err := u.sendToUser()
 	if err != nil {
 		logs.ErrorLog.Printf("Error sending update message: %v", err)
-		return err
 	}
-	return nil
+	return err
+}
+
+func NotifyAll(command string, value any) error {
+	u := update{"<system>", 0, command, value}
+	err := u.send()
+	if err != nil {
+		logs.ErrorLog.Printf("Error sending update message: %v", err)
+	}
+	return err
 }

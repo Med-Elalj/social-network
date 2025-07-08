@@ -25,10 +25,10 @@ var upgrader = websocket.Upgrader{
 }
 
 type update struct {
-	Sender string `json:"sender"`
-	Type   string `json:"type"`
-	Uname  string `json:"username"`
-	Online bool   `json:"online"`
+	Sender  string `json:"sender"`
+	Uid     int    `json:"uid"`
+	Command string `json:"command"`
+	Value   any    `json:"value"`
 }
 
 type message struct {
@@ -125,6 +125,15 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 	} else {
 		sockets[uID] = connection
 	}
+
+	u := update{"<system>", uID, "online", true}
+	err := u.send()
+	if err != nil {
+		logs.ErrorLog.Printf("Error sending update message: %v", err)
+		return false
+	}
+	logs.InfoLog.Printf("User %d connected\n", uID)
+
 	groups, err := modules.GetGroupImIn(uID)
 	if err != nil {
 		logs.ErrorLog.Printf("add conn to map %q", err)
@@ -150,15 +159,13 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 func deleteConnFromMap(uID int) {
 	mutex.Lock()
 	delete(sockets, uID)
-	for _, profile := range sockets {
-		if ws, is := profile.(*websocket.Conn); is {
-			if err := ws.WriteJSON(update{"internal", "toggle", fmt.Sprint(uID), false}); err != nil {
-				logs.ErrorLog.Printf("qsdf %v", err)
-			}
-		} else {
-			logs.InfoLog.Println("deleting group", uID, sockets)
-		}
+
+	u := update{"<system>", uID, "online", false}
+	err := u.send()
+	if err != nil {
+		logs.ErrorLog.Printf("Error sending update message: %v", err)
 	}
+	logs.InfoLog.Printf("User %d disconnected\n", uID)
 	mutex.Unlock()
 }
 
@@ -222,6 +229,63 @@ func (g *group) WriteMessage(messageType int, data []byte) error {
 		mutex.Lock()
 		delete(sockets, g.id)
 		mutex.Unlock()
+	}
+	return nil
+}
+
+func (u *update) send() error {
+	responseData, err := json.Marshal(u)
+	if err != nil {
+		logs.ErrorLog.Println("Error marshaling response:", err)
+	}
+	for _, profile := range sockets {
+		if ws, is := profile.(*websocket.Conn); is {
+			err = ws.WriteMessage(websocket.TextMessage, responseData)
+			if err != nil {
+				logs.ErrorLog.Println("Error sending update message:", err)
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// send to user
+
+func (u *update) sendToUser() error {
+	responseData, err := json.Marshal(u)
+	if err != nil {
+		logs.ErrorLog.Println("Error marshaling response:", err)
+		return err
+	}
+
+	if err := modules.AddDm(u.Uid, u.Uid, string(responseData)); err != nil {
+		err = errors.New("failed to store message in db with error: " + err.Error())
+		logs.ErrorLog.Printf("Error storing message in database: %v", err)
+		return err
+	}
+
+	if profile, exist := sockets[u.Uid]; !exist {
+		logs.ErrorLog.Printf("User %d not found or not connected\n", u.Uid)
+		return fmt.Errorf("user not found or not connected")
+	} else {
+		err = profile.WriteMessage(websocket.TextMessage, responseData)
+		if err != nil {
+			logs.ErrorLog.Println("Error sending update message:", err)
+			return err
+		}
+	}
+	return nil
+}
+
+// NotifyUser sends a notification to a user with the specified command and value.
+
+func NotifyUser(uId int, command string, value any) error {
+	u := update{"<system>", uId, command, value}
+	err := u.sendToUser()
+	if err != nil {
+		logs.ErrorLog.Printf("Error sending update message: %v", err)
+		return err
 	}
 	return nil
 }

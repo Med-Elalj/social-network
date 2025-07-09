@@ -66,7 +66,7 @@ type GroupReq struct {
 }
 
 type GroupEvent struct {
-	ID			ID		  `json:"event_id"`
+	ID			int		  `json:"event_id"`
 	Title       string    `json:"title"`
 	Userid		int		  `json:"user_id"`
 	Group_id    int       `json:"group_id"`

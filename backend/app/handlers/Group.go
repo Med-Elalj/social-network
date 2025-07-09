@@ -10,11 +10,10 @@ import (
 	"social-network/server/logs"
 )
 
-
 func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var groupId int
 	json.NewDecoder(r.Body).Decode(&groupId)
-	events, err := modules.GetEvents(groupId,uid)
+	events, err := modules.GetEvents(groupId, uid)
 	if err != nil {
 		auth.JsRespond(w, "Failed to get group events", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error getting group events:", err)
@@ -25,20 +24,31 @@ func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	})
 }
 
+func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	var event structs.GroupEvent
+	json.NewDecoder(r.Body).Decode(&event)
+	err := modules.UpdatEventResp(event.ID, uid,event.Respond)
+	if err != nil {
+		auth.JsRespond(w, "Failed to update response", http.StatusBadRequest)
+		logs.ErrorLog.Println("Error updating response:", err)
+		return
+	}
+}
+
 func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.GroupEvent
 
 	json.NewDecoder(r.Body).Decode(&event)
-	lastID,err := modules.Insertevent(event, uid)
-	if err != nil {	
-		auth.JSRespond(w,"Failed to create event", http.StatusBadRequest)	
+	lastID, err := modules.Insertevent(event, uid)
+	if err != nil {
+		auth.JsRespond(w, "Failed to create event", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error inserting event into database:", err)
 		return
 	}
 
-	err = modules.InsertUserEvent(lastID,uid,true)
-	if err != nil {	
-		auth.JSRespond(w,"Failed to add creator to the event", http.StatusBadRequest)
+	err = modules.InsertUserEvent(lastID, uid, true)
+	if err != nil {
+		auth.JsRespond(w, "Failed to add creator to the event", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error inserting event into database:", err)
 		return
 	}

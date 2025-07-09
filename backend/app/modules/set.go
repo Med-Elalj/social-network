@@ -107,7 +107,7 @@ func Insertevent(event structs.GroupEvent, uid int) (int,error) {
 	if err != nil {
 		return 0,err
 	}
-	_, err = tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	res , err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
 	if err != nil {
 		tx.Rollback()
 		return 0,err
@@ -123,7 +123,7 @@ func Insertevent(event structs.GroupEvent, uid int) (int,error) {
     	if err != nil {
         	return 0, err
     	}
-	return lastID,nil
+	return int(lastID),nil
 }
 
 

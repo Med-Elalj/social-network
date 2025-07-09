@@ -36,6 +36,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GroupToJoinHandler(w, r, data.Sub)
 	case "groupImIn":
 		GroupImInHandler(w, r, data.Sub)
+	case "groupEvents":
+		GroupEventsHandler(w, r, data.Sub)
 	case "users":
 		payload := r.Context().Value(auth.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)
@@ -91,6 +93,10 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 		PostCreation(w, r, data.Sub)
 	case "GroupCreation":
 		GroupCreation(w, r, data.Sub)
+	case "eventCreation":
+		GroupEventCreation(w, r, data.Sub)
+	case "eventResponse":
+		UpdateResponseHandler(w, r, data.Sub)
 	case "follow":
 		FollowersJoin(w, r, data.Sub)
 	case "unfollow":

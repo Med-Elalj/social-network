@@ -103,12 +103,37 @@ func updpost(newpost structs.Post) error {
 }
 
 // anas
-func Insertevent(event structs.GroupEvent, uid int) error {
+func Insertevent(event structs.GroupEvent, uid int) (int,error) {
+	tx, err := DB.Begin()
+	if err != nil {
+		return 0,err
+	}
+	res , err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	if err != nil {
+		tx.Rollback()
+		return 0,err
+	}
+	
+    	lastID, err := res.LastInsertId()
+    	if err != nil {
+        	tx.Rollback()
+        	return 0, err
+    	}
+
+    	err = tx.Commit()
+    	if err != nil {
+        	return 0, err
+    	}
+	return int(lastID),nil
+}
+
+
+func UpdatEventResp(event_id int, uid int,respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`INSERT INTO posts (user_id,group_id,content,image_path, privacy, created_at) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, "event", event.Timeof)
+	_, err = tx.Exec(`UPDATE userevent SET respond = ? WHERE event_id = ? AND user_id = ?`, respond, event_id, uid)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -116,12 +141,12 @@ func Insertevent(event structs.GroupEvent, uid int) error {
 	return nil
 }
 
-func InsertUserEvent(post_id int, uid int) error {
+func InsertUserEvent(event_id int, uid int,respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`INSERT INTO comments (user_id, post_id) VALUES (?,?)`, uid, post_id)
+	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id,respond)
 	if err != nil {
 		tx.Rollback()
 		return err

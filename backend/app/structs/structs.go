@@ -67,12 +67,14 @@ type GroupReq struct {
 }
 
 type GroupEvent struct {
-	ID          ID        `json:"event_id"`
+	ID			int		  `json:"event_id"`
 	Title       string    `json:"title"`
 	Userid      int       `json:"user_id"`
 	Group_id    int       `json:"group_id"`
-	Description string    `json:"description"`
+	Description string	  `json:"description"`
+	CreationTime time.Time `json:"creation_time"`
 	Timeof      time.Time `json:"time"`
+	Respond	bool	      `json:"respond"`
 }
 
 type Gusers struct {

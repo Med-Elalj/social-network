@@ -29,12 +29,20 @@ func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.GroupEvent
 
 	json.NewDecoder(r.Body).Decode(&event)
-	err := modules.Insertevent(event, uid)
-	if err != nil {
-		auth.JsRespond(w, "event adding failed", http.StatusInternalServerError)
+	lastID,err := modules.Insertevent(event, uid)
+	if err != nil {	
+		auth.JSRespond(w,"Failed to create event", http.StatusBadRequest)	
 		logs.ErrorLog.Println("Error inserting event into database:", err)
 		return
 	}
+
+	err = modules.InsertUserEvent(lastID,uid,true)
+	if err != nil {	
+		auth.JSRespond(w,"Failed to add creator to the event", http.StatusBadRequest)
+		logs.ErrorLog.Println("Error inserting event into database:", err)
+		return
+	}
+
 	auth.JsRespond(w, "event adding successfully", http.StatusOK)
 }
 

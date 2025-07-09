@@ -102,17 +102,28 @@ func updpost(newpost structs.Post) error {
 }
 
 // anas
-func Insertevent(event structs.GroupEvent, uid int) error {
+func Insertevent(event structs.GroupEvent, uid int) (int,error) {
 	tx, err := DB.Begin()
 	if err != nil {
-		return err
+		return 0,err
 	}
 	_, err = tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return 0,err
 	}
-	return nil
+	
+    	lastID, err := res.LastInsertId()
+    	if err != nil {
+        	tx.Rollback()
+        	return 0, err
+    	}
+
+    	err = tx.Commit()
+    	if err != nil {
+        	return 0, err
+    	}
+	return lastID,nil
 }
 
 

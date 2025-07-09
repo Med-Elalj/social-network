@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS "userevents" (
   "respond" BOOLEAN NOT NULL DEFAULT 0,
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
   FOREIGN KEY ("event_id") REFERENCES "events" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );

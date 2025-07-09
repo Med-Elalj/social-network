@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS "events" (
   "title" TEXT DEFAULT NULL, --Title
   "timeof" DATETIME NOT NULL, --time of event
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP), --timeofevent
-  FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
 );

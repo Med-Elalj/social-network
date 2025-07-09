@@ -1,5 +1,8 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useNotification } from "./notificationContext";
+
+// import { Notification } from "../components/notification/notification.jsx";
 
 const WebSocketContext = createContext(null);
 const WEBSOCKET_URL = "/api/v1/ws";
@@ -9,10 +12,11 @@ export const WebSocketProvider = ({ children }) => {
 
   const reconnectTimeout = useRef(null);
   const reconnectAttempts = useRef(0);
-  const MAX_RECONNECTS = 5;
+  const MAX_RECONNECTS = 1;
 
   const [newMessage, setNewMessage] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const { showNotification } = useNotification();
   const target = useRef(null);
 
   const setTarget = (newTarget) => {
@@ -34,12 +38,19 @@ export const WebSocketProvider = ({ children }) => {
       const data = JSON.parse(event.data);
       console.log("data received via websocket: ", data);
       console.log("the target is: ", target.current);
-      if ([data.sender, data.receiver].includes(target.current)) {
-        data.sent_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-        setNewMessage(data);
-      } else {
-        console.warn("Message not for this chat:", data); // TODO: notify user
+      if (data.content) {
+        if ([data.sender, data.receiver].includes(target.current)) {
+          data.sent_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
+          setNewMessage(data);
+        } else {
+          if (data?.sender != "system") {
+            showNotification(`New messsage from ${data.author_name}`, "success");
+            // showNotification(`New message from ${data.author_name}`, "success", true, 5000);
+            console.warn("Message not for this chat:", data);
+          }
+        }
       }
+
     };
 
     ws.current.onclose = () => {
@@ -55,7 +66,8 @@ export const WebSocketProvider = ({ children }) => {
       } else {
         console.error("❌ Max reconnect attempts reached");
       }
-    };
+    }
+
 
     ws.current.onerror = (err) => {
       console.error("⚠️ WebSocket error:", err);
@@ -71,7 +83,9 @@ export const WebSocketProvider = ({ children }) => {
       if (reconnectTimeout.current) {
         clearTimeout(reconnectTimeout.current);
       }
-    };
+    };		// if _, e := helpers.Sockets[username.Username]; e {
+    // 	username.Online = true
+    // }
   }, []);
 
   const sendMessage = (msg) => {
@@ -105,6 +119,7 @@ export const WebSocketProvider = ({ children }) => {
       }}
     >
       {children}
+
     </WebSocketContext.Provider>
   );
 };

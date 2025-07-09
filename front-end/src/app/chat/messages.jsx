@@ -26,11 +26,10 @@ export async function getMessages(person_name, page) {
 
 export default function Messages({ user }) {
   const [messages, setMessages] = useState([]);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const { newMessage } = useWebSocket();
   const [page, setPage] = useState(0);
-
   const containerRef = useRef(null);
   const prevScrollHeight = useRef(0);
 
@@ -39,10 +38,24 @@ export default function Messages({ user }) {
   }, [newMessage]);
 
   useEffect(() => {
+    if (
+      containerRef.current &&
+      containerRef.current.scrollHeight > prevScrollHeight.current
+    ) {
+      const newHeight = containerRef.current.scrollHeight;
+      console.log("new height is: ", newHeight);
+      containerRef.current.scrollTop = newHeight - prevScrollHeight.current;
+    }
+  }, [messages]);
+
+  useEffect(() => {
     if (user) {
       setMessages([]);
       setPage(1);
+      setHasMore(true);
       setLoading(true);
+      containerRef.current.scrollTop = 0;
+      prevScrollHeight.current = containerRef.current.scrollHeight;
     }
   }, [user]);
 
@@ -56,21 +69,13 @@ export default function Messages({ user }) {
             ? setMessages([])
             : setMessages((prev) => [...newMessages, ...prev]);
           setHasMore(data.has_more);
-
-          setTimeout(() => {
-            if (containerRef.current && prevScrollHeight.current) {
-              const newHeight = containerRef.current.scrollHeight;
-              containerRef.current.scrollTop =
-                newHeight - prevScrollHeight.current;
-            }
-          }, 0);
         }
       } catch (error) {
         console.error("Fetch error:", error);
       }
     };
 
-    if (loading && page > 0) {
+    if (loading && page > 0 && hasMore) {
       fetchMessages();
       setLoading(false);
     }
@@ -78,46 +83,50 @@ export default function Messages({ user }) {
 
   const handleScroll = (e) => {
     const container = e.target;
-    if (container.scrollTop < 50 && hasMore && !loading) {
+    if (container.scrollTop < 10 && hasMore && !loading) {
       prevScrollHeight.current = container.scrollHeight;
-      setLoading(true);
       setPage((prev) => prev + 1);
+      setLoading(true);
     }
   };
 
   if (user && messages) {
     return (
       <section
+        ref={containerRef}
         onScroll={handleScroll}
-        style={{ height: "80vh", overflowY: "auto" }}
+        style={{ height: "100%", overflowY: "auto" }}
       >
-        {messages.map((message) => (
-          // <div className={Styles.post} key={message.sent_at}>
-          //     <section className={Styles.userinfo}>
-          //         <div>
-          //             <Image src="/iconMale.png" alt="notification" width={25} height={25} />
-          //             <p>{message.author_name}</p>
-          //         </div>
-          //     </section>
+        {messages.length > 0 &&
+          messages.map((message, idx) => (
+            // <div className={Styles.post} key={message.sent_at}>
+            //     <section className={Styles.userinfo}>
+            //         <div>
+            //             <Image src="/iconMale.png" alt="notification" width={25} height={25} />
+            //             <p>{message.author_name}</p>
+            //         </div>
+            //     </section>
 
-          //     <section className={Styles.content}>
-          //         {message.content}
-          //     </section>
+            //     <section className={Styles.content}>
+            //         {message.content}
+            //     </section>
 
-          //     <section className={Styles.footer}>
-          //         <Time rfc3339={message.sent_at} />
-          //     </section>
-          // </div>
-          <div
-            className={message.author_name == me ? Style.user1 : Style.user1}
-          >
-            <p>{message.author_name}</p>
-            <p>{message.content}</p>
-            <p>
-              <Time rfc3339={message.sent_at} />
-            </p>
-          </div>
-        ))}
+            //     <section className={Styles.footer}>
+            //         <Time rfc3339={message.sent_at} />
+            //     </section>
+            // </div>
+            <div
+              key={idx}
+              className={message.author_name == me ? Style.user1 : Style.user1}
+              style={{ marginBottom: "10px" }}
+            >
+              <p>{message.author_name}</p>
+              <p>{message.content}</p>
+              <p>
+                <Time rfc3339={message.sent_at} />
+              </p>
+            </div>
+          ))}
         {/* {loading && <div className={Styles.post}>Loading more...</div>} */}
       </section>
     );

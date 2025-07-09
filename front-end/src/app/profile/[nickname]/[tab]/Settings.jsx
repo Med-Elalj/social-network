@@ -1,8 +1,8 @@
 "use client"; // REQUIRED if you're using App Router (in `/app` folder)
 
 import { useState } from "react";
-import Style from "../../profile.module.css"; // Adjust the path as necessary
-import { showNotification } from "../../../utils.jsx";
+import Style from "../profile.module.css"; // Adjust the path as necessary
+import { useNotification } from "../../../context/notificationContext.jsx";
 import { SendData } from "../../../../../utils/sendData.js";
 import { Router } from "next/dist/client/router.js";
 
@@ -18,6 +18,7 @@ export default function Settings() {
   });
   const [confirmationWord, setConfirmationWord] = useState("");
   const [userTypedWord, setUserTypedWord] = useState("");
+  const {showNotification} = useNotification();
 
   const handleChange = (e) => {
     setFormData({

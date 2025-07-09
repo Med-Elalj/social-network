@@ -2,7 +2,8 @@ import Routing from "./components/navigation/page";
 // import Footer from "./footer/page";
 import "./global.css";
 import { Inter } from "next/font/google";
-import {WebSocketProvider} from "@/app/context/WebSocketContext.jsx"
+import { WebSocketProvider } from "@/app/context/WebSocketContext.jsx"
+import { NotificationProvider } from "@/app/context/notificationContext.jsx"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,11 +27,13 @@ export default function Layout({ children }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
-        <WebSocketProvider>
-          <Routing />
-          <div>{children}</div>
-          {/* <Footer/> */}
-        </WebSocketProvider>
+        <NotificationProvider>
+          <WebSocketProvider>
+            <Routing />
+            <div>{children}</div>
+            {/* <Footer/> */}
+          </WebSocketProvider>
+        </NotificationProvider>
       </body>
     </html>
   );

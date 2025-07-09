@@ -27,3 +27,9 @@ func SqlConstraint(err *error) bool {
 	}
 	return false
 }
+
+var Sockets = make(map[int]Profile)
+
+type Profile interface {
+	WriteMessage(messageType int, data []byte) error
+}

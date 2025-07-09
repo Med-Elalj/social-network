@@ -43,6 +43,7 @@ type UsersGet struct {
 	ID       ID     `json:"id"`
 	Online   bool   `json:"online"`
 	Is_Group bool   `json:"is_group"`
+	Avatar   Avatar `json:"pfp"`
 	Username string `json:"name"` // Exported field
 }
 
@@ -66,9 +67,9 @@ type GroupReq struct {
 }
 
 type GroupEvent struct {
-	ID			ID		  `json:"event_id"`
+	ID          ID        `json:"event_id"`
 	Title       string    `json:"title"`
-	Userid		int		  `json:"user_id"`
+	Userid      int       `json:"user_id"`
 	Group_id    int       `json:"group_id"`
 	Description string    `json:"description"`
 	Timeof      time.Time `json:"time"`

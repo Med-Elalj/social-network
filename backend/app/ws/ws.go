@@ -11,6 +11,7 @@ import (
 	auth "social-network/app/Auth"
 	"social-network/app/Auth/jwt"
 	"social-network/app/modules"
+	"social-network/app/structs"
 
 	"social-network/server/logs"
 
@@ -39,13 +40,9 @@ type message struct {
 }
 
 var (
-	sockets = make(map[int]profile)
+	sockets = structs.Sockets
 	mutex   sync.Mutex
 )
-
-type profile interface {
-	WriteMessage(messageType int, data []byte) error
-}
 
 type group struct {
 	sync.Mutex

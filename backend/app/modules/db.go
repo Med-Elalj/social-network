@@ -19,6 +19,12 @@ func SetTables() *sql.DB {
 	if err != nil {
 		logs.FatalLog.Fatalln("Error opening database:", err)
 	}
+
+	_, err = db.Exec("PRAGMA journal_mode = WAL;")
+	if err != nil {
+		logs.FatalLog.Fatalln("Failed to set WAL mode:", err)
+	}
+
 	// Set the database to use foreign keys
 	_, err = db.Exec("PRAGMA foreign_keys = ON")
 	if err != nil {

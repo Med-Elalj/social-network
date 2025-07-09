@@ -236,7 +236,7 @@
   flex-direction: column;
 }
 .commentPopupContent {
-   overflow-y: scroll;
+  overflow-y: scroll;
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) var(--primary-color);

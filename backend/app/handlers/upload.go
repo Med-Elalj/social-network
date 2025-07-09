@@ -1,55 +1,57 @@
 package handlers
 
 import (
-	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 
-	auth "social-network/app/Auth"
+	"social-network/app/modules"
+	"social-network/server/logs"
 )
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		auth.JsRespond(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	file, handler, err := r.FormFile("file")
+	file, header, err := r.FormFile("file")
 	if err != nil {
-		auth.JsRespond(w, "File upload error: "+err.Error(), http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": "No file found in form"}`)
 		return
 	}
 	defer file.Close()
 
-	// Create uploads directory with explicit permissions
-	if err := os.MkdirAll("uploads", 0o755); err != nil {
-		auth.JsRespond(w, "Could not create directory", http.StatusInternalServerError)
-		return
-	}
-
-	// Secure the filename and create path
-	filename := filepath.Base(handler.Filename) // Prevent directory traversal
-	filePath := filepath.Join("uploads", filename)
-
-	dst, err := os.Create(filePath)
+	// Read into memory buffer for analysis
+	tmpData, err := io.ReadAll(io.LimitReader(file, 1024*1024))
 	if err != nil {
-		auth.JsRespond(w, "Unable to save file: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
-
-	if _, err := io.Copy(dst, file); err != nil {
-		auth.JsRespond(w, "Error copying file: "+err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, `{"error": "Failed to read file"}`)
 		return
 	}
 
-	// Return forward-slash path for web compatibility
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"path": "/uploads/" + filename, // Note the forward slash
-	})
+	// Check image validity
+	reader := strings.NewReader(string(tmpData))
+	if !modules.IsValidImage(reader, header.Header.Get("Content-Type")) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, `{"error": "Invalid image format"}`)
+		return
+	}
+
+	// Create a unique filename
+	timestamp := time.Now().UnixNano()
+	ext := filepath.Ext(header.Filename)
+	filename := fmt.Sprintf("%d%s", timestamp, ext)
+
+	// Save the file to disk
+	err = os.WriteFile(filepath.Join("../../../front-end/public/uploads", filename), tmpData, 0o644)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		logs.ErrorLog.Println("Failed to save file:", err)
+		fmt.Fprintf(w, `{"error": "Failed to save file"}`)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `{"filename": "%s"}`, filename)
 }
-
-// TODO POST HANDLER

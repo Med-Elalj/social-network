@@ -2,6 +2,7 @@ package modules
 
 import (
 	"fmt"
+
 	"social-network/app/structs"
 	"social-network/server/logs"
 )

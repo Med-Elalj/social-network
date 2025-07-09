@@ -95,6 +95,8 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 		GroupCreation(w, r, data.Sub)
 	case "eventCreation":
 		GroupEventCreation(w, r, data.Sub)
+	case "eventResponse":
+		UpdateResponseHandler(w, r, data.Sub)
 	case "follow":
 		FollowersJoin(w, r, data.Sub)
 	case "unfollow":

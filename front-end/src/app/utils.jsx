@@ -145,7 +145,7 @@ function playSound(name) {
   }
 }
 
-export default function Notification({
+export  function Notification({
   open,
   message,
   type = "success",

@@ -9,7 +9,7 @@ import GroupPosts from "./GroupPosts.jsx";
 import Discover from "./Discover.jsx";
 import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
-import { GetData } from "../../../../utils/sendData.js";
+import { SendData } from "../../../../utils/sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
 
 export default function Groupes() {
@@ -48,7 +48,7 @@ export default function Groupes() {
                 "avatar": image
             };
 
-            const response = await GetData("/api/v1/set/GroupCreation", formData);
+            const response = await SendData("/api/v1/set/GroupCreation", formData);
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);

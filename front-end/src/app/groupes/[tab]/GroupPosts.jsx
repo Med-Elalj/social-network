@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Styles from "../groups.module.css";
 import { useState, useEffect } from "react";
 import { GetData } from "../../../../utils/sendData.js";
-import LikeDeslike from "../../utils.jsx";
+import LikeDeslike from "@/app/utils.jsx";
 
 export default function GroupPosts() {
     const [posts, setPosts] = useState([]);

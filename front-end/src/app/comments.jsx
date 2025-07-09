@@ -305,6 +305,7 @@ export default function Comments({ Post, onClose }) {
                             />
                             <div>
                                 {Post.GroupId?.Valid ? (
+                                    
                                     <>
                                         <p>{Post.GroupName.String}</p>
                                         <div className={Styles.user}>
@@ -332,7 +333,9 @@ export default function Comments({ Post, onClose }) {
 
                     <div className={Styles.postContent}>
                         <p>{Post.Content}</p>
-                        <Image src="/comment.svg" alt="comment" width={30} height={30} />
+                        {Post.ImagePath.valid ? (
+                            <Image src={`/${Post.ImagePath}`} alt="comment" width={30} height={30} />
+                        ) : null}
                     </div>
                 </section>
 

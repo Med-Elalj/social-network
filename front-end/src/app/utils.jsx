@@ -19,7 +19,6 @@ function PlaySound(name) {
     sound.play().catch((e) => console.warn("Playback failed:", e));
   }
 }
-//todo: reduce body opacity a little when using notification
 
 export const CapitalizeFirstLetter = (str) => {
   if (typeof str !== "string") return "";
@@ -219,7 +218,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(currentLikeCount);
-
+  if (!EntityID || !EntityType) return null;
   const handleLikeDeslike = async () => {
     if (loading) return;
 
@@ -257,7 +256,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
   return (
     <div onClick={handleLikeDeslike} style={{ cursor: "pointer", marginRight: "10px", display: "flex", alignItems: "center" }}>
       <Image
-        src={liked ? "/Like.svg" : "/Like2.svg"}
+        src={liked ? "/Like.svg" : "/Like2.svg"}  
         alt={liked ? "liked" : "like"}
         width={20}
         height={20}

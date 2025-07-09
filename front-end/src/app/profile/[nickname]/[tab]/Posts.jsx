@@ -38,7 +38,7 @@ export default function Posts() {
 
         <section className={Style.footer}>
           <div className={Style.action}>
-            <Image src="/Like2.svg" alt="like" width={20} height={20} />
+            {/* <Image src="/Like2.svg" alt="like" width={20} height={20} /> */}
             <p>0</p>
           </div>
           <div className={Style.action}>
@@ -81,7 +81,7 @@ export default function Posts() {
 
         <section className={Style.footer}>
           <div className={Style.action}>
-            <Image src="/Like2.svg" alt="like" width={20} height={20} />
+            {/* <Image src="/Like2.svg" alt="like" width={20} height={20} /> */}
             <p>0</p>
           </div>
           <div className={Style.action}>
@@ -124,7 +124,7 @@ export default function Posts() {
 
         <section className={Style.footer}>
           <div className={Style.action}>
-            <Image src="/Like2.svg" alt="like" width={20} height={20} />
+            {/* <Image src="/Like2.svg" alt="like" width={20} height={20} /> */}
             <p>0</p>
           </div>
           <div className={Style.action}>
@@ -167,7 +167,7 @@ export default function Posts() {
 
         <section className={Style.footer}>
           <div className={Style.action}>
-            <Image src="/Like2.svg" alt="like" width={20} height={20} />
+            {/* <Image src="/Like2.svg" alt="like" width={20} height={20} /> */}
             <p>0</p>
           </div>
           <div className={Style.action}>
@@ -210,7 +210,7 @@ export default function Posts() {
 
         <section className={Style.footer}>
           <div className={Style.action}>
-            <Image src="/Like2.svg" alt="like" width={20} height={20} />
+            {/* <Image src="/Like2.svg" alt="like" width={20} height={20} /> */}
             <p>0</p>
           </div>
           <div className={Style.action}>
@@ -253,7 +253,7 @@ export default function Posts() {
 
         <section className={Style.footer}>
           <div className={Style.action}>
-            <Image src="/Like2.svg" alt="like" width={20} height={20} />
+            {/* <Image src="/Like2.svg" alt="like" width={20} height={20} /> */}
             <p>0</p>
           </div>
           <div className={Style.action}>

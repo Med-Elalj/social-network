@@ -33,7 +33,9 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	var profile Profile
 	var err error
-
+	if nickname == "me" {
+		nickname = payload.Username
+	}
 	// 👤 Case 1: viewer requests their own profile using their nickname
 	if ok && strings.EqualFold(nickname, payload.Username) {
 		// Fetch by ID (self profile)

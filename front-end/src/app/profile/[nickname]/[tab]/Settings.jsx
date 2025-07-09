@@ -1,9 +1,9 @@
 "use client"; // REQUIRED if you're using App Router (in `/app` folder)
 
 import { useState } from "react";
-import Style from "../profile.module.css"; // Adjust the path as necessary
-import { showNotification } from "../../utils.jsx";
-import { SendData } from "../../../../utils/sendData.js";
+import Style from "../../profile.module.css"; // Adjust the path as necessary
+import { showNotification } from "../../../utils.jsx";
+import { SendData } from "../../../../../utils/sendData.js";
 import { Router } from "next/dist/client/router.js";
 
 export default function Settings() {
@@ -113,11 +113,11 @@ export default function Settings() {
       );
       return;
     }
-  // Check if user typed the confirmation string correctly
-  if (userTypedWord !== confirmationWord) {
-    showNotification('Confirmation text does not match.', 'error');
-    return;
-  }
+    // Check if user typed the confirmation string correctly
+    if (userTypedWord !== confirmationWord) {
+      showNotification("Confirmation text does not match.", "error");
+      return;
+    }
 
     const response = await SendData("/api/v1/settings/delete", {
       confirmDelete: true,

@@ -24,7 +24,6 @@ func SetupMux() *http.ServeMux {
 	mux.HandleFunc("POST /api/v1/auth/logout", auth.LogoutHandler)
 
 	// profile handlers
-	mux.HandleFunc("GET /api/v1/profile", MW.AuthMiddleware(P.ProfileHandler))
 	mux.HandleFunc("GET /api/v1/profile/{name}", MW.AuthMiddleware(P.ProfileHandler))
 	mux.HandleFunc("POST /api/v1/settings/{type}", MW.AuthMiddleware(P.ProfileSettingsHandler))
 

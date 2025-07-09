@@ -5,6 +5,7 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
+
 .container {
   margin-top: 60px;
   display: flex;
@@ -64,7 +65,7 @@
 }
 
 /* Profile image container improvements */
-.ProfileInfo .top > div {
+.ProfileInfo .top>div {
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid var(--primary-color);
@@ -72,7 +73,7 @@
   transition: all 0.3s ease;
 }
 
-.ProfileInfo .top > div:hover {
+.ProfileInfo .top>div:hover {
   transform: scale(1.05);
   box-shadow: 0 8px 24px rgba(0, 123, 255, 0.3);
 }
@@ -96,7 +97,7 @@
 }
 
 /* Enhanced user items in suggestions */
-.requists > div {
+.requists>div {
   display: flex;
   cursor: pointer;
   align-items: center;
@@ -108,29 +109,29 @@
   border: 1px solid transparent;
 }
 
-.requists > div:hover {
+.requists>div:hover {
   background-color: rgba(255, 255, 255, 0.8);
   border: 1px solid var(--primary-color);
   transform: translateX(4px);
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
 }
 
-.requists > div > div:first-child {
+.requists>div>div:first-child {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.requists > div img {
+.requists>div img {
   border-radius: 50%;
   transition: transform 0.3s ease;
 }
 
-.requists > div:hover img {
+.requists>div:hover img {
   transform: scale(1.05);
 }
 
-.requists > div h5 {
+.requists>div h5 {
   margin: 0;
   font-weight: 500;
   color: var(--text-primary);
@@ -150,15 +151,15 @@
   transform: scale(1.1);
 }
 
-.center > span {
+.center>span {
   display: flex;
 }
 
-.center > span > h5:first-child {
+.center>span>h5:first-child {
   color: var(--primary-color);
 }
 
-.ProfileInfo > button {
+.ProfileInfo>button {
   background-color: var(--third-color);
   border: 1px solid var(--third-color);
   height: 4vh;
@@ -170,7 +171,7 @@
   font-weight: 500;
 }
 
-.ProfileInfo > button:hover {
+.ProfileInfo>button:hover {
   background-color: var(--hover-color);
   border: 1px solid var(--hover-color);
   color: var(--secondary-color);
@@ -178,11 +179,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.ProfileInfo > button:active {
+.ProfileInfo>button:active {
   transform: translateY(0);
 }
 
-.ProfileInfo > button:last-child:hover {
+.ProfileInfo>button:last-child:hover {
   opacity: 0.5;
 }
 
@@ -192,7 +193,7 @@
   margin: 1vh 0;
 }
 
-.numbers > span {
+.numbers>span {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -202,14 +203,14 @@
   transition: all 0.3s ease;
 }
 
-.numbers > span:hover {
+.numbers>span:hover {
   background-color: var(--primary-color);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
-.numbers > span > h5 {
+.numbers>span>h5 {
   margin: 0 -5px;
 }
 
@@ -245,7 +246,7 @@
   justify-content: space-between;
 }
 
-.userinfo > div {
+.userinfo>div {
   display: flex;
   align-items: center;
 }
@@ -257,7 +258,7 @@
 }
 
 .user img,
-.user > :first-child {
+.user> :first-child {
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
@@ -283,13 +284,13 @@
   line-height: 1.5;
 }
 
-.texts p + p {
+.texts p+p {
   margin-top: 4px;
   font-size: 0.9rem;
   color: gray;
 }
 
-.userinfo > div > p {
+.userinfo>div>p {
   margin-left: 5px;
 }
 
@@ -304,7 +305,7 @@
   margin: 20px 0;
 }
 
-.footer > .action > img {
+.footer>.action>img {
   cursor: pointer;
   margin-right: 5px;
   transition: all 0.3s ease;
@@ -312,7 +313,7 @@
   padding: 4px;
 }
 
-.footer > .action > img:hover {
+.footer>.action>img:hover {
   background-color: rgba(0, 123, 255, 0.1);
   transform: scale(1.1);
 }
@@ -351,7 +352,7 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-.requists > div {
+.requists>div {
   display: flex;
   cursor: pointer;
   align-items: center;
@@ -362,7 +363,7 @@
   transition: all 0.3s ease;
 }
 
-.requists > div:hover {
+.requists>div:hover {
   background-color: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--third-color);
   transform: translateX(4px);
@@ -404,7 +405,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.requists > div a,
+.requists>div a,
 .NewUser a {
   color: var(--third-color);
   text-decoration: none;
@@ -412,13 +413,13 @@
   transition: color 0.3s ease;
 }
 
-.requists > div a:hover,
+.requists>div a:hover,
 .NewUser a:hover {
   color: var(--primary-color);
 }
 
-.requists > div > div,
-.NewUser > div {
+.requists>div>div,
+.NewUser>div {
   display: flex;
   align-items: center;
   gap: 1vw;
@@ -475,20 +476,20 @@
   background-color: rgba(255, 255, 255, 0.5);
 }
 
-.center > span {
+.center>span {
   display: flex;
   align-items: center;
   margin-bottom: 8px;
   padding: 5px 0;
 }
 
-.center > span > h5:first-child {
+.center>span>h5:first-child {
   color: var(--primary-color);
   font-weight: 600;
   min-width: 120px;
 }
 
-.center > span > h5:last-child {
+.center>span>h5:last-child {
   color: var(--secondary-color);
   font-weight: 400;
 }
@@ -632,11 +633,11 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #4caf50;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(22px);
 }
 
@@ -697,4 +698,43 @@ input:checked + .slider:before {
     flex-direction: column;
     align-items: center;
   }
+}
+
+.followBtn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  min-width: 120px;
+}
+
+/* Follow (public) */
+.follow {
+  background-color: #008cff;
+  color: white;
+}
+
+.follow:hover {
+  background-color: #0073cc;
+}
+
+/* Request to follow (private) */
+.requested {
+  background-color: #888;
+  color: white;
+  cursor: default;
+}
+
+/* Unfollow */
+.unfollow {
+  background-color: transparent;
+  color: #ff3c3c;
+  border: 1px solid #ff3c3c;
+}
+
+.unfollow:hover {
+  background-color: #ffecec;
 }

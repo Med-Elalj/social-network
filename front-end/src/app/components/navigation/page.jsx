@@ -82,7 +82,6 @@ export default function Routing() {
     "/newPost",
     "/groupes",
     "/chat",
-    "/profile",
     "/profile/[nickname]",
   ];
 
@@ -189,7 +188,10 @@ export default function Routing() {
                   </span>
                   {isOpen && (
                     <div className={Styles.dropdownMenu}>
-                      <Link href={`/profile`} onClick={() => setIsOpen(false)}>
+                      <Link
+                        href={`/profile/me`}
+                        onClick={() => setIsOpen(false)}
+                      >
                         Profile
                       </Link>
                       <button

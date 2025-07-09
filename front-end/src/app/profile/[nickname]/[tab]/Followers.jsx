@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Style from "../profile.module.css";
+import Style from "../../profile.module.css";
 
 export default function Followers() {
     return (

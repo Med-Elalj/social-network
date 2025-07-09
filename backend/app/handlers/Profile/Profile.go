@@ -32,6 +32,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	payload, ok := r.Context().Value(auth.UserContextKey).(*jwt.JwtPayload)
 
 	var profile Profile
+	var temp sql.NullString
 	var err error
 	if nickname == "me" {
 		nickname = payload.Username
@@ -51,7 +52,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			&profile.DateOfBirth,
 			&profile.Gender,
 			&profile.Avatar,
-			&profile.Description,
+			&temp,
 			&profile.IsPublic,
 			&profile.IsUser,
 			&profile.CreatedAt,
@@ -72,7 +73,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			&profile.DateOfBirth,
 			&profile.Gender,
 			&profile.Avatar,
-			&profile.Description,
+			&temp,
 			&profile.IsPublic,
 			&profile.IsUser,
 			&profile.CreatedAt,
@@ -87,6 +88,9 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		profile.IsSelf = false
+	}
+	if temp.Valid {
+		profile.Description = temp.String
 	}
 
 	if err != nil {

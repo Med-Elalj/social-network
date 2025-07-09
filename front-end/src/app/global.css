@@ -127,3 +127,24 @@ body {
 .toast--error:before {
   background-color: #FF4444;
 }
+/* Marks inputs directly following labels */
+form > label:has(+input:required)::after {
+  content: " *";
+  color: red;
+  margin-left: 4px;
+}
+
+/* Marks optional inputs */
+form > label:has(+input:not([required]))::after {
+  content: " (optional)";
+  color: gray;
+  margin-left: 4px;
+  font-size: 0.9em;
+}
+
+/* Handles required fields inside wrappers (e.g., divs) */
+label:has(+div :required)::after {
+  content: " *";
+  color: red;
+  margin-left: 4px;
+}

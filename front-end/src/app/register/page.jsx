@@ -72,19 +72,19 @@ export default function Register() {
 
 
                     <label className={Styles.label} htmlFor="fname">First Name</label>
-                    <input className={Styles.input} type="text" name="fname" id="firstName" onChange={handleChange} />
+                    <input className={Styles.input} type="text" name="fname" id="firstName"  required onChange={handleChange} />
 
                     <label className={Styles.label} htmlFor="lname">Last Name</label>
-                    <input className={Styles.input} type="text" name="lname" id="lastName" onChange={handleChange} />
+                    <input className={Styles.input} type="text" name="lname" id="lastName" required onChange={handleChange} />
 
                     <label className={Styles.label} htmlFor="username">Nickname</label>
                     <input className={Styles.input} type="text" name="username" id="nickName" onChange={handleChange} />
 
                     <label className={Styles.label} htmlFor="email">Email</label>
-                    <input className={Styles.input} type="email" name="email" id="email" onChange={handleChange} />
+                    <input className={Styles.input} type="email" name="email" id="email" required onChange={handleChange} />
 
-                    <label className={Styles.label} htmlFor="password">Password</label>
                     {/* <input className={styles.input} type="password" name="password" id="password" onChange={handleChange} /> */}
+                    <label className={Styles.label} htmlFor="password">Password</label>
                     <div className={Styles.inputWrapper}>
                         <input
                             className={Styles.input}
@@ -100,15 +100,15 @@ export default function Register() {
                     </div>
 
                     <label className={Styles.label} htmlFor="birthdate">Date of Birth</label>
-                    <input className={Styles.input} type="date" name="birthdate" id="dob" onChange={handleChange} />
+                    <input className={Styles.input} type="date" name="birthdate" id="dob" required onChange={handleChange} />
 
-                    <label className={Styles.label} htmlFor="gender">Gender</label>
+                    <label className={Styles.label} htmlFor="gender" required >Gender</label>
                     <div>
                         <label htmlFor="male">Male</label>
-                        <input type="radio" name="gender" id="male" value="male" checked={formData.gender === "male"} onChange={handleChange} />
+                        <input type="radio" name="gender" id="male" value="male" required checked={formData.gender === "male"} onChange={handleChange} />
 
                         <label htmlFor="female">Female</label>
-                        <input type="radio" name="gender" id="female" value="female" checked={formData.gender === "female"} onChange={handleChange} />
+                        <input type="radio" name="gender" id="female" value="female" required  checked={formData.gender === "female"} onChange={handleChange} />
                     </div>
 
                     <label htmlFor="image" style={{ cursor: "pointer" }} className={Styles.label}>

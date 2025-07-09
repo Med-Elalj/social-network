@@ -28,7 +28,7 @@ export default function Users({ users, onUserSelect }) {
                                     height={50}
                                     alt="userProfile"
                                 />
-                                {activeIndex === index && <span className={Style.activeIndicator} />}
+                                {user.online && <span className={Style.activeIndicator} />}
                             </div>
                             <div>
                                 <h4>{user.name}</h4>

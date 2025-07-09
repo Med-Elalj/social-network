@@ -16,6 +16,7 @@ export const WebSocketProvider = ({ children }) => {
 
   const [newMessage, setNewMessage] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [updateOnlineUser, setUpdateOnlineUser] = useState(null);
   const { showNotification } = useNotification();
   const target = useRef(null);
 
@@ -48,6 +49,10 @@ export const WebSocketProvider = ({ children }) => {
             // showNotification(`New message from ${data.author_name}`, "success", true, 5000);
             console.warn("Message not for this chat:", data);
           }
+        }
+      } else if (data.command) {
+        if (data.command == "online") {
+            setUpdateOnlineUser(data)
         }
       }
 
@@ -116,6 +121,7 @@ export const WebSocketProvider = ({ children }) => {
         newMessage,
         setTarget,
         isConnected,
+        updateOnlineUser,
       }}
     >
       {children}

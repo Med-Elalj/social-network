@@ -4,11 +4,14 @@ import { useState } from "react";
 import Styles from "./newPost.module.css";
 import { SendData } from "../../../utils/sendData.js";
 import { useRouter } from 'next/navigation';
+import { HandleUplod } from "../utils.jsx";
+
 export default function NewPost() {
   const [content, setContent] = useState("");
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState("public");
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploadedImagePath, setUploadedImagePath] = useState(null);
   const router = useRouter();
 
   const handleImageChange = (e) => {
@@ -27,14 +30,17 @@ export default function NewPost() {
       return;
     }
 
+    let imagePath = null;
+    if (image) {
+      imagePath = await HandleUplod(image);
+      setUploadedImagePath(imagePath);
+    }
+
     const formData = {
       content: content,
       privacy: privacy,
-      image: image ? image.name : null
+      image: imagePath,
     };
-
-    console.log(image);
-    
 
     const response = await SendData("/api/v1/set/Post", formData);
 
@@ -42,7 +48,7 @@ export default function NewPost() {
       const errorBody = await response.json();
       console.log(errorBody);
     } else {
-      console.log("Form submitted successfully!");
+      console.log("✅ Post created!");
       router.push("/");
     }
   };

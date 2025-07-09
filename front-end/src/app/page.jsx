@@ -10,52 +10,76 @@ import LikeDeslike from "./utils.jsx";
 import Comments from "./comments.jsx";
 
 export default function Home() {
-  const [posts, setPosts] = useState([]);
   const [openComments, setOpenComments] = useState(null);
+  const [posts, setPosts] = useState([]);
   const [lastPostID, setLastPostID] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const fetchData = async () => {
-    if (isLoading || !hasMore) return;
-    setIsLoading(true);
-    console.log(isLoading, hasMore, lastPostID);
+  const fetchData = async (reset = false) => {
+    if (loading || (!hasMore && !reset)) return;
+    setLoading(true);
 
-    const formData = { start: lastPostID };
-    const response = await SendData("/api/v1/get/posts", formData);
-    const Body = await response.json();
-
-    if (response.status !== 200) {
-      console.log(Body);
-    } else {
-      const newPosts = Body.posts;
-      if (!newPosts || newPosts.length === 0) {
-        setHasMore(false);
-      } else {
-        setPosts((prev) => [...prev, ...newPosts]);
-        const newLastID = newPosts[newPosts.length - 1].ID;
-        setLastPostID(newLastID);
-      }
+    let startID = lastPostID;
+    if (reset) {
+      startID = 0;
     }
 
-    setIsLoading(false);
+    const formData = { start: startID };
+
+    try {
+      const response = await SendData("/api/v1/get/posts", formData);
+      const Body = await response.json();
+
+      if (response.status !== 200) {
+        console.error("Fetch error:", Body);
+        setLoading(false);
+        return;
+      }
+
+      const newPosts = Body.posts || [];
+
+      if (reset) {
+        setPosts(newPosts);
+      } else {
+        setPosts((prev) => {
+          const combined = [...prev, ...newPosts];
+          const unique = Array.from(new Map(combined.map(p => [p.ID, p])).values());
+          return unique;
+        });
+      }
+
+      if (newPosts.length === 0) {
+        setHasMore(false);
+      } else {
+        setLastPostID(newPosts[newPosts.length - 1].ID);
+        setHasMore(true);
+      }
+    } catch (err) {
+      console.error("Fetch exception:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchData(); }, [lastPostID]);
+  useEffect(() => {
+    fetchData(true);
+  }, []);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 50;
-      console.log(nearBottom && !isLoading && hasMore);
-
-      if (nearBottom && !isLoading && hasMore) {
-        fetchData();
+    const onScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+      if (nearBottom && hasMore && !loading) {
+        setTimeout(() => {
+          fetchData();
+        }, 1000);
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isLoading, hasMore]);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [hasMore, loading]);
+
 
   return (
     <div className={Styles.global}>
@@ -149,13 +173,7 @@ export default function Home() {
             </section>
           </div>
         ))}
-        {isLoading && (
-          <div style={{ textAlign: "center", margin: "20px" }}>
-            <p>Loading more posts...</p>
-          </div>
-        )}
       </div>
-
 
       {/* Right Sidebar */}
       <div className={Styles.thirdSide} >

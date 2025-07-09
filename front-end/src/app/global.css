@@ -1,5 +1,5 @@
 :root {
-  --dark-bg: rgb(26, 26 ,26, 90%);
+  --dark-bg: rgb(26, 26, 26, 90%);
   --primary-color: #1a1a1a;
   --secondary-color: #e0e0e0;
   --hover-color: #8D6B0D;
@@ -9,8 +9,9 @@
 
 html {
   overflow-y: scroll;
+  overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: #ddd #ffffff;
+  scrollbar-color: var(--border-color) var(--primary-color);
 }
 
 body {

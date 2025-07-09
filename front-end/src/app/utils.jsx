@@ -215,7 +215,7 @@ export function usePasswordToggle() {
 }
 
 // Like/Dislike button 
-export function LikeDeslike({ EntityID, EntityType, isLiked, currentLikeCount }) {
+export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLikeCount }) {
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(isLiked);
   const [likeCount, setLikeCount] = useState(currentLikeCount);
@@ -265,4 +265,25 @@ export function LikeDeslike({ EntityID, EntityType, isLiked, currentLikeCount })
       <p style={{ marginLeft: "5px" }}>{likeCount}</p>
     </div>
   );
+}
+
+// upload
+export async function HandleUplod(image) {
+  if (!image) return null;
+
+  const formData = new FormData();
+  formData.append("file", image);
+
+  const response = await fetch("/api/v1/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    console.error("Image upload failed");
+    return null;
+  }
+
+  const { path } = await response.json();
+  return path;
 }

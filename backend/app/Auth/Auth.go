@@ -53,9 +53,6 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// 2. Validate JWT and Session
 	payload, err := jwt.JWTVerify(jwtToken)
 	if err != nil || payload == nil {
-		ClearCookie(w, AuthInfo.JwtTokenName)
-		ClearCookie(w, AuthInfo.SessionIDName)
-		ClearCookie(w, AuthInfo.RefreshTokenName)
 		json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
 		return
 	}
@@ -63,9 +60,7 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// 3. Check if session is still active in DB
 	validSession, err := SessionExists(payload.Sub, sessionID)
 	if err != nil || !validSession || sessionID != payload.SessionID {
-		ClearCookie(w, AuthInfo.JwtTokenName)
 		ClearCookie(w, AuthInfo.SessionIDName)
-		ClearCookie(w, AuthInfo.RefreshTokenName)
 		json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
 		return
 	}

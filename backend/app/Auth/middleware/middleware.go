@@ -32,6 +32,7 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Query DB for session details (including stored IP and User-Agent)
 		session, err := auth.GetSessionByID(payload.SessionID)
 		if err != nil {
+			auth.ClearCookie(w, auth.AuthInfo.JwtTokenName)
 			auth.JsRespond(w, "Unauthorized - session not found", http.StatusUnauthorized)
 			return
 		}

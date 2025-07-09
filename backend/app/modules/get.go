@@ -407,6 +407,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	SELECT
         p.id,
 		p.display_name,
+		p.avatar,
         NOT p.is_user AS is_group
 	FROM
 		user u
@@ -437,13 +438,11 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 
 	for rows.Next() {
 		var user structs.UsersGet
-		if err := rows.Scan(&user.ID, &user.Username, &user.Is_Group); err != nil {
+		if err := rows.Scan(&user.ID, &user.Username, &user.Avatar, &user.Is_Group); err != nil {
 			return userS, fmt.Errorf("could not scan row: %w", err)
 		}
 		// TODO IMPLEMENT ONLINE STATUS
-		// if _, e := helpers.Sockets[username.Username]; e {
-		// 	username.Online = true
-		// }
+		_, user.Online = structs.Sockets[int(user.ID)]
 		userS = append(userS, user)
 	}
 

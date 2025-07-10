@@ -8,6 +8,7 @@ import Users from "./[tab]/Users";
 import Groups from "./[tab]/Groups";
 import Messages from "./messages.jsx";
 import ChatInput from "./input.jsx";
+import Link from "next/link";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
@@ -142,16 +143,12 @@ export default function Chat() {
                   height={50}
                   alt="userProfile"
                 />
-                <div className={Style.userInfo}>
+                <Link href={`/profile/${selectedUser.name}`}><div className={Style.userInfo}>
                   <h5>{selectedUser.name}</h5>
-                  <h6
-                    style={{
-                      color: selectedUser.status === "online" ? "green" : "red",
-                    }}
-                  >
-                    {selectedUser.status}
+                  <h6>
+                    {selectedUser.online==true? "online" : "offline"}
                   </h6>
-                </div>
+                </div></Link>
               </div>
 
               <div className={Style.body}>

@@ -4,6 +4,10 @@
     color: var(--secondary-color);
 }
 
+.top a {
+    color:var(--secondary-color)
+}
+
 .first {
     border-right: solid 1px var(--border-color);
     position: fixed;

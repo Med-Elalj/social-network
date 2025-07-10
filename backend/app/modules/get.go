@@ -106,12 +106,12 @@ func GetRequests(uid int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 		SELECT
 			r.id,
-			r.sender_id,
-			r.towhat,
-			r.type,
-			r.created_at,
-			p.display_name,
-			p.avatar
+			r.sender_id, -- sender_id
+			r.towhat, -- group_id
+			r.type, -- type 0 is follow, 1 is group
+			r.created_at, -- time
+			p.display_name, -- username of sender
+			p.avatar -- avatar of sender
 		FROM
 			requests r
 		JOIN profile p ON r.sender_id = p.id
@@ -134,8 +134,9 @@ func GetRequests(uid int) ([]structs.RequestsGet, error) {
 		if request.Type == 0 {
 			request.Message = fmt.Sprintf("Follow request from %s", request.Username)
 		} else {
-			DB.QueryRow(`select p.display_name from profile p where p.id = ?`, request.Towhat).Scan(&request.Towhat)
-			request.Message = fmt.Sprintf("%s sends you a request to join %s Group", request.Username, request.Towhat)
+			var towhat string
+			DB.QueryRow(`select p.display_name from profile p where p.id = ?`, request.Towhat).Scan(&towhat)
+			request.Message = fmt.Sprintf("%s sends you a request to join %s Group", request.Username, towhat)
 		}
 		requests = append(requests, request)
 	}

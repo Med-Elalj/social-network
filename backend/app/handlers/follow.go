@@ -1,13 +1,11 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
 	auth "social-network/app/Auth"
 	"social-network/app/modules"
-	"social-network/app/structs"
 	"social-network/server/logs"
 )
 
@@ -69,52 +67,4 @@ func FollowersAccept(w http.ResponseWriter, r *http.Request, uid int) {
 
 	// TODO notif to group creator
 	auth.JsRespond(w, "user accepted group successfully", http.StatusOK)
-}
-
-func followersList(w http.ResponseWriter, r *http.Request, uid int) {
-	w.Header().Set("Content-Type", "application/json")
-	followers, err := modules.getfollowers(uid)
-	if err != nil {
-		logs.ErrorLog.Println("Error getting followers:", err)
-		auth.JsRespond(w, "failed to get followers", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(map[string][]structs.UsersGet{
-		"followers": followers,
-	})
-}
-
-func followingList(w http.ResponseWriter, r *http.Request, uid int) {
-	w.Header().Set("Content-Type", "application/json")
-	following, err := modules.getfollowing(uid)
-	if err != nil {
-		logs.ErrorLog.Println("Error getting following:", err)
-		auth.JsRespond(w, "failed to get following", http.StatusInternalServerError)
-		return
-	}
-
-	json.NewEncoder(w).Encode(map[string][]structs.UsersGet{
-		"following": following,
-	})
-}
-
-
-func followcreateHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var follow structs.FollowReq
-	if err := json.NewDecoder(r.Body).Decode(&follow); err != nil {
-		logs.ErrorLog.Println("Error decoding follow request:", err)
-		auth.JsRespond(w, "invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	if follow.FollowingId == 0 {
-		return
-	}
-
-	if err := modules.userfollow(uid, follow.FollowingId); err != nil {
-		return
-	}
-
-	auth.JsRespond(w, "follow created successfully", http.StatusOK)
 }

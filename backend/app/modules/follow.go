@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"social-network/app/logs"
+	"social-network/app/structs"
 )
 
 func InsertFollow(uid, gid int) error {
@@ -124,7 +125,6 @@ func CreateFollow(fromID, toID int) (bool, error) {
 		return false, err
 	}
 
-
 	return true, nil
 }
 
@@ -156,4 +156,33 @@ func SetUnfollow(fromID, toID int) error {
 	}
 
 	return nil
+}
+
+func GetFollowRequests(uid int) ([]structs.Gusers, error) {
+	var users []structs.Gusers
+	rows, err := DB.Query(`
+	SELECT u.id, u.display_name, u.avatar
+	from users profile
+	LEFT JOIN request ON receiver_id = ?
+	WHERE TYPE = 'follow_request' AND is_accept = 0
+	order by created_at desc;
+	`, uid)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return users, nil
+		}
+		logs.ErrorLog.Printf("Error getting follow requests: %v", err)
+		return nil, errors.New("error getting follow requests")
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var user structs.Gusers
+		err := rows.Scan(&user.Uid, &user.Name, &user.Avatar)
+		if err != nil {
+			logs.ErrorLog.Printf("Error scanning follow request: %v", err)
+			return nil, errors.New("error scanning follow request")
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }

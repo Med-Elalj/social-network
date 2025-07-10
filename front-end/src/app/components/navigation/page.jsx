@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Styles from "./nav.module.css";
+import NotificationList from "./notificationList.jsx";
 import { refreshAccessToken } from "../../../../utils/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 
@@ -18,6 +19,37 @@ export default function Routing() {
   const pathname = usePathname();
   const router = useRouter();
   const { closeWebSocket, isConnected } = useWebSocket();
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch("/api/v1/notifications", {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          console.error("Failed to fetch notifications");
+          return;
+        }
+
+        const data = await response.json();
+        setNotifications(data);
+        console.log("Notifications:", data);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    }
+
+    if (isOpen) {
+      // fetchNotifications();
+    }
+  }, [isOpen])
 
   useEffect(() => {
     const fetchAuthStatus = async () => {
@@ -149,26 +181,7 @@ export default function Routing() {
                     />
                   </span>
                   {isOpen && (
-                    <div
-                      className={`${Styles.dropdownMenu} ${Styles.notification}`}
-                    >
-                      <Link href={`/`} onClick={() => setIsOpen(false)}>
-                        Lorem Ipsum is simply dummy text of the printing and
-                        typesetting industry. Lorem Ipsum has been the
-                        industry's standard dummy text ever since the 1500s,
-                        when an unknown printer took a galley of type and
-                        scrambled it to make a type specimen book. It has
-                        survived not only five centuries, but also the leap into
-                        electronic typesetting, remaining essentially unchanged.
-                        It was popularised in the 1960s with the release of
-                        Letraset sheets containing Lorem Ipsum passages, and
-                        more recently with desktop publishing software like
-                        Aldus PageMaker including versions of Lorem Ipsum.
-                      </Link>
-                      <Link href={`/`} onClick={() => setIsOpen(false)}>
-                        test2
-                      </Link>
-                    </div>
+                    <NotificationList notifications={notifications} setIsOpen={setIsOpen} />
                   )}
                 </div>
               </div>
@@ -213,18 +226,16 @@ export default function Routing() {
           ) : (
             <>
               <Link
-                className={`${Styles.linkWithIcon} ${
-                  pathname === "/login" ? Styles.active : ""
-                }`}
+                className={`${Styles.linkWithIcon} ${pathname === "/login" ? Styles.active : ""
+                  }`}
                 href="/login"
                 onClick={() => setIsOpen(false)}
               >
                 Login
               </Link>
               <Link
-                className={`${Styles.linkWithIcon} ${
-                  pathname === "/register" ? Styles.active : ""
-                }`}
+                className={`${Styles.linkWithIcon} ${pathname === "/register" ? Styles.active : ""
+                  }`}
                 href="/register"
                 onClick={() => setIsOpen(false)}
               >
@@ -253,9 +264,8 @@ export default function Routing() {
 function NavLink({ href, icon, pathname }) {
   return (
     <Link
-      className={`${Styles.linkWithIcon} ${
-        pathname === href ? Styles.active : ""
-      }`}
+      className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""
+        }`}
       href={href}
     >
       <span className={Styles.iconWrapper}>

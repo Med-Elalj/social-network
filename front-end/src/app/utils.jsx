@@ -23,14 +23,9 @@ function PlaySound(name) {
 export const CapitalizeFirstLetter = (str) => {
   if (typeof str !== "string") return "";
   return str.charAt(0).toUpperCase() + str.slice(1);
-}
+};
 
-export function showNotification(
-  message,
-  type = "success",
-  sound = true,
-  duration = 3000
-) {
+export function showNotification(message, type = "success", sound = true, duration = 3000) {
   if (typeof window === "undefined") return; // SSR guard
   if (notificationCooldown) return;
 
@@ -144,7 +139,7 @@ function playSound(name) {
   }
 }
 
-export  function Notification({
+export function Notification({
   open,
   message,
   type = "success",
@@ -174,11 +169,16 @@ export  function Notification({
 
   return (
     <div className={`toast toast--${type} show`}>
-      <div className="toast__icon" onClick={() => {
-        setShow(false);
-        if (onClose) onClose();
-      }}
-        aria-label="Close">{config.icon}</div>
+      <div
+        className="toast__icon"
+        onClick={() => {
+          setShow(false);
+          if (onClose) onClose();
+        }}
+        aria-label="Close"
+      >
+        {config.icon}
+      </div>
       <div className="toast__content">
         <p className="toast__type">{config.title}</p>
         <p className="toast__message">{message}</p>
@@ -213,7 +213,7 @@ export function usePasswordToggle() {
   }, []);
 }
 
-// Like/Dislike button 
+// Like/Dislike button
 export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLikeCount }) {
   const [loading, setLoading] = useState(false);
   const [liked, setLiked] = useState(isLiked);
@@ -227,7 +227,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
     const likeInfo = {
       entity_id: EntityID,
       entity_type: EntityType,
-      is_liked: liked
+      is_liked: liked,
     };
 
     try {
@@ -238,7 +238,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
       const body = await response.json();
 
       if (response.status === 200) {
-        console.log('Like/Dislike processed successfully!');
+        console.log("Like/Dislike processed successfully!");
       } else {
         console.log(body);
         setLiked(liked);
@@ -254,7 +254,10 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
   };
 
   return (
-    <div onClick={handleLikeDeslike} style={{ cursor: "pointer", marginRight: "10px", display: "flex", alignItems: "center" }}>
+    <div
+      onClick={handleLikeDeslike}
+      style={{ cursor: "pointer", marginRight: "10px", display: "flex", alignItems: "center" }}
+    >
       <Image
         src={liked ? "/Like.svg" : "/Like2.svg"}  
         alt={liked ? "liked" : "like"}
@@ -267,7 +270,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
 }
 
 // upload
-export async function HandleUplod(image) {
+export async function HandleUpload(image) {
   if (!image) return null;
 
   const formData = new FormData();

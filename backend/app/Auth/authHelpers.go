@@ -10,8 +10,6 @@ import (
 
 	"social-network/app/logs"
 	"social-network/app/modules"
-	"social-network/app/structs"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -28,15 +26,15 @@ type authInfo struct {
 	RefreshTokenName       string
 }
 type Register struct {
-	UserName  string         `json:"username"`
-	Email     string         `json:"email"`
-	Birthdate string         `json:"birthdate"`
-	Fname     string         `json:"fname"`
-	Lname     string         `json:"lname"`
-	Password  string         `json:"password"`
-	Gender    string         `json:"gender"`
-	Avatar    structs.Avatar `json:"avatar"`
-	About     string         `json:"about"`
+	UserName  string `json:"username"`
+	Email     string `json:"email"`
+	Birthdate string `json:"birthdate"`
+	Fname     string `json:"fname"`
+	Lname     string `json:"lname"`
+	Password  string `json:"password"`
+	Gender    string `json:"gender"`
+	Avatar    string `json:"avatar"`
+	About     string `json:"about"`
 }
 
 var AuthInfo = authInfo{

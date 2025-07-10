@@ -8,6 +8,7 @@ import Users from "./[tab]/Users";
 import Groups from "./[tab]/Groups";
 import Messages from "./messages.jsx";
 import ChatInput from "./input.jsx";
+import Link from "next/link";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
@@ -21,9 +22,56 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState(null)
   const [personalDiscussions, setPersonalDiscussions] = useState([]);
   const [groupDiscussions, setGroupDiscussions] = useState([]);
-  const {setTarget}=useWebSocket()
+  const { setTarget, updateOnlineUser } = useWebSocket()
 
-  GetUsers(setPersonalDiscussions, setGroupDiscussions);
+
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        console.log("Resolved backend URL:", BACKEND_URL);
+        const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // Filter data by profile.isgroup
+        const personal = (data || []).filter(
+          (profile) => profile.is_group === false
+        );
+        const groups = (data || []).filter(
+          (profile) => profile.is_group === true
+        );
+        setPersonalDiscussions(personal);
+        setGroupDiscussions(groups);
+      } catch (error) {
+        console.error("Error fetching conversations:", error);
+      }
+    };
+
+    fetchConversations();
+  }, []);
+
+  useEffect(() => {
+    if (updateOnlineUser && updateOnlineUser.uid) {
+      setPersonalDiscussions((prev) =>
+        prev.map((user) =>
+          user.id === updateOnlineUser.uid
+            ? { ...user, online: updateOnlineUser.value }
+            : user
+        )
+      );
+    }
+  }, [updateOnlineUser]);
+
 
   useEffect(() => {
     if (selectedUser) setTarget(selectedUser.id);
@@ -34,7 +82,7 @@ export default function Chat() {
   }, [selectedUser]);
 
   const handleTabClick = (selectedTab) => {
-    console.log("selected tab: ",selectedTab);
+    console.log("selected tab: ", selectedTab);
     setActiveTab(selectedTab);
   };
 
@@ -90,25 +138,21 @@ export default function Chat() {
             <>
               <div className={Style.top}>
                 <Image
-                  src={`/${selectedUser.avatar ?? "iconMale.png"}`}
+                  src={`/${selectedUser.pfp.String ? selectedUser.pfp.String : "iconMale.png"}`}
                   width={50}
                   height={50}
                   alt="userProfile"
                 />
-                <div className={Style.userInfo}>
+                <Link href={`/profile/${selectedUser.name}`}><div className={Style.userInfo}>
                   <h5>{selectedUser.name}</h5>
-                  <h6
-                    style={{
-                      color: selectedUser.status === "online" ? "green" : "red",
-                    }}
-                  >
-                    {selectedUser.status}
+                  <h6>
+                    {selectedUser.online==true? "online" : "offline"}
                   </h6>
-                </div>
+                </div></Link>
               </div>
 
               <div className={Style.body}>
-                <Messages user={selectedUser}/>
+                <Messages user={selectedUser} />
               </div>
 
               <div className={Style.bottom}>
@@ -154,38 +198,4 @@ function Tab({ name, icon, activeTab, onClick }) {
   );
 }
 
-function GetUsers(setPersonalDiscussions, setGroupDiscussions) {
-  useEffect(() => {
-    console.log("Resolved backend URL:", BACKEND_URL);
-    const fetchConversations = async () => {
-      try {
-        const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        // Filter data by profile.isgroup
-        const personal = (data || []).filter(
-          (profile) => profile.is_group === false
-        );
-        const groups = (data || []).filter(
-          (profile) => profile.is_group === true
-        );
-        setPersonalDiscussions(personal);
-        setGroupDiscussions(groups);
-      } catch (error) {
-        console.error("Error fetching conversations:", error);
-      }
-    };
-
-    fetchConversations();
-  }, []);
-}

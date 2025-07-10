@@ -16,6 +16,8 @@ export const WebSocketProvider = ({ children }) => {
 
   const [newMessage, setNewMessage] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [updateOnlineUser, setUpdateOnlineUser] = useState(null);
+  const [newNotification, setNewNotification] = useState(null);
   const { showNotification } = useNotification();
   const target = useRef(null);
 
@@ -36,18 +38,28 @@ export const WebSocketProvider = ({ children }) => {
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("data received via websocket: ", data);
+
       console.log("the target is: ", target.current);
       if (data.content) {
         if ([data.sender, data.receiver].includes(target.current)) {
           data.sent_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
           setNewMessage(data);
         } else {
-          if (data?.sender != "system") {
+          if (data?.author_name != "system") {
             showNotification(`New messsage from ${data.author_name}`, "success");
             // showNotification(`New message from ${data.author_name}`, "success", true, 5000);
             console.warn("Message not for this chat:", data);
+          } else {
+            showNotification(`${data.content}`, "error")
           }
+        }
+      } else if (data.sender === "<system>", data.command) {
+        if (data.command == "online") {
+          console.log("data received via websocket: ", data);
+          setUpdateOnlineUser(data)
+        } else {
+          setNewNotification(data)
+          showNotification(data.content, "info")
         }
       }
 
@@ -70,7 +82,7 @@ export const WebSocketProvider = ({ children }) => {
 
 
     ws.current.onerror = (err) => {
-     console.error("⚠️ WebSocket error:", err);
+      console.error("⚠️ WebSocket error:", err);
       ws.current?.close();
     };
   };
@@ -116,6 +128,8 @@ export const WebSocketProvider = ({ children }) => {
         newMessage,
         setTarget,
         isConnected,
+        updateOnlineUser,
+        newNotification,
       }}
     >
       {children}

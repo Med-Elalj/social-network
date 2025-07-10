@@ -20,18 +20,15 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 			auth.JsRespond(w, "Please enter a valid username.", http.StatusBadRequest)
 		}
 	}
+
 	if err := user.ValidateRegister(); len(err) != 0 {
 		logs.ErrorLog.Println("Validation failed for user input")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		json.NewEncoder(w).Encode(map[string]any{
 			"error": err,
 		})
 		return
 	}
-	// if user.Avatar != "" {
-	// upload.UploadHandler(w, r, user.Avatar)
-	// 	// TODO:Uploading avatar
-	// }
 
 	userID, err := auth.InsertUser(user)
 	if err != nil {

@@ -1,16 +1,25 @@
 package handlers
 
 import (
+	"bytes"
 	"fmt"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"social-network/app/logs"
 	"social-network/app/modules"
+)
+
+const (
+	maxUploadSize = 4 * (1 << 20) // 4 MiB
+	uploadDir     = "../front-end/public/uploads"
 )
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -23,35 +32,49 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	// Read into memory buffer for analysis
-	tmpData, err := io.ReadAll(io.LimitReader(file, 1024*1024))
+	tmpData, err := io.ReadAll(io.LimitReader(file, maxUploadSize+1))
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, `{"error":"failed to read file"}`, http.StatusInternalServerError)
 		fmt.Fprintf(w, `{"error": "Failed to read file"}`)
 		return
 	}
 
-	// Check image validity
-	reader := strings.NewReader(string(tmpData))
-	if !modules.IsValidImage(reader, header.Header.Get("Content-Type")) {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, `{"error": "Invalid image format"}`)
+	if len(tmpData) > maxUploadSize {
+		http.Error(w, `{"error":"file too large"}`, http.StatusBadRequest)
 		return
 	}
 
-	// Create a unique filename
-	timestamp := time.Now().UnixNano()
+	sniff := tmpData
+	if len(sniff) > 512 {
+		sniff = sniff[:512]
+	}
+	mediaType := http.DetectContentType(sniff)
+
+	reader := bytes.NewReader(tmpData)
+
+	if !modules.IsValidImage(reader) {
+		http.Error(w, `{"error":"invalid image format"}`, http.StatusBadRequest)
+		return
+	}
+
+	//make a unique filename
 	ext := filepath.Ext(header.Filename)
-	filename := fmt.Sprintf("%d%s", timestamp, ext)
+	if ext == "" {
+		exts, _ := mime.ExtensionsByType(mediaType)
+		if len(exts) > 0 {
+			ext = exts[0]
+		}
+	}
+	filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
 
-	// Save the file to disk
-	err = os.WriteFile(filepath.Join("../../../front-end/public/uploads", filename), tmpData, 0o644)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		logs.ErrorLog.Println("Failed to save file:", err)
-		fmt.Fprintf(w, `{"error": "Failed to save file"}`)
+	//save the file
+	if err = os.WriteFile(filepath.Join(uploadDir, filename), tmpData, 0o644); err != nil {
+		logs.ErrorLog.Printf("failed to save file: %v", err)
+		http.Error(w, `{"error":"failed to save file"}`, http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"filename": "%s"}`, filename)
+	fmt.Fprintf(w, `{"path": "/uploads/%s"}`, filename)
 }

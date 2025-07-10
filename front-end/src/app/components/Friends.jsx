@@ -1,48 +1,120 @@
+"use client";
+
 import Image from "next/image";
 import Styles from "../global.module.css";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useNotification } from "../context/notificationContext.jsx";
+import { useWebSocket } from "../context/WebSocketContext.jsx";
 
 export default function Friends() {
+    const [requests, setRequests] = useState([]);
+    const [contacts, setContacts] = useState([]);
+    const { showNotification } = useNotification();
+    const { updateOnlineUser } = useWebSocket();
+
+    useEffect(() => {
+        async function fetchFollowRequest(request) {
+            try {
+                const response = await fetch(`/api/v1/get/${request}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    console.error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(request, data)
+                if (request == "follow") {
+                    setRequests(data.users || [])
+                } else if (request == "users") {
+                    data ? setContacts(data) : setContacts([])
+                }
+            } catch (error) {
+                console.error("Error fetching follow requests:", error)
+            }
+        }
+
+        fetchFollowRequest("follow")
+        fetchFollowRequest("users")
+
+    }, [])
+
+    useEffect(() => {
+        if (updateOnlineUser?.uid) {
+            setContacts(prev => {
+                if (prev?.length > 0) {
+                    // Return the updated array from map
+                    return prev.map(user => 
+                        user.id === updateOnlineUser.uid 
+                            ? { ...user, online: updateOnlineUser.value } 
+                            : user
+                    );
+                }
+                return prev; // Return the previous state if no contacts
+            });
+        }
+    }, [updateOnlineUser])
+
+    async function responseHandle(id, status) {
+        try {
+            const response = await fetch(`/api/v1/follow/${status}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    uid: id,
+                    status: status
+                })
+            });
+            const data = await response.json(); // Added 'const' declaration
+            showNotification(data.message, response.ok ? "succes" : "error")
+        } catch (error) {
+            console.error(error)
+            showNotification(`can't ${status} request, try again`, "error")
+        }
+    }
+
     return (
         <>
             <div className={Styles.Requiests}>
                 <h1>Friend requests</h1>
-                {[1, 2, 3].map((_, i) => (
-                    <div key={i}>
+                {requests?.length > 0 ? (requests.map((user) => (
+                    <div key={user.uid}>
                         <div>
-                            <Image src="/iconMale.png" alt="profile" width={40} height={40} />
-                            <h5>Username</h5>
+                            <Image src={user.Avatar} alt="profile" width={40} height={40} />
+                            <h5>{user.Name}</h5> {/* Fixed: was "user.Name" as string */}
                         </div>
                         <div className={Styles.Buttons}>
-                            <Link href="/accept">
+                            <div onClick={() => responseHandle(user.uid, "accept")}> {/* Fixed: wrapped in arrow function */}
                                 <Image src="/accept.svg" alt="accept" width={30} height={30} />
-                            </Link>
-                            <Link href="/reject">
+                            </div>
+                            <div onClick={() => responseHandle(user.uid, "reject")}> {/* Fixed: changed to "reject" */}
                                 <Image src="/reject.svg" alt="reject" width={30} height={30} />
-                            </Link>
+                            </div>
                         </div>
                     </div>
-                ))}
+                ))) : <h3 style={{ textAlign: "center" }}>No Requests</h3>}
             </div>
 
             <div className={Styles.friends}>
                 <h1>Contacts</h1>
-                {[1, 2, 3, 4].map((_, i) => (
-                    <div key={i}>
+                {contacts?.length > 0 ? (contacts.map((user) => (
+                    <div key={user.id}>
                         <div>
                             <Image src="/iconMale.png" alt="profile" width={40} height={40} />
-                            <h5>User Name</h5>
+                            <h5>{user.name}</h5>
                         </div>
-                        <p>online</p>
+                        <p className={user.online ? Styles.online : Styles.offline}>{user.online ? "online" : "offline"}</p>
                     </div>
-                ))}
-                <div>
-                    <div>
-                        <Image src="/iconMale.png" alt="profile" width={40} height={40} />
-                        <h5>User Name</h5>
-                    </div>
-                    <p style={{ color: 'red' }}>offline</p>
-                </div>
+                ))) : <h2>Go Get followers</h2>}
+
             </div>
         </>
 

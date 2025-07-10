@@ -3,21 +3,27 @@ package modules
 import (
 	"image"
 	"io"
-	"strings"
+	"net/http"
 )
 
-func IsValidImage(file io.ReadSeeker, contentType string) bool {
-	var err error
-	if strings.Contains(contentType, "svg") {
-		err = validateSecureSVG(file)
-	} else {
-		_, _, err = image.Decode(file)
-	}
-	_, _ = file.Seek(0, 0)
-	return err == nil
-}
+func IsValidImage(file io.ReadSeeker) bool {
+	//read first 512 bytes without consuming the stream
+	header := make([]byte, 512)
+	n, _ := file.Read(header)
 
-func validateSecureSVG(file io.ReadSeeker) error {
-	_, err := io.Copy(io.Discard, file)
-	return err
+	mediaType := http.DetectContentType(header[:n])
+
+	file.Seek(0, io.SeekStart)
+
+	switch mediaType {
+	case "image/jpeg", "image/png", "image/gif":
+		if _, _, err := image.Decode(file); err != nil {
+			file.Seek(0, io.SeekStart)
+			return false
+		}
+		file.Seek(0, io.SeekStart)
+		return true
+	default:
+		return false
+	}
 }

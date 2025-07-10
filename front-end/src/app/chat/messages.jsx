@@ -63,6 +63,7 @@ export default function Messages({ user }) {
     const fetchMessages = async () => {
       try {
         const data = await getMessages(user.name, page);
+        console.log("fetch messages data",data)
         if (data) {
           const newMessages = data.messages;
           newMessages == null

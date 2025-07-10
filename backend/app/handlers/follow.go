@@ -1,17 +1,19 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	auth "social-network/app/Auth"
 	"social-network/app/logs"
 	"social-network/app/modules"
+	"social-network/app/structs"
 )
 
 // needs header "follow_target" the id of the profile you want to follow
 func FollowersJoin(w http.ResponseWriter, r *http.Request, uid int) {
-	gid, err := strconv.Atoi(r.Header.Get("follow_target"))
+	gid, err := strconv.Atoi(r.Header.Get("follow _target"))
 	if err != nil {
 		logs.ErrorLog.Println("Error converting group ID:", err)
 		auth.JsRespond(w, "group id is required", http.StatusBadRequest)
@@ -67,4 +69,15 @@ func FollowersAccept(w http.ResponseWriter, r *http.Request, uid int) {
 
 	// TODO notif to group creator
 	auth.JsRespond(w, "user accepted group successfully", http.StatusOK)
+}
+
+func GetFollowRequests(w http.ResponseWriter, r *http.Request, uid int) {
+	users, err := modules.GetFollowRequests(uid)
+	if err != nil {
+		logs.ErrorLog.Println("Error get follow requests from Db:", err)
+		auth.JsRespond(w, "get follow requests failed", http.StatusInternalServerError)
+	}
+	json.NewEncoder(w).Encode(map[string][]structs.Gusers{
+		"users": users,
+	})
 }

@@ -117,10 +117,10 @@ func InsertUser(user Register) (int64, error) {
 	}
 
 	var avatar sql.NullString
-	if avatar.String == "" {
-		avatar = sql.NullString{String: "", Valid: false}
+	if user.Avatar != "" {
+		avatar = sql.NullString{String: user.Avatar, Valid: true}
 	} else {
-		avatar = sql.NullString{String: string(avatar.String), Valid: true}
+		avatar = sql.NullString{Valid: false}
 	}
 
 	var about sql.NullString

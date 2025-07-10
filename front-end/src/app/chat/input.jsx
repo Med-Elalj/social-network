@@ -25,19 +25,6 @@ export default function ChatInput({ target }) {
 
   return (
     <form onSubmit={sendMessageHandler} className={Styles.chat_input_form}>
-      <div className={Styles.uploadContainer}>
-        <label htmlFor="media" style={{ cursor: "pointer" }}>
-          <Image src="/upload.svg" width={25} height={25} alt="upload" />
-        </label>
-        <input
-          type="file"
-          name="media"
-          id="media"
-          style={{ display: "none" }}
-          accept="image/*,video/*"
-          // onChange={handleMediaChange} // Optional
-        />
-      </div>
 
       <input
         type="text"

@@ -212,12 +212,13 @@ export default function Profile() {
                   height: "200px",
                 }}
               >
-                <Image
+                {/* <Image
+                  alt="user avatar"
                   src={profileData.avatar || "/default-avatar.png"}
                   klt="user avatar"
                   fill
                   style={{ borderRadius: "50%" }}
-                />
+                /> */}
               </div>
               <h4>@{CapitalizeFirstLetter(profileData.display_name)}</h4>
             </div>

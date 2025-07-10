@@ -16,23 +16,23 @@ import (
 )
 
 type Profile struct {
-	ID             int            `json:"id"`
-	Email          string         `json:"email"`
-	FirstName      string         `json:"first_name"`
-	LastName       string         `json:"last_name"`
-	DisplayName    string         `json:"display_name"`
-	DateOfBirth    string         `json:"date_of_birth,omitempty"`
-	Gender         string         `json:"gender"`
-	Avatar         sql.NullString `json:"avatar"`
-	Description    string         `json:"description"`
-	IsPublic       bool           `json:"isPublic"`
-	IsUser         bool           `json:"isUser"`
-	CreatedAt      string         `json:"created_at"`
-	IsSelf         bool           `json:"isSelf"`
-	IsFollowed     string         `json:"isFollowed"`
-	PostCount      int            `json:"post_count"`
-	FollowerCount  int            `json:"follower_count"`
-	FollowingCount int            `json:"following_count"`
+	ID             int    `json:"id"`
+	Email          string `json:"email"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	DisplayName    string `json:"display_name"`
+	DateOfBirth    string `json:"date_of_birth,omitempty"`
+	Gender         string `json:"gender"`
+	Avatar         string `json:"avatar"`
+	Description    string `json:"description"`
+	IsPublic       bool   `json:"isPublic"`
+	IsUser         bool   `json:"isUser"`
+	CreatedAt      string `json:"created_at"`
+	IsSelf         bool   `json:"isSelf"`
+	IsFollowed     string `json:"isFollowed"`
+	PostCount      int    `json:"post_count"`
+	FollowerCount  int    `json:"follower_count"`
+	FollowingCount int    `json:"following_count"`
 }
 
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,6 +41,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 
 	var profile Profile
 	var temp sql.NullString
+	var avatarTmp sql.NullString
 	var err error
 	if nickname == "me" {
 		nickname = payload.Username
@@ -63,7 +64,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			&profile.DisplayName,
 			&profile.DateOfBirth,
 			&profile.Gender,
-			&profile.Avatar,
+			&avatarTmp,
 			&temp,
 			&profile.IsPublic,
 			&profile.IsUser,
@@ -91,7 +92,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			&profile.DisplayName,
 			&profile.DateOfBirth,
 			&profile.Gender,
-			&profile.Avatar,
+			&avatarTmp,
 			&temp,
 			&profile.IsPublic,
 			&profile.IsUser,
@@ -109,6 +110,13 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			profile.Gender = ""
 		}
 
+		if temp.Valid {
+			profile.Description = temp.String
+		}
+		if avatarTmp.Valid {
+			profile.Avatar = avatarTmp.String
+		}
+		
 		relationship, err := modules.GetRelationship(payload.Sub, profile.ID)
 		if err != nil {
 			auth.JsRespond(w, "Feild to get relationship", http.StatusNotFound)
@@ -130,9 +138,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		profile.IsSelf = false
-	}
-	if temp.Valid {
-		profile.Description = temp.String
 	}
 
 	if err != nil {

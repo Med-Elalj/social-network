@@ -125,7 +125,7 @@ export default function Posts(userId) {
           </section>
 
           {/* Post Image (optional) */}
-          {Post.ImagePath?.String ? (
+          {/* {Post.ImagePath?.String ? (
             <Image
               src={`/${Post.ImagePath.String}`}
               alt="post"
@@ -135,7 +135,7 @@ export default function Posts(userId) {
               style={{ height: 'auto', width: '100%', borderRadius: '10px' }}
             />
           ) : ""
-          }
+          } */}
 
           <section className={Style.footer}>
             {/* TODO:add to websocket to be updated for all users */}

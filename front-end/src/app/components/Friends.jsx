@@ -5,6 +5,7 @@ import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
 import { useNotification } from "../context/notificationContext.jsx";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
+import Link from "next/link";
 
 export default function Friends() {
     const [requests, setRequests] = useState([]);
@@ -49,9 +50,9 @@ export default function Friends() {
             setContacts(prev => {
                 if (prev?.length > 0) {
                     // Return the updated array from map
-                    return prev.map(user => 
-                        user.id === updateOnlineUser.uid 
-                            ? { ...user, online: updateOnlineUser.value } 
+                    return prev.map(user =>
+                        user.id === updateOnlineUser.uid
+                            ? { ...user, online: updateOnlineUser.value }
                             : user
                     );
                 }
@@ -75,6 +76,7 @@ export default function Friends() {
             });
             const data = await response.json(); // Added 'const' declaration
             showNotification(data.message, response.ok ? "succes" : "error")
+            setRequests(prev => prev.filter((user) => user.id != id))
         } catch (error) {
             console.error(error)
             showNotification(`can't ${status} request, try again`, "error")
@@ -86,7 +88,7 @@ export default function Friends() {
             <div className={Styles.Requiests}>
                 <h1>Friend requests</h1>
                 {requests?.length > 0 ? (requests.map((user) => (
-                    <div key={user.uid}>
+                    <Link href={`/profle/${user.Name}`} key={user.uid}>
                         <div>
                             <Image src={user.Avatar} alt="profile" width={40} height={40} />
                             <h5>{user.Name}</h5> {/* Fixed: was "user.Name" as string */}
@@ -99,20 +101,20 @@ export default function Friends() {
                                 <Image src="/reject.svg" alt="reject" width={30} height={30} />
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 ))) : <h3 style={{ textAlign: "center" }}>No Requests</h3>}
             </div>
 
             <div className={Styles.friends}>
                 <h1>Contacts</h1>
                 {contacts?.length > 0 ? (contacts.map((user) => (
-                    <div key={user.id}>
+                    <Link href={`profile/${user.name}`} key={user.id}>
                         <div>
                             <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                             <h5>{user.name}</h5>
                         </div>
                         <p className={user.online ? Styles.online : Styles.offline}>{user.online ? "online" : "offline"}</p>
-                    </div>
+                    </Link>
                 ))) : <h2>Go Get followers</h2>}
 
             </div>

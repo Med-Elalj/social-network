@@ -49,7 +49,7 @@ export default function NewPost() {
     const formData = {
       content: content,
       privacy: privacy,
-      image: uploadedImagePath,
+      image: imagePath,
     };
 
     const response = await SendData("/api/v1/set/Post", formData);

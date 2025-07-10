@@ -11,13 +11,13 @@ BEGIN
             SELECT
                 1
             FROM
-                follower
+                follow
             WHERE
-                follower.is_accepted = 1
+                follow.status = 1
                 AND (
-                    (follower.follower_id = NEW.sender_id AND follower.following_id = NEW.receiver_id)
+                    (follow.follower_id = NEW.sender_id AND follow.following_id = NEW.receiver_id)
                     OR
-                    (follower.follower_id = NEW.receiver_id AND follower.following_id = NEW.sender_id)
+                    (follow.follower_id = NEW.receiver_id AND follow.following_id = NEW.sender_id)
                 )
             LIMIT 1
         );

@@ -13,7 +13,6 @@ import (
 	"social-network/app/logs"
 	"social-network/app/modules"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 type Profile struct {

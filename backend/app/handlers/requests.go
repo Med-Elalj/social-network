@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	auth "social-network/app/Auth"
+	"social-network/app/logs"
 	"social-network/app/modules"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 func GroupRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
@@ -23,15 +23,15 @@ func GroupRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	response := make([]structs.RequestsGet, len(requests))
 	for i, req := range requests {
 		response[i] = structs.RequestsGet{
-			ID:       req.ID,
-			SenderId: req.SenderId,
-			GroupId:  req.GroupId,
-			GroupName: req.GroupName,
+			ID:          req.ID,
+			SenderId:    req.SenderId,
+			GroupId:     req.GroupId,
+			GroupName:   req.GroupName,
 			GroupAvatar: req.GroupAvatar,
-			Type:     req.Type,
-			Message:  req.Message,
-			Username: req.Username,
-			Avatar:   req.Avatar,
+			Type:        req.Type,
+			Message:     req.Message,
+			Username:    req.Username,
+			Avatar:      req.Avatar,
 		}
 	}
 

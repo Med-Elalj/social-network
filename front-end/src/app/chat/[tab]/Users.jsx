@@ -1,9 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Style from "../chat.module.css";
 import Image from "next/image";
+import { useSearchParams } from 'next/navigation';
+
 
 export default function Users({ users, onUserSelect }) {
     const [activeIndex, setActiveIndex] = useState(null);
+    const searchParams = useSearchParams();
+    const goTo = searchParams.get('goTo');
+
+
+    useEffect(() => {
+        if (goTo && users?.length > 0) {
+
+            users.forEach((element, idx) => {
+                if (element.name == goTo) {
+                    setActiveIndex(idx);
+                    onUserSelect(element);
+                }
+            });
+        }
+    }, [users]);
 
     const handleUserClick = (user, index) => {
         console.log("click", user)

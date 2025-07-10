@@ -3,8 +3,8 @@ package modules
 import (
 	"fmt"
 
+	"social-network/app/logs"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
@@ -100,8 +100,8 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	return posts, nil
 }
 
-//anas
-func GetEvents(group_id int , uid int) ([]structs.GroupEvent, error){
+// anas
+func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	rows, err := DB.Query(`    
 	SELECT
 		e.id,
@@ -116,7 +116,7 @@ func GetEvents(group_id int , uid int) ([]structs.GroupEvent, error){
 	    JOIN group ON p.group_id = group.id
 		JOIN userevents eu ON e.id = eu.event_id
 	WHERE
-	    group.id = ? AND eu.user_id = ?;`, group_id, uid,"event")
+	    group.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
 	if err != nil {
 		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
 		return nil, err
@@ -124,7 +124,7 @@ func GetEvents(group_id int , uid int) ([]structs.GroupEvent, error){
 	var events []structs.GroupEvent
 	for rows.Next() {
 		var event structs.GroupEvent
-		if err := rows.Scan(event.ID,event.Userid, event.Description, event.Title,event.Timeof,event.CreationTime,event.Respond); err != nil {
+		if err := rows.Scan(event.ID, event.Userid, event.Description, event.Title, event.Timeof, event.CreationTime, event.Respond); err != nil {
 			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
 			return nil, err
 		}

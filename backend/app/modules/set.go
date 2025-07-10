@@ -3,8 +3,8 @@ package modules
 import (
 	"fmt"
 
+	"social-network/app/logs"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 // Insert new post
@@ -103,32 +103,31 @@ func updpost(newpost structs.Post) error {
 }
 
 // anas
-func Insertevent(event structs.GroupEvent, uid int) (int,error) {
+func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 	tx, err := DB.Begin()
 	if err != nil {
-		return 0,err
+		return 0, err
 	}
-	res , err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	res, err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
 	if err != nil {
 		tx.Rollback()
-		return 0,err
+		return 0, err
 	}
-	
-    	lastID, err := res.LastInsertId()
-    	if err != nil {
-        	tx.Rollback()
-        	return 0, err
-    	}
 
-    	err = tx.Commit()
-    	if err != nil {
-        	return 0, err
-    	}
-	return int(lastID),nil
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return 0, err
+	}
+	return int(lastID), nil
 }
 
-
-func UpdatEventResp(event_id int, uid int,respond bool) error {
+func UpdatEventResp(event_id int, uid int, respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
@@ -141,12 +140,12 @@ func UpdatEventResp(event_id int, uid int,respond bool) error {
 	return nil
 }
 
-func InsertUserEvent(event_id int, uid int,respond bool) error {
+func InsertUserEvent(event_id int, uid int, respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id,respond)
+	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
 	if err != nil {
 		tx.Rollback()
 		return err

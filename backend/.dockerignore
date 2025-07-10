@@ -1,0 +1,34 @@
+# Python cache and env
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info
+.env
+.env.local
+
+# Go build artifacts
+*.out
+*.exe
+*.test
+*.so
+*.dylib
+*.dll
+*.log
+
+# Local uploads and database
+server/db/uploads/
+server/db/*.db*
+server/logs/
+private/*.pem
+
+# Git
+.git
+.gitignore
+
+# Dev tools
+.vscode/
+.DS_Store
+*.log
+*.bak
+*.tmp
+go.sum

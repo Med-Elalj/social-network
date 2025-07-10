@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	auth "social-network/app/Auth"
+	"social-network/app/logs"
 	"social-network/app/modules"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
@@ -27,7 +27,7 @@ func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.GroupEvent
 	json.NewDecoder(r.Body).Decode(&event)
-	err := modules.UpdatEventResp(event.ID, uid,event.Respond)
+	err := modules.UpdatEventResp(event.ID, uid, event.Respond)
 	if err != nil {
 		auth.JsRespond(w, "Failed to update response", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error updating response:", err)

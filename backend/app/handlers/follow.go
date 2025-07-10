@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	auth "social-network/app/Auth"
+	"social-network/app/logs"
 	"social-network/app/modules"
-	"social-network/server/logs"
 )
 
 // needs header "follow_target" the id of the profile you want to follow

@@ -3,7 +3,7 @@ package modules
 import (
 	"fmt"
 
-	"social-network/server/logs"
+	"social-network/app/logs"
 )
 
 func AddDm(sUname, rUname int, msg string) error {

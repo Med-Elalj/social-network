@@ -1,8 +1,8 @@
 package modules
 
 import (
+	"social-network/app/logs"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 func InsertComment(comment structs.CommentInfo, uid int) bool {

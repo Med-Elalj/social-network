@@ -36,27 +36,17 @@ get-keys:
 	fi
 
 
-# docker:
-# 	@echo "\033[1m\033[92mGetting docker ready for first use\nPlease Wait...\033[0m"
-# 	@curl -fsSL https://get.docker.com/rootless 2>/dev/null | sh >/dev/null 2>&1
-# 	@echo "\033[1m\033[92mCopy paste the following command to start docker in rootless mode:\033[0m"
-# 	export PATH=$(HOME)/bin:$$PATH
-# 	export DOCKER_HOST=unix://$(XDG_RUNTIME_DIR)/docker.sock
+docker:
+	@echo "\033[1m\033[92mGetting docker ready for first use\nPlease Wait...\033[0m"
+	@curl -fsSL https://get.docker.com/rootless 2>/dev/null | sh >/dev/null 2>&1
+	@echo "\033[1m\033[92mCopy paste the following command to start docker in rootless mode:\033[0m"
+	export PATH=$(HOME)/bin:$$PATH
+	export DOCKER_HOST=unix://$(XDG_RUNTIME_DIR)/docker.sock
 
-# $(IMAGE_NAME): build run status
-# 	@echo "\033[1m\033[92mListing what's inside the container\033[0m"
-# 	@docker exec -it $(NAME) /bin/bash -c "ls -l && exit"
-# 	@echo "\033[1m\033[92mWebapp running at: \033[0m\033[92mhttps://localhost:$(OUT-PORT)\033[0m"
-
-# build:
-# 	@echo "\033[1m\033[92mBuilding Docker image...\033[0m"
-# 	@docker image build -f Dockerfile -t $(IMAGE_NAME) . 
-
-# run:
-# 	@exec "clear"
-# 	@echo "\033[1m\033[92mRunning the Container\033[0m"
-# 	docker container run -p $(OUT-PORT):$(IN-PORT) --detach --name $(NAME) $(IMAGE_NAME)
-
+run-docker:
+	@exec "clear"
+	@echo "\033[1m\033[92mStarting docker-compose...\033[0m"
+	@docker-compose up --build
 
 
 clean:
@@ -96,7 +86,7 @@ dockerClean:
 	fi
 
 fclean: dockerClean clean
-	
+
 
 re: clean all
 

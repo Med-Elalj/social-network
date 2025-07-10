@@ -13,7 +13,7 @@ import (
 	"social-network/app/modules"
 	"social-network/app/structs"
 
-	"social-network/server/logs"
+	"social-network/app/logs"
 
 	"github.com/gorilla/websocket"
 )

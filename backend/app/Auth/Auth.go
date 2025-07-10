@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"social-network/app/Auth/jwt"
+	"social-network/app/logs"
 	"social-network/app/modules"
-	"social-network/server/logs"
 )
 
 func Authorize(w http.ResponseWriter, r *http.Request, userID int) {

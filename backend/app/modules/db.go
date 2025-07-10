@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"path/filepath"
 
-	"social-network/server/logs"
+	"social-network/app/logs"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite"

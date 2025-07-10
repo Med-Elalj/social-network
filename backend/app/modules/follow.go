@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"social-network/server/logs"
+	"social-network/app/logs"
 )
 
 func InsertFollow(uid, gid int) error {

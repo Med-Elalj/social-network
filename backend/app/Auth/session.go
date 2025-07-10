@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"social-network/app/Auth/jwt"
+	"social-network/app/logs"
 	database "social-network/app/modules"
-	"social-network/server/logs"
 
 	"github.com/google/uuid"
 )

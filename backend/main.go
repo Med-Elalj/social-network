@@ -6,8 +6,8 @@ import (
 	"time"
 
 	routes "social-network/app"
+	"social-network/app/logs"
 	database "social-network/app/modules"
-	logs "social-network/server/logs"
 
 	_ "github.com/mattn/go-sqlite3"
 )

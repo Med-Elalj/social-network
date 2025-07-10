@@ -233,6 +233,12 @@ export default function Profile() {
                         {profileData.first_name} {profileData.last_name}
                       </h5>
                     </span>
+                     <span>
+                      <h5>Gender:</h5>&nbsp;&nbsp;
+                      <h5>
+                        {profileData.gender}
+                      </h5>
+                    </span>
                     <span>
                       <h5>Email:</h5>&nbsp;&nbsp;
                       <h5>{profileData.email}</h5>

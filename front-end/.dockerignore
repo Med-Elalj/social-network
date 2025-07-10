@@ -1,0 +1,28 @@
+# Node modules & build artifacts
+node_modules
+.next
+dist
+out
+
+# Logs & debug
+*.log
+npm-debug.log
+
+# Local development files
+.vscode/
+.idea/
+.DS_Store
+
+# Test and temporary
+*.test.*
+*.spec.*
+*.swp
+*.bak
+
+# Git
+.git
+.gitignore
+
+# OS/Editor files
+Thumbs.db
+desktop.ini

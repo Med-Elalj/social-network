@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"social-network/app/logs"
 	"social-network/app/modules"
 	"social-network/app/structs"
-	"social-network/server/logs"
 
 	"golang.org/x/crypto/bcrypt"
 )

@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	auth "social-network/app/Auth"
+	"social-network/app/logs"
 	"social-network/app/modules"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {

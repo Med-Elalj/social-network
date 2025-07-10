@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"social-network/app/logs"
 	"social-network/app/modules"
-	"social-network/server/logs"
 )
 
 func UploadHandler(w http.ResponseWriter, r *http.Request) {

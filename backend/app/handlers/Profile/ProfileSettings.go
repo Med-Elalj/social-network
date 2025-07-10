@@ -7,8 +7,8 @@ import (
 
 	auth "social-network/app/Auth"
 	"social-network/app/Auth/jwt"
+	"social-network/app/logs"
 	"social-network/app/modules"
-	"social-network/server/logs"
 )
 
 func ProfileSettingsHandler(w http.ResponseWriter, r *http.Request) {

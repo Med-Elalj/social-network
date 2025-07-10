@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	auth "social-network/app/Auth"
+	"social-network/app/logs"
 	db "social-network/app/modules"
 	"social-network/app/structs"
-	"social-network/server/logs"
 )
 
 // Login handler

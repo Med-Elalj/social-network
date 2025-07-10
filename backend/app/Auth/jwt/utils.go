@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"social-network/server/logs"
+	"social-network/app/logs"
 )
 
 type JwtPayload struct {

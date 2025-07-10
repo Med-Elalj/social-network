@@ -11,7 +11,7 @@ export default function Friends() {
     const [requests, setRequests] = useState([]);
     const [contacts, setContacts] = useState([]);
     const { showNotification } = useNotification();
-    const { updateOnlineUser } = useWebSocket();
+    const { updateOnlineUser, newNotification } = useWebSocket();
 
     useEffect(() => {
         async function fetchRequest(request) {
@@ -49,17 +49,21 @@ export default function Friends() {
         if (updateOnlineUser?.uid) {
             setContacts(prev => {
                 if (prev?.length > 0) {
-                    // Return the updated array from map
-                    return prev.map(user =>
+                    return prev.map((user) =>
                         user.id === updateOnlineUser.uid
                             ? { ...user, online: updateOnlineUser.value }
                             : user
                     );
                 }
-                return prev; // Return the previous state if no contacts
             });
         }
     }, [updateOnlineUser])
+
+    useEffect(() => {
+        if (newNotification?.command == "followRequest" && newNotification?.value == "request" && requests) {
+            setRequests(prev => [...prev, { Uid: newNotification.uid, Name: newNotification.sender }])
+        }
+    }, [newNotification])
 
     async function responseHandle(id, status) {
         try {
@@ -86,9 +90,9 @@ export default function Friends() {
     return (
         <>
             <div className={Styles.Requiests}>
-                <h1>Friend requests</h1>
+                <h1>Follow requests</h1>
                 {requests?.length > 0 ? (requests.map((user) => (
-                    <Link href={`/profle/${user.Name}`} key={user.uid}>
+                    <Link href={`/profle/${user.Name}`} key={user.Uid}>
                         <div>
                             <Image src={user.Avatar} alt="profile" width={40} height={40} />
                             <h5>{user.Name}</h5>

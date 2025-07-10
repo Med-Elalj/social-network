@@ -26,6 +26,8 @@ func SetupMux() *http.ServeMux {
 	// profile handlers
 	mux.HandleFunc("GET /api/v1/profile/{name}", MW.AuthMiddleware(P.ProfileHandler))
 	mux.HandleFunc("POST /api/v1/settings/{type}", MW.AuthMiddleware(P.ProfileSettingsHandler))
+	mux.HandleFunc("GET /api/v1/followers", MW.AuthMiddleware(P.GetFollowers))
+	mux.HandleFunc("GET /api/v1/following", MW.AuthMiddleware(P.GetFollowing))
 
 	mux.HandleFunc("/api/v1/ws", MW.AuthMiddleware(ws.HandleConnections))
 

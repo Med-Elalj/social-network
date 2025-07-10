@@ -14,7 +14,7 @@ export default function Friends() {
     const { updateOnlineUser } = useWebSocket();
 
     useEffect(() => {
-        async function fetchFollowRequest(request) {
+        async function fetchRequest(request) {
             try {
                 const response = await fetch(`/api/v1/get/${request}`, {
                     method: 'GET',
@@ -40,8 +40,8 @@ export default function Friends() {
             }
         }
 
-        fetchFollowRequest("follow")
-        fetchFollowRequest("users")
+        fetchRequest("follow")
+        fetchRequest("users")
 
     }, [])
 
@@ -76,7 +76,7 @@ export default function Friends() {
             });
             const data = await response.json(); // Added 'const' declaration
             showNotification(data.message, response.ok ? "succes" : "error")
-            setRequests(prev => prev.filter((user) => user.id != id))
+            setRequests(prev => prev.map((user) => user.id == id ? { ...user, status: status } : user))
         } catch (error) {
             console.error(error)
             showNotification(`can't ${status} request, try again`, "error")
@@ -91,16 +91,17 @@ export default function Friends() {
                     <Link href={`/profle/${user.Name}`} key={user.uid}>
                         <div>
                             <Image src={user.Avatar} alt="profile" width={40} height={40} />
-                            <h5>{user.Name}</h5> {/* Fixed: was "user.Name" as string */}
+                            <h5>{user.Name}</h5>
                         </div>
-                        <div className={Styles.Buttons}>
-                            <div onClick={() => responseHandle(user.uid, "accept")}> {/* Fixed: wrapped in arrow function */}
+                        {user.status ? <h2>{`Follow ${user.status}ed`}</h2> : (<div className={Styles.Buttons}>
+                            <div onClick={() => responseHandle(user.uid, "accept")}>
                                 <Image src="/accept.svg" alt="accept" width={30} height={30} />
                             </div>
-                            <div onClick={() => responseHandle(user.uid, "reject")}> {/* Fixed: changed to "reject" */}
+                            <div onClick={() => responseHandle(user.uid, "reject")}>
                                 <Image src="/reject.svg" alt="reject" width={30} height={30} />
                             </div>
-                        </div>
+                        </div>)}
+
                     </Link>
                 ))) : <h3 style={{ textAlign: "center" }}>No Requests</h3>}
             </div>

@@ -45,7 +45,12 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		usernames, _ := modules.GetUserNames(data.Sub)
+		usernames, err := modules.GetUserNames(data.Sub)
+		if err != nil {
+			logs.ErrorLog.Printf("routes.go 60 %q", err.Error())
+			fmt.Println("Error in GetUserNames: ", err)
+		}
+		fmt.Println("Usernames: ", usernames)
 		jsonData, _ := json.Marshal(usernames)
 		w.Write(jsonData)
 	case "dmhistory":

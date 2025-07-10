@@ -16,6 +16,8 @@ export const WebSocketProvider = ({ children }) => {
 
   const [newMessage, setNewMessage] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [updateOnlineUser, setUpdateOnlineUser] = useState(null);
+  const [newNotification, setNewNotification] = useState(null);
   const { showNotification } = useNotification();
   const target = useRef(null);
 
@@ -43,11 +45,20 @@ export const WebSocketProvider = ({ children }) => {
           data.sent_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
           setNewMessage(data);
         } else {
-          if (data?.sender != "system") {
+          if (data?.author_name != "system") {
             showNotification(`New messsage from ${data.author_name}`, "success");
             // showNotification(`New message from ${data.author_name}`, "success", true, 5000);
             console.warn("Message not for this chat:", data);
+          } else {
+            showNotification(`${data.content}`, "error")
           }
+        }
+      } else if (data.sender === "<system>", data.command) {
+        if (data.command == "online") {
+          setUpdateOnlineUser(data)
+        } else {
+          setNewNotification(data)
+          showNotification(data.content, "info")
         }
       }
 
@@ -70,7 +81,7 @@ export const WebSocketProvider = ({ children }) => {
 
 
     ws.current.onerror = (err) => {
-     console.error("⚠️ WebSocket error:", err);
+      console.error("⚠️ WebSocket error:", err);
       ws.current?.close();
     };
   };
@@ -116,6 +127,8 @@ export const WebSocketProvider = ({ children }) => {
         newMessage,
         setTarget,
         isConnected,
+        updateOnlineUser,
+        newNotification,
       }}
     >
       {children}

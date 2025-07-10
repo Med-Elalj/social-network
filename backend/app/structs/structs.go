@@ -40,11 +40,11 @@ type User struct {
 }
 
 type UsersGet struct {
-	ID       ID     `json:"id"`
-	Online   bool   `json:"online"`
-	Is_Group bool   `json:"is_group"`
-	Avatar   Avatar `json:"pfp"`
-	Username string `json:"name"` // Exported field
+	ID       ID             `json:"id"`
+	Online   bool           `json:"online"`
+	Is_Group bool           `json:"is_group"`
+	Avatar   sql.NullString `json:"pfp"`
+	Username string         `json:"name"` // Exported field
 }
 
 type Group struct {
@@ -67,14 +67,14 @@ type GroupReq struct {
 }
 
 type GroupEvent struct {
-	ID			int		  `json:"event_id"`
-	Title       string    `json:"title"`
-	Userid      int       `json:"user_id"`
-	Group_id    int       `json:"group_id"`
-	Description string	  `json:"description"`
+	ID           int       `json:"event_id"`
+	Title        string    `json:"title"`
+	Userid       int       `json:"user_id"`
+	Group_id     int       `json:"group_id"`
+	Description  string    `json:"description"`
 	CreationTime time.Time `json:"creation_time"`
-	Timeof      time.Time `json:"time"`
-	Respond	bool	      `json:"respond"`
+	Timeof       time.Time `json:"time"`
+	Respond      bool      `json:"respond"`
 }
 
 type Gusers struct {

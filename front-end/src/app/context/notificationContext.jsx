@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useCallback } from "react";
-import Notification from "../utils.jsx"; // Adjust path
+import Notification from "../components/notification.jsx"; // Adjust path
 
 const NotificationContext = createContext();
 

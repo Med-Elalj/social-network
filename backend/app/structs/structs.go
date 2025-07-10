@@ -116,6 +116,7 @@ type PostCreate struct {
 type CommentInfo struct {
 	PostID  ID             `json:"post_id"`
 	Content CommentContent `json:"content"`
+	Image   string         `json:"image"`
 }
 
 type Comments struct {
@@ -126,6 +127,7 @@ type Comments struct {
 	CreatedAt  time.Time
 	LikeCount  int
 	IsLiked    bool
+	ImagePath  sql.NullString `json:"ImagePath"`
 }
 
 type CommentGet struct {

@@ -13,11 +13,13 @@ func InsertComment(comment structs.CommentInfo, uid int) bool {
 	}
 
 	res, err := tx.Exec(`
-		INSERT INTO comments (post_id, user_id, content)
-		VALUES (?, ?, ?);`,
+		INSERT INTO comments (post_id, user_id, content, image_path)
+		VALUES (?, ?, ?, ?);`,
 		comment.PostID,
 		uid,
-		comment.Content)
+		comment.Content,
+		comment.Image)
+
 	if err != nil {
 		tx.Rollback()
 		logs.ErrorLog.Println("Database insertion error:", err)
@@ -51,6 +53,7 @@ func GetComments(commentData structs.CommentGet, uid int) ([]structs.Comments, b
             u.avatar,
             c.content,
             c.created_at,
+				c.image_path,
             (
                 SELECT
                     COUNT(*)
@@ -99,7 +102,7 @@ func GetComments(commentData structs.CommentGet, uid int) ([]structs.Comments, b
 	defer rows.Close()
 	for rows.Next() {
 		var comment structs.Comments
-		err := rows.Scan(&comment.ID, &comment.Author, &comment.AvatarUser, &comment.Content, &comment.CreatedAt, &comment.LikeCount, &comment.IsLiked)
+		err := rows.Scan(&comment.ID, &comment.Author, &comment.AvatarUser, &comment.Content, &comment.CreatedAt, &comment.ImagePath, &comment.LikeCount, &comment.IsLiked)
 		if err != nil {
 			logs.ErrorLog.Printf("Error scanning comment: %q", err.Error())
 			return nil, false

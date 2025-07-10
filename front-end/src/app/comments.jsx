@@ -13,7 +13,6 @@ export default function Comments({ Post, onClose }) {
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null); //ref to scroll container
   const [commentImage, setCommentImage] = useState(null);
-  const [commentPreview, setCommentPreview] = useState(null);
   const commentFileRef = useRef(null);
 
   const handleCommentImageChange = (e) => {
@@ -145,13 +144,13 @@ export default function Comments({ Post, onClose }) {
             </div>
           </div>
 
-                    <div className={Styles.postContent}>
-                        <p>{Post.Content}</p>
-                        {Post.ImagePath.valid ? (
-                            <Image src={`/${Post.ImagePath}`} alt="comment" width={30} height={30} />
-                        ) : null}
-                    </div>
-                </section>
+          <div className={Styles.postContent}>
+            <p>{Post.Content}</p>
+            {Post.ImagePath.valid ? (
+              <Image src={`/${Post.ImagePath}`} alt="comment" width={30} height={30} />
+            ) : null}
+          </div>
+        </section>
 
         {/* Comments list */}
         <div className={Styles.comments}>
@@ -175,12 +174,19 @@ export default function Comments({ Post, onClose }) {
               </div>
               <div className={Styles.texts}>
                 <p>{Comment.Content}</p>
-                {Comment.ImagePath?.String && (
+
+                {Comment.ImagePath?.Valid && (
                   <Image
-                    src={Comment.ImagePath.String} //url from API
+                    src={
+                      Comment.ImagePath.String.startsWith("/")
+                        ? Comment.ImagePath.String
+                        : `/${Comment.ImagePath.String}`
+                    }
                     alt="comment attachment"
                     width={200}
                     height={150}
+                    unoptimized
+                    style={{ width: "100%", height: "auto", marginTop: "0.5rem" }}
                   />
                 )}
               </div>

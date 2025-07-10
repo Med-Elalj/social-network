@@ -2,6 +2,13 @@ NAME = socialNetwork
 
 IN-PORT=8080
 
+GOBIN = $(shell go env GOBIN)
+ifeq ($(GOBIN),)
+  GOBIN = $(shell go env GOPATH)/bin
+endif
+
+AIR_BIN = $(GOBIN)/air
+AIR_ALIAS = alias air=$(GOBIN)/air
 # Port to connect to the webapp
 OUT-PORT=9090
 
@@ -18,7 +25,17 @@ run-frontend:
 
 run-backend:
 #@cd ./backend && go run . > /dev/null 2>&1 &
-	@cd ./backend && go run .
+#@cd ./backend && go run .
+	@if ! $(GOBIN)/air -v >/dev/null 2>&1; then\
+		echo "💨 Air not found. Installing..."; \
+		go install github.com/air-verse/air@latest; \
+		grep -q 'alias air=' $(ZSHRC) >/dev/null 2>&1 || ( \
+			echo "$(AIR_ALIAS)" >> $(ZSHRC) \
+			echo "✅ Alias added to $(ZSHRC)" \
+		); \
+	fi
+	@echo "🚀 Starting backend using Air..."
+	@cd ./backend && $(AIR_BIN) &
 	@echo "\033[1m\033[94m🚀 Starting backend...\033[0m"
 	@until nc -z localhost 8080; do sleep 1; done
 	@echo "\033[1m\033[92m✅ Backend service is running!\033[0m"

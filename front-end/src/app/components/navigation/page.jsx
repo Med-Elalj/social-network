@@ -49,7 +49,7 @@ export default function Routing() {
     if (isOpen) {
       // fetchNotifications();
     }
-  }, isOpen)
+  }, [isOpen])
 
   useEffect(() => {
     const fetchAuthStatus = async () => {

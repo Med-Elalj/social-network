@@ -137,7 +137,7 @@ export default function Chat() {
             <>
               <div className={Style.top}>
                 <Image
-                  src={`/${selectedUser.pfp.String ?? "iconMale.png"}`}
+                  src={`/${selectedUser.pfp.String ? selectedUser.pfp.String : "iconMale.png"}`}
                   width={50}
                   height={50}
                   alt="userProfile"

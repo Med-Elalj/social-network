@@ -1,5 +1,5 @@
 [build]
-  cmd = "go build -o ./tmp/main"
+  cmd = "go build -o ./tmp/main ./backend/main.go"
   bin = "tmp/main"
   full_bin = "tmp/main"
   include_ext = ["go","sql"]

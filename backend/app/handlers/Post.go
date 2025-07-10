@@ -51,7 +51,14 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		}
 	}
 
-	posts, err := modules.GetPosts(start, uid, groupId)
+	userId := 0
+	if userIdMap, ok := dataToFetch["userId"].(map[string]interface{}); ok {
+		if uidFloat, ok := userIdMap["userId"].(float64); ok {
+			userId = int(uidFloat)
+		}
+	}
+
+	posts, err := modules.GetPosts(start, uid, groupId, userId)
 	if err != nil {
 		auth.JsRespond(w, "Get Posts failed", http.StatusBadRequest)
 		logs.ErrorLog.Println(err)

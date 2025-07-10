@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"database/sql"
 	"fmt"
 
 	"social-network/app/logs"
@@ -48,6 +49,70 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 
 	return true
 }
+
+func userfollow(uid int, tid int) error {
+	var isPublic int
+	err := DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, tid).Scan(&isPublic)
+	if err != nil {
+	}
+	status := -1
+	err = DB.QueryRow(`
+	select follow.status from follow where follower_id = ? and following_id = ?`, uid, tid).Scan(&status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = DB.QueryRow(`select follow.status from follow where follower_id = ? and following_id = ?`, tid, uid).Scan(&status)
+			if err != nil {
+					if err == sql.ErrNoRows {
+				_, err = DB.Exec(`
+					INSERT INTO follow (follower_id, following_id, status)
+					VALUES (?, ?, ?)`, uid, tid, isPublic)
+				if err != nil {
+					return err
+				}
+			if isPublic == 0 {
+				_, err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
+				values (?, ?, ?, 0)`, uid, tid, tid)
+				if err != nil {
+					return fmt.Errorf("error inserting follow request: %w", err)
+				}
+			}
+			return nil
+		}
+		}
+		if status == 0 {
+			_, err = DB.Exec(`
+				UPDATE follow
+				SET status = 1
+				WHERE follower_id = ? AND following_id = ?`, uid, tid)
+			if err != nil {
+				return fmt.Errorf("error updating follow status: %w", err)
+			}
+
+		} else if status == 1 && isPublic == 0 {
+			_,err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
+				values (?, ?, ?, 0)`, uid, tid, tid)
+			if err != nil {
+			}
+			_,err = DB.Exec(`insert into follow (follower_id, following_id, status)
+				values (?, ?, ?)`, uid, tid, isPublic)
+		} else if status == 1 && isPublic == 1 {
+			_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
+				values (?, ?, ?)`, uid, tid, isPublic)
+			if err != nil {
+			}
+		}
+	}
+}else {
+			_, err = DB.Exec(`delete from follow where follower_id = ? and following_id = ?`, uid, tid)
+			if err != nil {
+			}
+			_,err = DB.Exec(`delete from requests where sender_id = ? and receiver_id = ?`, uid, tid)
+			if err != nil {
+			}
+		}
+	return nil
+}
+
 
 // anas
 func userdelposts(post_id int, user_id int) error {
@@ -99,6 +164,26 @@ func updpost(newpost structs.Post) error {
 	} else if rowsaffect == 0 {
 		return fmt.Errorf("no rows affected, post may not exist or you may not have permission to update it")
 	}
+	return nil
+}
+
+func inviteToGroup(invitedid, gid, sender_id int) error {
+	_, err := DB.Exec(`
+		INSERT INTO follow (follower_id, following_id, status)
+		VALUES (?, ?, 0)
+		ON CONFLICT (follower_id, following_id) DO NOTHING;`, invitedid, gid)
+	if err != nil {
+		logs.ErrorLog.Printf("Error inserting follow: %v", err)
+		return fmt.Errorf("error inserting follow: %w", err)
+	}
+	_, err = DB.Exec(`
+		insert into requests (sender_id, receiver_id, towhat, type)
+		values (?, ?,? , 1)`, sender_id, invitedid, gid)
+	if err != nil {
+		logs.ErrorLog.Printf("Error inserting group invite request: %v", err)
+		return fmt.Errorf("error inserting group invite request: %w", err)
+	}
+	logs.InfoLog.Printf("User %d invited to group %d", invitedid, gid)
 	return nil
 }
 

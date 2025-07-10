@@ -18,6 +18,25 @@ type (
 	Avatar sql.NullString
 )
 
+
+type FollowReq struct {
+	FollowingId int `json:"following_id"`
+}
+
+
+type RequestsGet struct {
+	ID       int    `json:"id"`
+	SenderId int    `json:"sender_id"`
+	Username string `json:"username"`
+	GroupId  int    `json:"group_id"`
+	GroupName string `json:"group_name"`
+	GroupAvatar sql.NullString `json:"group_avatar"`
+	Type     int    `json:"type"`
+	Message string `json:"message"`
+	Avatar   string `json:"avatar"`
+	Time    time.Time `json:"time"`
+}
+
 type Login struct {
 	NoE      string `json:"login"`
 	Password string `json:"pwd"`
@@ -40,11 +59,11 @@ type User struct {
 }
 
 type UsersGet struct {
-	ID       ID     `json:"id"`
-	Online   bool   `json:"online"`
-	Is_Group bool   `json:"is_group"`
-	Avatar   Avatar `json:"pfp"`
-	Username string `json:"name"` // Exported field
+	ID       ID             `json:"id"`
+	Online   bool           `json:"online"`
+	Is_Group bool           `json:"is_group"`
+	Avatar   sql.NullString `json:"pfp"`
+	Username string         `json:"name"` // Exported field
 }
 
 type Group struct {
@@ -67,14 +86,14 @@ type GroupReq struct {
 }
 
 type GroupEvent struct {
-	ID			int		  `json:"event_id"`
-	Title       string    `json:"title"`
-	Userid      int       `json:"user_id"`
-	Group_id    int       `json:"group_id"`
-	Description string	  `json:"description"`
+	ID           int       `json:"event_id"`
+	Title        string    `json:"title"`
+	Userid       int       `json:"user_id"`
+	Group_id     int       `json:"group_id"`
+	Description  string    `json:"description"`
 	CreationTime time.Time `json:"creation_time"`
-	Timeof      time.Time `json:"time"`
-	Respond	bool	      `json:"respond"`
+	Timeof       time.Time `json:"time"`
+	Respond      bool      `json:"respond"`
 }
 
 type Gusers struct {

@@ -12,48 +12,64 @@ import Following from "@/app/profile/[nickname]/[tab]/Following";
 import Followers from "@/app/profile/[nickname]/[tab]/Followers";
 import Settings from "@/app/profile/[nickname]/[tab]/Settings";
 
-function FollowButton({ targetUsername, isPublic, isSelf }) {
-  const [requested, setRequested] = useState(false); // request sent or followed
-  const [isFollowing, setIsFollowing] = useState(false); // true = accepted, false = requested/pending
+function FollowButton({ targetUsername, isPublic, following }) {
+  const [requested, setRequested] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowBack, setIsFollowBack] = useState(false);
 
-  if (isSelf) return null;
+  useEffect(() => {
+    if (following === "following") {
+      setIsFollowing(true);
+      setRequested(true);
+      setIsFollowBack(false);
+    } else if (following === "requested") {
+      setIsFollowing(false);
+      setRequested(true);
+      setIsFollowBack(false);
+    } else if (following === "followback") {
+      setIsFollowing(false);
+      setRequested(false);
+      setIsFollowBack(true);
+    } else {
+      setIsFollowing(false);
+      setRequested(false);
+      setIsFollowBack(false);
+    }
+  }, [following]);
 
   const handleFollow = async () => {
-    const res = await fetch(`/api/v1/set/follow?target=${targetUsername}`, {
-      method: "POST",
-      credentials: "include",
-    });
+    const FollowData = {
+      targetUsername,
+      isFollowing,
+    };
 
-    if (res.ok) {
+    const res = await SendData(`/api/v1/set/follows`, FollowData);
+
+    if (res.status === 200) {
       const result = await res.json();
-      if (result.status === "accepted") {
+
+      if (result.status === "following") {
         setIsFollowing(true);
+        setRequested(true);
+        setIsFollowBack(false);
+      } else if (result.status === "requested") {
+        setIsFollowing(false);
+        setRequested(true);
+        setIsFollowBack(false);
       } else {
         setIsFollowing(false);
+        setRequested(false);
+        setIsFollowBack(false);
       }
-      setRequested(true);
     } else {
-      alert("Follow request failed");
+      showNotification("Failed to follow user.", "error");
     }
   };
 
-  const handleUnfollow = async () => {
-    const res = await fetch(`/api/v1/set/unfollow?target=${targetUsername}`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    if (res.ok) {
-      setRequested(false);
-      setIsFollowing(false);
-    } else {
-      alert("Unfollow failed");
-    }
-  };
 
   return (
     <div style={{ marginTop: "1rem", alignSelf: "center" }}>
-      {!requested && (
+      {!requested && !isFollowBack && (
         <button
           onClick={handleFollow}
           className={`${Style.followBtn} ${Style.follow}`}
@@ -62,9 +78,18 @@ function FollowButton({ targetUsername, isPublic, isSelf }) {
         </button>
       )}
 
+      {isFollowBack && (
+        <button
+          onClick={handleFollow}
+          className={`${Style.followBtn} ${Style.follow}`}
+        >
+          Follow Back
+        </button>
+      )}
+
       {requested && isFollowing && (
         <button
-          onClick={handleUnfollow}
+          onClick={handleFollow}
           className={`${Style.followBtn} ${Style.unfollow}`}
         >
           Unfollow
@@ -72,13 +97,16 @@ function FollowButton({ targetUsername, isPublic, isSelf }) {
       )}
 
       {requested && !isFollowing && (
-        <button disabled className={`${Style.followBtn} ${Style.requested}`}>
+        <button
+          onClick={handleFollow}
+          className={`${Style.followBtn} ${Style.unfollow}`}>
           Requested
         </button>
       )}
     </div>
   );
 }
+
 
 function PrivacyToggle({ isPublic, setIsPublic }) {
   const [loading, setLoading] = useState(false);
@@ -132,6 +160,7 @@ export default function Profile() {
         if (res.ok) {
           const data = await res.json();
           setProfileData(data);
+
           if (typeof data.isPublic === "boolean") {
             setIsPublic(data.isPublic);
           }
@@ -195,7 +224,7 @@ export default function Profile() {
               <FollowButton
                 targetUsername={profileData.display_name}
                 isPublic={profileData.isPublic}
-                isSelf={profileData.is_self}
+                following={profileData.isFollowed}
               />
             )}
             {profileData.isSelf && (
@@ -248,9 +277,9 @@ export default function Profile() {
                       <h5>
                         {profileData.date_of_birth
                           ? (
-                              new Date().getFullYear() -
-                              new Date(profileData.date_of_birth).getFullYear()
-                            ).toString()
+                            new Date().getFullYear() -
+                            new Date(profileData.date_of_birth).getFullYear()
+                          ).toString()
                           : "N/A"}
                       </h5>
                     </span>
@@ -273,15 +302,15 @@ export default function Profile() {
               <div className={Style.numbers}>
                 <span onClick={() => setActiveSection("posts")}>
                   <h4>Posts</h4>
-                  <h5>0</h5>
+                  <h5>{profileData.post_count}</h5>
                 </span>
                 <span onClick={() => setActiveSection("followers")}>
                   <h4>Followers</h4>
-                  <h5>0</h5>
+                  <h5>{profileData.follower_count}</h5>
                 </span>
                 <span onClick={() => setActiveSection("following")}>
                   <h4>Following</h4>
-                  <h5>0</h5>
+                  <h5>{profileData.following_count}</h5>
                 </span>
               </div>
             )}
@@ -289,9 +318,9 @@ export default function Profile() {
         </div>
 
         <div className={Style.second}>
-          {activeSection === "posts" && <Posts />}
-          {activeSection === "followers" && <Followers />}
-          {activeSection === "following" && <Following />}
+          {activeSection === "posts" && <Posts userId={profileData.id} />}
+          {activeSection === "followers" && <Followers userId={profileData.id}/>}
+          {activeSection === "following" && <Following userId={profileData.id}/>}
         </div>
 
         <div className={Style.end}>
@@ -400,6 +429,7 @@ export default function Profile() {
           </div>
 
           <div className={Style.requists}>
+            <h3>Requests</h3>
             <div>
               <div>
                 <Image

@@ -1,41 +1,50 @@
 import Image from "next/image";
 import Style from "../../profile.module.css";
+import { GetData } from "../../../../../utils/sendData";
+import { useEffect, useState } from "react";
 
-export default function Followers() {
+export default function Followers({ userId }) {
+    const [users, setUsers] = useState(null);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const res = await GetData(`/api/v1/followers?userId=${userId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setUsers(data);
+                } else {
+                    console.error("Failed to fetch followers");
+                }
+            } catch (err) {
+                console.error("Error fetching followers:", err);
+            }
+        };
+
+        if (userId) {
+            fetchProfile(); // ✅ only run if userId exists
+        }
+    }, [userId]); // ✅ runs only when userId changes
+
     return (
         <div className={Style.followList}>
             <h1>Followers</h1>
-            <div className={Style.NewUser}>
-                <div>
-                    <Image src="/db.png" alt="profile" width={40} height={40} style={{ borderRadius: '50%' }} />
-                    <h5>username</h5>
-                </div>
-                {/* <Link href="/join"><Image src="/addUser.svg" alt="profile" width={25} height={25} /></Link> */}
-            </div>
+            {users && users?.map((user, i) => (
+                console.log(user),
 
-            <div className={Style.NewUser}>
-                <div>
-                    <Image src="/db.png" alt="profile" width={40} height={40} style={{ borderRadius: '50%' }} />
-                    <h5>username</h5>
+                <div key={i} className={Style.NewUser}>
+                    <div>
+                        <Image
+                            src={user.pfp.Valid ? user.php.String : "/iconMale.png"}
+                            alt="profile"
+                            width={40}
+                            height={40}
+                            style={{ borderRadius: "50%" }}
+                        />
+                        <h5>{user.name}</h5>
+                    </div>
                 </div>
-                {/* <Link href="/join"><Image src="/addUser.svg" alt="profile" width={25} height={25} /></Link> */}
-            </div>
-
-            <div className={Style.NewUser}>
-                <div>
-                    <Image src="/db.png" alt="profile" width={40} height={40} style={{ borderRadius: '50%' }} />
-                    <h5>username</h5>
-                </div>
-                {/* <Link href="/join"><Image src="/addUser.svg" alt="profile" width={25} height={25} /></Link> */}
-            </div>
-
-            <div className={Style.NewUser}>
-                <div>
-                    <Image src="/db.png" alt="profile" width={40} height={40} style={{ borderRadius: '50%' }} />
-                    <h5>username</h5>
-                </div>
-                {/* <Link href="/join"><Image src="/addUser.svg" alt="profile" width={25} height={25} /></Link> */}
-            </div>
+            ))}
         </div>
-    )
+    );
 }

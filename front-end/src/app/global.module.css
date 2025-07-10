@@ -341,6 +341,10 @@
   cursor: pointer;
 }
 
+.commentCreation button:hover {
+  background: #e0e0e0;
+}
+
 /* style comments */
 .comment {
   margin: 1vh 1vw;
@@ -450,4 +454,16 @@
     margin: 2vh 8vw;
     padding: 0 20px;
   }
+}
+
+.commentIcon {
+  width: 40px !important;
+  height: 40px !important;
+  margin-left: 10px !important;
+}
+
+.fileName {
+  font-size: 0.9rem;
+  color: #333;
+  margin-right: 0.5rem;
 }

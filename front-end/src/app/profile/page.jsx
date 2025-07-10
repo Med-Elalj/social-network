@@ -30,7 +30,7 @@ function PrivacyToggle({ isPublic, setIsPublic }) {
 
     if (res.ok) {
       setIsPublic((prev) => !prev);
-      showNotification("Privacy setting updated successfully!", "success")
+      showNotification("Privacy setting updated successfully!", "success");
     } else {
       showNotification(result.error, "error");
     }
@@ -101,16 +101,19 @@ export default function Profile() {
                   height: "200px",
                 }}
               >
-                <Image src="/db.png" alt="cover" fill />
+                <Image
+                  src={profileData?.avatar || "/default-avatar.png"}
+                  alt="My avatar"
+                  fill
+                  style={{ borderRadius: "50%" }} // make it round
+                />
               </div>
               <h4>@{CapitalizeFirstLetter(profileData?.display_name)}</h4>
             </div>
             <PrivacyToggle isPublic={isPublic} setIsPublic={setIsPublic} />
             <div className={Style.tabs}>
               <button onClick={() => setActiveTab("info")}>Info</button>
-              <button onClick={() => setActiveTab("connections")}>
-                Connections
-              </button>
+              <button onClick={() => setActiveTab("connections")}>Connections</button>
               <button onClick={() => setActiveTab("settings")}>Settings</button>
             </div>
             {activeTab === "info" && (
@@ -207,12 +210,7 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
+                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
               </Link>
             </div>
             <div>
@@ -227,12 +225,7 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
+                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
               </Link>
             </div>
             <div>
@@ -247,12 +240,7 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
+                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
               </Link>
             </div>
             <div>
@@ -267,12 +255,7 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
+                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
               </Link>
             </div>
             <div>
@@ -287,12 +270,7 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
+                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
               </Link>
             </div>
           </div>
@@ -300,117 +278,57 @@ export default function Profile() {
           <div className={Style.requists}>
             <div>
               <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
+                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
                 </Link>
                 <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
                 </Link>
               </div>
             </div>
             <div>
               <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
+                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
                 </Link>
                 <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
                 </Link>
               </div>
             </div>
             <div>
               <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
+                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
                 </Link>
                 <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
                 </Link>
               </div>
             </div>
             <div>
               <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
+                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
                 </Link>
                 <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
                 </Link>
               </div>
             </div>

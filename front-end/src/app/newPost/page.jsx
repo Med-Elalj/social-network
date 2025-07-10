@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Styles from "./newPost.module.css";
 import { SendData } from "../../../utils/sendData.js";
-import { useRouter } from 'next/navigation';
-import { HandleUplod } from "../utils.jsx";
+import { useRouter } from "next/navigation";
+import { HandleUpload } from "../utils.jsx";
 
 export default function NewPost() {
   const [content, setContent] = useState("");
@@ -12,6 +12,7 @@ export default function NewPost() {
   const [privacy, setPrivacy] = useState("public");
   const [previewUrl, setPreviewUrl] = useState(null);
   const [uploadedImagePath, setUploadedImagePath] = useState(null);
+  const fileInputRef = useRef(null);
   const router = useRouter();
 
   const handleImageChange = (e) => {
@@ -19,6 +20,14 @@ export default function NewPost() {
     if (file) {
       setImage(file);
       setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const cancelImage = () => {
+    setImage(null); // clear the file from state
+    setPreviewUrl(null); // remove the preview URL
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // reset the <input>
     }
   };
 
@@ -32,7 +41,8 @@ export default function NewPost() {
 
     let imagePath = null;
     if (image) {
-      imagePath = await HandleUplod(image);
+      imagePath = await HandleUpload(image);
+      console.log("path:", imagePath);
       setUploadedImagePath(imagePath);
     }
 
@@ -60,7 +70,8 @@ export default function NewPost() {
       <form onSubmit={handleSubmit}>
         {/* Content Field */}
         <div>
-          <label htmlFor="content">Content</label><br />
+          <label htmlFor="content">Content</label>
+          <br />
           <textarea
             id="content"
             rows="4"
@@ -73,8 +84,8 @@ export default function NewPost() {
         {/* Upload Image */}
         <div className={Styles.upload}>
           <label htmlFor="image" style={{ cursor: "pointer" }}>
-            <img src="/Image.svg" alt="Upload" width="24" height="24" />&nbsp;&nbsp;
-            Upload Image
+            <img src="/Image.svg" alt="Upload" width="24" height="24" />
+            &nbsp;&nbsp; Upload Image
           </label>
           <input
             type="file"
@@ -83,17 +94,26 @@ export default function NewPost() {
             style={{ display: "none" }}
             accept="image/*,video/*"
             onChange={handleImageChange}
+            ref={fileInputRef}
           />
           {previewUrl && (
-            <div>
+            <div className={Styles.previewContainer}>
               <img src={previewUrl} alt="Preview" />
+              <button
+                type="button"
+                className={Styles.cancelButton}
+                onClick={cancelImage} // ← wire up cancel
+              >
+                ✕
+              </button>
             </div>
           )}
         </div>
 
         {/* Dropdown Privacy */}
         <div className={Styles.dropdown}>
-          <label htmlFor="privacy">Privacy</label><br />
+          <label htmlFor="privacy">Privacy</label>
+          <br />
           <select
             id="privacy"
             className={Styles.input}

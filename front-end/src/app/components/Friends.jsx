@@ -108,7 +108,7 @@ export default function Friends() {
             <div className={Styles.friends}>
                 <h1>Contacts</h1>
                 {contacts?.length > 0 ? (contacts.map((user) => (
-                    <Link href={`profile/${user.name}`} key={user.id}>
+                    <Link href={`/chat?goTo=${user.name}`} key={user.id}>
                         <div>
                             <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                             <h5>{user.name}</h5>

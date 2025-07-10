@@ -28,7 +28,9 @@ type RequestsGet struct {
 	ID       int    `json:"id"`
 	SenderId int    `json:"sender_id"`
 	Username string `json:"username"`
-	Towhat  int    `json:"towhat"`
+	GroupId  int    `json:"group_id"`
+	GroupName string `json:"group_name"`
+	GroupAvatar sql.NullString `json:"group_avatar"`
 	Type     int    `json:"type"`
 	Message string `json:"message"`
 	Avatar   string `json:"avatar"`

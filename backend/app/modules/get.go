@@ -102,21 +102,24 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 	return posts, nil
 }
 
-func GetRequests(uid int) ([]structs.RequestsGet, error) {
+func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 		SELECT
 			r.id,
 			r.sender_id, -- sender_id
 			r.towhat, -- group_id
 			r.type, -- type 0 is follow, 1 is group
+			g.display_name,
+			g.avatar,
 			r.created_at, -- time
 			p.display_name, -- username of sender
 			p.avatar -- avatar of sender
 		FROM
 			requests r
 		JOIN profile p ON r.sender_id = p.id
+		JOIN profile g ON r.towhat = g.id
 		WHERE
-			r.receiver_id = ?;`, uid)
+			r.receiver_id = ? AND r.type = ?;`, uid, tpdefind)
 	if err != nil {
 		logs.ErrorLog.Printf("GetRequests query error: %q", err.Error())
 		return nil, err
@@ -126,18 +129,11 @@ func GetRequests(uid int) ([]structs.RequestsGet, error) {
 	var requests []structs.RequestsGet
 	for rows.Next() {
 		var request structs.RequestsGet
-		if err := rows.Scan(&request.ID, &request.SenderId, &request.Towhat, &request.Type, &request.Time, &request.Username, &request.Avatar); err != nil {
+		if err := rows.Scan(&request.ID, &request.SenderId, &request.GroupId,&request.Type,&request.GroupName,&request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
 			logs.ErrorLog.Printf("Error scanning requests: %q", err.Error())
 			return nil, err
 		}
 
-		if request.Type == 0 {
-			request.Message = fmt.Sprintf("Follow request from %s", request.Username)
-		} else {
-			var towhat string
-			DB.QueryRow(`select p.display_name from profile p where p.id = ?`, request.Towhat).Scan(&towhat)
-			request.Message = fmt.Sprintf("%s sends you a request to join %s Group", request.Username, towhat)
-		}
 		requests = append(requests, request)
 	}
 	return requests, nil

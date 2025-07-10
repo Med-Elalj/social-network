@@ -3,7 +3,7 @@
 import Style from "../groups.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import GroupPosts from "./GroupPosts.jsx";
 import Discover from "./Discover.jsx";
@@ -22,9 +22,27 @@ export default function Groupes() {
     const [GroupName, setGroupName] = useState("");
     const [image, setImage] = useState(null);
     const [privacy, setPrivacy] = useState("public");
+    const [requests, setRequests] = useState([]);
     const [about, setAbout] = useState("");
     const [previewUrl, setPreviewUrl] = useState(null);
     const { showNotification } = useNotification();
+
+    // get requests
+    useEffect(() => {
+        const fetchData = async () => {
+            const response = await SendData("/api/v1/get/groupsrequests", { "definedtype": 1 });
+            const Body = await response.json();
+            if (!response.ok) {
+                console.log(Body);
+                showNotification("Error creating group: " + Body.message, "error");
+            } else {
+                setRequests(Body.requests);
+                console.log('requests fetched successfully!');
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -171,11 +189,11 @@ export default function Groupes() {
 
                         <div className={Style.Requiests}>
                             <h1>Groups requests</h1>
-                            {[1, 2, 3].map((_, i) => (
+                            {requests && requests.map((request, i) => (
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
-                                        <Image src="/iconMale.png" alt="profile" width={25} height={25} />
-                                        <h5>Username</h5>
+                                        <Image src={request.groupImage || "/iconMale.png"} alt="profile" width={25} height={25} />
+                                        <h5>{request.groupName}</h5>
                                     </div>
                                     <div className={Style.Buttons}>
                                         <Link href="/accept">

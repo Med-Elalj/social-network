@@ -38,7 +38,7 @@ export const WebSocketProvider = ({ children }) => {
 
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("data received via websocket: ", data);
+
       console.log("the target is: ", target.current);
       if (data.content) {
         if ([data.sender, data.receiver].includes(target.current)) {
@@ -55,6 +55,7 @@ export const WebSocketProvider = ({ children }) => {
         }
       } else if (data.sender === "<system>", data.command) {
         if (data.command == "online") {
+          console.log("data received via websocket: ", data);
           setUpdateOnlineUser(data)
         } else {
           setNewNotification(data)

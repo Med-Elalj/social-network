@@ -38,6 +38,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GroupImInHandler(w, r, data.Sub)
 	case "groupEvents":
 		GroupEventsHandler(w, r, data.Sub)
+	case "followRequests":
+		GetFollowRequests(w, r, data.Sub)
 	case "users":
 		payload := r.Context().Value(auth.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)

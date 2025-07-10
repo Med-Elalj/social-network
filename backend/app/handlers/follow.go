@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	auth "social-network/app/Auth"
 	"social-network/app/modules"
+	"social-network/app/structs"
 	"social-network/server/logs"
 )
 
@@ -67,4 +69,15 @@ func FollowersAccept(w http.ResponseWriter, r *http.Request, uid int) {
 
 	// TODO notif to group creator
 	auth.JsRespond(w, "user accepted group successfully", http.StatusOK)
+}
+
+func GetFollowRequests(w http.ResponseWriter, r *http.Request, uid int) {
+	users, err := modules.GetFollowRequests(uid)
+	if err != nil {
+		logs.ErrorLog.Println("Error get follow requests from Db:", err)
+		auth.JsRespond(w, "get follow requests failed", http.StatusInternalServerError)
+	}
+	json.NewEncoder(w).Encode(map[string][]structs.Gusers{
+		"users": users,
+	})
 }

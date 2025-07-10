@@ -13,18 +13,18 @@ import (
 )
 
 type Profile struct {
-	Email       string         `json:"email"`
-	FirstName   string         `json:"first_name"`
-	LastName    string         `json:"last_name"`
-	DisplayName string         `json:"display_name"`
-	DateOfBirth string         `json:"date_of_birth,omitempty"`
-	Gender      string         `json:"gender"`
-	Avatar      sql.NullString `json:"avatar"`
-	Description string         `json:"description"`
-	IsPublic    bool           `json:"isPublic"`
-	IsUser      bool           `json:"isUser"`
-	CreatedAt   string         `json:"created_at"`
-	IsSelf      bool           `json:"isSelf"`
+	Email       string `json:"email"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	DisplayName string `json:"display_name"`
+	DateOfBirth string `json:"date_of_birth,omitempty"`
+	Gender      string `json:"gender"`
+	Avatar      string `json:"avatar"`
+	Description string `json:"description"`
+	IsPublic    bool   `json:"isPublic"`
+	IsUser      bool   `json:"isUser"`
+	CreatedAt   string `json:"created_at"`
+	IsSelf      bool   `json:"isSelf"`
 }
 
 func ProfileHandler(w http.ResponseWriter, r *http.Request) {
@@ -106,5 +106,3 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(profile)
 }
-
-

@@ -166,15 +166,6 @@ export default function Profile() {
 
   return (
     <div className={Style.container}>
-      <div style={{ position: "relative", width: "200px", height: "200px" }}>
-        <Image
-          src={profileData.avatar || "/default-avatar.png"}
-          alt="user avatar"
-          fill
-          style={{ borderRadius: "50%" }}
-        />
-      </div>
-
       <div className={Style.body}>
         <div className={Style.first}>
           <div className={Style.ProfileInfo}>

@@ -24,7 +24,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err := user.ValidateRegister(); len(err) != 0 {
 		logs.ErrorLog.Println("Validation failed for user input")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		json.NewEncoder(w).Encode(map[string]any{
 			"error": err,
 		})
 		return

@@ -20,18 +20,20 @@ export default function Register() {
     fname: "",
     lname: "",
     birthdate: "",
-    avatar: null,
-    about: null,
+    avatar: "",
+    about: "",
   });
-  const [previewUrl, setPreviewUrl] = useState(null);
   const { showNotification } = useNotification();
+  const [avatarName, setAvatarName] = useState("");
   usePasswordToggle();
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "avatar") {
       const file = files[0];
+      setAvatarName(file.name);
       if (file) {
+        setAvatarName(file.name);
         //rm the upload and get back a public path
         HandleUpload(file)
           .then((path) => {
@@ -40,7 +42,6 @@ export default function Register() {
           .catch((err) => {
             console.error("Avatar upload failed", err);
           });
-        setPreviewUrl(URL.createObjectURL(file));
       }
     } else {
       setFormData((prev) => ({
@@ -201,7 +202,7 @@ export default function Register() {
             accept="image/*"
             onChange={handleChange}
           />
-          {previewUrl && <img src={previewUrl} alt="Preview" />}
+          {avatarName && <div className={Styles.fileName}>{avatarName}</div>}
 
           <label className={Styles.label} htmlFor="about">
             About Me

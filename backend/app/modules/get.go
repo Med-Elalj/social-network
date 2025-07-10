@@ -68,7 +68,6 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 		userId, userId, // user filter
 		uid, // privacy condition
 	)
-
 	if err != nil {
 		logs.ErrorLog.Printf("GetPosts query error: %q", err.Error())
 		return nil, err
@@ -101,6 +100,46 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 	}
 
 	return posts, nil
+}
+
+func GetRequests(uid int) ([]structs.RequestsGet, error) {
+	rows, err := DB.Query(`
+		SELECT
+			r.id,
+			r.sender_id,
+			r.towhat,
+			r.type,
+			r.created_at,
+			p.display_name,
+			p.avatar
+		FROM
+			requests r
+		JOIN profile p ON r.sender_id = p.id
+		WHERE
+			r.receiver_id = ?;`, uid)
+	if err != nil {
+		logs.ErrorLog.Printf("GetRequests query error: %q", err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	var requests []structs.RequestsGet
+	for rows.Next() {
+		var request structs.RequestsGet
+		if err := rows.Scan(&request.ID, &request.SenderId, &request.Towhat, &request.Type, &request.Time, &request.Username, &request.Avatar); err != nil {
+			logs.ErrorLog.Printf("Error scanning requests: %q", err.Error())
+			return nil, err
+		}
+
+		if request.Type == 0 {
+			request.Message = fmt.Sprintf("Follow request from %s", request.Username)
+		} else {
+			DB.QueryRow(`select p.display_name from profile p where p.id = ?`, request.Towhat).Scan(&request.Towhat)
+			request.Message = fmt.Sprintf("%s sends you a request to join %s Group", request.Username, request.Towhat)
+		}
+		requests = append(requests, request)
+	}
+	return requests, nil
 }
 
 // anas

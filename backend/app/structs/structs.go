@@ -18,6 +18,23 @@ type (
 	Avatar sql.NullString
 )
 
+
+type FollowReq struct {
+	FollowingId int `json:"following_id"`
+}
+
+
+type RequestsGet struct {
+	ID       int    `json:"id"`
+	SenderId int    `json:"sender_id"`
+	Username string `json:"username"`
+	Towhat  int    `json:"towhat"`
+	Type     int    `json:"type"`
+	Message string `json:"message"`
+	Avatar   string `json:"avatar"`
+	Time    time.Time `json:"time"`
+}
+
 type Login struct {
 	NoE      string `json:"login"`
 	Password string `json:"pwd"`

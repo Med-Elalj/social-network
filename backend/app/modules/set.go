@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"database/sql"
 	"fmt"
 
 	"social-network/app/structs"
@@ -48,6 +49,70 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
 
 	return true
 }
+
+func userfollow(uid int, tid int) error {
+	var isPublic int
+	err := DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, tid).Scan(&isPublic)
+	if err != nil {
+	}
+	status := -1
+	err = DB.QueryRow(`
+	select follow.status from follow where follower_id = ? and following_id = ?`, uid, tid).Scan(&status)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			err = DB.QueryRow(`select follow.status from follow where follower_id = ? and following_id = ?`, tid, uid).Scan(&status)
+			if err != nil {
+					if err == sql.ErrNoRows {
+				_, err = DB.Exec(`
+					INSERT INTO follow (follower_id, following_id, status)
+					VALUES (?, ?, ?)`, uid, tid, isPublic)
+				if err != nil {
+					return err
+				}
+			if isPublic == 0 {
+				_, err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
+				values (?, ?, ?, 0)`, uid, tid, tid)
+				if err != nil {
+					return fmt.Errorf("error inserting follow request: %w", err)
+				}
+			}
+			return nil
+		}
+		}
+		if status == 0 {
+			_, err = DB.Exec(`
+				UPDATE follow
+				SET status = 1
+				WHERE follower_id = ? AND following_id = ?`, uid, tid)
+			if err != nil {
+				return fmt.Errorf("error updating follow status: %w", err)
+			}
+
+		} else if status == 1 && isPublic == 0 {
+			_,err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
+				values (?, ?, ?, 0)`, uid, tid, tid)
+			if err != nil {
+			}
+			_,err = DB.Exec(`insert into follow (follower_id, following_id, status)
+				values (?, ?, ?)`, uid, tid, isPublic)
+		} else if status == 1 && isPublic == 1 {
+			_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
+				values (?, ?, ?)`, uid, tid, isPublic)
+			if err != nil {
+			}
+		}
+	}
+}else {
+			_, err = DB.Exec(`delete from follow where follower_id = ? and following_id = ?`, uid, tid)
+			if err != nil {
+			}
+			_,err = DB.Exec(`delete from requests where sender_id = ? and receiver_id = ?`, uid, tid)
+			if err != nil {
+			}
+		}
+	return nil
+}
+
 
 // anas
 func userdelposts(post_id int, user_id int) error {
@@ -102,33 +167,52 @@ func updpost(newpost structs.Post) error {
 	return nil
 }
 
-// anas
-func Insertevent(event structs.GroupEvent, uid int) (int,error) {
-	tx, err := DB.Begin()
+func inviteToGroup(invitedid, gid, sender_id int) error {
+	_, err := DB.Exec(`
+		INSERT INTO follow (follower_id, following_id, status)
+		VALUES (?, ?, 0)
+		ON CONFLICT (follower_id, following_id) DO NOTHING;`, invitedid, gid)
 	if err != nil {
-		return 0,err
+		logs.ErrorLog.Printf("Error inserting follow: %v", err)
+		return fmt.Errorf("error inserting follow: %w", err)
 	}
-	res , err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	_, err = DB.Exec(`
+		insert into requests (sender_id, receiver_id, towhat, type)
+		values (?, ?,? , 1)`, sender_id, invitedid, gid)
 	if err != nil {
-		tx.Rollback()
-		return 0,err
+		logs.ErrorLog.Printf("Error inserting group invite request: %v", err)
+		return fmt.Errorf("error inserting group invite request: %w", err)
 	}
-	
-    	lastID, err := res.LastInsertId()
-    	if err != nil {
-        	tx.Rollback()
-        	return 0, err
-    	}
-
-    	err = tx.Commit()
-    	if err != nil {
-        	return 0, err
-    	}
-	return int(lastID),nil
+	logs.InfoLog.Printf("User %d invited to group %d", invitedid, gid)
+	return nil
 }
 
+// anas
+func Insertevent(event structs.GroupEvent, uid int) (int, error) {
+	tx, err := DB.Begin()
+	if err != nil {
+		return 0, err
+	}
+	res, err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
 
-func UpdatEventResp(event_id int, uid int,respond bool) error {
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return 0, err
+	}
+	return int(lastID), nil
+}
+
+func UpdatEventResp(event_id int, uid int, respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
@@ -141,12 +225,12 @@ func UpdatEventResp(event_id int, uid int,respond bool) error {
 	return nil
 }
 
-func InsertUserEvent(event_id int, uid int,respond bool) error {
+func InsertUserEvent(event_id int, uid int, respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id,respond)
+	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
 	if err != nil {
 		tx.Rollback()
 		return err

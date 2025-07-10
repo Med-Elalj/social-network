@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -27,7 +28,7 @@ func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.GroupEvent
 	json.NewDecoder(r.Body).Decode(&event)
-	err := modules.UpdatEventResp(event.ID, uid,event.Respond)
+	err := modules.UpdatEventResp(event.ID, uid, event.Respond)
 	if err != nil {
 		auth.JsRespond(w, "Failed to update response", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error updating response:", err)
@@ -115,5 +116,45 @@ func GroupImInHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 	json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
 		"groups": groups,
+	})
+}
+
+func GetGroupDataHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	type groupRequest struct {
+		GroupName string `json:"groupName"`
+	}
+
+	var req groupRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	groupName := req.GroupName
+	fmt.Println("Group Name:", groupName)
+
+	query := `SELECT id, display_name, avatar, description FROM profile WHERE display_name = ? AND is_user = 0;`
+	res, err := modules.DB.Query(query, groupName)
+	if err != nil {
+		logs.ErrorLog.Printf("Get Group Data query error: %q", err.Error())
+		http.Error(w, "failed to get group data", http.StatusBadRequest)
+		return
+	}
+	defer res.Close()
+
+	var groupData structs.GroupGet
+	for res.Next() {
+		if err := res.Scan(&groupData.ID, &groupData.GroupName, &groupData.Avatar, &groupData.Description); err != nil {
+			logs.ErrorLog.Printf("Group Data Handler scan error: %q", err.Error())
+			http.Error(w, "failed to get group data", http.StatusBadRequest)
+			return
+		}
+	}
+
+	fmt.Println("Group Data:", groupData)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]structs.GroupGet{
+		"group": groupData,
 	})
 }

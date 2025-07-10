@@ -1,0 +1,46 @@
+.container {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+.header {
+    height: 30%;
+    position: relative;
+    z-index: -1;
+    border-bottom: solid 1px var(--border-color);
+}
+
+.body {
+    height: 73%;
+    margin-top: 1vh;
+    display: flex;
+    margin-bottom: 10vh;
+}
+
+.first {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profileInfo {
+    background-color: var(--border-color);
+    border-radius: 10px;
+    opacity: 1;
+    width: 60%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1vw;
+    color: var(--secondary-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.profileInfo:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}

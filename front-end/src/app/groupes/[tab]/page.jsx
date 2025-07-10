@@ -11,6 +11,7 @@ import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { SendData } from "../../../../utils/sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
+import Profile from "../profile/[groupname]/page.jsx";
 
 export default function Groupes() {
     const router = useRouter();
@@ -205,6 +206,7 @@ export default function Groupes() {
                             imagePreview={previewUrl}
                         />
                     ),
+                    profile: <Profile />
                 }[activeTab] || <p>Invalid tab</p>}
             </div>
         </div >

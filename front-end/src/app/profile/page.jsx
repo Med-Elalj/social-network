@@ -12,7 +12,6 @@ import { GetData, SendData } from "../../../utils/sendData.js";
 import { useNotification } from "../context/notificationContext.jsx";
 import { CapitalizeFirstLetter } from "../utils.jsx";
 
-// ✅ Named sub-component
 function PrivacyToggle({ isPublic, setIsPublic }) {
   const [loading, setLoading] = useState(false);
   const { showNotification } = useNotification();
@@ -52,7 +51,6 @@ function PrivacyToggle({ isPublic, setIsPublic }) {
   );
 }
 
-// ✅ Main default component
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("info");
   const [activeSection, setActiveSection] = useState("posts");
@@ -88,7 +86,7 @@ export default function Profile() {
   return (
     <div className={Style.container}>
       <div className={Style.header}>
-        <Image src="/db.png" fill alt="cover" />
+        <Image src={data?.pfp.Valid ? data?.pfp.String : "/iconMale.png"} fill alt="cover" />
       </div>
       <div className={Style.body}>
         <div className={Style.first}>
@@ -244,6 +242,8 @@ export default function Profile() {
                   height={40}
                   style={{ borderRadius: "50%" }}
                 />
+                    width={25}
+                    height={25}
                 <h5>username</h5>
               </div>
               <Link href="/addUser">

@@ -11,7 +11,6 @@ export default function NewPost() {
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState("public");
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [uploadedImagePath, setUploadedImagePath] = useState(null);
   const fileInputRef = useRef(null);
   const router = useRouter();
 
@@ -43,7 +42,6 @@ export default function NewPost() {
     if (image) {
       imagePath = await HandleUpload(image);
       console.log("path:", imagePath);
-      setUploadedImagePath(imagePath);
     }
 
     const formData = {

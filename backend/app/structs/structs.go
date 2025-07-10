@@ -18,6 +18,23 @@ type (
 	Avatar sql.NullString
 )
 
+
+type FollowReq struct {
+	FollowingId int `json:"following_id"`
+}
+
+
+type RequestsGet struct {
+	ID       int    `json:"id"`
+	SenderId int    `json:"sender_id"`
+	Username string `json:"username"`
+	Towhat  int    `json:"towhat"`
+	Type     int    `json:"type"`
+	Message string `json:"message"`
+	Avatar   string `json:"avatar"`
+	Time    time.Time `json:"time"`
+}
+
 type Login struct {
 	NoE      string `json:"login"`
 	Password string `json:"pwd"`
@@ -67,14 +84,14 @@ type GroupReq struct {
 }
 
 type GroupEvent struct {
-	ID			int		  `json:"event_id"`
-	Title       string    `json:"title"`
-	Userid      int       `json:"user_id"`
-	Group_id    int       `json:"group_id"`
-	Description string	  `json:"description"`
+	ID           int       `json:"event_id"`
+	Title        string    `json:"title"`
+	Userid       int       `json:"user_id"`
+	Group_id     int       `json:"group_id"`
+	Description  string    `json:"description"`
 	CreationTime time.Time `json:"creation_time"`
-	Timeof      time.Time `json:"time"`
-	Respond	bool	      `json:"respond"`
+	Timeof       time.Time `json:"time"`
+	Respond      bool      `json:"respond"`
 }
 
 type Gusers struct {

@@ -27,7 +27,7 @@ func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.GroupEvent
 	json.NewDecoder(r.Body).Decode(&event)
-	err := modules.UpdatEventResp(event.ID, uid,event.Respond)
+	err := modules.UpdatEventResp(event.ID, uid, event.Respond)
 	if err != nil {
 		auth.JsRespond(w, "Failed to update response", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error updating response:", err)
@@ -117,3 +117,22 @@ func GroupImInHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		"groups": groups,
 	})
 }
+
+// func groupinviteHandler(w http.ResponseWriter, r *http.Request, uid int) {
+// 	var group structs.GroupReq
+// 	json.NewDecoder(r.Body).Decode(&group)
+
+// 	if group.Gid == 0 || group.Uid == 0 {
+// 		auth.JsRespond(w, "gid and uid are required", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	err := modules.inviteToGroup(group.Uid, group.Gid, uid)
+// 	if err != nil {
+// 		logs.ErrorLog.Println("Error inserting group invite:", err)
+// 		auth.JsRespond(w, "group invite failed", http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	auth.JsRespond(w, "group invite sent successfully", http.StatusOK)
+// }

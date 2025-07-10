@@ -100,8 +100,134 @@ func GetPosts(start, uid, groupId int) ([]structs.Post, error) {
 	return posts, nil
 }
 
-//anas
-func GetEvents(group_id int , uid int) ([]structs.GroupEvent, error){
+func GetRequests(uid int) ([]structs.RequestsGet, error) {
+	rows, err := DB.Query(`
+		SELECT
+			r.id,
+			r.sender_id,
+			r.towhat,
+			r.type,
+			r.created_at,
+			p.display_name,
+			p.avatar
+		FROM
+			requests r
+		JOIN profile p ON r.sender_id = p.id
+		WHERE
+			r.receiver_id = ?;`, uid)
+	if err != nil {
+		logs.ErrorLog.Printf("GetRequests query error: %q", err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	var requests []structs.RequestsGet
+	for rows.Next() {
+		var request structs.RequestsGet
+		if err := rows.Scan(&request.ID, &request.SenderId, &request.Towhat, &request.Type, &request.Time, &request.Username, &request.Avatar); err != nil {
+			logs.ErrorLog.Printf("Error scanning requests: %q", err.Error())
+			return nil, err
+		}
+		
+		if request.Type == 0 {
+			request.Message = fmt.Sprintf("Follow request from %s", request.Username)
+		} else {
+			DB.QueryRow(`select p.display_name from profile p where p.id = ?`, request.Towhat).Scan(&request.Towhat)
+			request.Message = fmt.Sprintf("%s sends you a request to join %s Group", request.Username,request.Towhat)
+		}
+		requests = append(requests, request)
+	}
+	return requests, nil
+}
+
+
+func getusertofollow(uid int) ([]structs.UsersGet, error) {
+	rows, err := DB.Query(`
+		SELECT
+			p.id,
+			p.display_name,
+			p.avatar
+		FROM
+			profile p
+		WHERE
+			p.is_user = 1 AND p.id != ? AND p.id NOT IN (
+				SELECT following_id FROM follow WHERE follower_id = ? AND status = 1
+			)
+		LIMIT 10;`, uid, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []structs.UsersGet
+	for rows.Next() {
+		var user structs.UsersGet
+		if err := rows.Scan(&user.ID, &user.Username, &user.Avatar); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+func getfollowers(uid int) ([]structs.UsersGet, error) {
+	rows, err := DB.Query(`
+		SELECT
+			f.follower_id,
+			p.display_name,
+			p.avatar
+		FROM
+			follow f
+		JOIN profile p ON f.follower_id = p.id
+		WHERE
+			f.following_id = ? AND f.status = 1;`, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var followers []structs.UsersGet
+	for rows.Next() {
+		var follower structs.UsersGet
+		if err := rows.Scan(&follower.ID, &follower.Username, &follower.Avatar); err != nil {
+			return nil, err
+		}
+		followers = append(followers, follower)
+	}
+	return followers, nil
+}
+
+func getfollowing(uid int) ([]structs.UsersGet, error) {
+	rows, err := DB.Query(`
+		SELECT
+			f.following_id,
+			p.display_name,
+			p.avatar
+		FROM
+			follow f
+		JOIN profile p ON f.following_id = p.id AND p.is_user = 1
+		WHERE
+			f.follower_id = ? AND f.status = 1;`, uid)
+	if err != nil {
+		logs.ErrorLog.Printf("GetFollowing query error: %q", err.Error())
+		return nil, err
+	}
+	defer rows.Close()
+
+	var following []structs.UsersGet
+	for rows.Next() {
+		var follow structs.UsersGet
+		if err := rows.Scan(&follow.ID, &follow.Username, &follow.Avatar); err != nil {
+			logs.ErrorLog.Printf("Error scanning following: %q", err.Error())
+			return nil, err
+		}
+		following = append(following, follow)
+	}
+	return following, nil
+}
+
+// anas
+func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	rows, err := DB.Query(`    
 	SELECT
 		e.id,
@@ -116,7 +242,7 @@ func GetEvents(group_id int , uid int) ([]structs.GroupEvent, error){
 	    JOIN group ON p.group_id = group.id
 		JOIN userevents eu ON e.id = eu.event_id
 	WHERE
-	    group.id = ? AND eu.user_id = ?;`, group_id, uid,"event")
+	    group.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
 	if err != nil {
 		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
 		return nil, err
@@ -124,7 +250,7 @@ func GetEvents(group_id int , uid int) ([]structs.GroupEvent, error){
 	var events []structs.GroupEvent
 	for rows.Next() {
 		var event structs.GroupEvent
-		if err := rows.Scan(event.ID,event.Userid, event.Description, event.Title,event.Timeof,event.CreationTime,event.Respond); err != nil {
+		if err := rows.Scan(event.ID, event.Userid, event.Description, event.Title, event.Timeof, event.CreationTime, event.Respond); err != nil {
 			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
 			return nil, err
 		}

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { GetData, SendData } from "../../../../utils/sendData.js";
+import { GetData, SendData } from "../../sendData.js";
 import { CapitalizeFirstLetter, showNotification } from "../../utils.jsx";
 import Posts from "@/app/profile/[nickname]/[tab]/Posts.jsx";
 import Following from "@/app/profile/[nickname]/[tab]/Following";

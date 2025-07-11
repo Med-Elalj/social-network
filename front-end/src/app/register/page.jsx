@@ -2,16 +2,18 @@
 
 import { useState, useRef } from "react";
 import Styles from "./register.module.css";
-import { SendAuthData } from "../../../utils/sendData.js";
+import { SendAuthData } from "../sendData.js";
 import { useNotification } from "../context/notificationContext.jsx";
 import { usePasswordToggle, HandleUpload } from "../utils.jsx";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Register() {
   const { connectWebSocket } = useWebSocket();
   const Router = useRouter();
   const fileInputRef = useRef(null);
+  const { isLoggedIn } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -53,7 +55,9 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+   if (isLoggedIn) {
+      return;
+    }
     const data = new FormData();
     for (const key in formData) {
       data.append(key, formData[key]);

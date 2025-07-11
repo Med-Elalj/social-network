@@ -4,16 +4,18 @@ import { usePasswordToggle } from "../utils";
 
 import { useState } from "react";
 import Styles from "./login.module.css";
-import { SendAuthData } from "../../../utils/sendData.js";
+import { SendAuthData } from "../sendData.js";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 import { useNotification } from "../context/notificationContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {
   usePasswordToggle();
   const { connectWebSocket, isConnected } = useWebSocket();
   const {showNotification} = useNotification();
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
   const [formData, setFormData] = useState({
     login: "",
     pwd: "",
@@ -26,7 +28,9 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (isLoggedIn) {
+     router.push("/");
+    }
     const response = await SendAuthData("/api/v1/auth/login", formData);
 
     console.log("login Response status:", response.status);
@@ -35,6 +39,7 @@ export default function Login() {
       const res = await response.json();
       if (!isConnected) connectWebSocket();
       router.push("/?login=success");
+      // router.push("/");
       showNotification("Login successful!", "success", 5000);
     } else {
       let errorBody;

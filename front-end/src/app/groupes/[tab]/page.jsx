@@ -9,7 +9,7 @@ import GroupPosts from "./GroupPosts.jsx";
 import Discover from "./Discover.jsx";
 import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
-import { SendData } from "../../../../utils/sendData.js";
+import { SendData } from "../../sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
 import Profile from "../profile/[groupname]/page.jsx";
 

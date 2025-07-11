@@ -40,9 +40,6 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 	sidCookie, errSID := r.Cookie(AuthInfo.SessionIDName)
 
 	if errJWT != nil || errSID != nil {
-		ClearCookie(w, AuthInfo.JwtTokenName)
-		ClearCookie(w, AuthInfo.SessionIDName)
-		ClearCookie(w, AuthInfo.RefreshTokenName)
 		json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
 		return
 	}
@@ -68,9 +65,6 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 	Session, _ := GetSessionByID(sidCookie.Value)
 	clientIP := GetIP(r)
 	if Session.IP != clientIP || Session.UserAgent != r.UserAgent() {
-		ClearCookie(w, AuthInfo.JwtTokenName)
-		ClearCookie(w, AuthInfo.SessionIDName)
-		ClearCookie(w, AuthInfo.RefreshTokenName)
 		json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
 		return
 	}

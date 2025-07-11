@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
-import { GetData } from "../../../utils/sendData.js";
+import { GetData } from "@/app/sendData.js";
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);

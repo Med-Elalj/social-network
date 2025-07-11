@@ -218,7 +218,7 @@ export default function Profile() {
               >
                 <Image
                   src={profileData.avatar.String || "/default-avatar.png"}
-                  klt="user avatar"
+                  alt="user avatar"
                   fill
                   style={{ borderRadius: "50%" }}
                 />

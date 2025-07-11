@@ -115,7 +115,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		if avatarTmp.Valid {
 			profile.Avatar = avatarTmp.String
 		}
-		
+
 		relationship, err := modules.GetRelationship(payload.Sub, profile.ID)
 		if err != nil {
 			auth.JsRespond(w, "Feild to get relationship", http.StatusNotFound)

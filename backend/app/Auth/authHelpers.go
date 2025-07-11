@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"social-network/app/logs"
 	"social-network/app/modules"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type contextKey string

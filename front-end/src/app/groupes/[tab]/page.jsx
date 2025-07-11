@@ -11,7 +11,6 @@ import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { SendData } from "@/app/sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
-import Profile from "../profile/[groupname]/page.jsx";
 
 export default function Groupes() {
     const router = useRouter();
@@ -35,7 +34,7 @@ export default function Groupes() {
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);
-                showNotification("Error creating group: " + Body.message, "error");
+                showNotification("No requests found", "info");
             } else {
                 setRequests(Body.requests);
                 console.log('requests fetched successfully!');

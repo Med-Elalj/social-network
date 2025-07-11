@@ -199,7 +199,7 @@ export default function Settings() {
           className={Style.button}
           style={{
             backgroundColor: activeForm === "delete" ? "#dc3545" : "red",
-            color: "white",
+            color: "#fff",
             border: "1px solid black",
           }}
           onClick={handleDeleteProfile}
@@ -312,9 +312,9 @@ export default function Settings() {
               <input
                 className={Style.input}
                 type="password"
-                name="deletePassword" // ✅ fixed casing
+                name="deletePassword"
                 placeholder="Enter password to confirm"
-                value={formData.deletePassword} // ✅ match state
+                value={formData.deletePassword}
                 onChange={handleChange}
                 required
               />
@@ -324,10 +324,11 @@ export default function Settings() {
             </p>
             <p
               style={{
+                color: "grey",
                 fontFamily: "monospace",
                 userSelect: "none",
                 pointerEvents: "none",
-                background: "#f5f5f5",
+                background: "#ccc",
                 padding: "4px 8px",
                 display: "inline-block",
               }}

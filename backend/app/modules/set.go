@@ -96,7 +96,7 @@ func userfollow(uid int, tid int) error {
 				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
 				values (?, ?, ?)`, uid, tid, isPublic)
 				if err != nil {
-					
+
 				}
 			} else if status == 1 && isPublic == 1 {
 				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)

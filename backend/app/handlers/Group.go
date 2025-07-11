@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -14,6 +13,7 @@ import (
 func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var groupId int
 	json.NewDecoder(r.Body).Decode(&groupId)
+
 	events, err := modules.GetEvents(groupId, uid)
 	if err != nil {
 		auth.JsRespond(w, "Failed to get group events", http.StatusBadRequest)
@@ -131,30 +131,30 @@ func GetGroupDataHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 
 	groupName := req.GroupName
-	fmt.Println("Group Name:", groupName)
-
-	query := `SELECT id, display_name, avatar, description FROM profile WHERE display_name = ? AND is_user = 0;`
-	res, err := modules.DB.Query(query, groupName)
-	if err != nil {
-		logs.ErrorLog.Printf("Get Group Data query error: %q", err.Error())
-		http.Error(w, "failed to get group data", http.StatusBadRequest)
-		return
-	}
-	defer res.Close()
 
 	var groupData structs.GroupGet
-	for res.Next() {
-		if err := res.Scan(&groupData.ID, &groupData.GroupName, &groupData.Avatar, &groupData.Description); err != nil {
-			logs.ErrorLog.Printf("Group Data Handler scan error: %q", err.Error())
-			http.Error(w, "failed to get group data", http.StatusBadRequest)
-			return
-		}
+
+	query := `SELECT id, display_name, avatar, description, is_Public
+	          FROM profile
+	          WHERE display_name = ? AND is_user = 0;`
+	err := modules.DB.QueryRow(query, groupName).Scan(&groupData.ID, &groupData.GroupName, &groupData.Avatar, &groupData.Description, &groupData.Privacy)
+	if err != nil {
+		logs.ErrorLog.Printf("Group Data Handler scan error: %q", err.Error())
+		auth.JsRespond(w, "Failed to get group data", http.StatusBadRequest)
+		return
 	}
 
-	fmt.Println("Group Data:", groupData)
+	memberQuery := `SELECT COUNT(*) FROM follow WHERE following_id = ?`
+	var memberCount int
+	err = modules.DB.QueryRow(memberQuery, groupData.ID).Scan(&memberCount)
+	if err != nil {
+		logs.ErrorLog.Printf("Group Data Handler scan error: %q", err.Error())
+		auth.JsRespond(w, "Failed to get group member count", http.StatusBadRequest)
+		return
+	}
+
+	groupData.MemberCount = memberCount + 1
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]structs.GroupGet{
-		"group": groupData,
-	})
+	json.NewEncoder(w).Encode(groupData)
 }

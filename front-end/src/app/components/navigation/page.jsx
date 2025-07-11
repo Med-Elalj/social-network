@@ -11,7 +11,7 @@ import NotificationList from "./notificationList.jsx";
 import { refreshAccessToken } from "../../../../utils/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 
-const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
+const RefreshFrequency = 4 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
 export default function Routing() {
   const [isOpen, setIsOpen] = useState(false);

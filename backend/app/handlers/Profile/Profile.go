@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -192,8 +191,6 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 		followers = append(followers, follower)
 	}
 
-	fmt.Println("followers: ", followers)
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(followers)
 }
@@ -234,8 +231,6 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 		}
 		following = append(following, follow)
 	}
-
-	fmt.Println("following: ", following)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(following)

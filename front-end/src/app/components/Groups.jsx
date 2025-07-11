@@ -26,7 +26,7 @@ export default function Groups() {
   return (
     <div className={Styles.groups}>
       <h1>Groups</h1>
-      {groups && groups.slice(0, 5).map((Group, i) => (
+      {groups ? groups.slice(0, 5).map((Group, i) => (
         <div key={i}>
           <div>
             <Image src={Group.Avatar?.String || "/db.png"} alt="profile" width={40} height={40} style={{ borderRadius: '50%' }} />
@@ -34,7 +34,7 @@ export default function Groups() {
           </div>
           <Link href="/join">Join</Link>
         </div>
-      ))}
+      )):<h5>No groups to join</h5>}
     </div>
   );
 }

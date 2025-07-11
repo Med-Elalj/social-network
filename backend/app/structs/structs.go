@@ -18,23 +18,20 @@ type (
 	Avatar sql.NullString
 )
 
-
 type FollowReq struct {
 	FollowingId int `json:"following_id"`
 }
 
-
 type RequestsGet struct {
-	ID       int    `json:"id"`
-	SenderId int    `json:"sender_id"`
-	Username string `json:"username"`
-	GroupId  int    `json:"group_id"`
-	GroupName string `json:"group_name"`
+	SenderId    int            `json:"sender_id"`
+	Username    string         `json:"username"`
+	GroupId     int            `json:"group_id"`
+	GroupName   string         `json:"group_name"`
 	GroupAvatar sql.NullString `json:"group_avatar"`
-	Type     int    `json:"type"`
-	Message string `json:"message"`
-	Avatar   string `json:"avatar"`
-	Time    time.Time `json:"time"`
+	Type        int            `json:"type"`
+	Message     string         `json:"message"`
+	Avatar      string         `json:"avatar"`
+	Time        time.Time      `json:"time"`
 }
 
 type Login struct {
@@ -74,10 +71,12 @@ type Group struct {
 }
 
 type GroupGet struct {
-	ID          ID
+	ID          int
 	GroupName   string
 	Avatar      sql.NullString
-	Description string
+	Description sql.NullString
+	Privacy     bool
+	MemberCount int
 }
 
 type GroupReq struct {

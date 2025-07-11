@@ -62,57 +62,59 @@ func userfollow(uid int, tid int) error {
 		if err == sql.ErrNoRows {
 			err = DB.QueryRow(`select follow.status from follow where follower_id = ? and following_id = ?`, tid, uid).Scan(&status)
 			if err != nil {
-					if err == sql.ErrNoRows {
-				_, err = DB.Exec(`
+				if err == sql.ErrNoRows {
+					_, err = DB.Exec(`
 					INSERT INTO follow (follower_id, following_id, status)
 					VALUES (?, ?, ?)`, uid, tid, isPublic)
-				if err != nil {
-					return err
-				}
-			if isPublic == 0 {
-				_, err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
+					if err != nil {
+						return err
+					}
+					if isPublic == 0 {
+						_, err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
 				values (?, ?, ?, 0)`, uid, tid, tid)
-				if err != nil {
-					return fmt.Errorf("error inserting follow request: %w", err)
+						if err != nil {
+							return fmt.Errorf("error inserting follow request: %w", err)
+						}
+					}
+					return nil
 				}
 			}
-			return nil
-		}
-		}
-		if status == 0 {
-			_, err = DB.Exec(`
+			if status == 0 {
+				_, err = DB.Exec(`
 				UPDATE follow
 				SET status = 1
 				WHERE follower_id = ? AND following_id = ?`, uid, tid)
-			if err != nil {
-				return fmt.Errorf("error updating follow status: %w", err)
-			}
+				if err != nil {
+					return fmt.Errorf("error updating follow status: %w", err)
+				}
 
-		} else if status == 1 && isPublic == 0 {
-			_,err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
+			} else if status == 1 && isPublic == 0 {
+				_, err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
 				values (?, ?, ?, 0)`, uid, tid, tid)
-			if err != nil {
-			}
-			_,err = DB.Exec(`insert into follow (follower_id, following_id, status)
+				if err != nil {
+				}
+				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
 				values (?, ?, ?)`, uid, tid, isPublic)
-		} else if status == 1 && isPublic == 1 {
-			_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
+				if err != nil {
+					
+				}
+			} else if status == 1 && isPublic == 1 {
+				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
 				values (?, ?, ?)`, uid, tid, isPublic)
-			if err != nil {
+				if err != nil {
+				}
 			}
+		}
+	} else {
+		_, err = DB.Exec(`delete from follow where follower_id = ? and following_id = ?`, uid, tid)
+		if err != nil {
+		}
+		_, err = DB.Exec(`delete from requests where sender_id = ? and receiver_id = ?`, uid, tid)
+		if err != nil {
 		}
 	}
-}else {
-			_, err = DB.Exec(`delete from follow where follower_id = ? and following_id = ?`, uid, tid)
-			if err != nil {
-			}
-			_,err = DB.Exec(`delete from requests where sender_id = ? and receiver_id = ?`, uid, tid)
-			if err != nil {
-			}
-		}
 	return nil
 }
-
 
 // anas
 func userdelposts(post_id int, user_id int) error {
@@ -205,6 +207,24 @@ func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 		return 0, err
 	}
 
+	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, int(lastID), true)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+	query := `insert into request (sender_id, receiver_id, towhat, type) values (?,?,?,?)`
+	members, err := GetMembers(event.Group_id)
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+	for _, member := range members {
+		_, err = tx.Exec(query, uid, member.Uid, int(lastID), 2)
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
 	err = tx.Commit()
 	if err != nil {
 		return 0, err
@@ -282,6 +302,7 @@ func InsertGroup(gp structs.Group, uid int) error {
 	// 	return nil, err
 	// }
 	if err := tx.Commit(); err != nil {
+		logs.ErrorLog.Printf("Error committing transaction: %v", err)
 		return err
 	}
 

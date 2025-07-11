@@ -30,7 +30,7 @@ export default function Groupes() {
     // get requests
     useEffect(() => {
         const fetchData = async () => {
-            const response = await SendData("/api/v1/get/groupsrequests", { "definedtype": 1 });
+            const response = await SendData("/api/v1/get/groupsrequests", 1);
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);
@@ -212,20 +212,18 @@ export default function Groupes() {
             </div >
 
             <div className={Style.second}>
-                {{
-                    feed: <GroupPosts />,
-                    discover: <Discover />,
-                    groups: <YourGroups />,
-                    create: (
-                        <CreateGroup
-                            groupName={GroupName}
-                            privacy={privacy}
-                            about={about}
-                            imagePreview={previewUrl}
-                        />
-                    ),
-                    profile: <Profile />
-                }[activeTab] || <p>Invalid tab</p>}
+                {activeTab === "feed" && <GroupPosts />}
+                {activeTab === "discover" && <Discover />}
+                {activeTab === "groups" && <YourGroups />}
+                {activeTab === "create" && (
+                    <CreateGroup
+                        groupName={GroupName}
+                        privacy={privacy}
+                        about={about}
+                        imagePreview={previewUrl}
+                    />
+                )}
+                {(!["feed", "discover", "groups", "create"].includes(activeTab)) && <p>Invalid tab</p>}
             </div>
         </div >
     );

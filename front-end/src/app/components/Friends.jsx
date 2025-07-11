@@ -39,7 +39,7 @@ export default function Friends() {
             }
         }
 
-        fetchFollowRequest("follow")
+        // fetchFollowRequest("follow")
         fetchFollowRequest("users")
 
     }, [])

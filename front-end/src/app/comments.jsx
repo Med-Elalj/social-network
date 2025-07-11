@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Styles from "./global.module.css";
 import LikeDeslike from "./utils.jsx";
-import { SendData } from "../../utils/sendData.js";
+import { SendData } from "./sendData.js";
 import { HandleUpload } from "./utils.jsx";
 
 export default function Comments({ Post, onClose }) {

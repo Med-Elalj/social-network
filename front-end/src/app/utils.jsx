@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { SendData } from "../../utils/sendData.js";
+import { SendData } from "./sendData.js";
 
 // Notifications
 let notificationCooldown = false;

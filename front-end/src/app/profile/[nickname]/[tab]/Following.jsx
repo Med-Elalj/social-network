@@ -1,7 +1,7 @@
 import Style from "../../profile.module.css";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { GetData } from "../../../../../utils/sendData";
+import { GetData } from "../../../sendData";
 
 export default function Following(userId) {
   const [users, setUsers] = useState(null);

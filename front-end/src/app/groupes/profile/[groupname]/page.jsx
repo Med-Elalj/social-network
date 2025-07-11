@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { SendData } from "../../../../../utils/sendData.js";
+import { SendData } from "../../../sendData.js";
 import Style from "./profile.module.css";
 import Image from "next/image.js";
 

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from 'next/link';
 import Styles from "../groups.module.css";
 import { useState, useEffect } from "react";
-import { GetData } from "../../../../utils/sendData.js";
+import { GetData } from "../../sendData.js";
 import LikeDeslike from "@/app/utils.jsx";
 
 export default function GroupPosts() {

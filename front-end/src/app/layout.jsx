@@ -2,8 +2,9 @@ import Routing from "./components/navigation/page";
 // import Footer from "./footer/page";
 import "./global.css";
 import { Inter } from "next/font/google";
-import { WebSocketProvider } from "@/app/context/WebSocketContext.jsx"
-import { NotificationProvider } from "@/app/context/notificationContext.jsx"
+import { WebSocketProvider } from "@/app/context/WebSocketContext.jsx";
+import { NotificationProvider } from "@/app/context/notificationContext.jsx";
+import { AuthProvider } from "@/app/context/AuthContext.jsx";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,6 +17,29 @@ export const metadata = {
   description: "social network project",
 };
 
+// export default function Layout({ children }) {
+//   return (
+//     <html lang="en" className={inter.className}>
+// <head>
+//   <link
+//     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+//     rel="stylesheet"
+//   />
+//   <link rel="icon" href="/favicon.ico" />
+// </head>
+//       <body>
+//         <NotificationProvider>
+//           <WebSocketProvider>
+//             <Routing />
+//             <div>{children}</div>
+//             {/* <Footer/> */}
+//           </WebSocketProvider>
+//         </NotificationProvider>
+//       </body>
+//     </html>
+//   );
+// }
+
 export default function Layout({ children }) {
   return (
     <html lang="en" className={inter.className}>
@@ -27,13 +51,17 @@ export default function Layout({ children }) {
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body>
-        <NotificationProvider>
-          <WebSocketProvider>
-            <Routing />
-            <div>{children}</div>
-            {/* <Footer/> */}
-          </WebSocketProvider>
-        </NotificationProvider>
+        <AuthProvider>
+          {" "}
+          {/* Ensure AuthProvider is wrapping everything */}
+          <NotificationProvider>
+            <WebSocketProvider>
+              <Routing />
+              <div>{children}</div>
+              {/* <Footer/> */}
+            </WebSocketProvider>
+          </NotificationProvider>
+        </AuthProvider>
       </body>
     </html>
   );

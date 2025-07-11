@@ -1,9 +1,10 @@
 "use client";
+import { showNotification } from "@/app/utils";
 
 
 export async function refreshAccessToken() {
+
   console.log("🔄 Attempting to refresh access token...");
-  
   try {
     const res = await fetch('/api/v1/auth/refresh', {
       method: 'POST',
@@ -24,6 +25,7 @@ export async function refreshAccessToken() {
 }
 
 async function fetchWithAuth(url, options = {}) {
+
   let res = await fetch(url, {
     ...options,
     credentials: 'include',

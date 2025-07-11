@@ -1,4 +1,4 @@
-import { SendData } from "../../../utils/sendData.js";
+import { SendData } from "@/app/sendData.js";
 
 export async function LogoutAndRedirect(router) {
     try {

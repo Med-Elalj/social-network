@@ -1,8 +1,5 @@
 # Amine
-
 ADD CORS
 ADD RateLimiter
-add follow and following for public profile
-investigate sudden logouts
 check auth globally for extra protection
 ###

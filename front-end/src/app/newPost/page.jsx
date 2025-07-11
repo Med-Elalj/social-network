@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Styles from "./newPost.module.css";
-import { SendData } from "../../../utils/sendData.js";
+import { SendData } from "../sendData.js";
 import { useRouter } from "next/navigation";
 import { HandleUpload } from "../utils.jsx";
 

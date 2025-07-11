@@ -4,7 +4,7 @@ import Styles from "./global.module.css";
 import Groups from "./components/Groups";
 import Friends from "./components/Friends";
 import Image from "next/image";
-import { SendData } from "../../utils/sendData";
+import { SendData } from "./sendData.js";
 import { useEffect, useState } from "react";
 import LikeDeslike from "./utils.jsx";
 import Comments from "./comments.jsx";

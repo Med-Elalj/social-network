@@ -1,21 +1,20 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { GetData } from "../../../../utils/sendData.js";
 import { LogoutAndRedirect } from "../Logout.jsx";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Styles from "./nav.module.css";
 import NotificationList from "./notificationList.jsx";
-import { refreshAccessToken } from "../../../../utils/sendData.js";
+import { refreshAccessToken } from "@/app/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
-
+import { useAuth } from "@/app/context/AuthContext.jsx";
 const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
 export default function Routing() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(null);
+  const { isLoggedIn } = useAuth(null);
   const pathname = usePathname();
   const router = useRouter();
   const { closeWebSocket, isConnected } = useWebSocket();
@@ -44,43 +43,12 @@ export default function Routing() {
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
-    }
+    };
 
     if (isOpen) {
       // fetchNotifications();
     }
-  }, [isOpen])
-
-  useEffect(() => {
-    const fetchAuthStatus = async () => {
-      try {
-        const response = await fetch("/api/v1/auth/status", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        });
-
-        // First check if the response is OK
-        if (!response.ok) {
-          setIsLoggedIn(false);
-          return;
-        }
-
-        // Parse the response as JSON only once
-        const data = await response.json();
-        setIsLoggedIn(data.authenticated === true);
-        console.log("Auth status:", data.authenticated);
-      } catch (err) {
-        setIsLoggedIn(false);
-        console.error("Auth check error:", err);
-      }
-    };
-
-    fetchAuthStatus();
-  }, [pathname]);
+  }, [isOpen]);
 
   // 🛰️ Route Protection
   // const publicRoutes = [ "/login", "/register"];
@@ -123,7 +91,7 @@ export default function Routing() {
     if (!validPaths.includes(pathname)) return;
 
     if (isLoggedIn && (pathname === "/login" || pathname === "/register")) {
-      router.push("/" || pathname);
+      router.push("/");
     } else if (
       !isLoggedIn &&
       pathname !== "/login" &&
@@ -181,7 +149,10 @@ export default function Routing() {
                     />
                   </span>
                   {isOpen && (
-                    <NotificationList notifications={notifications} setIsOpen={setIsOpen} />
+                    <NotificationList
+                      notifications={notifications}
+                      setIsOpen={setIsOpen}
+                    />
                   )}
                 </div>
               </div>
@@ -226,16 +197,18 @@ export default function Routing() {
           ) : (
             <>
               <Link
-                className={`${Styles.linkWithIcon} ${pathname === "/login" ? Styles.active : ""
-                  }`}
+                className={`${Styles.linkWithIcon} ${
+                  pathname === "/login" ? Styles.active : ""
+                }`}
                 href="/login"
                 onClick={() => setIsOpen(false)}
               >
                 Login
               </Link>
               <Link
-                className={`${Styles.linkWithIcon} ${pathname === "/register" ? Styles.active : ""
-                  }`}
+                className={`${Styles.linkWithIcon} ${
+                  pathname === "/register" ? Styles.active : ""
+                }`}
                 href="/register"
                 onClick={() => setIsOpen(false)}
               >
@@ -264,8 +237,9 @@ export default function Routing() {
 function NavLink({ href, icon, pathname }) {
   return (
     <Link
-      className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""
-        }`}
+      className={`${Styles.linkWithIcon} ${
+        pathname === href ? Styles.active : ""
+      }`}
       href={href}
     >
       <span className={Styles.iconWrapper}>

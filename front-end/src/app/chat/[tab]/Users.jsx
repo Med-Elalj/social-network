@@ -40,10 +40,11 @@ export default function Users({ users, onUserSelect }) {
                         >
                             <div className={Style.userImageWrapper}>
                                 <Image
-                                    src={`/${user.avatar ?? "iconMale.png"}`}
+                                    src={`${user?.pfp?.String ? user.pfp.String : "iconMale.png"}`}
                                     width={50}
                                     height={50}
                                     alt="userProfile"
+                                    style={{borderRadius:"50%"}}
                                 />
                                 {user.online && <span className={Style.activeIndicator} />}
                             </div>

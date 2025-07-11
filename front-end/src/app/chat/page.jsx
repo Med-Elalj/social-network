@@ -140,10 +140,11 @@ export default function Chat() {
             <>
               <div className={Style.top}>
                 <Image
-                  src={`/${selectedUser?.pfp?.String ? selectedUser.pfp.String : "iconMale.png"}`}
+                  src={`${selectedUser?.pfp?.String ? selectedUser.pfp.String : "iconMale.png"}`}
                   width={50}
                   height={50}
                   alt="userProfile"
+                  style={{borderRadius:"50%"}}
                 />
                 <Link href={`/profile/${selectedUser.name}`}><div className={Style.userInfo}>
                   <h5>{selectedUser.name}</h5>

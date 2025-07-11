@@ -40,8 +40,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GroupEventsHandler(w, r, data.Sub)
 	case "followRequests":
 		GetFollowRequests(w, r, data.Sub)
-	case "groupsrequests":
-		GroupRequestsHandler(w, r, data.Sub)
+	case "requests":
+		GetRequestsHandler(w, r, data.Sub)
 	case "users":
 		payload := r.Context().Value(auth.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)

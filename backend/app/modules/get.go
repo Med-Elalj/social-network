@@ -104,22 +104,24 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
-		SELECT
-			r.id,
-			r.sender_id, -- sender_id
-			r.towhat, -- group_id
-			r.type, -- type 0 is follow, 1 is group
-			g.display_name,
-			g.avatar,
-			r.created_at, -- time
-			p.display_name, -- username of sender
-			p.avatar -- avatar of sender
-		FROM
-			requests r
-		JOIN profile p ON r.sender_id = p.id
-		JOIN profile g ON r.towhat = g.id
-		WHERE
-			r.receiver_id = ? AND r.type = ?;`, uid, tpdefind)
+	SELECT
+		r.id,
+		r.sender_id,
+		r.towhat,
+		r.type,
+		g.display_name,
+		g.avatar,
+		r.created_at,
+		p.display_name,
+		p.avatar
+	FROM
+		requests r
+	JOIN profile p ON r.sender_id = p.id
+	JOIN profile g ON r.towhat = g.id
+	WHERE
+		r.receiver_id = ?
+		AND (? = 3 OR r.type = ?)
+	ORDER BY r.created_at DESC;`, uid, tpdefind, tpdefind)
 	if err != nil {
 		logs.ErrorLog.Printf("GetRequests query error: %q", err.Error())
 		return nil, err
@@ -129,9 +131,18 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	var requests []structs.RequestsGet
 	for rows.Next() {
 		var request structs.RequestsGet
-		if err := rows.Scan(&request.ID, &request.SenderId, &request.GroupId,&request.Type,&request.GroupName,&request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
+		if err := rows.Scan(&request.ID, &request.SenderId, &request.GroupId, &request.Type, &request.GroupName, &request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
 			logs.ErrorLog.Printf("Error scanning requests: %q", err.Error())
 			return nil, err
+		}
+
+		switch request.Type {
+		case 0:
+			request.Message = fmt.Sprintf("%s sent you a follow request", request.Username)
+		case 1:
+			request.Message = fmt.Sprintf("%s invited you to join %s group", request.Username, request.GroupName)
+		case 2:
+			request.Message = fmt.Sprintf("%s create a new event on %s group", request.Username, request.GroupName)
 		}
 
 		requests = append(requests, request)

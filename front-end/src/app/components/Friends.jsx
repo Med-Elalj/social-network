@@ -94,7 +94,7 @@ export default function Friends() {
                 {requests?.length > 0 ? (requests.map((user) => (
                     <Link href={`/profle/${user.Name}`} key={user.Uid}>
                         <div>
-                            <Image src={user.Avatar} alt="profile" width={40} height={40} />
+                            <Image src={user.pfp?.String ? user.pfp.String : "/iconMale.png"} style={{borderRadius:"50%"}} alt="profile" width={40} height={40} />
                             <h5>{user.Name}</h5>
                         </div>
                         {user.status ? <h2>{`Follow ${user.status}ed`}</h2> : (<div className={Styles.Buttons}>
@@ -115,7 +115,7 @@ export default function Friends() {
                 {contacts?.length > 0 ? (contacts.map((user) => (
                     <Link href={`/chat?goTo=${user.name}`} key={user.id}>
                         <div>
-                            <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                            <Image src={user.pfp?.String ? user.pfp.String : "/iconMale.png"} alt="profile" width={40} height={40} style={{borderRadius:"50%"}} />
                             <h5>{user.name}</h5>
                         </div>
                         <p className={user.online ? Styles.online : Styles.offline}>{user.online ? "online" : "offline"}</p>

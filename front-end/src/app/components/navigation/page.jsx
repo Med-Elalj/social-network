@@ -24,13 +24,14 @@ export default function Routing() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("/api/v1/notifications", {
+        const response = await fetch("/api/v1/get/requests", {
           method: "GET",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
+          body: JSON.stringify({ tpdefined: 3 })
         });
 
         if (!response.ok) {

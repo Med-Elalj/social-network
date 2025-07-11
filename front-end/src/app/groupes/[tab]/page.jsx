@@ -9,7 +9,7 @@ import GroupPosts from "./GroupPosts.jsx";
 import Discover from "./Discover.jsx";
 import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
-import { SendData } from "../../sendData.js";
+import { SendData } from "@/app/sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
 import Profile from "../profile/[groupname]/page.jsx";
 
@@ -28,6 +28,7 @@ export default function Groupes() {
     const { showNotification } = useNotification();
 
     // get requests
+    //todo: wrap to control when use better
     useEffect(() => {
         const fetchData = async () => {
             const response = await SendData("/api/v1/get/groupsrequests", 1);

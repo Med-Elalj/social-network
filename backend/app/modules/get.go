@@ -132,7 +132,7 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	var requests []structs.RequestsGet
 	for rows.Next() {
 		var request structs.RequestsGet
-		if err := rows.Scan(&request.ID, &request.SenderId, &request.GroupId, &request.Type, &request.GroupName, &request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
+		if err := rows.Scan(&request.SenderId, &request.GroupId, &request.Type, &request.GroupName, &request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
 			logs.ErrorLog.Printf("Error scanning requests: %q", err.Error())
 			return nil, err
 		}

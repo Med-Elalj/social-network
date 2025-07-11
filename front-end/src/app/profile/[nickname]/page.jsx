@@ -153,6 +153,10 @@ export default function Profile() {
 
   const { nickname } = useParams() || {};
 
+  // const avatarUrl = profileData.avatar?.String
+  //   ? `/${profileData.avatar.String}`
+  //   : "/default-avatar.png";
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -213,7 +217,7 @@ export default function Profile() {
                 }}
               >
                 <Image
-                  src={profileData.avatar || "/default-avatar.png"}
+                  src={profileData.avatar.String || "/default-avatar.png"}
                   klt="user avatar"
                   fill
                   style={{ borderRadius: "50%" }}

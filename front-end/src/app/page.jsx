@@ -16,103 +16,96 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  /* ---------------- data fetching (unchanged) ---------------- */
   const fetchData = async (reset = false) => {
     if (loading || (!hasMore && !reset)) return;
     setLoading(true);
 
-    let startID = lastPostID;
-    if (reset) {
-      startID = 0;
-    }
-
-    const formData = { start: startID };
-
     try {
-      const response = await SendData("/api/v1/get/posts", formData);
+      const startID = reset ? 0 : lastPostID;
+      const response = await SendData("/api/v1/get/posts", { start: startID });
       const Body = await response.json();
 
-      if (response.status !== 200) {
-        console.error("Fetch error:", Body);
-        setLoading(false);
-        return;
-      }
+      if (response.status !== 200) throw Body;
 
-      const newPosts = Body.posts || [];
+      const newPosts = Body.posts ?? [];
 
-      if (reset) {
-        setPosts(newPosts);
-      } else {
-        setPosts((prev) => {
-          const combined = [...prev, ...newPosts];
-          const unique = Array.from(new Map(combined.map((p) => [p.ID, p])).values());
-          return unique;
-        });
-      }
+      setPosts((prev) => {
+        const combined = reset ? newPosts : [...prev, ...newPosts];
+        return Array.from(new Map(combined.map((p) => [p.ID, p])).values());
+      });
 
-      if (newPosts.length === 0) {
-        setHasMore(false);
-      } else {
-        setLastPostID(newPosts[newPosts.length - 1].ID);
-        setHasMore(true);
-      }
+      setLastPostID(newPosts.at(-1)?.ID ?? lastPostID);
+      setHasMore(newPosts.length > 0);
     } catch (err) {
-      console.error("Fetch exception:", err);
+      console.error("Fetch error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchData(true);
-  }, []);
-
+  useEffect(() => { fetchData(true); }, []);
   useEffect(() => {
     const onScroll = () => {
-      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-      if (nearBottom && hasMore && !loading) {
-        setTimeout(() => {
-          fetchData();
-        }, 1000);
-      }
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
+        hasMore && !loading
+      ) setTimeout(fetchData, 1_000);
     };
-
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, [hasMore, loading]);
 
+  /* ---------------- render ---------------- */
   return (
     <div className={Styles.global}>
-      {/* Left Sidebar */}
-      <div className={Styles.firstSide}>
-        <Groups />
-      </div>
+      <div className={Styles.firstSide}><Groups/></div>
 
-      {/* Center Content */}
       <div className={Styles.centerContent}>
-        {posts &&
-          posts.map((Post) => (
+        {posts.map((Post) => {
+          /* ► ONE canonical avatar for the author ◄ */
+          const authorAvatar = Post?.AvatarUser?.String
+            ? `${Post.AvatarUser.String}`  // or full URL if stored externally
+            : "/iconMale.png";
+
+          return (
             <div key={Post.ID} className={Styles.post}>
+              {/* ---------- header ---------- */}
               <section className={Styles.userinfo}>
                 <div className={Styles.user}>
-                  {/* Main Avatar */}
-                  <Image
-                    src={Post.AvatarGroup?.String ? `/${Post.AvatarGroup.String}` : "/iconMale.png"}
-                    alt="avatar"
-                    width={25}
-                    height={25}
-                  />
+                  {/* left-most avatar or group badge */}
+                  {Post.GroupId?.Valid ? (
+                    <Image
+                      src={
+                        Post.AvatarGroup?.String
+                          ? `${Post.AvatarGroup.String}`
+                          : "/iconGroup.png"
+                      }
+                      alt="group avatar"
+                      width={25}
+                      height={25}
+                    />
+                  ) : (
+                    <Image
+                      src={authorAvatar}
+                      alt="author avatar"
+                      width={25}
+                      height={25}
+                    />
+                  )}
 
-                  {/* Texts block */}
+                  {/* texts block */}
                   <div className={Styles.texts}>
                     {Post.GroupId?.Valid ? (
                       <>
+                        {/* group name */}
                         <p>{Post.GroupName.String}</p>
+
+                        {/* author info (small) */}
                         <div className={Styles.user}>
                           <Image
-                            src={
-                              Post.AvatarUser?.String ? `/${Post.Avatar.String}` : "/iconMale.png"
-                            }
-                            alt="avatar"
+                            src={authorAvatar}
+                            alt="author avatar"
                             width={20}
                             height={20}
                           />
@@ -120,65 +113,67 @@ export default function Home() {
                         </div>
                       </>
                     ) : (
-                      <>
-                        <p>{Post.UserName}</p>
-                        <div className={Styles.user}></div>
-                      </>
+                      <p>{Post.UserName}</p>
                     )}
                   </div>
                 </div>
 
-                {/* Timestamp */}
-                <div>
-                  <p>{Post.CreatedAt.replace("T", " ").slice(0, -1)}</p>
-                </div>
+                {/* timestamp */}
+                <p>{Post.CreatedAt.replace("T", " ").slice(0, -1)}</p>
               </section>
 
+              {/* ---------- body ---------- */}
               <section className={Styles.content}>{Post.Content}</section>
 
-              {/* Post Image (optional) */}
               {Post.ImagePath?.String && (
                 <Image
                   src={Post.ImagePath.String}
-                  alt="post"
+                  alt="post illustration"
                   width={250}
                   height={200}
-                  sizes="(max-width: 768px) 100vw, 250px"
-                  style={{ height: "auto", width: "100%", borderRadius: "10px" }}
+                  sizes="(max-width:768px) 100vw, 250px"
+                  style={{ width: "100%", height: "auto", borderRadius: "10px" }}
                   unoptimized
                 />
               )}
 
+              {/* ---------- footer ---------- */}
               <section className={Styles.footer}>
-                {/* TODO:add to websocket to be updated for all users */}
                 <LikeDeslike
                   EntityID={Post.ID}
-                  EntityType={"post"}
+                  EntityType="post"
                   isLiked={Post.IsLiked}
                   currentLikeCount={Post.LikeCount}
                 />
 
-                <div className={Styles.action} onClick={() => setOpenComments(Post.ID)}>
-                  <Image src="/comment.svg" alt="comment" width={20} height={20} />
+                <div
+                  className={Styles.action}
+                  onClick={() =>
+                    setOpenComments((open) => (open === Post.ID ? null : Post.ID))
+                  }
+                >
+                  <Image src="/comment.svg" alt="comment" width={20} height={20}/>
                   <p>{Post.CommentCount}</p>
                 </div>
-
-                {openComments === Post.ID && (
-                  <div className={Styles.commentPopup} onClick={() => setOpenComments(null)}>
-                    <div onClick={(e) => e.stopPropagation()}>
-                      <Comments Post={Post} onClose={() => setOpenComments(null)} />
-                    </div>
-                  </div>
-                )}
               </section>
+
+              {/* ---------- comments popup ---------- */}
+              {openComments === Post.ID && (
+                <div
+                  className={Styles.commentPopup}
+                  onClick={() => setOpenComments(null)}
+                >
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Comments Post={Post} onClose={() => setOpenComments(null)} />
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
+          );
+        })}
       </div>
 
-      {/* Right Sidebar */}
-      <div className={Styles.thirdSide}>
-        <Friends />
-      </div>
+      <div className={Styles.thirdSide}><Friends/></div>
     </div>
   );
 }

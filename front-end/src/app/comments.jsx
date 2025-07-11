@@ -160,7 +160,7 @@ export default function Comments({ Post, onClose }) {
                 <div>
                   <Image
                     src={
-                      Comment.AvatarUser?.String ? `/${Comment.AvatarUser.String}` : "/iconMale.png"
+                      Comment.AvatarUser?.String ? `${Comment.AvatarUser.String}` : "/iconMale.png"
                     }
                     alt="avatar"
                     width={25}

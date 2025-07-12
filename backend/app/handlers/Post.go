@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -15,7 +16,12 @@ func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 
 	json.NewDecoder(r.Body).Decode(&post)
 
-	if !modules.InsertPost(post, uid, nil) {
+	fmt.Println(post.GroupId)
+	fmt.Println(uid)
+	fmt.Println(post.Privacy)
+	fmt.Println(post.Content)
+
+	if !modules.InsertPost(post, uid, post.GroupId) {
 		auth.JsRespond(w, "Post creation failed", http.StatusBadRequest)
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -43,7 +49,6 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 	start := int(startFloat)
 
-	// Parse groupId, default to 0 if not present or invalid
 	groupId := 0
 	if gid, exists := dataToFetch["groupId"]; exists {
 		if gidFloat, ok := gid.(float64); ok {

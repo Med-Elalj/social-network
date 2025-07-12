@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"database/sql"
 	"fmt"
 
 	"social-network/app/logs"
@@ -156,17 +157,17 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	SELECT
 		e.id,
 	    e.user_id,
-	    e.desc,
+	    e.description,
 		e.title,
 		e.timeof,
-		e.created_at
+		e.created_at,
 		eu.respond
 	FROM
-	    event e
-	    JOIN group ON p.group_id = group.id
+	    "events" e
+	    JOIN "group" g ON e.group_id = g.id
 		JOIN userevents eu ON e.id = eu.event_id
 	WHERE
-	    group.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
+	    g.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
 	if err != nil {
 		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
 		return nil, err
@@ -184,8 +185,6 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 }
 
 func GetMembers(groupid int) ([]structs.Gusers, error) {
-	var adminid int
-
 	rows, err := DB.Query(`    
 	SELECT
 	    p.id,
@@ -197,24 +196,38 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
 	WHERE
 	    follow.following_id = ?;`, groupid)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		logs.ErrorLog.Printf("GetMembers query error: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
-	err = DB.QueryRow(`SELECT g.creator_id FROM "group" g WHERE g.id = ?;`, groupid).Scan(adminid)
-	if err != nil {
-		return []structs.Gusers{}, fmt.Errorf("error fetching user: %v", err)
-	}
+
 	var admin structs.Gusers
-	err = DB.QueryRow(`select p.id p.display_name, p.avatar from profile p where p.id = ?`, adminid).Scan(admin.Uid, admin.Name, admin.Avatar)
+	err = DB.QueryRow(`
+		select
+		    p.id,
+		    p.display_name,
+		    p.avatar
+		from
+		    profile p
+		    JOIN "group" g ON g.creator_id = p.id
+		where
+		    g.id = ?;`, groupid).Scan(&admin.Uid, &admin.Name, &admin.Avatar)
 	if err != nil {
-		//
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		logs.ErrorLog.Printf("GetMembers query error: %q", err.Error())
+		return nil, err
 	}
+
 	var members []structs.Gusers
 	members = append(members, admin)
 	for rows.Next() {
 		var member structs.Gusers
-		if err := rows.Scan(member.Uid, member.Name, member.Avatar); err != nil {
+		if err := rows.Scan(&member.Uid, &member.Name, &member.Avatar); err != nil {
 			logs.ErrorLog.Printf("Error scanning message: %q", err.Error())
 			return nil, err
 		}
@@ -410,48 +423,6 @@ func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 	return grs, nil
 }
 
-// func GetComments(pid string) ([]structs.CommentGet, error) {
-// 	if pid == "" {
-// 		return nil, nil
-// 	}
-// 	Pid, err := strconv.Atoi(pid)
-// 	if err != nil {
-// 		logs.Errorf("Error converting pid to int: %q", err.Error())
-// 		return nil, err
-// 	}
-// 	rows, err := DB.Query(`
-// 	SELECT
-//     	u.username AS author,
-//     	c.content,
-//     	c.created_at
-// 	FROM
-//     	comments c
-// 	JOIN
-//     	users u ON c.uid = u.id
-// 	WHERE
-// 		c.post_id = ?
-// 	ORDER BY
-// 		c.created_at DESC
-// 	`, Pid)
-// 	if err != nil {
-// 		logs.Errorf("Error getting comments: %q", err.Error())
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-// 	var comments []structs.CommentGet
-// 	for rows.Next() {
-// 		var comment structs.CommentGet
-// 		err := rows.Scan(&comment.Author, &comment.Content, &comment.CreationTime)
-// 		if err != nil {
-// 			logs.Errorf("Error scanning comments: %q", err.Error())
-// 			return nil, err
-// 		}
-// 		comment.Pid = structs.ID(Pid)
-// 		comments = append(comments, comment)
-// 	}
-// 	return comments, nil
-// }
-
 func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	rows, err := DB.Query(`
 	SELECT
@@ -471,6 +442,8 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		(m.sender_id = ? OR m.receiver_id = ? )
 	WHERE
 		p.id != ?
+	AND 
+		p.is_user = 1
 	GROUP BY
 		p.id, p.display_name
 	ORDER BY

@@ -83,7 +83,8 @@ export default function GroupPosts() {
                     <section className={Styles.footer}>
                         {/* TODO:add to websocket to be updated for all users */}
                         <LikeDeslike
-                            PostID={Post.ID}
+                            EntityID={Post.ID}
+                            EntityType={"post"}
                             isLiked={Post.IsLiked}
                             currentLikeCount={Post.LikeCount}
                         />

@@ -25,7 +25,7 @@ export default function Friends() {
                 });
 
                 if (!response.ok) {
-                    console.error(`HTTP error! Status: ${response.status}`);
+                    console.log(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -80,7 +80,6 @@ export default function Friends() {
             });
             const data = await response.json(); // Added 'const' declaration
             showNotification(data.message, response.ok ? "succes" : "error")
-            setRequests(prev => prev.map((user) => user.id == id ? { ...user, status: status } : user))
         } catch (error) {
             console.error(error)
             showNotification(`can't ${status} request, try again`, "error")

@@ -36,8 +36,8 @@ export default function YourGroups() {
                         className={Style.groupAvatar}
                     />
                     <h4>{Group.GroupName}</h4>
-                    <p>{Group.Description}</p>
-                    <Link href="/view" className={Style.acceptBtn}>View Group</Link>
+                    <p>{Group.Description?.String || "No description"}</p>
+                    <Link href={`/groupes/profile/${Group.GroupName}`} className={Style.acceptBtn}>View Group</Link>
                 </div>
             ))) : (
                 <>

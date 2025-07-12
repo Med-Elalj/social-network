@@ -201,6 +201,14 @@ export default function Profile() {
 
   return (
     <div className={Style.container}>
+      <div className={Style.header}>
+        <Image
+          src={profileData?.avatar?.Valid ? profileData.avatar : "/groupsBg.png"}
+          alt="user avatar"
+          fill
+          style={{ objectFit: "inherit" }}
+        />
+      </div>
       <div className={Style.body}>
         <div className={Style.first}>
           <div className={Style.ProfileInfo}>
@@ -212,13 +220,12 @@ export default function Profile() {
                   height: "200px",
                 }}
               >
-                {/* <Image
+                <Image
+                  src={profileData?.avatar?.Valid ? profileData.avatar : "/iconMale.png"}
                   alt="user avatar"
-                  src={profileData.avatar || "/default-avatar.png"}
-                  klt="user avatar"
                   fill
-                  style={{ borderRadius: "50%" }}
-                /> */}
+                  style={{ borderRadius: "50%"}}
+                />
               </div>
               <h4>@{CapitalizeFirstLetter(profileData.display_name)}</h4>
             </div>
@@ -256,7 +263,7 @@ export default function Profile() {
                         {profileData.first_name} {profileData.last_name}
                       </h5>
                     </span>
-                     <span>
+                    <span>
                       <h5>Gender:</h5>&nbsp;&nbsp;
                       <h5>
                         {profileData.gender}
@@ -311,8 +318,8 @@ export default function Profile() {
 
         <div className={Style.second}>
           {activeSection === "posts" && <Posts userId={profileData.id} />}
-          {activeSection === "followers" && <Followers userId={profileData.id}/>}
-          {activeSection === "following" && <Following userId={profileData.id}/>}
+          {activeSection === "followers" && <Followers userId={profileData.id} />}
+          {activeSection === "following" && <Following userId={profileData.id} />}
         </div>
 
         <div className={Style.end}>

@@ -13,7 +13,7 @@ export default function Groups() {
       const body = await response.json();
 
       if (response.status !== 200) {
-        console.error("Faild to get groups");
+        console.log("Faild to get groups");
       } else {
         setGroups(body.groups);
         console.log("Groups fetched successfully!");
@@ -26,15 +26,17 @@ export default function Groups() {
   return (
     <div className={Styles.groups}>
       <h1>Groups</h1>
-      {groups && groups.slice(0, 5).map((Group, i) => (
+      {groups ? groups.slice(0, 5).map((Group, i) => (
         <div key={i}>
           <div>
             <Image src={Group.Avatar?.String || "/db.png"} alt="profile" width={40} height={40} style={{ borderRadius: '50%' }} />
             <h5>{Group.GroupName}</h5>
           </div>
-          <Link href="/join">Join</Link>
+          <div >
+            <Image src="/join.svg" alt="join" width={25} height={25} />
+          </div>
         </div>
-      ))}
+      )) : <h3 style={{ textAlign: "center" }}>No groups to join</h3>}
     </div>
   );
 }

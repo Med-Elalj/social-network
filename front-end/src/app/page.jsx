@@ -6,7 +6,7 @@ import Friends from "./components/Friends";
 import Image from "next/image";
 import { SendData } from "../../utils/sendData";
 import { useEffect, useState } from "react";
-import LikeDeslike from "./utils.jsx";
+import LikeDeslike, { TimeAgo } from "./utils.jsx";
 import Comments from "./comments.jsx";
 
 export default function Home() {
@@ -32,7 +32,7 @@ export default function Home() {
       const Body = await response.json();
 
       if (response.status !== 200) {
-        console.error("Fetch error:", Body);
+        console.log("Fetch error:", Body);
         setLoading(false);
         return;
       }
@@ -110,7 +110,7 @@ export default function Home() {
                         <div className={Styles.user}>
                           <Image
                             src={
-                              Post.AvatarUser?.String ? `/${Post.Avatar.String}` : "/iconMale.png"
+                              Post.AvatarUser.Valid ? `${Post.AvatarUser.String}` : "/iconMale.png"
                             }
                             alt="avatar"
                             width={20}
@@ -130,7 +130,7 @@ export default function Home() {
 
                 {/* Timestamp */}
                 <div>
-                  <p>{Post.CreatedAt.replace("T", " ").slice(0, -1)}</p>
+                  <p>{TimeAgo(Post.CreatedAt)}</p>
                 </div>
               </section>
 

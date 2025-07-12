@@ -125,9 +125,9 @@ export default function Posts(userId) {
           </section>
 
           {/* Post Image (optional) */}
-          {/* {Post.ImagePath?.String ? (
+          {Post.ImagePath.Valid ? (
             <Image
-              src={`/${Post.ImagePath.String}`}
+              src={`${Post.ImagePath.String}`}
               alt="post"
               width={250}
               height={200}

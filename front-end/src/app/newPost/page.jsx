@@ -48,6 +48,7 @@ export default function NewPost() {
       content: content,
       privacy: privacy,
       image: imagePath,
+      groupId: null
     };
 
     const response = await SendData("/api/v1/set/Post", formData);

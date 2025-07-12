@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link.js";
 import Style from '../groups.module.css';
-import { log } from "util";
 
 export default function YourGroups() {
     const [groups, setGroups] = useState([]);
@@ -25,7 +24,7 @@ export default function YourGroups() {
     }, []);
 
     return (
-        <div className={groups.length > 0 ? Style.groupGrid : Style.noPosts}>
+        <div className={groups ? Style.groupGrid : Style.noPosts}>
             {groups ? (groups.map((Group, _) => (
                 <div className={Style.groupCard} key={Group.ID}>
                     <Image
@@ -38,7 +37,7 @@ export default function YourGroups() {
                     />
                     <h4>{Group.GroupName}</h4>
                     <p>{Group.Description?.String || "No description"}</p>
-                    <Link href="/view" className={Style.acceptBtn}>View Group</Link>
+                    <Link href={`/groupes/profile/${Group.GroupName}`} className={Style.acceptBtn}>View Group</Link>
                 </div>
             ))) : (
                 <>

@@ -129,12 +129,13 @@ type PostCreate struct {
 	Content Pbody       `json:"content"`
 	Image   PImage      `json:"image"`
 	Privacy PostPrivacy `json:"privacy"`
+	GroupId int          `json:"groupId"`
 }
 
 type CommentInfo struct {
 	PostID  ID             `json:"post_id"`
 	Content CommentContent `json:"content"`
-	Image   string         `json:"image"`
+	Image   sql.NullString         `json:"image"`
 }
 
 type Comments struct {

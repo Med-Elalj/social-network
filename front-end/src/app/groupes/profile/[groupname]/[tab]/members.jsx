@@ -16,9 +16,6 @@ export default function Members({ groupId }) {
                 if (res.ok) {
                     const memberData = await res.json();
 
-                    // Log the raw response to understand its structure
-                    console.log("API Response:", memberData);
-
                     // Access the `members` array inside the response object
                     if (memberData.members && Array.isArray(memberData.members)) {
                         setMembers(memberData.members);  // Set the actual array of members
@@ -37,13 +34,11 @@ export default function Members({ groupId }) {
         }
 
         fetchMembers();
-    }, [groupId]); // Add groupId to dependencies to refetch if it changes
+    }, [groupId]);
 
     if (hasError) {
         return <div>Error loading members.</div>;
     }
-
-    console.log("Members State:", members);  // Log members to verify its value
 
     return (
         <div>

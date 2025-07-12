@@ -9,11 +9,18 @@ import (
 )
 
 // Insert new post
-func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
+func InsertPost(post structs.PostCreate, uid, gid int) bool {
 	tx, err := DB.Begin()
 	if err != nil {
 		logs.FatalLog.Fatalln("Database transaction error:", err)
 		return false
+	}
+
+	var groupId interface{}
+	if gid == 0 {
+		groupId = nil
+	} else {
+		groupId = gid
 	}
 
 	var image interface{}
@@ -27,7 +34,7 @@ func InsertPost(post structs.PostCreate, uid int, gid interface{}) bool {
         INSERT INTO posts (user_id, group_id, content, image_path, privacy)
         VALUES (?, ?, ?, ?, ?)`,
 		uid,
-		gid,
+		groupId,
 		post.Content,
 		image,
 		post.Privacy,
@@ -96,7 +103,6 @@ func userfollow(uid int, tid int) error {
 				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
 				values (?, ?, ?)`, uid, tid, isPublic)
 				if err != nil {
-					
 				}
 			} else if status == 1 && isPublic == 1 {
 				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
@@ -308,21 +314,3 @@ func InsertGroup(gp structs.Group, uid int) error {
 
 	return nil
 }
-
-// func InsertComment(comment structs.CommentInfo, uid int) bool {
-// 	query := `
-// INSERT
-// 	INTO comments
-// 	(post_id, uid, content)
-// VALUES
-// 	(?, ?, ?)`
-// 	_, err := DB.Exec(query,
-// 		comment.PostID,
-// 		uid,
-// 		comment.Content)
-// 	if err != nil {
-// 		logs.Println("Database insertion error:", err)
-// 		return false
-// 	}
-// 	return true
-// }

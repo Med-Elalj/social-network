@@ -24,7 +24,7 @@ export default function Friends() {
                 });
 
                 if (!response.ok) {
-                    console.error(`HTTP error! Status: ${response.status}`);
+                    console.log(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
@@ -39,7 +39,6 @@ export default function Friends() {
             }
         }
 
-        // fetchFollowRequest("follow")
         fetchFollowRequest("users")
 
     }, [])
@@ -60,26 +59,26 @@ export default function Friends() {
         }
     }, [updateOnlineUser])
 
-    async function responseHandle(id, status) {
-        try {
-            const response = await fetch(`/api/v1/follow/${status}`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    uid: id,
-                    status: status
-                })
-            });
-            const data = await response.json(); // Added 'const' declaration
-            showNotification(data.message, response.ok ? "succes" : "error")
-        } catch (error) {
-            console.error(error)
-            showNotification(`can't ${status} request, try again`, "error")
-        }
-    }
+    // async function responseHandle(id, status) {
+    //     try {
+    //         const response = await fetch(`/api/v1/follow/${status}`, {
+    //             method: 'POST',
+    //             credentials: 'include',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 uid: id,
+    //                 status: status
+    //             })
+    //         });
+    //         const data = await response.json(); // Added 'const' declaration
+    //         showNotification(data.message, response.ok ? "succes" : "error")
+    //     } catch (error) {
+    //         console.error(error)
+    //         showNotification(`can't ${status} request, try again`, "error")
+    //     }
+    // }
 
     return (
         <>
@@ -89,13 +88,13 @@ export default function Friends() {
                     <div key={user.uid}>
                         <div>
                             <Image src={user.Avatar} alt="profile" width={40} height={40} />
-                            <h5>{user.Name}</h5> {/* Fixed: was "user.Name" as string */}
+                            <h5>{user.Name}</h5> 
                         </div>
                         <div className={Styles.Buttons}>
-                            <div onClick={() => responseHandle(user.uid, "accept")}> {/* Fixed: wrapped in arrow function */}
+                            <div onClick={() => responseHandle(user.uid, "accept")}>
                                 <Image src="/accept.svg" alt="accept" width={30} height={30} />
                             </div>
-                            <div onClick={() => responseHandle(user.uid, "reject")}> {/* Fixed: changed to "reject" */}
+                            <div onClick={() => responseHandle(user.uid, "reject")}> 
                                 <Image src="/reject.svg" alt="reject" width={30} height={30} />
                             </div>
                         </div>
@@ -105,7 +104,7 @@ export default function Friends() {
 
             <div className={Styles.friends}>
                 <h1>Contacts</h1>
-                {contacts?.length > 0 ? (contacts.map((user) => (
+                {contacts ? ([contacts || []].map((user) => (
                     <div key={user.id}>
                         <div>
                             <Image src="/iconMale.png" alt="profile" width={40} height={40} />
@@ -113,7 +112,7 @@ export default function Friends() {
                         </div>
                         <p className={user.online ? Styles.online : Styles.offline}>{user.online ? "online" : "offline"}</p>
                     </div>
-                ))) : <h2>Go Get followers</h2>}
+                ))) : <h3 style={{ textAlign: "center" }}>Go Get followers</h3>}
 
             </div>
         </>

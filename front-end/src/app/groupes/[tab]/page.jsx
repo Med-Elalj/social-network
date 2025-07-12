@@ -11,7 +11,6 @@ import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { SendData } from "../../../../utils/sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
-import Profile from "../profile/[groupname]/page.jsx";
 
 export default function Groupes() {
     const router = useRouter();
@@ -34,7 +33,6 @@ export default function Groupes() {
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);
-                showNotification("Error creating group: " + Body.message, "error");
             } else {
                 setRequests(Body.requests);
                 console.log('requests fetched successfully!');
@@ -74,6 +72,8 @@ export default function Groupes() {
                 showNotification("Error creating group: " + Body.message, "error");
             } else {
                 router.push('/groupes/feed')
+                await router.push("/groupes/feed");
+                await router.replace("/groupes/feed");
                 console.log('Posts fetched successfully!');
             }
         };
@@ -189,7 +189,7 @@ export default function Groupes() {
 
                         <div className={Style.Requiests}>
                             <h1>Groups requests</h1>
-                            { requests.length == 0 ? <p>No requests</p> : requests && requests.map((request, i) => (
+                            {requests ? <p>No requests</p> : requests && requests.map((request, i) => (
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
                                         <Image src={request.groupImage || "/iconMale.png"} alt="profile" width={25} height={25} />

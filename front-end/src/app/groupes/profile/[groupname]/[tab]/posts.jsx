@@ -5,7 +5,7 @@ import Image from "next/image";
 import LikeDeslike from "../../../../utils.jsx";
 import Comments from "../../../../comments.jsx";
 
-export default function Posts({groupId}) {
+export default function Posts({ activeSection, setActiveSection, groupId }) {
     const [openComments, setOpenComments] = useState(null);
     const [posts, setPosts] = useState([]);
     const [lastPostID, setLastPostID] = useState(0);
@@ -21,7 +21,7 @@ export default function Posts({groupId}) {
             startID = 0;
         }
 
-        const formData = { start: startID,groupId: groupId };
+        const formData = { start: startID, groupId: groupId };
 
         try {
             const response = await SendData("/api/v1/get/posts", formData);
@@ -77,6 +77,12 @@ export default function Posts({groupId}) {
     }, [hasMore, loading]);
     return (
         <div>
+            <button
+                className={activeSection === "createPost" ? ""  : ""}
+                onClick={() => setActiveSection("createPost")}
+            >
+                Create Post
+            </button>
             {posts ?
                 posts.map((Post) => (
                     <div key={Post.ID} className={Styles.post}>
@@ -98,7 +104,7 @@ export default function Posts({groupId}) {
                                             <div className={Styles.user}>
                                                 <Image
                                                     src={
-                                                        Post.AvatarUser?.String ? `/${Post.Avatar.String}` : "/iconMale.png"
+                                                        Post.AvatarUse?.Valid ? `${Post.Avatar.String}` : "/iconMale.png"
                                                     }
                                                     alt="avatar"
                                                     width={20}
@@ -160,9 +166,9 @@ export default function Posts({groupId}) {
                             )}
                         </section>
                     </div>
-                )): (
-                <div>No posts found</div>
-            )}
+                )) : (
+                    <div>No posts found</div>
+                )}
         </div>
     )
 }

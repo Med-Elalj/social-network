@@ -29,7 +29,7 @@ export default function Discover() {
                 groups.map((Group) => (
                     <div className={Style.groupCard} key={Group.ID}>
                         <Image
-                            src={Group.Avatar?.String || "/db.png"}
+                            src={Group.Avatar.Valid ? Group.Avatar.String : "/db.png"}
                             alt="profile"
                             width={50}
                             height={50}
@@ -37,7 +37,7 @@ export default function Discover() {
                             className={Style.groupAvatar}
                         />
                         <h4>{Group.GroupName}</h4>
-                        <p>{Group.Description}</p>
+                        <p>{Group.Description?.Valid ? Group.Description.String : "No description"}</p>
                         <Link href="/join" className={Style.acceptBtn}>Join Group</Link>
                     </div>
                 ))

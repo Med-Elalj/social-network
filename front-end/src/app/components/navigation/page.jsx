@@ -115,6 +115,7 @@ export default function Routing() {
     "/groupes",
     "/chat",
     "/profile/[nickname]",
+     "/groupes/profile/[groupname]",
   ];
 
   useEffect(() => {

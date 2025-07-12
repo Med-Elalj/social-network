@@ -431,6 +431,8 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		(m.sender_id = ? OR m.receiver_id = ? )
 	WHERE
 		p.id != ?
+	AND 
+		p.is_user = 1
 	GROUP BY
 		p.id, p.display_name
 	ORDER BY

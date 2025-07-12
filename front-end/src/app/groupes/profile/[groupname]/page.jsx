@@ -8,6 +8,7 @@ import Image from "next/image.js";
 import Settings from "./[tab]/Settings.jsx";
 import Posts from "./[tab]/posts.jsx";
 import Members from "./[tab]/members.jsx";
+import CreatePost from "./[tab]/createPost.jsx";
 
 export default function Profile() {
   const { groupname } = useParams();
@@ -66,8 +67,6 @@ export default function Profile() {
   if (hasError) {
     return <div>Error loading group data.</div>;
   }
-console.log(data);
-
 
   return (
     <div className={Style.container}>
@@ -87,7 +86,6 @@ console.log(data);
                 src={data?.Avatar?.Valid ? data.Avatar.String : "/groupsBg.png"}
                 alt="cover"
                 layout="fill"
-                objectFit="cover" // optional to control the aspect ratio
               />
 
             </div>
@@ -122,6 +120,28 @@ console.log(data);
                 )
               }
             </div>
+
+            <div>
+
+              <button
+                className={activeSection === "posts" ? Style.active : ""}
+                onClick={() => setActiveSection("posts")}
+              >
+                Posts
+              </button>
+              <button
+                className={activeSection === "members" ? Style.active : ""}
+                onClick={() => setActiveSection("members")}
+              >
+                Members
+              </button>
+              <button
+                className={activeSection === "Settings" ? Style.active : ""}
+                onClick={() => setActiveSection("Settings")}
+              >
+                Settings
+              </button>
+            </div>
           </div>
         </div>
 
@@ -129,28 +149,11 @@ console.log(data);
           {isPublic && (
             <>
               <div>
-                <button
-                  className={activeSection === "posts" ? Style.active : ""}
-                  onClick={() => setActiveSection("posts")}
-                >
-                  Posts
-                </button>
-                <button
-                  className={activeSection === "Settings" ? Style.active : ""}
-                  onClick={() => setActiveSection("Settings")}
-                >
-                  Settings
-                </button>
-                <button
-                  className={activeSection === "members" ? Style.active : ""}
-                  onClick={() => setActiveSection("members")}
-                >
-                  Members
-                </button>
               </div>
               <div>
-                {activeSection === "posts" && <Posts groupId={data?.ID} />}
+                {activeSection === "posts" && <Posts activeSection={activeSection} setActiveSection={setActiveSection} groupId={data?.ID} />}
                 {activeSection === "members" && <Members groupId={data?.ID} />}
+                {activeSection === "createPost" && <CreatePost groupId={data?.ID} setActiveSection={setActiveSection} />}
                 {activeSection === "Settings" && <Settings />}
               </div>
             </>

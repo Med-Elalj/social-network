@@ -4,6 +4,7 @@ import Image from "next/image";
 import {SendData} from "../../../../../utils/sendData.js";
 import LikeDeslike from "../../../utils.jsx";
 import Comments from "../../../comments.jsx";
+import { log } from "util";
 
 export default function Posts(userId) {
   const [openComments, setOpenComments] = useState(null);
@@ -125,9 +126,9 @@ export default function Posts(userId) {
           </section>
 
           {/* Post Image (optional) */}
-          {Post.ImagePath?.String ? (
+          {Post.ImagePath.Valid ? (
             <Image
-              src={`/${Post.ImagePath.String}`}
+              src={`${Post.ImagePath.String}`}
               alt="post"
               width={250}
               height={200}

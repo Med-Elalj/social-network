@@ -1,11 +1,14 @@
-import { GetData } from "../../../../utils/sendData.js";
+import { GetData, SendData } from "../../../../utils/sendData.js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link.js";
 import Style from '../groups.module.css';
+import { useNotification } from '../../context/notificationContext.jsx'
 
 export default function Discover() {
     const [groups, setGroups] = useState([]);
+    const [joinedGroupId, setJoinedGroupId] = useState(null);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -23,6 +26,24 @@ export default function Discover() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        async function sentJoinHandler() {
+            console.log("group id to join", joinedGroupId)
+            const response = await SendData("/api/v1/set/joinGroup", { "groupId": joinedGroupId })
+            let type = "error"
+            const data = await response.json()
+            if (response.ok) {
+                type = "succes"
+                setGroups(prev => prev.filter(group => group.ID != joinedGroupId))
+            }
+            showNotification(data.message, type)
+        }
+        if (joinedGroupId) {
+            sentJoinHandler()
+            setJoinedGroupId(null)
+        }
+    }, [joinedGroupId])
+
     return (
         <div className={groups ? Style.groupGrid : Style.noPosts}>
             {groups ? (
@@ -38,7 +59,8 @@ export default function Discover() {
                         />
                         <h4>{Group.GroupName}</h4>
                         <p>{Group.Description?.Valid ? Group.Description.String : "No description"}</p>
-                        <Link href="/join" className={Style.acceptBtn}>Join Group</Link>
+                        {!Group.IsRequested ? (<h3 onClick={() => setJoinedGroupId(Group.ID)} className={Style.acceptBtn}>Join Group</h3>) : <h3 style={{ cursor: "not-allowed" }}>waiting ...</h3>}
+
                     </div>
                 ))
             ) : (

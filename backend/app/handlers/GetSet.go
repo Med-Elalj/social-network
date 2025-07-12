@@ -104,6 +104,8 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 		PostCreation(w, r, data.Sub)
 	case "GroupCreation":
 		GroupCreation(w, r, data.Sub)
+	case "joinGroup":
+		JoinGroup(w, r, data.Sub)
 	case "eventCreation":
 		GroupEventCreation(w, r, data.Sub)
 	case "eventResponse":

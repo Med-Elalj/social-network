@@ -25,7 +25,7 @@ export default function Routing() {
     const fetchNotifications = async () => {
       try {
         const response = await fetch("/api/v1/get/requests", {
-          method: "GET",
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",

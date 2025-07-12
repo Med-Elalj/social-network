@@ -43,7 +43,7 @@ export default function Friends() {
             const usersData = await fetchRequest("/api/v1/get/users")
             usersData ? setContacts(usersData) : setContacts([])
 
-            const followRequestData = await fetchRequest("/api/v1/get/requests", JSON.stringify({ type: 1 }))
+            const followRequestData = await fetchRequest("/api/v1/get/requests", JSON.stringify({ type: 0 }))
             followRequestData ? setFollowRequests(followRequestData) : setFollowRequests([])
         }
 
@@ -126,7 +126,7 @@ export default function Friends() {
                         </div>
                         <p className={user.online ? Styles.online : Styles.offline}>{user.online ? "online" : "offline"}</p>
                     </Link>
-                ))) : <h2>Go Get followers</h2>}
+                ))) : <h3 style={{textAlign:"center"}}>Go Get followers</h3>}
 
             </div>
         </>

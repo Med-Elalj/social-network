@@ -158,3 +158,24 @@ func GetGroupDataHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(groupData)
 }
+
+func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
+	var bodyRequest struct {
+		GroupId int `json:"groupId"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
+	if err != nil {
+		logs.ErrorLog.Printf("invalid request body: %q", err)
+		auth.JsRespond(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	err = modules.InsertRequest(uid, bodyRequest.GroupId, 1)
+	if err != nil {
+		auth.JsRespond(w, "error inserting new request", http.StatusInternalServerError)
+		return
+	}
+
+	auth.JsRespond(w, "join request sented succeffully", http.StatusOK)
+}

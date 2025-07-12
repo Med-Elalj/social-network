@@ -106,22 +106,24 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 	SELECT
-		r.sender_id,
-		r.towhat,
-		r.type,
-		g.display_name,
-		g.avatar,
-		r.created_at,
-		p.display_name,
-		p.avatar
-	FROM
-		request r
-	JOIN profile p ON r.sender_id = p.id
-	JOIN profile g ON r.towhat = g.id
+	    r.sender_id,
+	    r.target_id,
+	    r.type,
+	    COALESCE(pg.display_name, pe_group.display_name, ''),
+	    COALESCE(pg.avatar, pe_group.avatar, ''),
+	    r.created_at,
+	    ps.display_name,
+	    ps.avatar
+	FROM request r
+	JOIN profile ps ON r.sender_id = ps.id
+	LEFT JOIN profile pg ON pg.id = r.target_id AND r.type = 1
+	LEFT JOIN events e ON e.id = r.target_id AND r.type = 2
+	LEFT JOIN profile pe_group ON pe_group.id = e.group_id
 	WHERE
-		r.receiver_id = ?
-		AND (? = 3 OR r.type = ?)
-	ORDER BY r.created_at DESC;`, uid, tpdefind, tpdefind)
+	    r.receiver_id = ? AND
+	    (? = 3 OR r.type = ?)
+	ORDER BY r.created_at DESC;
+	`, uid, tpdefind, tpdefind)
 	if err != nil {
 		logs.ErrorLog.Printf("GetRequests query error: %q", err.Error())
 		return nil, err
@@ -140,7 +142,7 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 		case 0:
 			request.Message = fmt.Sprintf("%s sent you a follow request", request.Username)
 		case 1:
-			request.Message = fmt.Sprintf("%s invited you to join %s group", request.Username, request.GroupName)
+			request.Message = fmt.Sprintf("%s wants to join %s group", request.Username, request.GroupName)
 		case 2:
 			request.Message = fmt.Sprintf("%s create a new event on %s group", request.Username, request.GroupName)
 		}
@@ -334,37 +336,33 @@ func GetGroupFeed(uid int) ([]structs.Post, error) {
 }
 
 func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
-	rows, err := DB.Query(`
-		SELECT
-		    p.id,
-		    p.display_name,
-		    p.avatar,
-		    p.description
-		FROM
-		    profile p
-		    JOIN "group" g ON p.id = g.id
-		WHERE
-		    p.is_user = 0
-		    AND p.id NOT IN (
-		        -- groups where user is creator
-		        SELECT
-		            g2.id
-		        FROM
-		            "group" g2
-		        WHERE
-		            g2.creator_id = ?
-		        UNION
-		        -- groups where user is follower (following_id = group id)
-		        SELECT
-		            f.following_id
-		        FROM
-		            follow f
-		        WHERE
-		            f.follower_id = ?
-		            AND f.status = 1
-		    )
-		LIMIT
-		    10;`, uid, uid)
+	rows, err := DB.Query(`SELECT
+    p.id,
+    p.display_name,
+    p.avatar,
+    p.description,
+    CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM request r
+            WHERE r.sender_id = ?
+              AND r.target_id = p.id
+              AND r.type = 1
+        ) THEN 1
+        ELSE 0
+    END AS is_requested
+FROM
+    profile p
+    JOIN "group" g ON p.id = g.id
+WHERE
+    p.is_user = 0
+    AND p.id NOT IN (
+        SELECT g2.id FROM "group" g2 WHERE g2.creator_id = ?
+        UNION
+        SELECT f.following_id FROM follow f
+        WHERE f.follower_id = ? AND f.status = 1
+    )
+LIMIT 10;`, uid, uid, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
 		return nil, err
@@ -374,7 +372,7 @@ func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
 
 	for rows.Next() {
 		var gr structs.GroupGet
-		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description); err != nil {
+		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description, &gr.IsRequested); err != nil {
 			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
 			return nil, err
 		}

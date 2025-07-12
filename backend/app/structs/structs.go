@@ -31,7 +31,7 @@ type RequestsGet struct {
 	GroupAvatar sql.NullString `json:"group_avatar"`
 	Type        int            `json:"type"`
 	Message     string         `json:"message"`
-	Avatar      string         `json:"avatar"`
+	Avatar      sql.NullString `json:"avatar"`
 	Time        time.Time      `json:"time"`
 }
 
@@ -78,6 +78,7 @@ type GroupGet struct {
 	Description sql.NullString
 	Privacy     bool
 	MemberCount int
+	IsRequested bool
 }
 
 type GroupReq struct {

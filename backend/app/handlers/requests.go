@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	auth "social-network/app/Auth"
-	"social-network/app/logs"
+	logs "social-network/app/logs"
 	"social-network/app/modules"
 )
 

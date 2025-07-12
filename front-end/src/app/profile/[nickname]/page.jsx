@@ -153,6 +153,10 @@ export default function Profile() {
 
   const { nickname } = useParams() || {};
 
+  // const avatarUrl = profileData.avatar?.String
+  //   ? `/${profileData.avatar.String}`
+  //   : "/default-avatar.png";
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {

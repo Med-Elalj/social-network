@@ -10,14 +10,17 @@ import (
 )
 
 func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var tpdefined int
-	if err := json.NewDecoder(r.Body).Decode(&tpdefined); err != nil {
+	var bodyRequest struct {
+		Type int `json:"type"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&bodyRequest); err != nil {
 		logs.ErrorLog.Printf("Failed to decode request body: %q", err)
 		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest) // error
 		return
 	}
 
-	requests, err := modules.GetRequests(uid, tpdefined)
+	requests, err := modules.GetRequests(uid, bodyRequest.Type)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting requests:", err)
 		auth.JsRespond(w, "Failed to get requests", http.StatusInternalServerError)

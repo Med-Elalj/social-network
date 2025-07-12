@@ -141,6 +141,8 @@
 
 .dropdownMenu.notification {
     width: 25vw;
+    padding: 5px 20px;
+    color:var(--secondary-color)
 }
 
 .dropdownMenu.notification a {

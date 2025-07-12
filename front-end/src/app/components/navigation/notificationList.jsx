@@ -14,13 +14,13 @@ export default function NotificationList({ notifications, setIsOpen }) {
 
     return (
         <div className={`${Styles.dropdownMenu} ${Styles.notification}`}>
-            {notifications.length > 0 && (
+            {notifications.length > 0 ?  (
                 notifications.map((notification) => (
-                    <Link key={notification.Id} href={`/profile/${notification.Type == 0 ? notification.Username : `${notification.GroupName}${notification.Type == 1 ? "" : `/${notification.ID}`}`}`} onClick={() => setIsOpen(false)}>
+                    <Link key={notification.Id} href={notification.type==0? `/profile/${notification.username}` : notification.type== 1 ? `/groupes/profile/${notification.group_name}` : ""} onClick={() => setIsOpen(false)}>
                         {notification.Message}
                     </Link>
                 ))
-            )}
+            ) : <h3>you don't have any notification</h3>}
 
         </div>
     )

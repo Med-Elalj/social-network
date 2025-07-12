@@ -31,7 +31,7 @@ export default function Routing() {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify({ tpdefined: 3 })
+          body: JSON.stringify({ type: 3 })
         });
 
         if (!response.ok) {
@@ -48,7 +48,7 @@ export default function Routing() {
     }
 
     if (isOpen) {
-      // fetchNotifications();
+      fetchNotifications();
     }
   }, [isOpen])
 

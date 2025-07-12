@@ -106,7 +106,6 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 	SELECT
-		r.id,
 		r.sender_id,
 		r.towhat,
 		r.type,
@@ -116,7 +115,7 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 		p.display_name,
 		p.avatar
 	FROM
-		requests r
+		request r
 	JOIN profile p ON r.sender_id = p.id
 	JOIN profile g ON r.towhat = g.id
 	WHERE
@@ -132,7 +131,7 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	var requests []structs.RequestsGet
 	for rows.Next() {
 		var request structs.RequestsGet
-		if err := rows.Scan(&request.ID, &request.SenderId, &request.GroupId, &request.Type, &request.GroupName, &request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
+		if err := rows.Scan(&request.SenderId, &request.GroupId, &request.Type, &request.GroupName, &request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
 			logs.ErrorLog.Printf("Error scanning requests: %q", err.Error())
 			return nil, err
 		}
@@ -426,32 +425,32 @@ func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	rows, err := DB.Query(`
 	SELECT
-        p.id,
+		p.id,
 		p.display_name,
 		p.avatar,
-        NOT p.is_user AS is_group
+		NOT p.is_user AS is_group
 	FROM
-		user u
-    JOIN
-        profile p
+		profile p
+	JOIN
+		user u ON u.id = p.id
+	INNER JOIN 
+		follow f ON (f.follower_id = ? OR f.following_id = ?)
+		AND (f.follower_id = p.id OR f.following_id = p.id)
 	LEFT JOIN
-		message m
-	ON
-		(u.id = m.sender_id OR u.id = m.receiver_id)
-	AND
-		(m.sender_id = ? OR m.receiver_id = ? )
+		message m ON (
+			(u.id = m.sender_id OR u.id = m.receiver_id)
+			AND (m.sender_id = ? OR m.receiver_id = ?)
+		)
 	WHERE
 		p.id != ?
-	AND 
-		p.is_user = 1
+		AND p.is_user = 1
 	GROUP BY
 		p.id, p.display_name
 	ORDER BY
-		CASE WHEN MAX(m.created_at) IS NOT NULL THEN 1
-	    ELSE 2
-	END,
+		CASE WHEN MAX(m.created_at) IS NOT NULL THEN 1 ELSE 2 END,
 		MAX(m.created_at) DESC,
-	p.display_name ASC;`, uid, uid, uid)
+		p.display_name ASC;
+`, uid, uid, uid, uid, uid)
 	if err != nil {
 		return nil, fmt.Errorf("could not execute query: %w", err)
 	}

@@ -23,6 +23,7 @@ type FollowReq struct {
 }
 
 type RequestsGet struct {
+	ID          int            `json:"id"`
 	SenderId    int            `json:"sender_id"`
 	Username    string         `json:"username"`
 	GroupId     int            `json:"group_id"`
@@ -129,13 +130,13 @@ type PostCreate struct {
 	Content Pbody       `json:"content"`
 	Image   PImage      `json:"image"`
 	Privacy PostPrivacy `json:"privacy"`
-	GroupId int          `json:"groupId"`
+	GroupId int         `json:"groupId"`
 }
 
 type CommentInfo struct {
 	PostID  ID             `json:"post_id"`
 	Content CommentContent `json:"content"`
-	Image   sql.NullString         `json:"image"`
+	Image   sql.NullString `json:"image"`
 }
 
 type Comments struct {

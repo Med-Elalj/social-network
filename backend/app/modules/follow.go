@@ -98,8 +98,8 @@ func GetRelationship(meID, profileID int) (Relationship, error) {
 	SELECT
 		EXISTS (SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?) AS i_am_following,
 		EXISTS (SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?) AS they_are_following_me,
-		EXISTS (SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND is_accept = 0 AND type = 1) AS i_requested,
-		EXISTS (SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND is_accept = 0 AND type = 1) AS they_requested
+		EXISTS (SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 1) AS i_requested,
+		EXISTS (SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 1) AS they_requested
 	`
 
 	err := DB.QueryRow(query,

@@ -37,7 +37,7 @@ export default function Settings() {
       return;
     }
 
-    SendData("/api/v1/settings/updateUsername", {
+    SendData(process.env.NEXT_PUBLIC_API_URL + "/settings/updateUsername", {
       nickname: formData.nickname,
     });
     setActiveForm(null);
@@ -71,7 +71,7 @@ export default function Settings() {
       return;
     }
 
-    SendData("/api/v1/settings/updatePassword", {
+    SendData(process.env.NEXT_PUBLIC_API_URL + "/settings/updatePassword", {
       currentPassword: formData.currentPassword,
       newPassword: formData.newPassword,
     });
@@ -120,13 +120,13 @@ export default function Settings() {
       return;
     }
 
-    const response = await SendData("/api/v1/settings/delete", {
+    const response = await SendData(process.env.NEXT_PUBLIC_API_URL + "/settings/delete", {
       confirmDelete: true,
       deletePassword: formData.deletePassword,
     });
 
     if (response.ok) {
-      fetch("/api/v1/auth/logout", {
+      fetch(process.env.NEXT_PUBLIC_API_URL + "/auth/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

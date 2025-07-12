@@ -1,14 +1,13 @@
 [build]
-  cmd = "go build -o ./tmp/main"
-  bin = "tmp/main"
-  full_bin = "tmp/main"
+  cmd = cmd = "pkill -x ./tmp/main || echo 'No running process to kill'; sleep 1;rm -f tmp/main && go build -o ./tmp/main1 main.go"
+  bin = "tmp/main1"
+  kill_delay = 1000
   include_ext = ["go","sql"]
-  exclude_dir = []
 
 [include]
   # Only watch these directories
   paths = [
-    "./main.go",
-    "./app/",
-    "./go.mod/"
+    "main.go",
+    "app/",
+    "go.mod"
   ]

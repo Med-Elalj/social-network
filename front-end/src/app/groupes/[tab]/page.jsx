@@ -48,7 +48,7 @@ export default function Groupes() {
                 "avatar": image
             };
 
-            const response = await SendData("/api/v1/set/GroupCreation", formData);
+            const response = await SendData(process.env.NEXT_PUBLIC_API_URL + "/set/GroupCreation", formData);
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);

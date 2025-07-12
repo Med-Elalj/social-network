@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 const me = 0;
 
 export async function getMessages(person_name, page) {
-  const response = await fetch(`/api/v1/get/dmhistory`, {
+  const response = await fetch(`${NEXT_PUBLIC_API_URL}/get/dmhistory`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

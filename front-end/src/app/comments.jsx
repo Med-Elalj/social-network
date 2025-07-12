@@ -29,7 +29,7 @@ export default function Comments({ Post, onClose }) {
     const formData = { post_id: Post.ID, start: startID };
 
     try {
-      const response = await SendData("/api/v1/get/comments", formData);
+      const response = await SendData(process.env.NEXT_PUBLIC_API_URL + "/get/comments", formData);
       const Body = await response.json();
 
       const newComments = Body.comments || [];
@@ -86,7 +86,7 @@ export default function Comments({ Post, onClose }) {
     const formData = { post_id: Post.ID, content, image: imagePath };
 
     try {
-      const response = await SendData("/api/v1/set/comment", formData);
+      const response = await SendData(process.env.NEXT_PUBLIC_API_URL + "/set/comment", formData);
       const Body = await response.json();
 
       if (response.status !== 200) {

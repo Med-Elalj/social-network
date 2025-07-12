@@ -60,7 +60,7 @@ export default function Register() {
 
     console.log("Submitting form...", formData);
 
-    const response = await SendAuthData("/api/v1/auth/register", formData);
+    const response = await SendAuthData(process.env.NEXT_PUBLIC_API_URL + "/auth/register", formData);
 
     if (response.status !== 200) {
       const errorBody = await response.json();

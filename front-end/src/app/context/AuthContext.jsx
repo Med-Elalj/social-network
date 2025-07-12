@@ -1,6 +1,8 @@
 // "use client";
 // import { createContext, useContext, useEffect, useState } from "react";
 // import { GetData } from "../../../utils/sendData.js";
+// const { NEXT_PUBLIC_API_URL } = process.env.NEXT_PUBLIC_API_URL;
+
 
 // const AuthContext = createContext();
 
@@ -10,7 +12,7 @@
 //   useEffect(() => {
 //     const checkAuth = async () => {
 //       try {
-//         const response = await GetData("/api/v1/auth/status", {
+//         const response = await GetData(process.env.NEXT_PUBLIC_API_URL + "/auth/status", {
 //           credentials: "include",
 //         });
 //         const data = await response.json();

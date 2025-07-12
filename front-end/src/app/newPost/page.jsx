@@ -52,7 +52,7 @@ export default function NewPost() {
       image: uploadedImagePath,
     };
 
-    const response = await SendData("/api/v1/set/Post", formData);
+    const response = await SendData(process.env.NEXT_PUBLIC_API_URL + "/set/Post", formData);
 
     if (response.status !== 200) {
       const errorBody = await response.json();

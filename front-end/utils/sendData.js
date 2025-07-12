@@ -1,11 +1,19 @@
 "use client";
+// Ensure NEXT_PUBLIC_API_URL is defined, otherwise throw an error with guidance.
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
+if (!NEXT_PUBLIC_API_URL) {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is not defined in environment variables. " +
+    "Please set NEXT_PUBLIC_API_URL in your .env.local or environment configuration."
+  );
+}
 
 export async function refreshAccessToken() {
   console.log("🔄 Attempting to refresh access token...");
   
   try {
-    const res = await fetch('/api/v1/auth/refresh', {
+    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/auth/refresh', {
       method: 'POST',
       credentials: 'include',
     });

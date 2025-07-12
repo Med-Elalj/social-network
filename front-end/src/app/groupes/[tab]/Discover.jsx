@@ -9,7 +9,7 @@ export default function Discover() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await GetData("/api/v1/get/groupToJoin");
+            const response = await GetData(process.env.NEXT_PUBLIC_API_URL + "/get/groupToJoin");
             const body = await response.json();
 
             if (response.status !== 200) {

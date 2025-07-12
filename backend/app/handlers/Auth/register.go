@@ -11,6 +11,7 @@ import (
 )
 
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("RegisterHandler called")
 	var user auth.Register
 
 	json.NewDecoder(r.Body).Decode(&user)

@@ -24,7 +24,7 @@ export default function Routing() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("/api/v1/notifications", {
+        const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/notifications", {
           method: "GET",
           credentials: "include",
           headers: {
@@ -54,7 +54,7 @@ export default function Routing() {
   useEffect(() => {
     const fetchAuthStatus = async () => {
       try {
-        const response = await fetch("/api/v1/auth/status", {
+        const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/auth/status", {
           method: "GET",
           credentials: "include",
           headers: {

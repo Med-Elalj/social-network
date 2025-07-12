@@ -19,7 +19,7 @@ function FollowButton({ targetUsername, isPublic, isSelf }) {
   if (isSelf) return null;
 
   const handleFollow = async () => {
-    const res = await fetch(`/api/v1/set/follow?target=${targetUsername}`, {
+    const res = await fetch(`${NEXT_PUBLIC_API_URL}/set/follow?target=${targetUsername}`, {
       method: "POST",
       credentials: "include",
     });
@@ -38,7 +38,7 @@ function FollowButton({ targetUsername, isPublic, isSelf }) {
   };
 
   const handleUnfollow = async () => {
-    const res = await fetch(`/api/v1/set/unfollow?target=${targetUsername}`, {
+    const res = await fetch(`${NEXT_PUBLIC_API_URL}/set/unfollow?target=${targetUsername}`, {
       method: "POST",
       credentials: "include",
     });
@@ -79,7 +79,7 @@ function PrivacyToggle({ isPublic, setIsPublic }) {
 
   const handlePrivacyChange = async () => {
     setLoading(true);
-    const res = await SendData("/api/v1/settings/changePrivacy", {
+    const res = await SendData(process.env.NEXT_PUBLIC_API_URL + "/settings/changePrivacy", {
       privacy: !isPublic,
     });
 
@@ -122,7 +122,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await GetData(`/api/v1/profile/${nickname}`);
+        const res = await GetData(`${NEXT_PUBLIC_API_URL}/profile/${nickname}`);
         if (res.ok) {
           const data = await res.json();
           setProfileData(data);

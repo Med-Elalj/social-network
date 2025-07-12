@@ -21,7 +21,7 @@ function PrivacyToggle({ isPublic, setIsPublic }) {
     setLoading(true);
 
     console.log("Sending:", { privacy: !isPublic });
-    const res = await SendData("/api/v1/settings/changePrivacy", {
+    const res = await SendData(process.env.NEXT_PUBLIC_API_URL + "/settings/changePrivacy", {
       privacy: !isPublic,
     });
 
@@ -62,7 +62,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await GetData("/api/v1/profile");
+        const res = await GetData(process.env.NEXT_PUBLIC_API_URL + "/profile");
         if (res.status === 200) {
           const data = await res.json();
           setProfileData(data);

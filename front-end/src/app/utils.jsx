@@ -234,7 +234,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
       setLiked(!liked);
       setLikeCount(liked ? likeCount - 1 : likeCount + 1);
 
-      const response = await SendData("/api/v1/set/like", likeInfo);
+      const response = await SendData(process.env.NEXT_PUBLIC_API_URL + "/set/like", likeInfo);
       const body = await response.json();
 
       if (response.status === 200) {
@@ -276,7 +276,7 @@ export async function HandleUpload(image) {
   const formData = new FormData();
   formData.append("file", image);
 
-  const response = await fetch("/api/v1/upload", {
+  const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/upload", {
     method: "POST",
     body: formData,
   });

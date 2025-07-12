@@ -16,7 +16,7 @@ export default function Friends() {
     useEffect(() => {
         async function fetchFollowRequest(request) {
             try {
-                const response = await fetch(`/api/v1/get/${request}`, {
+                const response = await fetch(`${NEXT_PUBLIC_API_URL}/get/${request}`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
@@ -63,7 +63,7 @@ export default function Friends() {
 
     async function responseHandle(id, status) {
         try {
-            const response = await fetch(`/api/v1/follow/${status}`, {
+            const response = await fetch(`${NEXT_PUBLIC_API_URL}/follow/${status}`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {

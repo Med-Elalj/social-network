@@ -12,7 +12,7 @@ export default function GroupPosts() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await GetData("/api/v1/get/groupFeeds");
+            const response = await GetData(process.env.NEXT_PUBLIC_API_URL + "/get/groupFeeds");
             const body = await response.json();
 
             if (response.status !== 200) {

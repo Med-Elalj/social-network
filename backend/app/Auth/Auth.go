@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"social-network/app/Auth/jwt"
@@ -33,6 +34,8 @@ func Authorize(w http.ResponseWriter, r *http.Request, userID int) {
 }
 
 func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers
+	fmt.Println("CheckAuthHandler called")
 	w.Header().Set("Content-Type", "application/json")
 
 	// 1. Get cookies

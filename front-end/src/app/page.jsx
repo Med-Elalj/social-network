@@ -28,7 +28,7 @@ export default function Home() {
     const formData = { start: startID };
 
     try {
-      const response = await SendData("/api/v1/get/posts", formData);
+      const response = await SendData(process.env.NEXT_PUBLIC_API_URL + "v1/get/posts", formData);
       const Body = await response.json();
 
       if (response.status !== 200) {

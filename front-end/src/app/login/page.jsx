@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 import { useNotification } from "../context/notificationContext.jsx";
 
+// Remove destructuring at the top, access env variable inside the function
 export default function Login() {
   usePasswordToggle();
   const { connectWebSocket, isConnected } = useWebSocket();
@@ -27,12 +28,18 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const response = await SendAuthData("/api/v1/auth/login", formData);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!apiUrl) {
+      showNotification("API URL is not defined. Please set NEXT_PUBLIC_API_URL in your environment.", "error", 5000);
+      return;
+    }
+    console.log("API URL:", apiUrl);
+    const response = await SendAuthData(apiUrl + "/auth/login", formData);
 
     console.log("login Response status:", response.status);
 
     if (response.ok) {
-      const res = await response.json();
+      // const res = await response.json(); // removed unused variable
       if (!isConnected) connectWebSocket();
       router.push("/?login=success");
       showNotification("Login successful!", "success", 5000);

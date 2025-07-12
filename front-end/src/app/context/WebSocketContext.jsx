@@ -5,7 +5,6 @@ import { useNotification } from "./notificationContext";
 // import { Notification } from "../components/notification/notification.jsx";
 
 const WebSocketContext = createContext(null);
-const WEBSOCKET_URL = "/api/v1/ws";
 
 export const WebSocketProvider = ({ children }) => {
   const ws = useRef(null);
@@ -28,7 +27,7 @@ export const WebSocketProvider = ({ children }) => {
   const connectWebSocket = () => {
     if (ws.current) ws.current.close();
 
-    ws.current = new WebSocket(WEBSOCKET_URL);
+    ws.current = new WebSocket(process.env.NEXT_PUBLIC_API_URL + "/ws");
 
     ws.current.onopen = () => {
       console.log("✅ WebSocket connected");

@@ -9,7 +9,7 @@ export default function YourGroups() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await GetData("/api/v1/get/groupImIn");
+            const response = await GetData(process.env.NEXT_PUBLIC_API_URL + "/get/groupImIn");
             const body = await response.json();
 
             if (response.status !== 200) {

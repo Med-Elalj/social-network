@@ -10,8 +10,6 @@ import Messages from "./messages.jsx";
 import ChatInput from "./input.jsx";
 import Link from "next/link";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
 
 export default function Chat() {
   const [activeTab, setActiveTab] = useState("all");
@@ -30,7 +28,7 @@ export default function Chat() {
     const fetchConversations = async () => {
       try {
         console.log("Resolved backend URL:", BACKEND_URL);
-        const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
+        const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/get/users", {
           method: "POST",
           credentials: "include",
           headers: {

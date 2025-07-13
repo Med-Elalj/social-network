@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -72,7 +73,15 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			&profile.FollowerCount,
 			&profile.FollowingCount,
 		)
+
+		if avatarTmp.Valid {
+			profile.Avatar = avatarTmp.String
+		}
+		if temp.Valid {
+			profile.Description = temp.String
+		}
 		profile.IsSelf = true
+
 	} else {
 		// 🕵️‍♂️ Case 2: someone else’s profile
 		err = modules.DB.QueryRow(`
@@ -112,10 +121,11 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		if temp.Valid {
 			profile.Description = temp.String
 		}
+
 		if avatarTmp.Valid {
 			profile.Avatar = avatarTmp.String
 		}
-		
+
 		relationship, err := modules.GetRelationship(payload.Sub, profile.ID)
 		if err != nil {
 			auth.JsRespond(w, "Feild to get relationship", http.StatusNotFound)
@@ -148,6 +158,9 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+
+	log.Println("PF:", profile)
+	log.Println("Avatar:", profile.Avatar)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(profile)

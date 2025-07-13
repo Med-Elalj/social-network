@@ -126,6 +126,7 @@ func GetGroupDataHandler(w http.ResponseWriter, r *http.Request, uid int) {
 
 	var req groupRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logs.ErrorLog.Printf("Group Data Handler decode error: %q", err.Error())
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}

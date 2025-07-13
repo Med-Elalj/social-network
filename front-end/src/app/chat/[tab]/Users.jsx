@@ -40,7 +40,7 @@ export default function Users({ users, onUserSelect }) {
                         >
                             <div className={Style.userImageWrapper}>
                                 <Image
-                                    src={`${user?.pfp?.String ? user.pfp.String : "iconMale.png"}`}
+                                    src={`${user?.pfp?.Valid ? user.pfp.String : "/iconMale.png"}`}
                                     width={50}
                                     height={50}
                                     alt="userProfile"

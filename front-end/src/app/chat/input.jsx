@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import Styles from "./chat.module.css";
-import Image from "next/image"; 
+import Image from "next/image";
 import { useWebSocket } from "../context/WebSocketContext";
 
 
 export default function ChatInput({ target }) {
   const [message, setMessage] = useState("");
-  const {sendMessage}=useWebSocket();
+  const { sendMessage } = useWebSocket();
 
   const sendMessageHandler = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     if (!message.trim()) return;
 
     const dm = {
@@ -25,7 +25,6 @@ export default function ChatInput({ target }) {
 
   return (
     <form onSubmit={sendMessageHandler} className={Styles.chat_input_form}>
-
       <input
         type="text"
         id="message"
@@ -45,5 +44,6 @@ export default function ChatInput({ target }) {
         />
       </button>
     </form>
+
   );
 }

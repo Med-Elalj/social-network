@@ -87,6 +87,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	// 	// TODO get notifications
 	default:
 		w.WriteHeader(http.StatusBadRequest)
+		logs.ErrorLog.Println("Invalid request type")
 		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request type"})
 	}
 }

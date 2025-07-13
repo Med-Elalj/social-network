@@ -101,6 +101,8 @@ export default function Comments({ Post, onClose }) {
   };
 
   return (
+    console.log(Post),
+
     <div className={Styles.commentPopup}>
       <button className={Styles.closeBtn} onClick={onClose}>
         <Image src="/exit.svg" alt="exit" width={30} height={30} />
@@ -146,8 +148,8 @@ export default function Comments({ Post, onClose }) {
 
           <div className={Styles.postContent}>
             <p>{Post.Content}</p>
-            {Post.ImagePath.valid ? (
-              <Image src={`/${Post.ImagePath}`} alt="comment" width={30} height={30} />
+            {Post.ImagePath.Valid ? (
+              <Image src={`${Post.ImagePath?.String}`} alt="comment" width={30} height={30} />
             ) : null}
           </div>
         </section>
@@ -155,6 +157,8 @@ export default function Comments({ Post, onClose }) {
         {/* Comments list */}
         <div className={Styles.comments}>
           {Comments.map((Comment) => (
+            console.log(Comment),
+
             <div key={Comment.ID} className={Styles.comment}>
               <div className={Styles.first}>
                 <div>
@@ -163,8 +167,8 @@ export default function Comments({ Post, onClose }) {
                       Comment.AvatarUser?.String ? `${Comment.AvatarUser.String}` : "/iconMale.png"
                     }
                     alt="avatar"
-                    width={25}
-                    height={25}
+                    width={30}
+                    height={30}
                   />
                   <p>{Comment.Author}</p>
                 </div>
@@ -178,9 +182,7 @@ export default function Comments({ Post, onClose }) {
                 {Comment.ImagePath?.Valid && (
                   <Image
                     src={
-                      Comment.ImagePath.String.startsWith("/")
-                        ? Comment.ImagePath.String
-                        : `/${Comment.ImagePath.String}`
+                      Comment.ImagePath.String
                     }
                     alt="comment attachment"
                     width={200}

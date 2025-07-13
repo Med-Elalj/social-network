@@ -228,7 +228,7 @@ export default function Profile() {
                   src={profileData?.avatar?.Valid ? profileData.avatar : "/iconMale.png"}
                   alt="user avatar"
                   fill
-                  style={{ borderRadius: "50%"}}
+                  style={{ borderRadius: "50%" }}
                 />
               </div>
               <h4>@{CapitalizeFirstLetter(profileData.display_name)}</h4>
@@ -297,10 +297,6 @@ export default function Profile() {
               </>
             )}
 
-            {activeTab === "settings" && profileData.isSelf && (
-              <div className={Style.center}>{activeSection === "Settings" && <Settings />}</div>
-            )}
-
             {activeTab === "connections" && (
               <div className={Style.numbers}>
                 <span onClick={() => setActiveSection("posts")}>
@@ -324,6 +320,8 @@ export default function Profile() {
           {activeSection === "posts" && <Posts userId={profileData.id} />}
           {activeSection === "followers" && <Followers userId={profileData.id} />}
           {activeSection === "following" && <Following userId={profileData.id} />}
+          {activeSection === "Settings" && profileData.isSelf && (
+            <div className={Style.center}>{activeSection === "Settings" && <Settings />}</div>)}
         </div>
 
         <div className={Style.end}>

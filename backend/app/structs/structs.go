@@ -23,6 +23,7 @@ type FollowReq struct {
 }
 
 type RequestsGet struct {
+	ID          int            `json:"id"`
 	SenderId    int            `json:"sender_id"`
 	Username    string         `json:"username"`
 	GroupId     int            `json:"group_id"`

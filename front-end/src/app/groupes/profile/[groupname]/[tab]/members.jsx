@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SendData } from "../../../../../../utils/sendData.js";
 import Image from "next/image.js";
+import styles from "../profile.module.css";
 
 export default function Members({ groupId }) {
     const [members, setMembers] = useState([]);
@@ -16,9 +17,8 @@ export default function Members({ groupId }) {
                 if (res.ok) {
                     const memberData = await res.json();
 
-                    // Access the `members` array inside the response object
                     if (memberData.members && Array.isArray(memberData.members)) {
-                        setMembers(memberData.members);  // Set the actual array of members
+                        setMembers(memberData.members);
                     } else {
                         setHasError(true);
                         console.error("No 'members' array found in response:", memberData);
@@ -41,16 +41,18 @@ export default function Members({ groupId }) {
     }
 
     return (
-        <div>
-            {members && members.length > 0 ? (
+        <div className={styles.membersContainer} >
+            <h2>Members</h2>
+            {members.length > 0 ? (
                 members.map((member, index) => (
-                    <div key={index}>
-                        <Image src={member?.Avatar?.Valid ? member?.Avatar?.String : "/iconMale.png"}
+                    <div key={index} className={styles.memberCard}>
+                        <Image
+                            src={member?.Avatar?.Valid ? member.Avatar.String : "/iconMale.png"}
                             alt={member.Name}
                             width={50}
                             height={50}
                         />
-                        <p>{member.Name}</p>
+                        <p className={styles.memberName}>{member.Name}</p>
                     </div>
                 ))
             ) : (

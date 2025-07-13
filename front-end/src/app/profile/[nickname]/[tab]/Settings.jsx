@@ -164,7 +164,7 @@ export default function Settings() {
   };
 
   return (
-    <div className={Style.post} style={{ width: "80%", margin: "20px auto" }}>
+    <div>
       <h2 className={Style.title}>Profile Settings</h2>
       <section
         className={Style.footer}

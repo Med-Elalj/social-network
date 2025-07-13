@@ -5,10 +5,13 @@ import Link from 'next/link';
 import Styles from "../groups.module.css";
 import { useState, useEffect } from "react";
 import { GetData } from "../../../../utils/sendData.js";
+import Comments from "@/app/comments.jsx";
 import LikeDeslike from "@/app/utils.jsx";
 
 export default function GroupPosts() {
     const [posts, setPosts] = useState([]);
+    const [openComments, setOpenComments] = useState(null);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -93,6 +96,15 @@ export default function GroupPosts() {
                             <Image src="/comment.svg" alt="comment" width={20} height={20} />
                             <p>{Post.CommentCount ?? 0}</p>
                         </div>
+
+                        {openComments === Post.ID && (
+                            <div className={Styles.commentPopup} onClick={() => setOpenComments(null)}>
+                                <div onClick={(e) => e.stopPropagation()}>
+                                    <Comments Post={Post} onClose={() => setOpenComments(null)} />
+                                </div>
+                            </div>
+
+                        )}
                     </section>
                 </div>
             )) :

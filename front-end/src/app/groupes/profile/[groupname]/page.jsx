@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { SendData } from "../../../../../utils/sendData.js";
 import Style from "./profile.module.css";
 import Image from "next/image.js";
-import Settings from "./[tab]/Settings.jsx";
+import CreateEvent from "./[tab]/CreateEvenet.jsx";
 import Posts from "./[tab]/posts.jsx";
 import Members from "./[tab]/members.jsx";
 import CreatePost from "./[tab]/createPost.jsx";
@@ -121,25 +121,24 @@ export default function Profile() {
               }
             </div>
 
-            <div>
-
+            <div className={Style.buttons}>
               <button
-                className={activeSection === "posts" ? Style.active : ""}
+                className={Style.button}
                 onClick={() => setActiveSection("posts")}
               >
                 Posts
               </button>
               <button
-                className={activeSection === "members" ? Style.active : ""}
+                className={Style.button}
                 onClick={() => setActiveSection("members")}
               >
                 Members
               </button>
               <button
-                className={activeSection === "Settings" ? Style.active : ""}
-                onClick={() => setActiveSection("Settings")}
+                className={Style.button}
+                onClick={() => setActiveSection("CreateEvent")}
               >
-                Settings
+                Create Event
               </button>
             </div>
           </div>
@@ -148,14 +147,12 @@ export default function Profile() {
         <div className={Style.second}>
           {isPublic && (
             <>
-              <div>
-              </div>
-              <div>
+              <>
                 {activeSection === "posts" && <Posts activeSection={activeSection} setActiveSection={setActiveSection} groupId={data?.ID} />}
                 {activeSection === "members" && <Members groupId={data?.ID} />}
                 {activeSection === "createPost" && <CreatePost groupId={data?.ID} setActiveSection={setActiveSection} />}
-                {activeSection === "Settings" && <Settings />}
-              </div>
+                {activeSection === "CreateEvent" && <CreateEvent />}
+              </>
             </>
           )}
         </div>
@@ -165,12 +162,13 @@ export default function Profile() {
           <h2>Upcoming Events</h2>
           {events.length > 0 ? (
             events.map((event, index) => (
-              <div className={Style.event} key={index}>
+              <div key={index} className={Style.event}>
                 <h3>{event.name}</h3>
                 <p>{event.description}</p>
+                <p>{event.date}</p>
                 <div>
-                  <button>Going</button>
-                  <button>Not going</button>
+                  <button className={Style.button}>Going</button>
+                  <button className={Style.button}>Not going</button>
                 </div>
               </div>
             ))

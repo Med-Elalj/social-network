@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { GetData } from "../../../../utils/sendData.js";
+import { GetData, SendData } from "../../../../utils/sendData.js";
 import { LogoutAndRedirect } from "../Logout.jsx";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -24,15 +24,7 @@ export default function Routing() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("/api/v1/get/requests", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ tpdefined: 3 })
-        });
+        const response = await SendData("/api/v1/get/requests", 3);
 
         if (!response.ok) {
           console.error("Failed to fetch notifications");
@@ -48,7 +40,7 @@ export default function Routing() {
     }
 
     if (isOpen) {
-      // fetchNotifications();
+      fetchNotifications();
     }
   }, [isOpen])
 
@@ -116,7 +108,7 @@ export default function Routing() {
     "/groupes",
     "/chat",
     "/profile/[nickname]",
-     "/groupes/profile/[groupname]",
+    "/groupes/profile/[groupname]",
   ];
 
   useEffect(() => {

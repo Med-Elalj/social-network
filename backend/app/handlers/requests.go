@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -23,6 +24,8 @@ func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		auth.JsRespond(w, "Failed to get requests", http.StatusInternalServerError)
 		return
 	}
+
+	fmt.Println(requests)
 
 	json.NewEncoder(w).Encode(requests)
 }

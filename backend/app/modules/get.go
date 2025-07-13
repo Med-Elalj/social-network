@@ -106,7 +106,6 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 	SELECT
-		r.id,
 		r.sender_id,
 		r.towhat,
 		r.type,
@@ -116,7 +115,7 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 		p.display_name,
 		p.avatar
 	FROM
-		requests r
+		request r
 	JOIN profile p ON r.sender_id = p.id
 	JOIN profile g ON r.towhat = g.id
 	WHERE

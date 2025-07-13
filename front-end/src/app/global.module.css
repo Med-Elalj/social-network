@@ -12,10 +12,10 @@
   top: 30px;
   height: 100%;
   overflow-y: auto;
-  padding: 20px;
+  padding: 15px;
   background-color: var(--primary-color);
   box-sizing: border-box;
-  width: 20vw;
+  width: 25vw;
 }
 
 .firstSide {
@@ -29,9 +29,9 @@
 }
 
 .centerContent {
-  margin-top: 60px;
+  margin-top: 70px;
   width: 60vw;
-  left: 10px;
+  /* left: 10px; */
   box-sizing: border-box;
   background-color: var(--primary-color);
   color: var(--secondary-color);
@@ -57,7 +57,7 @@
 }
 
 .groups>div,
-.friends>div,
+.friends>a,
 .Requiests>div {
   display: flex;
   cursor: pointer;
@@ -71,7 +71,7 @@
   border-radius: 10px;
 }
 
-.friends>div {
+.friends>a {
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -85,12 +85,12 @@
   color: rgb(255, 0, 0);
 }
 
-.friends>div>div {
+.friends>a>div {
   display: flex;
   align-items: center;
 }
 
-.friends>div:hover {
+.friends>a:hover {
   background-color: var(--border-color);
   border-radius: 10px;
   padding: 5px 10px;
@@ -142,7 +142,7 @@
 
 .post {
   background-color: var(--primary-color);
-  margin: 0 10vw 4vh 10vw;
+  margin: 0 0 4vh 9vw;
   padding: 0 20px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -171,6 +171,8 @@
 .user img,
 .user> :first-child {
   flex-shrink: 0;
+
+  border-radius: 90%;
 }
 
 .user p:first-child {
@@ -205,8 +207,15 @@
 
 .footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin: 20px 0;
+  border-top: solid 1px var(--border-color);
+}
+
+.footer>div {
+  width: 50%;
+  display: flex;
+  justify-content: center;
 }
 
 .footer>.action>img {

@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS "message" (
   "content" TEXT NOT NULL,
   "created_at" DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
   PRIMARY KEY ("sender_id", "receiver_id", "created_at"),
-  FOREIGN KEY ("sender_id") REFERENCES "user" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );

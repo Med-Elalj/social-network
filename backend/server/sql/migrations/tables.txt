@@ -1,0 +1,193 @@
+DROP TABLE IF EXISTS "user";
+CREATE TABLE IF NOT EXISTS user (
+  "id" INTEGER PRIMARY KEY,
+  "password_hash" TEXT NOT NULL,
+  FOREIGN KEY (id) REFERENCES profile(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_id ON user(id);DROP TABLE IF EXISTS "profile";
+CREATE TABLE IF NOT EXISTS "profile" (
+  "id" INTEGER PRIMARY KEY,
+  "email" TEXT UNIQUE,
+  "first_name" TEXT,
+  "last_name" TEXT,
+  "display_name" TEXT NOT NULL UNIQUE,
+  "date_of_birth" TEXT,
+  "gender" TEXT,
+  "avatar" TEXT DEFAULT NULL,
+  "description" TEXT DEFAULT NULL,
+  "is_public" BOOLEAN DEFAULT true,
+  "is_user" BOOLEAN NOT NULL,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+  CHECK (
+    is_user = 0
+    OR email IS NOT NULL
+  ),
+    CHECK (
+    is_user = 0
+    OR first_name IS NOT NULL
+  ),
+      CHECK (
+    is_user = 0
+    OR last_name IS NOT NULL
+  ),
+      CHECK (
+    is_user = 0
+    OR gender IS NOT NULL
+  )
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_profile_email ON profile(email);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_profile_display_name ON profile(display_name);
+
+CREATE INDEX IF NOT EXISTS idx_profile_created_at ON profile(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_profile_is_public ON profile(is_public);
+
+CREATE INDEX IF NOT EXISTS idx_profile_is_user ON profile(is_user);DROP TABLE IF EXISTS "group";
+CREATE TABLE IF NOT EXISTS "group" (
+  "id" INTEGER PRIMARY KEY,
+  "creator_id" INTEGER NOT NULL,
+  FOREIGN KEY ("id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("creator_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS "follow";
+CREATE TABLE IF NOT EXISTS "follow" (
+  "follower_id" INTEGER NOT NULL,
+  "following_id" INTEGER NOT NULL,
+  "status" INTEGER NOT NULL DEFAULT 0 CHECK (status IN (0, 1)),
+  CHECK (follower_id <> following_id),
+  PRIMARY KEY (follower_id, following_id),
+  FOREIGN KEY ("follower_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("following_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS "posts";
+CREATE TABLE IF NOT EXISTS "posts" (
+  "id" INTEGER PRIMARY KEY,
+  "user_id" INTEGER NOT NULL, --event creator
+  "group_id" INTEGER, --group event
+  "content" TEXT NOT NULL, --description
+  "image_path" TEXT DEFAULT NULL, --Title
+  "privacy" TEXT NOT NULL DEFAULT "public",
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP), --timeofevent
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS "comments";
+CREATE TABLE IF NOT EXISTS "comments" (
+  "id" INTEGER PRIMARY KEY,
+  "post_id" INTEGER NOT NULL,
+  "user_id" INTEGER NOT NULL,
+  "content" TEXT NOT NULL,
+  "image_path" TEXT,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS "message";
+CREATE TABLE IF NOT EXISTS "message" (
+  "sender_id" INTEGER NOT NULL,
+  "receiver_id" INTEGER NOT NULL,
+  "isread" BOOLEAN DEFAULT 0,
+  "content" TEXT NOT NULL,
+  "created_at" DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY ("sender_id", "receiver_id", "created_at"),
+  FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS "request";
+CREATE TABLE IF NOT EXISTS "request" (
+  "sender_id" INTEGER NOT NULL,
+  "receiver_id" INTEGER NOT NULL,
+  "target_id" INTEGER, -- optional: group.id or event.id depending on type
+  "type" INTEGER NOT NULL DEFAULT 0 CHECK (type IN (0, 1, 2)), -- 0=user, 1=group, 2=event
+  "created_at" DATETIME NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+  PRIMARY KEY ("sender_id", "receiver_id", "created_at"),
+  FOREIGN KEY ("sender_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("receiver_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS "sessions";
+CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    session_id TEXT UNIQUE NOT NULL,
+    refresh_token TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    ip_address TEXT,
+    user_agent TEXT,
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+DROP INDEX IF EXISTS idx_likes_post_id;
+DROP INDEX IF EXISTS idx_likes_comment_id;
+DROP INDEX IF EXISTS idx_likes_user_id;
+DROP TABLE IF EXISTS likes;
+CREATE TABLE IF NOT EXISTS likes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  post_id INTEGER,
+  comment_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+
+  FOREIGN KEY (user_id) REFERENCES "profile" ("id") ON DELETE CASCADE
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE,
+
+  CHECK (
+    (post_id IS NOT NULL AND comment_id IS NULL) OR
+    (post_id IS NULL AND comment_id IS NOT NULL)
+  ),
+
+  UNIQUE (user_id, post_id, comment_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_likes_post_id ON likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_likes_comment_id ON likes(comment_id);
+CREATE INDEX IF NOT EXISTS idx_likes_user_id ON likes(user_id);
+DROP TRIGGER IF EXISTS insert_dm;CREATE TRIGGER IF NOT EXISTS insert_dm BEFORE INSERT ON message
+FOR EACH ROW
+BEGIN
+    SELECT RAISE(
+        ABORT,
+        'You can not send a message to a user you are not following'
+    )
+    WHERE
+        NEW.sender_id <> NEW.receiver_id
+        AND NOT EXISTS (
+            SELECT
+                1
+            FROM
+                follow
+            WHERE
+                follow.status = 1
+                AND (
+                    (follow.follower_id = NEW.sender_id AND follow.following_id = NEW.receiver_id)
+                    OR
+                    (follow.follower_id = NEW.receiver_id AND follow.following_id = NEW.sender_id)
+                )
+            LIMIT 1
+        );
+END;DROP TABLE IF EXISTS "events";
+CREATE TABLE IF NOT EXISTS "events" (
+  "id" INTEGER PRIMARY KEY,
+  "user_id" INTEGER NOT NULL, --event creator
+  "group_id" INTEGER, --group event
+  "description" TEXT NOT NULL, --description
+  "title" TEXT DEFAULT NULL, --Title
+  "timeof" DATETIME NOT NULL, --time of event
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP), --timeofevent
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS "eventuser";
+CREATE TABLE IF NOT EXISTS "userevents" (
+  "id" INTEGER PRIMARY KEY,
+  "event_id" INTEGER NOT NULL,
+  "user_id" INTEGER NOT NULL,
+  "respond" BOOLEAN NOT NULL DEFAULT 0,
+  "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
+  FOREIGN KEY ("event_id") REFERENCES "events" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
+);

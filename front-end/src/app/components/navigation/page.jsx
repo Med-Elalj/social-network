@@ -23,13 +23,14 @@ export default function Routing() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("/api/v1/notifications", {
-          method: "GET",
+        const response = await fetch("/api/v1/get/requests", {
+          method: "POST",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
+          body: JSON.stringify({ type: 3 })
         });
 
         if (!response.ok) {
@@ -46,7 +47,7 @@ export default function Routing() {
     };
 
     if (isOpen) {
-      // fetchNotifications();
+      fetchNotifications();
     }
   }, [isOpen]);
 
@@ -83,6 +84,7 @@ export default function Routing() {
     "/groupes",
     "/chat",
     "/profile/[nickname]",
+     "/groupes/profile/[groupname]",
   ];
 
   useEffect(() => {
@@ -102,7 +104,7 @@ export default function Routing() {
   }, [isLoggedIn, pathname]);
 
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (isLoggedIn === null) return;
 
     console.log("🔄 Setting up token refresh interval...");
 

@@ -84,7 +84,7 @@ export default function Posts(userId) {
             <div className={Style.user}>
               {/* Main Avatar */}
               <Image
-                src={Post.AvatarGroup?.String ? `/${Post.AvatarGroup.String}` : '/iconMale.png'}
+                src={Post.AvatarGroup?.String ? `${Post.AvatarGroup.String}` : '/iconMale.png'}
                 alt="avatar"
                 width={25}
                 height={25}
@@ -97,7 +97,7 @@ export default function Posts(userId) {
                     <p>{Post.GroupName.String}</p>
                     <div className={Style.user}>
                       <Image
-                        src={Post.AvatarUser?.String ? `/${Post.Avatar.String}` : '/iconMale.png'}
+                        src={Post.AvatarUser?.String ? `${Post.Avatar.String}` : '/iconMale.png'}
                         alt="avatar"
                         width={20}
                         height={20}
@@ -125,9 +125,9 @@ export default function Posts(userId) {
           </section>
 
           {/* Post Image (optional) */}
-          {/* {Post.ImagePath?.String ? (
+          {Post.ImagePath.Valid ? (
             <Image
-              src={`/${Post.ImagePath.String}`}
+              src={`${Post.ImagePath.String}`}
               alt="post"
               width={250}
               height={200}
@@ -135,7 +135,7 @@ export default function Posts(userId) {
               style={{ height: 'auto', width: '100%', borderRadius: '10px' }}
             />
           ) : ""
-          } */}
+          } 
 
           <section className={Style.footer}>
             {/* TODO:add to websocket to be updated for all users */}

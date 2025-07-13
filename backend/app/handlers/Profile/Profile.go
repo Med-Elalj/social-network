@@ -73,6 +73,7 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			&profile.FollowerCount,
 			&profile.FollowingCount,
 		)
+		fmt.Println(profile.PostCount)
 		profile.IsSelf = true
 	} else {
 		// 🕵️‍♂️ Case 2: someone else’s profile
@@ -116,7 +117,6 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 		if avatarTmp.Valid {
 			profile.Avatar = avatarTmp.String
 		}
-		
 		relationship, err := modules.GetRelationship(payload.Sub, profile.ID)
 		if err != nil {
 			auth.JsRespond(w, "Feild to get relationship", http.StatusNotFound)
@@ -192,8 +192,6 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 		followers = append(followers, follower)
 	}
 
-	fmt.Println("followers: ", followers)
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(followers)
 }
@@ -234,8 +232,6 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 		}
 		following = append(following, follow)
 	}
-
-	fmt.Println("following: ", following)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(following)

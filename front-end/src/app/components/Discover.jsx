@@ -28,14 +28,14 @@ export default function Discover() {
         <div className={Style.groupGrid}>
             {groups && groups.map((Group, i) => (
                 <div className={Style.groupCard} key={Group.ID}>
-                    <Image
+                    {/* <Image
                         src={Group.Avatar?.String || "/db.png"}
                         alt="profile"
                         width={50}
                         height={50}
                         sizes="(max-width: 768px) 100vw, 250px"
                         className={Style.groupAvatar}
-                    />
+                    /> */}
                     <h4>{Group.GroupName}</h4>
                     <p>{Group.Description}</p>
                     <Link href="/join" className={Style.acceptBtn}>Join Group</Link>

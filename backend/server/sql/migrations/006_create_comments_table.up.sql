@@ -6,5 +6,5 @@ CREATE TABLE IF NOT EXISTS "comments" (
   "image_path" TEXT,
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP),
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE
 );

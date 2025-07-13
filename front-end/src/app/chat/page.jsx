@@ -16,13 +16,10 @@ const BACKEND_URL =
 export default function Chat() {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [image, setImage] = useState(null);
   // const [previewUrl, setPreviewUrl] = useState(null);
-  const [content, setContent] = useState("");
-  const [newMessage, setNewMessage] = useState(null)
   const [personalDiscussions, setPersonalDiscussions] = useState([]);
   const [groupDiscussions, setGroupDiscussions] = useState([]);
-  const { setTarget, updateOnlineUser } = useWebSocket()
+  const { setTarget, updateOnlineUser, newMessage } = useWebSocket()
 
 
 
@@ -61,6 +58,14 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
+    if (newMessage?.uid) {
+      setPersonalDiscussions(prev => {
+        { prev.newMessage.uid, prev.filter(user => user.id != newMessage.uid) }
+      })
+    }
+  }, [newMessage])
+
+  useEffect(() => {
     if (updateOnlineUser && updateOnlineUser.uid) {
       setPersonalDiscussions((prev) =>
         prev.map((user) =>
@@ -75,9 +80,6 @@ export default function Chat() {
 
   useEffect(() => {
     if (selectedUser) setTarget(selectedUser.id);
-
-    setContent("");
-    setImage(null);
     // setPreviewUrl(null);
   }, [selectedUser]);
 
@@ -138,15 +140,16 @@ export default function Chat() {
             <>
               <div className={Style.top}>
                 <Image
-                  src={`/${selectedUser.pfp.String ? selectedUser.pfp.String : "iconMale.png"}`}
+                  src={`${selectedUser?.pfp?.String ? selectedUser.pfp.String : "/iconMale.png"}`}
                   width={50}
                   height={50}
                   alt="userProfile"
+                  style={{borderRadius:"50%"}}
                 />
                 <Link href={`/profile/${selectedUser.name}`}><div className={Style.userInfo}>
                   <h5>{selectedUser.name}</h5>
                   <h6>
-                    {selectedUser.online==true? "online" : "offline"}
+                    {selectedUser.online == true ? "online" : "offline"}
                   </h6>
                 </div></Link>
               </div>

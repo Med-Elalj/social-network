@@ -11,7 +11,6 @@ import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { SendData } from "../../sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
-import Profile from "../profile/[groupname]/page.jsx";
 
 export default function Groupes() {
     const router = useRouter();
@@ -30,11 +29,10 @@ export default function Groupes() {
     // get requests
     useEffect(() => {
         const fetchData = async () => {
-            const response = await SendData("/api/v1/get/groupsrequests", { "definedtype": 1 });
+            const response = await SendData("/api/v1/get/groupsrequests", 1);
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);
-                showNotification("Error creating group: " + Body.message, "error");
             } else {
                 setRequests(Body.requests);
                 console.log('requests fetched successfully!');
@@ -48,6 +46,7 @@ export default function Groupes() {
         const file = e.target.files[0];
         if (file) {
             setImage(file);
+            console.log(file)
             setPreviewUrl(URL.createObjectURL(file));
         }
     };
@@ -74,6 +73,8 @@ export default function Groupes() {
                 showNotification("Error creating group: " + Body.message, "error");
             } else {
                 router.push('/groupes/feed')
+                await router.push("/groupes/feed");
+                await router.replace("/groupes/feed");
                 console.log('Posts fetched successfully!');
             }
         };
@@ -189,7 +190,7 @@ export default function Groupes() {
 
                         <div className={Style.Requiests}>
                             <h1>Groups requests</h1>
-                            {requests && requests.map((request, i) => (
+                            {requests ? <p>No requests</p> : requests && requests.map((request, i) => (
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
                                         <Image src={request.groupImage || "/iconMale.png"} alt="profile" width={25} height={25} />
@@ -212,20 +213,18 @@ export default function Groupes() {
             </div >
 
             <div className={Style.second}>
-                {{
-                    feed: <GroupPosts />,
-                    discover: <Discover />,
-                    groups: <YourGroups />,
-                    create: (
-                        <CreateGroup
-                            groupName={GroupName}
-                            privacy={privacy}
-                            about={about}
-                            imagePreview={previewUrl}
-                        />
-                    ),
-                    profile: <Profile />
-                }[activeTab] || <p>Invalid tab</p>}
+                {activeTab === "feed" && <GroupPosts />}
+                {activeTab === "discover" && <Discover />}
+                {activeTab === "groups" && <YourGroups />}
+                {activeTab === "create" && (
+                    <CreateGroup
+                        groupName={GroupName}
+                        privacy={privacy}
+                        about={about}
+                        imagePreview={previewUrl}
+                    />
+                )}
+                {(!["feed", "discover", "groups", "create"].includes(activeTab)) && <p>Invalid tab</p>}
             </div>
         </div >
     );

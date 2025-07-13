@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS "posts" (
   "image_path" TEXT DEFAULT NULL, --Title
   "privacy" TEXT NOT NULL DEFAULT "public",
   "created_at" DATETIME DEFAULT (CURRENT_TIMESTAMP), --timeofevent
-  FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("user_id") REFERENCES "profile" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("group_id") REFERENCES "group" ("id") ON DELETE CASCADE
 );

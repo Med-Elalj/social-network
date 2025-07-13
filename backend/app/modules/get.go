@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"database/sql"
 	"fmt"
 
 	"social-network/app/logs"
@@ -104,22 +105,25 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
-		SELECT
-			r.id,
-			r.sender_id, -- sender_id
-			r.towhat, -- group_id
-			r.type, -- type 0 is follow, 1 is group
-			g.display_name,
-			g.avatar,
-			r.created_at, -- time
-			p.display_name, -- username of sender
-			p.avatar -- avatar of sender
-		FROM
-			requests r
-		JOIN profile p ON r.sender_id = p.id
-		JOIN profile g ON r.towhat = g.id
-		WHERE
-			r.receiver_id = ? AND r.type = ?;`, uid, tpdefind)
+	SELECT
+	    r.sender_id,
+	    r.target_id,
+	    r.type,
+	    COALESCE(pg.display_name, pe_group.display_name, ''),
+	    COALESCE(pg.avatar, pe_group.avatar, ''),
+	    r.created_at,
+	    ps.display_name,
+	    ps.avatar
+	FROM request r
+	JOIN profile ps ON r.sender_id = ps.id
+	LEFT JOIN profile pg ON pg.id = r.target_id AND r.type = 1
+	LEFT JOIN events e ON e.id = r.target_id AND r.type = 2
+	LEFT JOIN profile pe_group ON pe_group.id = e.group_id
+	WHERE
+	    r.receiver_id = ? AND
+	    (? = 3 OR r.type = ?)
+	ORDER BY r.created_at DESC;
+	`, uid, tpdefind, tpdefind)
 	if err != nil {
 		logs.ErrorLog.Printf("GetRequests query error: %q", err.Error())
 		return nil, err
@@ -129,9 +133,18 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	var requests []structs.RequestsGet
 	for rows.Next() {
 		var request structs.RequestsGet
-		if err := rows.Scan(&request.ID, &request.SenderId, &request.GroupId,&request.Type,&request.GroupName,&request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
+		if err := rows.Scan(&request.SenderId, &request.GroupId, &request.Type, &request.GroupName, &request.GroupAvatar, &request.Time, &request.Username, &request.Avatar); err != nil {
 			logs.ErrorLog.Printf("Error scanning requests: %q", err.Error())
 			return nil, err
+		}
+
+		switch request.Type {
+		case 0:
+			request.Message = fmt.Sprintf("%s sent you a follow request", request.Username)
+		case 1:
+			request.Message = fmt.Sprintf("%s wants to join %s group", request.Username, request.GroupName)
+		case 2:
+			request.Message = fmt.Sprintf("%s create a new event on %s group", request.Username, request.GroupName)
 		}
 
 		requests = append(requests, request)
@@ -145,17 +158,17 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	SELECT
 		e.id,
 	    e.user_id,
-	    e.desc,
+	    e.description,
 		e.title,
 		e.timeof,
-		e.created_at
+		e.created_at,
 		eu.respond
 	FROM
-	    event e
-	    JOIN group ON p.group_id = group.id
+	    "events" e
+	    JOIN "group" g ON e.group_id = g.id
 		JOIN userevents eu ON e.id = eu.event_id
 	WHERE
-	    group.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
+	    g.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
 	if err != nil {
 		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
 		return nil, err
@@ -173,8 +186,6 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 }
 
 func GetMembers(groupid int) ([]structs.Gusers, error) {
-	var adminid int
-
 	rows, err := DB.Query(`    
 	SELECT
 	    p.id,
@@ -186,24 +197,38 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
 	WHERE
 	    follow.following_id = ?;`, groupid)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		logs.ErrorLog.Printf("GetMembers query error: %q", err.Error())
 		return nil, err
 	}
 	defer rows.Close()
-	err = DB.QueryRow(`SELECT g.creator_id FROM "group" g WHERE g.id = ?;`, groupid).Scan(adminid)
-	if err != nil {
-		return []structs.Gusers{}, fmt.Errorf("error fetching user: %v", err)
-	}
+
 	var admin structs.Gusers
-	err = DB.QueryRow(`select p.id p.display_name, p.avatar from profile p where p.id = ?`, adminid).Scan(admin.Uid, admin.Name, admin.Avatar)
+	err = DB.QueryRow(`
+		select
+		    p.id,
+		    p.display_name,
+		    p.avatar
+		from
+		    profile p
+		    JOIN "group" g ON g.creator_id = p.id
+		where
+		    g.id = ?;`, groupid).Scan(&admin.Uid, &admin.Name, &admin.Avatar)
 	if err != nil {
-		//
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		logs.ErrorLog.Printf("GetMembers query error: %q", err.Error())
+		return nil, err
 	}
+
 	var members []structs.Gusers
 	members = append(members, admin)
 	for rows.Next() {
 		var member structs.Gusers
-		if err := rows.Scan(member.Uid, member.Name, member.Avatar); err != nil {
+		if err := rows.Scan(&member.Uid, &member.Name, &member.Avatar); err != nil {
 			logs.ErrorLog.Printf("Error scanning message: %q", err.Error())
 			return nil, err
 		}
@@ -311,37 +336,33 @@ func GetGroupFeed(uid int) ([]structs.Post, error) {
 }
 
 func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
-	rows, err := DB.Query(`
-		SELECT
-		    p.id,
-		    p.display_name,
-		    p.avatar,
-		    p.description
-		FROM
-		    profile p
-		    JOIN "group" g ON p.id = g.id
-		WHERE
-		    p.is_user = 0
-		    AND p.id NOT IN (
-		        -- groups where user is creator
-		        SELECT
-		            g2.id
-		        FROM
-		            "group" g2
-		        WHERE
-		            g2.creator_id = ?
-		        UNION
-		        -- groups where user is follower (following_id = group id)
-		        SELECT
-		            f.following_id
-		        FROM
-		            follow f
-		        WHERE
-		            f.follower_id = ?
-		            AND f.status = 1
-		    )
-		LIMIT
-		    10;`, uid, uid)
+	rows, err := DB.Query(`SELECT
+    p.id,
+    p.display_name,
+    p.avatar,
+    p.description,
+    CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM request r
+            WHERE r.sender_id = ?
+              AND r.target_id = p.id
+              AND r.type = 1
+        ) THEN 1
+        ELSE 0
+    END AS is_requested
+FROM
+    profile p
+    JOIN "group" g ON p.id = g.id
+WHERE
+    p.is_user = 0
+    AND p.id NOT IN (
+        SELECT g2.id FROM "group" g2 WHERE g2.creator_id = ?
+        UNION
+        SELECT f.following_id FROM follow f
+        WHERE f.follower_id = ? AND f.status = 1
+    )
+LIMIT 10;`, uid, uid, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
 		return nil, err
@@ -351,7 +372,7 @@ func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
 
 	for rows.Next() {
 		var gr structs.GroupGet
-		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description); err != nil {
+		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description, &gr.IsRequested); err != nil {
 			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
 			return nil, err
 		}
@@ -399,75 +420,35 @@ func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 	return grs, nil
 }
 
-// func GetComments(pid string) ([]structs.CommentGet, error) {
-// 	if pid == "" {
-// 		return nil, nil
-// 	}
-// 	Pid, err := strconv.Atoi(pid)
-// 	if err != nil {
-// 		logs.Errorf("Error converting pid to int: %q", err.Error())
-// 		return nil, err
-// 	}
-// 	rows, err := DB.Query(`
-// 	SELECT
-//     	u.username AS author,
-//     	c.content,
-//     	c.created_at
-// 	FROM
-//     	comments c
-// 	JOIN
-//     	users u ON c.uid = u.id
-// 	WHERE
-// 		c.post_id = ?
-// 	ORDER BY
-// 		c.created_at DESC
-// 	`, Pid)
-// 	if err != nil {
-// 		logs.Errorf("Error getting comments: %q", err.Error())
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-// 	var comments []structs.CommentGet
-// 	for rows.Next() {
-// 		var comment structs.CommentGet
-// 		err := rows.Scan(&comment.Author, &comment.Content, &comment.CreationTime)
-// 		if err != nil {
-// 			logs.Errorf("Error scanning comments: %q", err.Error())
-// 			return nil, err
-// 		}
-// 		comment.Pid = structs.ID(Pid)
-// 		comments = append(comments, comment)
-// 	}
-// 	return comments, nil
-// }
-
 func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	rows, err := DB.Query(`
 	SELECT
-        p.id,
+		p.id,
 		p.display_name,
 		p.avatar,
-        NOT p.is_user AS is_group
+		NOT p.is_user AS is_group
 	FROM
-		user u
-    JOIN
-        profile p
+		profile p
+	JOIN
+		user u ON u.id = p.id
+	INNER JOIN 
+		follow f ON (f.follower_id = ? OR f.following_id = ?)
+		AND (f.follower_id = p.id OR f.following_id = p.id)
 	LEFT JOIN
-		message m
-	ON
-		(u.id = m.sender_id OR u.id = m.receiver_id)
-	AND
-		(m.sender_id = ? OR m.receiver_id = ? )
+		message m ON (
+			(u.id = m.sender_id OR u.id = m.receiver_id)
+			AND (m.sender_id = ? OR m.receiver_id = ?)
+		)
 	WHERE
 		p.id != ?
+		AND p.is_user = 1
 	GROUP BY
 		p.id, p.display_name
 	ORDER BY
-		CASE WHEN MAX(m.created_at) IS NOT NULL THEN 1
-	    ELSE 2
-	END,
+		CASE WHEN MAX(m.created_at) IS NOT NULL THEN 1 ELSE 2 END,
 		MAX(m.created_at) DESC,
-	p.display_name ASC;`, uid, uid, uid)
+		p.display_name ASC;
+`, uid, uid, uid, uid, uid)
 	if err != nil {
 		return nil, fmt.Errorf("could not execute query: %w", err)
 	}

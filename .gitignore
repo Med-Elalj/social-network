@@ -9,3 +9,4 @@ front-end/server/
 private/
 backend/server/db/main.db-shm
 backend/server/db/main.db-wal
+backend/tmp/

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Style from "../../profile.module.css";
-import { GetData } from "../../../sendData.jss";
+import { GetData } from "@/app/sendData.js";
 import { useEffect, useState } from "react";
 
 export default function Followers({ userId }) {

@@ -259,7 +259,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
       style={{ cursor: "pointer", marginRight: "10px", display: "flex", alignItems: "center" }}
     >
       <Image
-        src={liked ? "/Like.svg" : "/Like2.svg"}  
+        src={liked ? "/Like.svg" : "/Like2.svg"}
         alt={liked ? "liked" : "like"}
         width={20}
         height={20}
@@ -271,6 +271,8 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
 
 // upload
 export async function HandleUpload(image) {
+  console.log("iamge : ", image);
+
   if (!image) return null;
 
   const formData = new FormData();
@@ -288,4 +290,27 @@ export async function HandleUpload(image) {
 
   const { path } = await response.json();
   return path;
+}
+
+
+export function TimeAgo(timestamp) {
+  const now = new Date();
+  const past = new Date(timestamp.replace(" ", "T")); // Parse properly
+  const diffMs = now - past;
+
+  const seconds = Math.floor(diffMs / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+
+  if (seconds < 60) return "Just now";
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  if (days < 7) return `${days} day${days !== 1 ? "s" : ""} ago`;
+  if (weeks < 5) return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+  if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
+  return `${years} year${years !== 1 ? "s" : ""} ago`;
 }

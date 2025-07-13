@@ -9,6 +9,7 @@ import Styles from "./nav.module.css";
 import NotificationList from "./notificationList.jsx";
 import { refreshAccessToken } from "@/app/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
+import { SearchIcon, SearchInput } from "./search.jsx"; // Import SearchInput too
 import { useAuth } from "@/app/context/AuthContext.jsx";
 const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
@@ -19,6 +20,7 @@ export default function Routing() {
   const router = useRouter();
   const { closeWebSocket, isConnected } = useWebSocket();
   const [notifications, setNotifications] = useState([]);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -30,7 +32,7 @@ export default function Routing() {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify({ type: 3 })
+          body: JSON.stringify({ type: 3 }),
         });
 
         if (!response.ok) {
@@ -84,7 +86,7 @@ export default function Routing() {
     "/groupes",
     "/chat",
     "/profile/[nickname]",
-     "/groupes/profile/[groupname]",
+    "/groupes/profile/[groupname]",
   ];
 
   useEffect(() => {
@@ -115,6 +117,11 @@ export default function Routing() {
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
+  // Function to handle search close
+  const handleSearchClose = () => {
+    setShowSearch(false);
+  };
+
   return (
     <div>
       <div className={Styles.nav}>
@@ -130,6 +137,10 @@ export default function Routing() {
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
+            <SearchIcon
+              onClick={() => setShowSearch(true)}
+              showSearch={showSearch}
+            />
           </div>
         )}
 
@@ -229,9 +240,16 @@ export default function Routing() {
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
+            <SearchIcon
+              onClick={() => setShowSearch(true)}
+              showSearch={showSearch}
+            />
           </>
         )}
       </div>
+
+      {/* Search popup - This was missing! */}
+      {showSearch && <SearchInput onClose={handleSearchClose} />}
     </div>
   );
 }

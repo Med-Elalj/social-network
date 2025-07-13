@@ -171,7 +171,7 @@ func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	err = modules.InsertRequest(uid, bodyRequest.GroupId, 1)
+	err = modules.InsertRequest(uid,0, bodyRequest.GroupId, 1)
 	if err != nil {
 		auth.JsRespond(w, "error inserting new request", http.StatusInternalServerError)
 		return

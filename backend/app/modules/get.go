@@ -103,6 +103,7 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 	return posts, nil
 }
 
+// to do offset
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 	SELECT
@@ -532,4 +533,45 @@ func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
 	fmt.Println("before", chat.Messages)
 
 	return chat, nil
+}
+
+func GetSearchprofile(query string, page int) (structs.SearchProfile, error) {
+	offset := (page - 1) * 10
+	rows, err := DB.Query(`
+	SELECT
+		p.id,
+		p.display_name,
+		p.avatar,
+		p.is_user
+	FROM
+		profile p
+	WHERE
+		p.display_name LIKE ?
+	ORDER BY p.display_name ASC
+	LIMIT 11 OFFSET ?;`, "%"+query+"%", offset)
+	if err != nil {
+		logs.ErrorLog.Printf("GetSearchProfile query error: %q", err.Error())
+		return structs.SearchProfile{}, err
+	}
+	defer rows.Close()
+
+	var profiles []structs.UsersGet
+	var rtn structs.SearchProfile
+	rtn.HasMore = false
+	for i := 0; rows.Next(); i++ {
+		if i == 10 {
+			rtn.HasMore = true
+			break
+		}
+		var profile structs.UsersGet
+		if err := rows.Scan(&profile.ID, &profile.Username, &profile.Avatar, &profile.Is_Group); err != nil {
+			logs.ErrorLog.Printf("Error scanning profile: %q", err.Error())
+			return structs.SearchProfile{}, err
+		}
+		profile.Is_Group = !profile.Is_Group
+		profiles = append(profiles, profile)
+
+	}
+	rtn.Profiles = profiles
+	return rtn, nil
 }

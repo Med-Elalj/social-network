@@ -81,6 +81,11 @@ type GroupGet struct {
 	IsRequested bool
 }
 
+type SearchProfile struct {
+	Profiles []UsersGet `json:"profiles"`
+	HasMore  bool       `json:"has_more"`
+}
+
 type GroupReq struct {
 	Gid int `json:"gid"`
 	Uid int `json:"uid"`
@@ -137,7 +142,7 @@ type PostCreate struct {
 type CommentInfo struct {
 	PostID  ID             `json:"post_id"`
 	Content CommentContent `json:"content"`
-	Image   sql.NullString `json:"image"`
+	Image   string         `json:"image_path"`
 }
 
 type Comments struct {
@@ -148,7 +153,7 @@ type Comments struct {
 	CreatedAt  time.Time
 	LikeCount  int
 	IsLiked    bool
-	ImagePath  sql.NullString `json:"ImagePath"`
+	ImagePath  sql.NullString `json:"image_path"`
 }
 
 type CommentGet struct {

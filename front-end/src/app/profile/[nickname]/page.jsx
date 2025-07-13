@@ -12,7 +12,8 @@ import Following from "@/app/profile/[nickname]/[tab]/Following";
 import Followers from "@/app/profile/[nickname]/[tab]/Followers";
 import Settings from "@/app/profile/[nickname]/[tab]/Settings";
 
-function FollowButton({ targetUsername, isPublic, following }) {
+function FollowButton({ targetUsername, isPublic, following, followStatus }) {
+  // const [followStatus, setFollowStatus] = useState("");
   const [requested, setRequested] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowBack, setIsFollowBack] = useState(false);
@@ -43,7 +44,7 @@ function FollowButton({ targetUsername, isPublic, following }) {
       isFollowing,
     };
 
-    const res = await SendData(`/api/v1/set/follows`, FollowData);
+    const res = await SendData(`/api/v1/set/follow`, FollowData);
 
     if (res.status === 200) {
       const result = await res.json();
@@ -66,47 +67,34 @@ function FollowButton({ targetUsername, isPublic, following }) {
     }
   };
 
-
   return (
     <div style={{ marginTop: "1rem", alignSelf: "center" }}>
       {!requested && !isFollowBack && (
-        <button
-          onClick={handleFollow}
-          className={`${Style.followBtn} ${Style.follow}`}
-        >
-          {isPublic ? "Follow" : "Request to Follow"}
+        <button onClick={handleFollow} className={`${Style.followBtn} ${Style.follow}`}>
+          {followStatus}
         </button>
       )}
 
       {isFollowBack && (
-        <button
-          onClick={handleFollow}
-          className={`${Style.followBtn} ${Style.follow}`}
-        >
+        <button onClick={handleFollow} className={`${Style.followBtn} ${Style.follow}`}>
           Follow Back
         </button>
       )}
 
       {requested && isFollowing && (
-        <button
-          onClick={handleFollow}
-          className={`${Style.followBtn} ${Style.unfollow}`}
-        >
+        <button onClick={handleFollow} className={`${Style.followBtn} ${Style.unfollow}`}>
           Unfollow
         </button>
       )}
 
       {requested && !isFollowing && (
-        <button
-          onClick={handleFollow}
-          className={`${Style.followBtn} ${Style.unfollow}`}>
+        <button onClick={handleFollow} className={`${Style.followBtn} ${Style.unfollow}`}>
           Requested
         </button>
       )}
     </div>
   );
 }
-
 
 function PrivacyToggle({ isPublic, setIsPublic }) {
   const [loading, setLoading] = useState(false);
@@ -150,23 +138,26 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("info");
   const [activeSection, setActiveSection] = useState("posts");
   const [notFound, setNotFound] = useState(false);
+  const [newFollowStatus, setNewFollowStatus] = useState("");
+  const [followStatus, setFollowStatus] = useState("");
 
   const { nickname } = useParams() || {};
 
-  // const avatarUrl = profileData.avatar?.String
-  //   ? `/${profileData.avatar.String}`
-  //   : "/default-avatar.png";
-
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!nickname) return;
+      setNotFound(false);
       try {
         const res = await GetData(`/api/v1/profile/${nickname}`);
         if (res.ok) {
           const data = await res.json();
-          setProfileData(data);
+          if (data) {
+            setProfileData(data);
+            setFollowStatus(data.followStatus);
 
-          if (typeof data.isPublic === "boolean") {
-            setIsPublic(data.isPublic);
+            if (typeof data.isPublic === "boolean") {
+              setIsPublic(data.isPublic);
+            }
           }
         } else {
           setNotFound(true);
@@ -207,7 +198,7 @@ export default function Profile() {
     <div className={Style.container}>
       <div className={Style.header}>
         <Image
-          src={profileData?.avatar?.Valid ? profileData.avatar : "/groupsBg.png"}
+          src={profileData?.avatar ? profileData.avatar : "/groupsBg.png"}
           alt="user avatar"
           fill
           style={{ objectFit: "inherit" }}
@@ -225,10 +216,10 @@ export default function Profile() {
                 }}
               >
                 <Image
-                  src={profileData?.avatar?.Valid ? profileData.avatar : "/iconMale.png"}
+                  src={profileData?.avatar ? profileData.avatar : "/iconMale.png"}
                   alt="user avatar"
                   fill
-                  style={{ borderRadius: "50%"}}
+                  style={{ borderRadius: "50%" }}
                 />
               </div>
               <h4>@{CapitalizeFirstLetter(profileData.display_name)}</h4>
@@ -237,7 +228,9 @@ export default function Profile() {
               <FollowButton
                 targetUsername={profileData.display_name}
                 isPublic={profileData.isPublic}
-                following={profileData.isFollowed}
+                following={profileData.followData}
+                // onclick={() => setNewFollowStatus()}
+                followStatus={followStatus}
               />
             )}
             {profileData.isSelf && <PrivacyToggle isPublic={isPublic} setIsPublic={setIsPublic} />}
@@ -269,9 +262,7 @@ export default function Profile() {
                     </span>
                     <span>
                       <h5>Gender:</h5>&nbsp;&nbsp;
-                      <h5>
-                        {profileData.gender}
-                      </h5>
+                      <h5>{profileData.gender}</h5>
                     </span>
                     <span>
                       <h5>Email:</h5>&nbsp;&nbsp;
@@ -282,9 +273,9 @@ export default function Profile() {
                       <h5>
                         {profileData.date_of_birth
                           ? (
-                            new Date().getFullYear() -
-                            new Date(profileData.date_of_birth).getFullYear()
-                          ).toString()
+                              new Date().getFullYear() -
+                              new Date(profileData.date_of_birth).getFullYear()
+                            ).toString()
                           : "N/A"}
                       </h5>
                     </span>

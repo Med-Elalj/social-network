@@ -3,26 +3,19 @@ package modules
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"social-network/app/logs"
 	"social-network/app/structs"
 )
 
-func InsertFollow(uid, gid int) error {
-	res, err := DB.Exec(`INSERT INTO follow (follower_id, following_id, status)
-VALUES (?, ?, -- follower_id, following_id
-    (SELECT is_public FROM profile WHERE id = ?) -- following_id
-);`, uid, gid, gid)
+func InsertFollow(follower, following int) error {
+	_, err := DB.Exec(`INSERT INTO follow (follower_id, following_id)
+    VALUES (?, ?);`, follower, following)
 	if err != nil {
 		logs.ErrorLog.Printf("Error inserting follow: %v", err)
-		return errors.New("error inserting follow: databse error")
+		return errors.New("error inserting follow: database error")
 	}
-
-	if c, err := res.RowsAffected(); c == 0 {
-		logs.ErrorLog.Printf("Error inserting follow: %v", err)
-		return errors.New("error inserting follow: carefull nothing changed" + err.Error())
-	}
-
 	return nil
 }
 
@@ -84,37 +77,46 @@ func GetUserIDByUsername(username string) (int, error) {
 	return userID, nil
 }
 
-type Relationship struct {
-	IAmFollowing       bool `json:"i_am_following"`
-	TheyAreFollowingMe bool `json:"they_are_following_me"`
-	IRequested         bool `json:"i_requested"`
-	TheyRequested      bool `json:"they_requested"`
-}
+func GetRelationship(uid, tid int) (string, error) {
+	var status string
+	var isPublic bool
 
-func GetRelationship(meID, profileID int) (Relationship, error) {
-	var rel Relationship
+	err := DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, tid).Scan(&isPublic)
+	if err != nil {
+		fmt.Println(err)
+		return "", errors.New("error selecting is_public row on db: " + err.Error())
+	}
 
-	query := `
-	SELECT
-		EXISTS (SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?) AS i_am_following,
-		EXISTS (SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?) AS they_are_following_me,
-		EXISTS (SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 1) AS i_requested,
-		EXISTS (SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 1) AS they_requested
-	`
+	err = DB.QueryRow(`
+    SELECT 
+      CASE
+        WHEN f1.follower_id IS NOT NULL AND f2.follower_id IS NOT NULL THEN 'follow back'
+        WHEN f1.follower_id IS NOT NULL THEN 'unfollow'
+        WHEN r1.sender_id IS NOT NULL THEN 'cancel request'
+        WHEN r2.sender_id IS NOT NULL THEN 'accept | refuse'
+        WHEN ? = 1 THEN '1'
+        ELSE 'follow request'
+      END AS status
+    FROM 
+      (SELECT follower_id FROM follow WHERE follower_id = ? AND following_id = ?) f1
+    LEFT JOIN 
+      (SELECT follower_id FROM follow WHERE follower_id = ? AND following_id = ?) f2
+    LEFT JOIN 
+      (SELECT sender_id FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0) r1
+    LEFT JOIN 
+      (SELECT sender_id FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0) r2
+    LIMIT 1;
+    `, isPublic, uid, tid, tid, uid, uid, tid, tid, uid).Scan(&status)
 
-	err := DB.QueryRow(query,
-		meID, profileID,
-		profileID, meID,
-		meID, profileID,
-		profileID, meID,
-	).Scan(
-		&rel.IAmFollowing,
-		&rel.TheyAreFollowingMe,
-		&rel.IRequested,
-		&rel.TheyRequested,
-	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "follow", nil
+		}
+		fmt.Println(err)
+		return "", errors.New("error getting follow status from db: " + err.Error())
+	}
 
-	return rel, err
+	return status, nil
 }
 
 func CreateFollow(fromID, toID int) (bool, error) {
@@ -185,4 +187,14 @@ func GetFollowRequests(uid int) ([]structs.Gusers, error) {
 		users = append(users, user)
 	}
 	return users, nil
+}
+
+func DeleteRequest(senderId, receiverId, target int) error {
+	_, err := DB.Exec(`
+        DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND target_id = ?;`, senderId, receiverId, target)
+	if err != nil {
+		logs.ErrorLog.Printf("error deleting request: %q", err.Error())
+		return errors.New("error deleting request")
+	}
+	return nil
 }

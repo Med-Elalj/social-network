@@ -41,6 +41,8 @@ export const metadata = {
 // }
 
 export default function Layout({ children }) {
+  console.log(children);
+  
   return (
     <html lang="en" className={inter.className}>
       <head>

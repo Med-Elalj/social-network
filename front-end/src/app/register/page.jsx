@@ -13,7 +13,7 @@ export default function Register() {
   const { connectWebSocket } = useWebSocket();
   const Router = useRouter();
   const fileInputRef = useRef(null);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -55,7 +55,7 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-   if (isLoggedIn) {
+    if (isLoggedIn) {
       return;
     }
     const data = new FormData();
@@ -72,6 +72,7 @@ export default function Register() {
       // console.log(errorBody);
       showNotification(errorBody.error || "Registration failed. Please try again.", "error", 5000);
     } else {
+      setIsLoggedIn(true);
       // console.log('Form submitted successfully!');
       showNotification("Registration successful! Welcome to our social network!", "success", 5000);
       Router.push("/");

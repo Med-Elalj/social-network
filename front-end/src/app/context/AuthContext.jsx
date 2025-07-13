@@ -24,10 +24,10 @@ export const AuthProvider = ({ children }) => {
         });
         const data = await response.json();
         console.log("Auth status:", data);
-        
-        if (data.authenticated) {
-          setIsLoggedIn(true);
-        } 
+
+        if (response.ok) {
+          setIsLoggedIn(data.authenticated);
+        }
 
       } catch (error) {
         console.error("Error during auth check:", error);
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
 const AuthCheck = ({ children }) => {
   const { isLoggedIn, loading } = useAuth();
   const router = useRouter();
-  
+
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

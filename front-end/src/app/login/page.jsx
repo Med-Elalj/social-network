@@ -13,9 +13,9 @@ import { useAuth } from "../context/AuthContext.jsx";
 export default function Login() {
   usePasswordToggle();
   const { connectWebSocket, isConnected } = useWebSocket();
-  const {showNotification} = useNotification();
+  const { showNotification } = useNotification();
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const [formData, setFormData] = useState({
     login: "",
     pwd: "",
@@ -29,7 +29,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoggedIn) {
-     router.push("/");
+      router.push("/");
     }
     const response = await SendAuthData("/api/v1/auth/login", formData);
 
@@ -38,7 +38,9 @@ export default function Login() {
     if (response.ok) {
       const res = await response.json();
       if (!isConnected) connectWebSocket();
+      setIsLoggedIn(true);
       router.push("/?login=success");
+
       // router.push("/");
       showNotification("Login successful!", "success", 5000);
     } else {
@@ -48,7 +50,7 @@ export default function Login() {
       } catch {
         errorBody = { error: "Unknown error" };
       }
-      showNotification( errorBody.error || "Login failed. Please try again.", "error", 5000 );
+      showNotification(errorBody.error || "Login failed. Please try again.", "error", 5000);
     }
   };
 

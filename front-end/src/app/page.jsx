@@ -74,7 +74,7 @@ export default function Home() {
               <section className={Styles.userinfo}>
                 <div className={Styles.user}>
                   {/* left-most avatar or group badge */}
-                  {/* {Post.GroupId?.Valid ? (
+                  {Post.GroupId?.Valid ? (
                     <Image
                       src={
                         Post.AvatarGroup?.String
@@ -94,7 +94,7 @@ export default function Home() {
                       height={25}
                     />
                   )
-                  } */}
+                  }
 
                   {/* texts block */}
                   <div className={Styles.texts}>
@@ -105,14 +105,14 @@ export default function Home() {
 
                         {/* author info (small) */}
                         <div className={Styles.user}>
-                          {/* <Image
+                          <Image
                             src={
                               Post.AvatarUser.Valid ? `${Post.AvatarUser.String}` : "/iconMale.png"
                             }
                             alt="avatar"
                             width={20}
                             height={20}
-                          /> */}
+                          />
                           <p>{Post.UserName}</p>
                         </div>
                       </>

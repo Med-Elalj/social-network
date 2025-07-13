@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SendData } from "../../../../../../utils/sendData.js";
+import { SendData } from "@/app/sendData.js";
 import Image from "next/image.js";
 import styles from "../profile.module.css";
 

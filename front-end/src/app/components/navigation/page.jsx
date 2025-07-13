@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { GetData, SendData } from "../../../../utils/sendData.js";
+import { GetData, SendData } from "@/app/sendData.js";
 import { LogoutAndRedirect } from "../Logout.jsx";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -16,7 +16,7 @@ const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
 export default function Routing() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoggedIn } = useAuth(null);
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const { closeWebSocket, isConnected } = useWebSocket();
@@ -47,70 +47,19 @@ export default function Routing() {
     }
   }, [isOpen]);
 
-  // 🛰️ Route Protection
-  // const publicRoutes = [ "/login", "/register"];
-  // const protectedRoutes = ["/chat", "/groupes", "/profile/*", "/newPost"];
-
-  // const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
-  // const isProtected = protectedRoutes.some((route) =>
-  //   pathname.startsWith(route)
-  // );
+  // // 🛰️ Route Protection
+  const publicRoutes = [ "/login", "/register"];
+  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
 
   // ⛔ Route Redirect
-  // useEffect(() => {
-  //   console.log("Checking route redirection for:", pathname);
-  //   if (isLoggedIn === null) return;
-
-  //   if (!isLoggedIn && isProtected) {
-  //     console.log("Redirecting to /login", isLoggedIn);
-  //     router.push("/login");
-  //   }
-
-  //   if (isLoggedIn && isPublic) {
-  //     console.log("Redirecting to /",isLoggedIn);
-  //     router.push("/");
-  //   }
-  // }, [isLoggedIn, pathname]);
-
-  const validPaths = [
-    "/",
-    "/login",
-    "/register",
-    "/newPost",
-    "/groupes",
-    "/chat",
-    "/profile/[nickname]",
-    "/groupes/profile/[groupname]",
-    "/groupes/profile/[groupname]",
-  ];
-
   useEffect(() => {
-    if (isLoggedIn === null) return;
-
-    if (!validPaths.includes(pathname)) return;
-
-    if (isLoggedIn && (pathname === "/login" || pathname === "/register")) {
-      router.push("/");
-    } else if (
-      !isLoggedIn &&
-      pathname !== "/login" &&
-      pathname !== "/register"
-    ) {
+    if (!isLoggedIn && !isPublic) {
+      console.log("Redirecting to /login", isLoggedIn);
       router.push("/login");
+    }else if (isLoggedIn && isPublic) {
+      router.push("/");
     }
   }, [isLoggedIn, pathname]);
-
-  useEffect(() => {
-    if (isLoggedIn === null) return;
-
-    console.log("🔄 Setting up token refresh interval...");
-
-    const interval = setInterval(() => {
-      refreshAccessToken();
-    }, RefreshFrequency);
-
-    return () => clearInterval(interval);
-  }, [isLoggedIn]);
 
   // Function to handle search close
   const handleSearchClose = () => {
@@ -121,7 +70,8 @@ export default function Routing() {
     <div>
       <div className={Styles.nav}>
         <div className={Styles.leftSection}>
-          <Link className={Styles.loginTitle} href="/">
+          
+          <Link className={Styles.loginTitle} href={isLoggedIn ? "/" : "/login"}>
             Social Network
           </Link>
         </div>

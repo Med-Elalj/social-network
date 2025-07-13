@@ -5,7 +5,7 @@
 }
 
 .top a {
-    color:var(--secondary-color)
+    color: var(--secondary-color)
 }
 
 .first {
@@ -125,7 +125,10 @@
 }
 
 .chat {
-    background-color: var(--border-color);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    border: solid 1px var(--border-color);
+    box-shadow: 0 0 10px rgba(131, 131, 131, 0.459);
     width: 97%;
     height: 89vh;
     margin-top: 2vh;
@@ -133,8 +136,8 @@
 }
 
 .top {
-    width: 100%;
-    border-bottom: 1px solid var(--primary-color);
+    width: 97.5%;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     padding: 0 1rem;
@@ -241,6 +244,21 @@
     width: 100%;
 }
 
+.messageInput {
+    flex: 1;
+    background-color: #2a2a2a;
+    color: var(--secondary-color);
+    border: 1px solid var(--third-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+}
+
+.sendBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
 
 @media (max-width: 768px) {
     .container {
@@ -282,6 +300,6 @@
 
     .user {
         padding: 0 0vw;
-        font-size: small;        
+        font-size: small;
     }
 }

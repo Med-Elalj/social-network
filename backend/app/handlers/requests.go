@@ -29,6 +29,8 @@ func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
+	fmt.Println(requests)
+
 	json.NewEncoder(w).Encode(requests)
 }
 

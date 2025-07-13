@@ -78,97 +78,126 @@ export default function Posts({ activeSection, setActiveSection, groupId }) {
     return (
         <div>
             <button
-                className={activeSection === "createPost" ? ""  : ""}
+                className={Styles.CreatePostBtn}
                 onClick={() => setActiveSection("createPost")}
             >
                 Create Post
             </button>
             {posts ?
-                posts.map((Post) => (
-                    <div key={Post.ID} className={Styles.post}>
-                        <section className={Styles.userinfo}>
-                            <div className={Styles.user}>
-                                {/* Main Avatar */}
+                posts.map((Post) => {
+                    /* ► ONE canonical avatar for the author ◄ */
+                    const authorAvatar = Post?.AvatarUser?.String
+                        ? `${Post.AvatarUser.String}`  // or full URL if stored externally
+                        : "/iconMale.png";
+
+                    return (
+                        <div key={Post.ID} className={Styles.post}>
+                            {/* ---------- header ---------- */}
+                            <section className={Styles.userinfo}>
+                                <div className={Styles.user}>
+                                    {/* left-most avatar or group badge */}
+                                    {Post.GroupId?.Valid ? (
+                                        <Image
+                                            src={
+                                                Post.AvatarGroup?.String
+                                                    ? `${Post.AvatarGroup.String}`
+                                                    : "/iconGroup.png"
+                                            }
+                                            alt="group avatar"
+                                            width={25}
+                                            height={25}
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={authorAvatar}
+                                            alt="author avatar"
+                                            width={25}
+                                            height={25}
+                                        />
+                                    )}
+
+                                    {/* texts block */}
+                                    <div className={Styles.texts}>
+                                        {Post.GroupId?.Valid ? (
+                                            <>
+                                                {/* group name */}
+                                                <p>{Post.GroupName.String}</p>
+
+                                                {/* author info (small) */}
+                                                <div className={Styles.user}>
+                                                    <Image
+                                                        src={
+                                                            Post.AvatarUser.Valid ? `${Post.AvatarUser.String}` : "/iconMale.png"
+                                                        }
+                                                        alt="avatar"
+                                                        width={20}
+                                                        height={20}
+                                                    />
+                                                    <p>{Post.UserName}</p>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <p>{Post.UserName}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Timestamp */}
+                                <div>
+                                    <p>{TimeAgo(Post.CreatedAt)}</p>
+                                </div>
+                            </section>
+
+                            {/* ---------- body ---------- */}
+                            <section className={Styles.content}>{Post.Content}</section>
+
+                            {Post.ImagePath?.String && (
                                 <Image
-                                    src={Post.AvatarGroup?.String ? `/${Post.AvatarGroup.String}` : "/iconMale.png"}
-                                    alt="avatar"
-                                    width={25}
-                                    height={25}
+                                    src={Post.ImagePath.String}
+                                    alt="post illustration"
+                                    width={250}
+                                    height={200}
+                                    sizes="(max-width:768px) 100vw, 250px"
+                                    style={{ width: "100%", height: "auto", borderRadius: "10px" }}
+                                    unoptimized
+                                />
+                            )}
+
+                            {/* ---------- footer ---------- */}
+                            <section className={Styles.footer}>
+                                <LikeDeslike
+                                    EntityID={Post.ID}
+                                    EntityType="post"
+                                    isLiked={Post.IsLiked}
+                                    currentLikeCount={Post.LikeCount}
                                 />
 
-                                {/* Texts block */}
-                                <div className={Styles.texts}>
-                                    {Post.GroupId?.Valid ? (
-                                        <>
-                                            <p>{Post.GroupName.String}</p>
-                                            <div className={Styles.user}>
-                                                <Image
-                                                    src={
-                                                        Post.AvatarUse?.Valid ? `${Post.Avatar.String}` : "/iconMale.png"
-                                                    }
-                                                    alt="avatar"
-                                                    width={20}
-                                                    height={20}
-                                                />
-                                                <p>{Post.UserName}</p>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <p>{Post.UserName}</p>
-                                            <div className={Styles.user}></div>
-                                        </>
-                                    )}
+                                <div
+                                    className={Styles.action}
+                                    onClick={() =>
+                                        setOpenComments((open) => (open === Post.ID ? null : Post.ID))
+                                    }
+                                >
+                                    <Image src="/comment.svg" alt="comment" width={20} height={20} />
+                                    <p>{Post.CommentCount}</p>
                                 </div>
-                            </div>
+                            </section>
 
-                            {/* Timestamp */}
-                            <div>
-                                <p>{Post.CreatedAt.replace("T", " ").slice(0, -1)}</p>
-                            </div>
-                        </section>
-
-                        <section className={Styles.content}>{Post.Content}</section>
-
-                        {/* Post Image (optional) */}
-                        {Post.ImagePath?.String && (
-                            <Image
-                                src={Post.ImagePath.String}
-                                alt="post"
-                                width={250}
-                                height={200}
-                                sizes="(max-width: 768px) 100vw, 250px"
-                                style={{ height: "auto", width: "100%", borderRadius: "10px" }}
-                                unoptimized
-                            />
-                        )}
-
-                        <section className={Styles.footer}>
-                            {/* TODO:add to websocket to be updated for all users */}
-                            <LikeDeslike
-                                EntityID={Post.ID}
-                                EntityType={"post"}
-                                isLiked={Post.IsLiked}
-                                currentLikeCount={Post.LikeCount}
-                            />
-
-                            <div className={Styles.action} onClick={() => setOpenComments(Post.ID)}>
-                                <Image src="/comment.svg" alt="comment" width={20} height={20} />
-                                <p>{Post.CommentCount}</p>
-                            </div>
-
+                            {/* ---------- comments popup ---------- */}
                             {openComments === Post.ID && (
-                                <div className={Styles.commentPopup} onClick={() => setOpenComments(null)}>
+                                <div
+                                    className={Styles.commentPopup}
+                                    onClick={() => setOpenComments(null)}
+                                >
                                     <div onClick={(e) => e.stopPropagation()}>
                                         <Comments Post={Post} onClose={() => setOpenComments(null)} />
                                     </div>
                                 </div>
                             )}
-                        </section>
-                    </div>
-                )) : (
-                    <div>No posts found</div>
-                )}
+                        </div>
+                    );
+                })
+                : <p>Go Join Groupes.</p>}
         </div>
     )
 }

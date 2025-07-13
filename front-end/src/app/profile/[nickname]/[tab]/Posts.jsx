@@ -135,7 +135,7 @@ export default function Posts(userId) {
               style={{ height: 'auto', width: '100%', borderRadius: '10px' }}
             />
           ) : ""
-          } 
+          }
 
           <section className={Style.footer}>
             {/* TODO:add to websocket to be updated for all users */}

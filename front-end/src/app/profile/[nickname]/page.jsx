@@ -288,10 +288,6 @@ export default function Profile() {
               </>
             )}
 
-            {activeTab === "settings" && profileData.isSelf && (
-              <div className={Style.center}>{activeSection === "Settings" && <Settings />}</div>
-            )}
-
             {activeTab === "connections" && (
               <div className={Style.numbers}>
                 <span onClick={() => setActiveSection("posts")}>
@@ -315,6 +311,8 @@ export default function Profile() {
           {activeSection === "posts" && <Posts userId={profileData.id} />}
           {activeSection === "followers" && <Followers userId={profileData.id} />}
           {activeSection === "following" && <Following userId={profileData.id} />}
+          {activeSection === "Settings" && profileData.isSelf && (
+            <div className={Style.center}>{activeSection === "Settings" && <Settings />}</div>)}
         </div>
 
         <div className={Style.end}>

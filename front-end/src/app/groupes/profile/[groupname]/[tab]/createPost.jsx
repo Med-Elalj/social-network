@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import Styles from "../../../../newPost/newPost.module.css";
+import Styles from "../profile.module.css";
 import { SendData } from "../../../../../../utils/sendData.js";
 import { useRouter } from "next/navigation";
 import { HandleUpload } from "../../../../utils.jsx";
@@ -60,52 +60,50 @@ export default function CreatePost({ groupId, setActiveSection }) {
     };
 
     return (
-        <div>
-            {/* create post from */}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="content">Content</label>
-                    <br />
-                    <textarea
-                        id="content"
-                        rows="4"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="What's on your mind?"
-                    />
-                </div>
+        <form onSubmit={handleSubmit} className={Styles.form} style={{ width: "95%", marginTop: "10px",marginLeft:"-10px" }}>
+            <div>
+                <label htmlFor="content">Content</label>
+                <br />
+                <textarea
+                    id="content"
+                    rows="4"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="What's on your mind?"
+                />
+            </div>
 
-                <div className={Styles.upload}>
-                    <label htmlFor="image" style={{ cursor: "pointer" }}>
-                        <img src="/Image.svg" alt="Upload" width="24" height="24" />
-                        &nbsp;&nbsp; Upload Image
-                    </label>
-                    <input
-                        type="file"
-                        name="image"
-                        id="image"
-                        style={{ display: "none" }}
-                        accept="image/*,video/*"
-                        onChange={handleImageChange}
-                        ref={fileInputRef}
-                    />
-                    {previewUrl && (
-                        <div className={Styles.previewContainer}>
-                            <img src={previewUrl} alt="Preview" />
-                            <button
-                                type="button"
-                                className={Styles.cancelButton}
-                                onClick={cancelImage} // ← wire up cancel
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    )}
-                </div>
+            <div className={Styles.upload}>
+                <label htmlFor="image" style={{ cursor: "pointer" }}>
+                    <img src="/Image.svg" alt="Upload" width="24" height="24" />
+                    &nbsp;&nbsp; Upload Image
+                </label>
+                <input
+                    type="file"
+                    name="image"
+                    id="image"
+                    style={{ display: "none" }}
+                    accept="image/*,video/*"
+                    onChange={handleImageChange}
+                    ref={fileInputRef}
+                />
+                {previewUrl && (
+                    <div className={Styles.previewContainer}>
+                        <img src={previewUrl} alt="Preview" />
+                        <button
+                            type="button"
+                            className={Styles.cancelButton}
+                            onClick={cancelImage} // ← wire up cancel
+                        >
+                            ✕
+                        </button>
+                    </div>
+                )}
+            </div>
 
-                <button type="submit">Post</button>
+            <button type="submit">Post</button>
 
-            </form>
-        </div>
+        </form >
+
     )
 }

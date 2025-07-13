@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Styles from "./nav.module.css";
 import Image from "next/image";
-import { GetData } from "../../../../utils/sendData";
+import { GetData } from "@/app/sendData.js";
 import Link from "next/link";
 
 export function SearchIcon({ onClick, showSearch }) {

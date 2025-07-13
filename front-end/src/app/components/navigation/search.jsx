@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Styles from "./nav.module.css";
 import Image from "next/image";

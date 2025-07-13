@@ -9,9 +9,8 @@ import Groups from "./[tab]/Groups";
 import Messages from "./messages.jsx";
 import ChatInput from "./input.jsx";
 import Link from "next/link";
-import { useWebSocket } from "../context/WebSocketContext.jsx";
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://localhost:8080";
+import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
+import { GetData } from "@/app/sendData.js";
 
 export default function Chat() {
   const [activeTab, setActiveTab] = useState("all");
@@ -26,8 +25,7 @@ export default function Chat() {
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        console.log("Resolved backend URL:", BACKEND_URL);
-        const response = await fetch(BACKEND_URL + "/api/v1/get/users", {
+        const response = await GetData("/api/v1/get/users", {
           method: "POST",
           credentials: "include",
           headers: {

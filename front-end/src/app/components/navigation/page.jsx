@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Styles from "./nav.module.css";
 import NotificationList from "./notificationList.jsx";
-import { refreshAccessToken } from "@/app/sendData.js";
+import { refreshAccessToken, SendData } from "@/app/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 import { SearchIcon, SearchInput } from "./search.jsx"; // Import SearchInput too
 import { useAuth } from "@/app/context/AuthContext.jsx";
@@ -25,15 +25,7 @@ export default function Routing() {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await fetch("/api/v1/get/requests", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({ type: 3 }),
-        });
+        const response = await SendData("/api/v1/get/requests",{ type: 3 });
 
         if (!response.ok) {
           console.error("Failed to fetch notifications");

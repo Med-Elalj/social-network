@@ -278,10 +278,7 @@ export async function HandleUpload(image) {
   const formData = new FormData();
   formData.append("file", image);
 
-  const response = await fetch("/api/v1/upload", {
-    method: "POST",
-    body: formData,
-  });
+  const response = await SendData("/api/v1/upload", formData);
 
   if (!response.ok) {
     console.error("Image upload failed");

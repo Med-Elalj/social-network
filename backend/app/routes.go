@@ -13,7 +13,7 @@ import (
 
 var mux = http.NewServeMux()
 
-func SetupMux() *http.ServeMux {
+func SetupMux() http.Handler {
 	mux.Handle("/", IndexHandler())
 
 	// auth handlers
@@ -37,5 +37,7 @@ func SetupMux() *http.ServeMux {
 
 	fileServer := http.FileServer(http.Dir("../front-end/public/uploads"))
 	mux.Handle("/uploads/", http.StripPrefix("/uploads/", fileServer))
-	return mux
+	
+	ServerMux := MW.CorsMiddleware(mux)
+	return ServerMux
 }

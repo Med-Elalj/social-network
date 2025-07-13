@@ -113,11 +113,11 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 	case "eventResponse":
 		UpdateResponseHandler(w, r, data.Sub)
 	case "follow":
-		FollowersJoin(w, r, data.Sub)
-	case "unfollow":
-		FollowersLeave(w, r, data.Sub)
+		FollowHandle(w, r, data.Sub)
 	case "acceptFollow":
-		FollowersAccept(w, r, data.Sub)
+		FollowersAR(w, r, data.Sub)
+	case "sendRequest":
+		SendRequestHandler(w, r, data.Sub)
 	case "like":
 		LikeDislike(w, r, data.Sub)
 	case "comment":

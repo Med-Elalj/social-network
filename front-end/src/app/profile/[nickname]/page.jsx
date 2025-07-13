@@ -13,9 +13,7 @@ import Followers from "@/app/profile/[nickname]/[tab]/Followers";
 import Settings from "@/app/profile/[nickname]/[tab]/Settings";
 
 function FollowButton({ targetUsername, isPublic, following }) {
-  const [requested, setRequested] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [isFollowBack, setIsFollowBack] = useState(false);
+  const [followStatus, setFollowStatus] = useState("");
 
   useEffect(() => {
     if (following === "following") {
@@ -43,7 +41,7 @@ function FollowButton({ targetUsername, isPublic, following }) {
       isFollowing,
     };
 
-    const res = await SendData(`/api/v1/set/follows`, FollowData);
+    const res = await SendData(`/api/v1/set/follow`, FollowData);
 
     if (res.status === 200) {
       const result = await res.json();
@@ -66,7 +64,6 @@ function FollowButton({ targetUsername, isPublic, following }) {
     }
   };
 
-
   return (
     <div style={{ marginTop: "1rem", alignSelf: "center" }}>
       {!requested && !isFollowBack && (
@@ -74,7 +71,7 @@ function FollowButton({ targetUsername, isPublic, following }) {
           onClick={handleFollow}
           className={`${Style.followBtn} ${Style.follow}`}
         >
-          {isPublic ? "Follow" : "Request to Follow"}
+          {followStatus}
         </button>
       )}
 
@@ -99,14 +96,14 @@ function FollowButton({ targetUsername, isPublic, following }) {
       {requested && !isFollowing && (
         <button
           onClick={handleFollow}
-          className={`${Style.followBtn} ${Style.unfollow}`}>
+          className={`${Style.followBtn} ${Style.unfollow}`}
+        >
           Requested
         </button>
       )}
     </div>
   );
 }
-
 
 function PrivacyToggle({ isPublic, setIsPublic }) {
   const [loading, setLoading] = useState(false);
@@ -150,6 +147,7 @@ export default function Profile() {
   const [activeTab, setActiveTab] = useState("info");
   const [activeSection, setActiveSection] = useState("posts");
   const [notFound, setNotFound] = useState(false);
+  const [newFollowStatus, setNewFollowStatus] = useState("");
 
   const { nickname } = useParams() || {};
 
@@ -163,10 +161,13 @@ export default function Profile() {
         const res = await GetData(`/api/v1/profile/${nickname}`);
         if (res.ok) {
           const data = await res.json();
-          setProfileData(data);
+          if (data) {
+            setProfileData(data);
+            setFollowStatus(data.followStatus);
 
-          if (typeof data.isPublic === "boolean") {
-            setIsPublic(data.isPublic);
+            if (typeof data.isPublic === "boolean") {
+              setIsPublic(data.isPublic);
+            }
           }
         } else {
           setNotFound(true);
@@ -207,7 +208,9 @@ export default function Profile() {
     <div className={Style.container}>
       <div className={Style.header}>
         <Image
-          src={profileData?.avatar?.Valid ? profileData.avatar : "/groupsBg.png"}
+          src={
+            profileData?.avatar?.Valid ? profileData.avatar : "/groupsBg.png"
+          }
           alt="user avatar"
           fill
           style={{ objectFit: "inherit" }}
@@ -225,10 +228,14 @@ export default function Profile() {
                 }}
               >
                 <Image
-                  src={profileData?.avatar?.Valid ? profileData.avatar : "/iconMale.png"}
+                  src={
+                    profileData?.avatar?.Valid
+                      ? profileData.avatar
+                      : "/iconMale.png"
+                  }
                   alt="user avatar"
                   fill
-                  style={{ borderRadius: "50%"}}
+                  style={{ borderRadius: "50%" }}
                 />
               </div>
               <h4>@{CapitalizeFirstLetter(profileData.display_name)}</h4>
@@ -237,16 +244,23 @@ export default function Profile() {
               <FollowButton
                 targetUsername={profileData.display_name}
                 isPublic={profileData.isPublic}
-                following={profileData.isFollowed}
+                following={profileData.followData}
+                onclick={()=>setNewFollowStatus()}
               />
             )}
-            {profileData.isSelf && <PrivacyToggle isPublic={isPublic} setIsPublic={setIsPublic} />}
+            {profileData.isSelf && (
+              <PrivacyToggle isPublic={isPublic} setIsPublic={setIsPublic} />
+            )}
 
             <div className={Style.tabs}>
               <button onClick={() => setActiveTab("info")}>Info</button>
-              <button onClick={() => setActiveTab("connections")}>Connections</button>
+              <button onClick={() => setActiveTab("connections")}>
+                Connections
+              </button>
               {profileData.isSelf && (
-                <button onClick={() => setActiveTab("settings")}>Settings</button>
+                <button onClick={() => setActiveTab("settings")}>
+                  Settings
+                </button>
               )}
             </div>
 
@@ -255,7 +269,9 @@ export default function Profile() {
                 <div className={Style.center}>
                   <span>
                     <h5>About me:</h5>&nbsp;&nbsp;
-                    <h5>{profileData.description || "No description provided."}</h5>
+                    <h5>
+                      {profileData.description || "No description provided."}
+                    </h5>
                   </span>
                 </div>
 
@@ -269,9 +285,7 @@ export default function Profile() {
                     </span>
                     <span>
                       <h5>Gender:</h5>&nbsp;&nbsp;
-                      <h5>
-                        {profileData.gender}
-                      </h5>
+                      <h5>{profileData.gender}</h5>
                     </span>
                     <span>
                       <h5>Email:</h5>&nbsp;&nbsp;
@@ -282,9 +296,9 @@ export default function Profile() {
                       <h5>
                         {profileData.date_of_birth
                           ? (
-                            new Date().getFullYear() -
-                            new Date(profileData.date_of_birth).getFullYear()
-                          ).toString()
+                              new Date().getFullYear() -
+                              new Date(profileData.date_of_birth).getFullYear()
+                            ).toString()
                           : "N/A"}
                       </h5>
                     </span>
@@ -298,7 +312,9 @@ export default function Profile() {
             )}
 
             {activeTab === "settings" && profileData.isSelf && (
-              <div className={Style.center}>{activeSection === "Settings" && <Settings />}</div>
+              <div className={Style.center}>
+                {activeSection === "Settings" && <Settings />}
+              </div>
             )}
 
             {activeTab === "connections" && (
@@ -322,8 +338,12 @@ export default function Profile() {
 
         <div className={Style.second}>
           {activeSection === "posts" && <Posts userId={profileData.id} />}
-          {activeSection === "followers" && <Followers userId={profileData.id} />}
-          {activeSection === "following" && <Following userId={profileData.id} />}
+          {activeSection === "followers" && (
+            <Followers userId={profileData.id} />
+          )}
+          {activeSection === "following" && (
+            <Following userId={profileData.id} />
+          )}
         </div>
 
         <div className={Style.end}>
@@ -341,7 +361,12 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
+                <Image
+                  src="/addUser.svg"
+                  alt="profile"
+                  width={25}
+                  height={25}
+                />
               </Link>
             </div>
             <div>
@@ -356,7 +381,12 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
+                <Image
+                  src="/addUser.svg"
+                  alt="profile"
+                  width={25}
+                  height={25}
+                />
               </Link>
             </div>
             <div>
@@ -371,7 +401,12 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
+                <Image
+                  src="/addUser.svg"
+                  alt="profile"
+                  width={25}
+                  height={25}
+                />
               </Link>
             </div>
             <div>
@@ -386,7 +421,12 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
+                <Image
+                  src="/addUser.svg"
+                  alt="profile"
+                  width={25}
+                  height={25}
+                />
               </Link>
             </div>
             <div>
@@ -401,7 +441,12 @@ export default function Profile() {
                 <h5>username</h5>
               </div>
               <Link href="/addUser">
-                <Image src="/addUser.svg" alt="profile" width={25} height={25} />
+                <Image
+                  src="/addUser.svg"
+                  alt="profile"
+                  width={25}
+                  height={25}
+                />
               </Link>
             </div>
           </div>
@@ -410,57 +455,117 @@ export default function Profile() {
             <h3>Requests</h3>
             <div>
               <div>
-                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                <Image
+                  src="/iconMale.png"
+                  alt="profile"
+                  width={40}
+                  height={40}
+                />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/accept.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
                 <Link href="/reject">
-                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/reject.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
               </div>
             </div>
             <div>
               <div>
-                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                <Image
+                  src="/iconMale.png"
+                  alt="profile"
+                  width={40}
+                  height={40}
+                />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/accept.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
                 <Link href="/reject">
-                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/reject.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
               </div>
             </div>
             <div>
               <div>
-                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                <Image
+                  src="/iconMale.png"
+                  alt="profile"
+                  width={40}
+                  height={40}
+                />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/accept.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
                 <Link href="/reject">
-                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/reject.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
               </div>
             </div>
             <div>
               <div>
-                <Image src="/iconMale.png" alt="profile" width={40} height={40} />
+                <Image
+                  src="/iconMale.png"
+                  alt="profile"
+                  width={40}
+                  height={40}
+                />
                 <h5>Username</h5>
               </div>
               <div className={Style.Buttons}>
                 <Link href="/accept">
-                  <Image src="/accept.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/accept.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
                 <Link href="/reject">
-                  <Image src="/reject.svg" alt="profile" width={25} height={25} />
+                  <Image
+                    src="/reject.svg"
+                    alt="profile"
+                    width={25}
+                    height={25}
+                  />
                 </Link>
               </div>
             </div>

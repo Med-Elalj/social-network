@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"database/sql"
+	"errors"
 	"fmt"
 
 	"social-network/app/logs"
@@ -57,69 +57,33 @@ func InsertPost(post structs.PostCreate, uid, gid int) bool {
 	return true
 }
 
-func userfollow(uid int, tid int) error {
-	var isPublic int
-	err := DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, tid).Scan(&isPublic)
-	if err != nil {
-	}
-	status := -1
-	err = DB.QueryRow(`
-	select follow.status from follow where follower_id = ? and following_id = ?`, uid, tid).Scan(&status)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			err = DB.QueryRow(`select follow.status from follow where follower_id = ? and following_id = ?`, tid, uid).Scan(&status)
-			if err != nil {
-				if err == sql.ErrNoRows {
-					_, err = DB.Exec(`
-					INSERT INTO follow (follower_id, following_id, status)
-					VALUES (?, ?, ?)`, uid, tid, isPublic)
-					if err != nil {
-						return err
-					}
-					if isPublic == 0 {
-						_, err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
-				values (?, ?, ?, 0)`, uid, tid, tid)
-						if err != nil {
-							return fmt.Errorf("error inserting follow request: %w", err)
-						}
-					}
-					return nil
-				}
-			}
-			if status == 0 {
-				_, err = DB.Exec(`
-				UPDATE follow
-				SET status = 1
-				WHERE follower_id = ? AND following_id = ?`, uid, tid)
-				if err != nil {
-					return fmt.Errorf("error updating follow status: %w", err)
-				}
+func UserFollow(uid int, tid int, followStatus string) error {
+	var err error
 
-			} else if status == 1 && isPublic == 0 {
-				_, err = DB.Exec(`insert into requests (sender_id, receiver_id, towhat, type)
-				values (?, ?, ?, 0)`, uid, tid, tid)
-				if err != nil {
-				}
-				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
-				values (?, ?, ?)`, uid, tid, isPublic)
-				if err != nil {
-				}
-			} else if status == 1 && isPublic == 1 {
-				_, err = DB.Exec(`insert into follow (follower_id, following_id, status)
-				values (?, ?, ?)`, uid, tid, isPublic)
-				if err != nil {
-				}
-			}
-		}
-	} else {
-		_, err = DB.Exec(`delete from follow where follower_id = ? and following_id = ?`, uid, tid)
-		if err != nil {
-		}
-		_, err = DB.Exec(`delete from requests where sender_id = ? and receiver_id = ?`, uid, tid)
-		if err != nil {
-		}
+	switch followStatus {
+	case "follow", "follow back":
+		_, err = DB.Exec(`
+        INSERT OR IGNORE INTO follow (follower_id, following_id, status)
+        VALUES (?, ?, 0)
+    `, uid, tid)
+
+	case "unfollow":
+		_, err = DB.Exec(`
+        DELETE FROM follow
+        WHERE follower_id = ? AND following_id = ?
+    `, uid, tid)
+
+	case "follow request":
+		_, err = DB.Exec(`
+        INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
+        VALUES (?, ?, ?, 0)
+    `, uid, tid, tid)
+
+	default:
+		return nil
 	}
-	return nil
+
+	return errors.New("error inserting follow request " + err.Error())
 }
 
 // anas

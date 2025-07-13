@@ -103,6 +103,7 @@ func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 	return posts, nil
 }
 
+// to do offset
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 	SELECT

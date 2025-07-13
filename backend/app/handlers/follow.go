@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -12,15 +13,23 @@ import (
 )
 
 // needs header "follow_target" the id of the profile you want to follow
-func FollowersJoin(w http.ResponseWriter, r *http.Request, uid int) {
-	gid, err := strconv.Atoi(r.Header.Get("follow _target"))
+func FollowHandle(w http.ResponseWriter, r *http.Request, uid int) {
+	type BodyRequest struct {
+		Target int    `json:"target"`
+		Status string `json:"status"`
+	}
+
+	var bodyRequest BodyRequest
+
+	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
+
 	if err != nil {
-		logs.ErrorLog.Println("Error converting group ID:", err)
-		auth.JsRespond(w, "group id is required", http.StatusBadRequest)
+		logs.ErrorLog.Println("invalid request body:", err)
+		auth.JsRespond(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if err := modules.InsertFollow(uid, gid); err != nil {
+	if err := modules.UserFollow(uid, bodyRequest.Target, bodyRequest.Status); err != nil {
 		logs.ErrorLog.Println("Error inserting follow relationship:", err)
 		auth.JsRespond(w, "group joining failed", http.StatusInternalServerError)
 	}
@@ -80,4 +89,40 @@ func GetFollowRequests(w http.ResponseWriter, r *http.Request, uid int) {
 	json.NewEncoder(w).Encode(map[string][]structs.Gusers{
 		"users": users,
 	})
+}
+
+func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
+
+	type BodyRequest struct {
+		Id     int    `json:"sender"`
+		Target int    `json:"target"`
+		Status string `json:"status"`
+	}
+
+	var bodyRequest BodyRequest
+
+	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
+	if err != nil {
+		logs.ErrorLog.Println("invalid request id:", err)
+		auth.JsRespond(w, "invalid request id", http.StatusBadRequest)
+		return
+	}
+
+	if bodyRequest.Status == "accept" {
+		if err := modules.InsertFollow(bodyRequest.Id, bodyRequest.Target); err != nil {
+			logs.ErrorLog.Println("Error accepting follow relationship:", err)
+			auth.JsRespond(w, "group accepting failed", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	if err := modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target); err != nil {
+		logs.ErrorLog.Println("Error rejecting follow relationship:", err)
+		auth.JsRespond(w, "group rejecting failed", http.StatusInternalServerError)
+	}
+
+	auth.JsRespond(w, fmt.Sprintf("user %sed request", bodyRequest.Status), http.StatusOK)
+
+	// TODO notif to group creator
+
 }

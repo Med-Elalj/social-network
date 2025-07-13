@@ -29,7 +29,7 @@ type Profile struct {
 	IsUser         bool   `json:"isUser"`
 	CreatedAt      string `json:"created_at"`
 	IsSelf         bool   `json:"isSelf"`
-	IsFollowed     string `json:"isFollowed"`
+	FollowStatus   string `json:"followStatus"`
 	PostCount      int    `json:"post_count"`
 	FollowerCount  int    `json:"follower_count"`
 	FollowingCount int    `json:"following_count"`
@@ -126,24 +126,10 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			profile.Avatar = avatarTmp.String
 		}
 
-		relationship, err := modules.GetRelationship(payload.Sub, profile.ID)
+		profile.FollowStatus, err = modules.GetRelationship(payload.Sub, profile.ID)
 		if err != nil {
 			auth.JsRespond(w, "Feild to get relationship", http.StatusNotFound)
 			return
-		}
-
-		if relationship.IAmFollowing {
-			profile.IsFollowed = "following"
-		} else if relationship.IRequested {
-			profile.IsFollowed = "requested"
-		} else if relationship.TheyAreFollowingMe || relationship.TheyRequested {
-			profile.IsFollowed = "followback"
-		} else {
-			profile.IsFollowed = "follow"
-		}
-
-		if ((relationship.IAmFollowing && relationship.TheyAreFollowingMe) || relationship.TheyAreFollowingMe) && !profile.IsPublic {
-			profile.IsPublic = true
 		}
 
 		profile.IsSelf = false

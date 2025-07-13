@@ -44,6 +44,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GetRequestsHandler(w, r, data.Sub)
 	case "groupData":
 		GetGroupDataHandler(w, r, data.Sub)
+	case "search":
+		GetSearchHandler(w, r, data.Sub)
 	case "users":
 		payload := r.Context().Value(auth.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)

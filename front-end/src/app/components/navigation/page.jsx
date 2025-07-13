@@ -10,6 +10,7 @@ import Styles from "./nav.module.css";
 import NotificationList from "./notificationList.jsx";
 import { refreshAccessToken } from "../../../../utils/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
+import { SearchIcon, SearchInput } from "./search.jsx"; // Import SearchInput too
 
 const RefreshFrequency = 4 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
@@ -20,6 +21,7 @@ export default function Routing() {
   const router = useRouter();
   const { closeWebSocket, isConnected } = useWebSocket();
   const [notifications, setNotifications] = useState([]);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -31,7 +33,7 @@ export default function Routing() {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          body: JSON.stringify({ type: 3 })
+          body: JSON.stringify({ type: 3 }),
         });
 
         if (!response.ok) {
@@ -45,12 +47,12 @@ export default function Routing() {
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
-    }
+    };
 
     if (isOpen) {
       fetchNotifications();
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
     const fetchAuthStatus = async () => {
@@ -83,31 +85,6 @@ export default function Routing() {
     fetchAuthStatus();
   }, [pathname]);
 
-  // 🛰️ Route Protection
-  // const publicRoutes = [ "/login", "/register"];
-  // const protectedRoutes = ["/chat", "/groupes", "/profile/*", "/newPost"];
-
-  // const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
-  // const isProtected = protectedRoutes.some((route) =>
-  //   pathname.startsWith(route)
-  // );
-
-  // ⛔ Route Redirect
-  // useEffect(() => {
-  //   console.log("Checking route redirection for:", pathname);
-  //   if (isLoggedIn === null) return;
-
-  //   if (!isLoggedIn && isProtected) {
-  //     console.log("Redirecting to /login", isLoggedIn);
-  //     router.push("/login");
-  //   }
-
-  //   if (isLoggedIn && isPublic) {
-  //     console.log("Redirecting to /",isLoggedIn);
-  //     router.push("/");
-  //   }
-  // }, [isLoggedIn, pathname]);
-
   const validPaths = [
     "/",
     "/login",
@@ -116,7 +93,7 @@ export default function Routing() {
     "/groupes",
     "/chat",
     "/profile/[nickname]",
-     "/groupes/profile/[groupname]",
+    "/groupes/profile/[groupname]",
   ];
 
   useEffect(() => {
@@ -147,6 +124,11 @@ export default function Routing() {
     return () => clearInterval(interval);
   }, [isLoggedIn]);
 
+  // Function to handle search close
+  const handleSearchClose = () => {
+    setShowSearch(false);
+  };
+
   return (
     <div>
       <div className={Styles.nav}>
@@ -162,6 +144,10 @@ export default function Routing() {
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
+            <SearchIcon
+              onClick={() => setShowSearch(true)}
+              showSearch={showSearch}
+            />
           </div>
         )}
 
@@ -183,7 +169,10 @@ export default function Routing() {
                     />
                   </span>
                   {isOpen && (
-                    <NotificationList notifications={notifications} setIsOpen={setIsOpen} />
+                    <NotificationList
+                      notifications={notifications}
+                      setIsOpen={setIsOpen}
+                    />
                   )}
                 </div>
               </div>
@@ -228,16 +217,18 @@ export default function Routing() {
           ) : (
             <>
               <Link
-                className={`${Styles.linkWithIcon} ${pathname === "/login" ? Styles.active : ""
-                  }`}
+                className={`${Styles.linkWithIcon} ${
+                  pathname === "/login" ? Styles.active : ""
+                }`}
                 href="/login"
                 onClick={() => setIsOpen(false)}
               >
                 Login
               </Link>
               <Link
-                className={`${Styles.linkWithIcon} ${pathname === "/register" ? Styles.active : ""
-                  }`}
+                className={`${Styles.linkWithIcon} ${
+                  pathname === "/register" ? Styles.active : ""
+                }`}
                 href="/register"
                 onClick={() => setIsOpen(false)}
               >
@@ -256,9 +247,16 @@ export default function Routing() {
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
+            <SearchIcon
+              onClick={() => setShowSearch(true)}
+              showSearch={showSearch}
+            />
           </>
         )}
       </div>
+
+      {/* Search popup - This was missing! */}
+      {showSearch && <SearchInput onClose={handleSearchClose} />}
     </div>
   );
 }
@@ -266,8 +264,9 @@ export default function Routing() {
 function NavLink({ href, icon, pathname }) {
   return (
     <Link
-      className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""
-        }`}
+      className={`${Styles.linkWithIcon} ${
+        pathname === href ? Styles.active : ""
+      }`}
       href={href}
     >
       <span className={Styles.iconWrapper}>

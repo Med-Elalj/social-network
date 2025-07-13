@@ -81,6 +81,11 @@ type GroupGet struct {
 	IsRequested bool
 }
 
+type SearchProfile struct {
+	Profiles []UsersGet `json:"profiles"`
+	HasMore  bool       `json:"has_more"`
+}
+
 type GroupReq struct {
 	Gid int `json:"gid"`
 	Uid int `json:"uid"`

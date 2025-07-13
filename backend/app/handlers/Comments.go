@@ -31,8 +31,8 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 
 	json.NewDecoder(r.Body).Decode(&commentData)
 
-	comments, err := modules.GetComments(commentData, uid)
-	if !err {
+	comments, ok := modules.GetComments(commentData, uid)
+	if !ok {
 		auth.JsRespond(w, "Failed to get comments", http.StatusBadRequest)
 		return
 	}

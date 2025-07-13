@@ -76,13 +76,13 @@ export default function Comments({ Post, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (!content.trim() && !commentImage) return;
 
-    let imagePath = null;
+    let image_path = null;
     if (commentImage) {
-      imagePath = await HandleUpload(commentImage);
+      image_path = await HandleUpload(commentImage);
     }
-    const formData = { post_id: Post.ID, content, image: imagePath };
+    const formData = { post_id: Post.ID, content, image_path: image_path };
 
     try {
       const response = await SendData("/api/v1/set/comment", formData);
@@ -99,6 +99,11 @@ export default function Comments({ Post, onClose }) {
       console.error("Submit error:", err);
     }
   };
+
+  Comments.map(com => {
+    console.log("Comments:", com);
+    console.log("img path:", com.image_path)
+  })
 
   return (
     <div className={Styles.commentPopup}>
@@ -175,12 +180,12 @@ export default function Comments({ Post, onClose }) {
               <div className={Styles.texts}>
                 <p>{Comment.Content}</p>
 
-                {Comment.ImagePath?.Valid && (
+                {Comment.image_path?.Valid && (
                   <Image
                     src={
-                      Comment.ImagePath.String.startsWith("/")
-                        ? Comment.ImagePath.String
-                        : `/${Comment.ImagePath.String}`
+                      Comment.image_path.String.startsWith("/")
+                        ? Comment.image_path.String
+                        : `/${Comment.image_path.String}`
                     }
                     alt="comment attachment"
                     width={200}

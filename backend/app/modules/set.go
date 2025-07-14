@@ -57,33 +57,54 @@ func InsertPost(post structs.PostCreate, uid, gid int) bool {
 	return true
 }
 
-func UserFollow(uid int, tid int, followStatus string) error {
+func UserFollow(uid int, tid int, followStatus string) (string, error) {
 	var err error
+	var newStatus string
 
 	switch followStatus {
 	case "follow", "follow back":
-		_, err = DB.Exec(`
-        INSERT OR IGNORE INTO follow (follower_id, following_id, status)
-        VALUES (?, ?, 0)
-    `, uid, tid)
+		{
+			_, err = DB.Exec(`
+				INSERT OR IGNORE INTO follow (follower_id, following_id, status)
+				VALUES (?, ?, 0)
+				`, uid, tid)
+
+		}
 
 	case "unfollow":
-		_, err = DB.Exec(`
-        DELETE FROM follow
-        WHERE follower_id = ? AND following_id = ?
-    `, uid, tid)
+		{
+			_, err = DB.Exec(`
+				DELETE FROM follow
+				WHERE follower_id = ? AND following_id = ?
+				`, uid, tid)
+
+		}
 
 	case "follow request":
-		_, err = DB.Exec(`
-        INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
-        VALUES (?, ?, ?, 0)
-    `, uid, tid, tid)
+		{
+			_, err = DB.Exec(`
+        		INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
+        		VALUES (?, ?, ?, 0)
+    		`, uid, tid, tid)
 
-	default:
-		return nil
+		}
+	case "cancel request":
+		{
+			_, err = DB.Exec(`
+        		DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0`,
+				uid, tid)
+		}
+	}
+	if err != nil {
+		return newStatus, errors.New("error inserting follow request " + err.Error())
 	}
 
-	return errors.New("error inserting follow request " + err.Error())
+	newStatus, err = GetRelationship(uid, tid)
+	if err != nil {
+		return newStatus, errors.New("error getting relationship" + err.Error())
+	}
+
+	return newStatus, nil
 }
 
 // anas
@@ -120,6 +141,24 @@ func admdelposts(post_id int, user_id int, group_id int) error {
 		return fmt.Errorf("no rows affected, post may not exist or you may not have permission")
 	}
 	return nil
+}
+
+func IsFollowMe(tid, uid int) (bool, error) {
+	var isFollower bool
+	err := DB.QueryRow(`
+  SELECT EXISTS (
+    SELECT 1 FROM follow
+    WHERE follower_id = ? AND following_id = ?
+  )
+`, tid, uid).Scan(&isFollower)
+
+	if err != nil {
+		return false, err
+	}
+
+	// isFollower will be true if tid follows uid
+	return isFollower, nil
+
 }
 
 // anas

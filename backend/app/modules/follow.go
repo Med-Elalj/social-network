@@ -10,8 +10,22 @@ import (
 )
 
 func InsertFollow(follower, following int) error {
-	_, err := DB.Exec(`INSERT INTO follow (follower_id, following_id)
-    VALUES (?, ?);`, follower, following)
+	// Check if relationship already exists
+	var exists bool
+	err := DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?)`,
+		follower, following).Scan(&exists)
+	if err != nil {
+		logs.ErrorLog.Printf("Error checking existing follow: %v", err)
+		return errors.New("error checking existing follow relationship")
+	}
+
+	if exists {
+		// Relationship already exists, don't insert duplicate
+		return nil
+	}
+
+	_, err = DB.Exec(`INSERT INTO follow (follower_id, following_id) VALUES (?, ?)`,
+		follower, following)
 	if err != nil {
 		logs.ErrorLog.Printf("Error inserting follow: %v", err)
 		return errors.New("error inserting follow: database error")
@@ -81,39 +95,66 @@ func GetRelationship(uid, tid int) (string, error) {
 	var status string
 	var isPublic bool
 
+	// Get target user's privacy status
 	err := DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, tid).Scan(&isPublic)
 	if err != nil {
-		fmt.Println(err)
-		return "", errors.New("error selecting is_public row on db: " + err.Error())
+		return "", fmt.Errorf("error getting user privacy: %v", err)
 	}
 
-	err = DB.QueryRow(`
-    SELECT 
-      CASE
-        WHEN f1.follower_id IS NOT NULL AND f2.follower_id IS NOT NULL THEN 'follow back'
-        WHEN f1.follower_id IS NOT NULL THEN 'unfollow'
-        WHEN r1.sender_id IS NOT NULL THEN 'cancel request'
-        WHEN r2.sender_id IS NOT NULL THEN 'accept | refuse'
-        WHEN ? = 1 THEN '1'
-        ELSE 'follow request'
-      END AS status
-    FROM 
-      (SELECT follower_id FROM follow WHERE follower_id = ? AND following_id = ?) f1
-    LEFT JOIN 
-      (SELECT follower_id FROM follow WHERE follower_id = ? AND following_id = ?) f2
-    LEFT JOIN 
-      (SELECT sender_id FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0) r1
-    LEFT JOIN 
-      (SELECT sender_id FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0) r2
-    LIMIT 1;
-    `, isPublic, uid, tid, tid, uid, uid, tid, tid, uid).Scan(&status)
+	query := `
+		SELECT CASE
+			-- 1. They sent you a request (you can accept/refuse)
+			WHEN EXISTS (
+				SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0
+			) THEN 'accept | refuse'
 
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "follow", nil
-		}
-		fmt.Println(err)
-		return "", errors.New("error getting follow status from db: " + err.Error())
+			-- 2. They follow you and you don't follow them and they are public
+			WHEN EXISTS (
+				SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?
+			)
+			AND ? = 1 THEN 'follow back'
+
+			-- 3. You sent a follow request and they are private
+			WHEN EXISTS (
+				SELECT 1 FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0
+			)
+			AND ? = 0 THEN 'cancel request'
+
+			-- 4. You follow them
+			WHEN EXISTS (
+				SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?
+			) THEN 'unfollow'
+
+			-- 5. No relation and they are private
+			WHEN ? = 0 THEN 'follow request'
+
+			-- 6. Default: public, no relation
+			ELSE 'follow'
+		END AS status
+	`
+
+	err = DB.QueryRow(query,
+		tid, uid, // 1. They sent request
+
+		tid, uid, // 2. They follow you
+		uid, tid, //    You don’t follow them
+		isPublic, //    They are public
+
+		uid, tid, // 3. You sent follow request
+		isPublic, //    They are private
+
+		uid, tid, // 4. You follow them
+
+		isPublic, // 5. They are private
+	).Scan(&status)
+
+	if err == sql.ErrNoRows {
+		status = "follow"
+	} else if err != nil {
+		return "", fmt.Errorf("error querying relationship: %v", err)
 	}
 
 	return status, nil
@@ -190,11 +231,26 @@ func GetFollowRequests(uid int) ([]structs.Gusers, error) {
 }
 
 func DeleteRequest(senderId, receiverId, target int) error {
-	_, err := DB.Exec(`
-        DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND target_id = ?;`, senderId, receiverId, target)
+	result, err := DB.Exec(`
+        DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0`,
+		senderId, receiverId)
 	if err != nil {
 		logs.ErrorLog.Printf("error deleting request: %q", err.Error())
 		return errors.New("error deleting request")
 	}
+
+	// Check if any rows were actually deleted
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		logs.ErrorLog.Printf("error checking deleted rows: %q", err.Error())
+		return errors.New("error checking deleted rows")
+	}
+
+	if rowsAffected == 0 {
+		logs.ErrorLog.Printf("no request found to delete for sender:%d, receiver:%d, target:%d",
+			senderId, receiverId, target)
+		// Don't return error here, as the request might have been already deleted
+	}
+
 	return nil
 }

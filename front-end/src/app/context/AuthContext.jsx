@@ -2,6 +2,7 @@
 
 import { createContext, useState, useContext, useEffect } from "react";
 import { useRouter } from "next/router";
+import { GetData } from "@/app/sendData.js";
 
 // 1. Create the Authentication Context
 const AuthContext = createContext();
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/v1/auth/status", {
+        const response = await GetData("/api/v1/auth/status", {
           credentials: "include",
         });
         const data = await response.json();

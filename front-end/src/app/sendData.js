@@ -1,10 +1,12 @@
 "use client";
 
+const BACKEND_URL = "http://localhost:8080";
+
 export async function refreshAccessToken() {
 
   console.log("🔄 Attempting to refresh access token...");
   try {
-    const res = await fetch('/api/v1/auth/refresh', {
+    const res = await fetch(BACKEND_URL + '/api/v1/auth/refresh', {
       method: 'POST',
       credentials: 'include',
     });
@@ -22,8 +24,8 @@ export async function refreshAccessToken() {
   }
 }
 
-async function fetchWithAuth(url, options = {}) {
-
+async function fetchWithAuth(path, options = {}) {
+  let url = BACKEND_URL + path;
   let res = await fetch(url, {
     ...options,
     credentials: 'include',
@@ -42,18 +44,21 @@ async function fetchWithAuth(url, options = {}) {
   return res;
 }
 
-export async function SendData(url, data) {
-  return await fetchWithAuth(url, {
+export async function SendData(path, data) {
+  return await fetchWithAuth( path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
 }
+// export async function  SendData (path, data) {
+//   SendAuthData(path, data)
+// } 
 
-export async function GetData(url, params = {}) {
+export async function GetData(path, params = {}) {
   // Build query string if any params are passed
   const query = new URLSearchParams(params).toString();
-  const fullUrl = query ? `${url}?${query}` : url;
+  const fullUrl = query ? `${path}?${query}` : path;
 
   return await fetchWithAuth(fullUrl, {
     method: 'GET',
@@ -61,9 +66,9 @@ export async function GetData(url, params = {}) {
   });
 }
 
-export async function SendAuthData(url, Data) {   
+export async function SendAuthData(path, Data) {   
     try {
-        const response = await fetch(url, {
+        const response = await fetch(BACKEND_URL+path, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useNotification } from "../context/notificationContext.jsx";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 import Link from "next/link";
+import { SendData } from "../sendData";
 
 export default function Friends() {
   const [followRequests, setFollowRequests] = useState([]);
@@ -16,14 +17,7 @@ export default function Friends() {
   useEffect(() => {
     async function fetchRequest(url, body) {
       try {
-        const response = await fetch(url, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: body,
-        });
+        const response = await SendData(url, body);
 
         if (!response.ok) {
           console.log(`HTTP error! Status: ${response.status}`);

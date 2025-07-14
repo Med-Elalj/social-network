@@ -126,12 +126,7 @@ export default function Settings() {
     });
 
     if (response.ok) {
-      fetch("/api/v1/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }).then(() => {
+      SendData("/api/v1/auth/logout").then(() => {
         // Redirect to homepage or login page after logout
         Router.push("/");
       });

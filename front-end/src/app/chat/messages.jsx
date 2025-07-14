@@ -1,6 +1,7 @@
 "use client";
 
 import { useWebSocket } from "../context/WebSocketContext";
+import { GetData } from "@/app/sendData.js";
 import Style from "./chat.module.css";
 import Time from "./time";
 import { useEffect, useRef, useState } from "react";
@@ -8,13 +9,9 @@ import { useEffect, useRef, useState } from "react";
 const me = 0;
 
 export async function getMessages(person_name, page) {
-  const response = await fetch(`/api/v1/get/dmhistory`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      target: person_name,
-      page: page,
-    },
+  const response = await GetData(`/api/v1/get/dmhistory`, {
+    person_name: person_name,
+    page: page,
   });
 
   if (!response.ok) {

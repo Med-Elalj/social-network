@@ -108,6 +108,11 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 			&profile.FollowerCount,
 			&profile.FollowingCount,
 		)
+		if err != nil {
+			logs.ErrorLog.Println("DB error:", err)
+			auth.JsRespond(w, "Bad request", http.StatusBadRequest)
+			return
+		}
 
 		if profile.IsUser && !profile.IsPublic {
 			profile.Email = ""

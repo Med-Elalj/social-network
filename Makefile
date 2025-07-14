@@ -14,7 +14,7 @@ OUT-PORT=9090
 
 all: get-keys run-frontend run-backend
 	@echo "\033[1m\033[96m✅ All services are up and running!\033[0m"
-	@echo "\033[1m\033[96m🌐 Webapp running at:\033[0m \033[1m\033[92mhttps://localhost:8080\033[0m"
+	@echo "\033[1m\033[96m🌐 Webapp running at:\033[0m \033[1m\033[92mhttp://localhost:8080\033[0m"
 	@echo "\033[1m\033[90m────────────────────────────────────────────────────────\033[0m"
 
 run-frontend:

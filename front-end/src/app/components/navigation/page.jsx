@@ -1,6 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { SendData, refreshAccessToken } from "@/app/sendData.js";
 import { LogoutAndRedirect } from "../Logout.jsx";
 import { useRouter } from "next/navigation";
@@ -9,11 +9,12 @@ import Image from "next/image";
 import Styles from "./nav.module.css";
 import NotificationList from "./notificationList.jsx";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
-import { SearchIcon, SearchInput } from "./search.jsx"; // Import SearchInput too
+import { SearchIcon, SearchInput } from "./search.jsx";
 import { useAuth } from "@/app/context/AuthContext.jsx";
-const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
-export default function Routing() {
+const RefreshFrequency = 10 * (60 * 1000); // 14 mins since JWT expiry is 15mins
+
+const Routing = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { isLoggedIn, loading, setIsLoggedIn } = useAuth();
   const pathname = usePathname();
@@ -22,58 +23,50 @@ export default function Routing() {
   const [notifications, setNotifications] = useState([]);
   const [showSearch, setShowSearch] = useState(false);
 
+  const publicRoutes = ["/login", "/register"];
+  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+
+  // 🧑‍💻 Redirect Logic and Route Protection
+  useEffect(() => {
+    if (!loading && !isLoggedIn && !isPublic) {
+      router.push("/login");
+    } else if (isLoggedIn && isPublic) {
+      router.push("/");
+    }
+  }, [isLoggedIn, pathname, loading]);
+
+  useEffect(() => {
+    setInterval(() => {
+      if (isLoggedIn) {
+        refreshAccessToken();
+      }
+    }, RefreshFrequency);
+  }, [isLoggedIn]);
+
+  // Fetch notifications when dropdown opens
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const response = await SendData("/api/v1/get/requests",{ type: 3 });
-
-        if (!response.ok) {
-          console.error("Failed to fetch notifications");
-          return;
-        }
+        const response = await SendData("/api/v1/get/requests", { type: 3 });
+        if (!response.ok) throw new Error("Failed to fetch notifications");
 
         const data = await response.json();
         setNotifications(data);
-        console.log("Notifications:", data);
       } catch (err) {
         console.error("Error fetching notifications:", err);
       }
     };
 
-    if (isOpen) {
-      fetchNotifications();
-    }
+    if (isOpen) fetchNotifications();
   }, [isOpen]);
 
-  // // 🛰️ Route Protection
-  const publicRoutes = [ "/login", "/register"];
-  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
-
-  // ⛔ Route Redirect
-  // useEffect(() => {
-   
-  //   if (!isLoggedIn && !isPublic) {
-  //     console.log("Redirecting to /login", isLoggedIn);
-  //     router.push("/login");
-  //   }else if (!loading && isLoggedIn && isPublic) {
-  //     console.log("Redirecting to /", isLoggedIn);
-  //     // log path
-  //     console.log("Pathname:", pathname);
-      
-  //     router.push("/");
-  //   }
-  // }, [isLoggedIn, pathname]);
-
-  // Function to handle search close
-  const handleSearchClose = () => {
-    setShowSearch(false);
-  };
+  // Close search modal
+  const handleSearchClose = () => setShowSearch(false);
 
   return (
     <div>
       <div className={Styles.nav}>
         <div className={Styles.leftSection}>
-          
           <Link className={Styles.loginTitle} href={"/"}>
             Social Network
           </Link>
@@ -101,14 +94,12 @@ export default function Routing() {
                   onClick={() => setIsOpen(true)}
                   onMouseLeave={() => setIsOpen(false)}
                 >
-                  <span>
-                    <Image
-                      src="/notification.svg"
-                      alt="notification"
-                      width={25}
-                      height={25}
-                    />
-                  </span>
+                  <Image
+                    src="/notification.svg"
+                    alt="notification"
+                    width={25}
+                    height={25}
+                  />
                   {isOpen && (
                     <NotificationList
                       notifications={notifications}
@@ -144,7 +135,6 @@ export default function Routing() {
                           await LogoutAndRedirect(router);
                           if (isConnected) closeWebSocket();
                           setIsOpen(false);
-                          // setIsLoggedIn(false);
                         }}
                         className={Styles.dropdownItem}
                       >
@@ -162,7 +152,6 @@ export default function Routing() {
                   pathname === "/login" ? Styles.active : ""
                 }`}
                 href="/login"
-                onClick={() => setIsOpen(false)}
               >
                 Login
               </Link>
@@ -171,7 +160,6 @@ export default function Routing() {
                   pathname === "/register" ? Styles.active : ""
                 }`}
                 href="/register"
-                onClick={() => setIsOpen(false)}
               >
                 Register
               </Link>
@@ -196,12 +184,12 @@ export default function Routing() {
         )}
       </div>
 
-      {/* Search popup - This was missing! */}
       {showSearch && <SearchInput onClose={handleSearchClose} />}
     </div>
   );
-}
+};
 
+// Helper component for NavLink
 function NavLink({ href, icon, pathname }) {
   return (
     <Link
@@ -229,3 +217,5 @@ function NavLink({ href, icon, pathname }) {
     </Link>
   );
 }
+
+export default Routing;

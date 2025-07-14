@@ -281,6 +281,7 @@ export async function HandleUpload(image) {
   const response = await SendData("/api/v1/upload", formData);
 
   if (!response.ok) {
+    console.log(response);
     console.error("Image upload failed");
     return null;
   }
@@ -289,6 +290,17 @@ export async function HandleUpload(image) {
   return path;
 }
 
+export const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
 
 export function TimeAgo(timestamp) {
   const now = new Date();

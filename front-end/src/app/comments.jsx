@@ -3,7 +3,7 @@ import Image from "next/image";
 import Styles from "./global.module.css";
 import LikeDeslike from "./utils.jsx";
 import { SendData } from "./sendData.js";
-import { HandleUpload } from "./utils.jsx";
+import { HandleUpload, debounce } from "./utils.jsx";
 
 export default function Comments({ Post, onClose }) {
   const [content, setContent] = useState("");
@@ -14,7 +14,7 @@ export default function Comments({ Post, onClose }) {
   const scrollRef = useRef(null); //ref to scroll container
   const [commentImage, setCommentImage] = useState(null);
   const commentFileRef = useRef(null);
-
+  const [firstTime, setFirstTime] = useState(true);
   const handleCommentImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setCommentImage(file);
@@ -23,6 +23,7 @@ export default function Comments({ Post, onClose }) {
   const fetchData = async (reset = false) => {
     if (loading || (!hasMore && !reset)) return;
     setLoading(true);
+    console.log("Fetching comments...");
 
     const startID = reset ? 0 : LastCommentID;
     const formData = { post_id: Post.ID, start: startID };
@@ -35,7 +36,9 @@ export default function Comments({ Post, onClose }) {
 
       setComments((prev) => {
         const combined = reset ? newComments : [...prev, ...newComments];
-        const unique = Array.from(new Map(combined.map((c) => [c.ID, c])).values());
+        const unique = Array.from(
+          new Map(combined.map((c) => [c.ID, c])).values()
+        );
         return unique;
       });
 
@@ -52,27 +55,55 @@ export default function Comments({ Post, onClose }) {
     }
   };
 
-  useEffect(() => {
-    fetchData(true);
-  }, []);
 
-  //Scroll pagination inside comments box
+
+  useEffect(() => {
+    if (firstTime) {
+      fetchData(true);
+      setFirstTime(false);
+    }
+  }, [firstTime]);
+
+  // Scroll pagination
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
-    const onScroll = () => {
-      const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 100;
+    // Custom debounced scroll handler
+    const handleScroll = debounce(() => {
+      const nearBottom =
+        el.scrollTop + el.clientHeight >= el.scrollHeight - 100; // 100px from the bottom
       if (nearBottom && hasMore && !loading) {
-        setTimeout(() => {
-          fetchData();
-        }, 1000);
+        fetchData(); // Fetch more data when near the bottom
       }
-    };
+    }, 300); // Delay of 300ms for debouncing scroll
 
-    el.addEventListener("scroll", onScroll);
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [hasMore, loading]);
+    // Attach scroll event listener to the element
+    el.addEventListener("scroll", handleScroll);
+
+    // Cleanup the scroll event listener when component unmounts or dependencies change
+    return () => {
+      el.removeEventListener("scroll", handleScroll);
+    };
+  }, [hasMore, loading, fetchData]);
+  //todo: remove comments
+  // Scroll pagination inside comments box
+  // useEffect(() => {
+  //   const el = scrollRef.current;
+  //   if (!el) return;
+
+  //   const onScroll = () => {
+  //     const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 100;
+  //     if (nearBottom && hasMore && !loading) {
+  //       setTimeout(() => {
+  //         fetchData();
+  //       }, 1000);
+  //     }
+  //   };
+
+  //   el.addEventListener("scroll", onScroll);
+  //   return () => el.removeEventListener("scroll", onScroll);
+  // }, [hasMore, loading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,14 +131,12 @@ export default function Comments({ Post, onClose }) {
     }
   };
 
-  Comments.map(com => {
-    console.log("Comments:", com);
-    console.log("img path:", com.image_path)
-  })
+  // Comments.map(com => {
+  //   console.log("Comments:", com);
+  //   console.log("img path:", com.image_path)
+  // })
 
   return (
-    console.log(Post),
-
     <div className={Styles.commentPopup}>
       <button className={Styles.closeBtn} onClick={onClose}>
         <Image src="/exit.svg" alt="exit" width={30} height={30} />
@@ -119,7 +148,11 @@ export default function Comments({ Post, onClose }) {
           <div className={Styles.userInfo}>
             <div className={Styles.first}>
               <Image
-                src={Post.AvatarGroup?.String ? `/${Post.AvatarGroup.String}` : "/iconMale.png"}
+                src={
+                  Post.AvatarGroup?.String
+                    ? `/${Post.AvatarGroup.String}`
+                    : "/iconMale.png"
+                }
                 alt="avatar"
                 width={25}
                 height={25}
@@ -130,7 +163,11 @@ export default function Comments({ Post, onClose }) {
                     <p>{Post.GroupName.String}</p>
                     <div className={Styles.user}>
                       <Image
-                        src={Post.AvatarUser?.String ? `/${Post.Avatar.String}` : "/iconMale.png"}
+                        src={
+                          Post.AvatarUser?.String
+                            ? `/${Post.Avatar.String}`
+                            : "/iconMale.png"
+                        }
                         alt="avatar"
                         width={20}
                         height={20}
@@ -154,7 +191,12 @@ export default function Comments({ Post, onClose }) {
           <div className={Styles.postContent}>
             <p>{Post.Content}</p>
             {Post.ImagePath.Valid ? (
-              <Image src={`${Post.ImagePath?.String}`} alt="comment" width={30} height={30} />
+              <Image
+                src={`${Post.ImagePath?.String}`}
+                alt="comment"
+                width={30}
+                height={30}
+              />
             ) : null}
           </div>
         </section>
@@ -162,14 +204,14 @@ export default function Comments({ Post, onClose }) {
         {/* Comments list */}
         <div className={Styles.comments}>
           {Comments.map((Comment) => (
-            console.log(Comment),
-
             <div key={Comment.ID} className={Styles.comment}>
               <div className={Styles.first}>
                 <div>
                   <Image
                     src={
-                      Comment.AvatarUser?.String ? `${Comment.AvatarUser.String}` : "/iconMale.png"
+                      Comment.AvatarUser?.String
+                        ? `${Comment.AvatarUser.String}`
+                        : "/iconMale.png"
                     }
                     alt="avatar"
                     width={30}
@@ -195,7 +237,11 @@ export default function Comments({ Post, onClose }) {
                     width={200}
                     height={150}
                     unoptimized
-                    style={{ width: "100%", height: "auto", marginTop: "0.5rem" }}
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      marginTop: "0.5rem",
+                    }}
                   />
                 )}
               </div>

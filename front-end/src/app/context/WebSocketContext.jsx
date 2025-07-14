@@ -3,6 +3,8 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useNotification } from "./notificationContext";
 
 // import { Notification } from "../components/notification/notification.jsx";
+import { AuthProvider } from "@/app/context/AuthContext.jsx";  
+
 
 const WebSocketContext = createContext(null);
 const WEBSOCKET_URL = "/api/v1/ws";
@@ -76,13 +78,13 @@ export const WebSocketProvider = ({ children }) => {
           connectWebSocket();
         }, 2000);
       } else {
-        console.error("❌ Max reconnect attempts reached");
+        console.log("❌ Max reconnect attempts reached");
       }
     }
 
 
     ws.current.onerror = (err) => {
-      console.error("⚠️ WebSocket error:", err);
+      console.log("⚠️ WebSocket error:", err);
       ws.current?.close();
     };
   };
@@ -120,7 +122,8 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
-    <WebSocketContext.Provider
+    <AuthProvider>
+      <WebSocketContext.Provider
       value={{
         sendMessage,
         closeWebSocket,
@@ -131,10 +134,10 @@ export const WebSocketProvider = ({ children }) => {
         updateOnlineUser,
         newNotification,
       }}
-    >
+      >
       {children}
-
     </WebSocketContext.Provider>
+    </AuthProvider>
   );
 };
 

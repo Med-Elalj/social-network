@@ -1,19 +1,21 @@
 import { SendData } from "@/app/sendData.js";
-// import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "@/app/context/AuthContext.jsx";
+import { showNotification } from "../utils";
 
 export async function LogoutAndRedirect(router) {
-    // const { setIsLoggedIn } = useAuth();
+    const { setIsLoggedIn } = useAuth();
+
     try {
         const response = await SendData('/api/v1/auth/logout', null);
+
         if (response.status === 200) {
-            console.log("Logout successful:", response.body);
-            localStorage.removeItem("UserInfo");
-            // setIsLoggedIn(false);
+            setIsLoggedIn(false);
             router.push("/login");
         } else {
-            console.error("Logout failed with status", response.status);
+            const body = await response.json();
+            showNotification(body?.message || "Logout failed", "error");
         }
     } catch (err) {
-        console.error("Logout error:", err);
+        showNotification("Logout failed", "error");
     }
 }

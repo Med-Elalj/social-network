@@ -33,7 +33,7 @@ func SetupMux() http.Handler {
 
 	mux.HandleFunc("/api/v1/get/{type}", MW.AuthMiddleware(handlers.GetHandler))
 	mux.HandleFunc("POST /api/v1/set/{type}", MW.AuthMiddleware(handlers.SetHandler))
-	mux.HandleFunc("POST /api/v1/upload", handlers.UploadHandler)
+	mux.HandleFunc("POST /api/v1/upload", MW.AuthMiddleware(handlers.UploadHandler))
 
 	fileServer := http.FileServer(http.Dir("../front-end/public/uploads"))
 	mux.Handle("/uploads/", http.StripPrefix("/uploads/", fileServer))

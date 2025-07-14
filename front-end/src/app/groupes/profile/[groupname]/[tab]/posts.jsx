@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { SendData } from "@/app/sendData.js";
 import Styles from "../profile.module.css";
 import Image from "next/image";
-import LikeDeslike from "../../../../utils.jsx";
-import Comments from "../../../../comments.jsx";
+import LikeDeslike, { TimeAgo } from "@/app/utils.jsx";
+import Comments from "@/app/comments.jsx";
 
 export default function Posts({ activeSection, setActiveSection, groupId }) {
     const [openComments, setOpenComments] = useState(null);

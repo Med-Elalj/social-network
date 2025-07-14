@@ -1,14 +1,13 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { GetData, SendData } from "@/app/sendData.js";
+import { SendData, refreshAccessToken } from "@/app/sendData.js";
 import { LogoutAndRedirect } from "../Logout.jsx";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Styles from "./nav.module.css";
 import NotificationList from "./notificationList.jsx";
-import { refreshAccessToken, SendData } from "@/app/sendData.js";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 import { SearchIcon, SearchInput } from "./search.jsx"; // Import SearchInput too
 import { useAuth } from "@/app/context/AuthContext.jsx";

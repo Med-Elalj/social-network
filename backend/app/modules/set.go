@@ -52,8 +52,18 @@ func InsertPost(post structs.PostCreate, uid, gid int) bool {
 	}
 
 	lastInsertID, _ := res.LastInsertId()
-	logs.InfoLog.Println("Post inserted with ID ", lastInsertID)
-
+	if (len(post.Privetids) > 0) {
+		for _, privetId := range post.Privetids {
+			_, err = tx.Exec(`
+				INSERT INTO postrack (post_id, follower_id)
+				VALUES (?, ?)`, lastInsertID, privetId)
+			if err != nil {
+				tx.Rollback()
+				logs.ErrorLog.Printf("Error inserting into post_visible_followers: %q", err.Error())
+				return false
+			}
+		}
+	}
 	return true
 }
 

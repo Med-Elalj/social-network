@@ -1,4 +1,4 @@
-import { GetData } from "../../sendData.js";
+import { GetData, SendData } from "@/app/sendData.js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link.js";

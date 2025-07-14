@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }) => {
           credentials: "include",
         });
         const data = await response.json();
-        console.log("Auth status:", data);
 
         if (response.ok) {
           setIsLoggedIn(data.authenticated);

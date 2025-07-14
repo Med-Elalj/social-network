@@ -16,7 +16,7 @@ const RefreshFrequency = 14 * (60 * 1000); // 14 mins since jwt expiry is 15mins
 
 export default function Routing() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { isLoggedIn, loading, setIsLoggedIn } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const { closeWebSocket, isConnected } = useWebSocket();
@@ -43,7 +43,6 @@ export default function Routing() {
 
     if (isOpen) {
       fetchNotifications();
-      fetchNotifications();
     }
   }, [isOpen]);
 
@@ -52,14 +51,19 @@ export default function Routing() {
   const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
 
   // ⛔ Route Redirect
-  useEffect(() => {
-    if (!isLoggedIn && !isPublic) {
-      console.log("Redirecting to /login", isLoggedIn);
-      router.push("/login");
-    }else if (isLoggedIn && isPublic) {
-      router.push("/");
-    }
-  }, [isLoggedIn, pathname]);
+  // useEffect(() => {
+   
+  //   if (!isLoggedIn && !isPublic) {
+  //     console.log("Redirecting to /login", isLoggedIn);
+  //     router.push("/login");
+  //   }else if (!loading && isLoggedIn && isPublic) {
+  //     console.log("Redirecting to /", isLoggedIn);
+  //     // log path
+  //     console.log("Pathname:", pathname);
+      
+  //     router.push("/");
+  //   }
+  // }, [isLoggedIn, pathname]);
 
   // Function to handle search close
   const handleSearchClose = () => {
@@ -71,7 +75,7 @@ export default function Routing() {
       <div className={Styles.nav}>
         <div className={Styles.leftSection}>
           
-          <Link className={Styles.loginTitle} href={isLoggedIn ? "/" : "/login"}>
+          <Link className={Styles.loginTitle} href={"/"}>
             Social Network
           </Link>
         </div>
@@ -141,7 +145,7 @@ export default function Routing() {
                           await LogoutAndRedirect(router);
                           if (isConnected) closeWebSocket();
                           setIsOpen(false);
-                          setIsLoggedIn(false);
+                          // setIsLoggedIn(false);
                         }}
                         className={Styles.dropdownItem}
                       >

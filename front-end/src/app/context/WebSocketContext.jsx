@@ -55,7 +55,7 @@ export const WebSocketProvider = ({ children }) => {
         }
       } else if (data.sender === "<system>", data.command) {
         if (data.command == "online") {
-          console.log("data received via websocket: ", data);
+          // console.log("data received via websocket: ", data);
           setUpdateOnlineUser(data)
         } else {
           setNewNotification(data)

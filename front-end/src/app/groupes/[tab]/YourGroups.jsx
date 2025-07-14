@@ -26,6 +26,7 @@ export default function YourGroups() {
     return (
         <div className={groups ? Style.groupGrid : Style.noPosts}>
             {groups ? (groups.map((Group, _) => (
+                console.log(Group),
                 <div className={Style.groupCard} key={Group.ID}>
                     <Image
                         src={Group.Avatar?.String || "/db.png"}

@@ -107,6 +107,29 @@
   text-decoration: none;
 }
 
+.grouprequiest {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-bottom: var(--border-color) 1px solid;
+  color: var(--secondary-color);
+}
+
+.grouprequiest>div {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: space-between;
+}
+
+.grouprequiest>div:hover {
+  background-color: var(--border-color);
+  border-radius: 10px;
+}
+
 .Requiests>div>div {
   display: flex;
   align-items: center;

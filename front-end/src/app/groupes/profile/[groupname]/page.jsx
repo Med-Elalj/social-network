@@ -142,6 +142,30 @@ export default function Profile() {
               </button>
             </div>
           </div>
+
+          <div className={Style.requests}>
+            {/* reauests to join group */}
+            <h2>Requests</h2>
+            <div className={Style.requestsContainer}>
+              {[1, 2, 3].map((request, index) => (
+                <div key={index} className={Style.request}>
+                  <div className={Style.avatar}>
+                    <Image
+                      src={request.avatar ? request.avatar : "/iconMale.png"}
+                      width={25}
+                      height={25}
+                      alt="avatar"
+                    />
+                    <h4>{request.name ?? "User"}</h4>
+                  </div>
+                  <div>
+                    <button className={Style.button}>Accept</button>
+                    <button className={Style.button}>Decline</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className={Style.second}>

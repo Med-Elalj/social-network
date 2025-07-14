@@ -11,6 +11,8 @@ export default function NewPost() {
   const [image, setImage] = useState(null);
   const [privacy, setPrivacy] = useState("public");
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [selectedFriends, setSelectedFriends] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const fileInputRef = useRef(null);
   const router = useRouter();
 
@@ -45,10 +47,11 @@ export default function NewPost() {
     }
 
     const formData = {
-      content: content,
-      privacy: privacy,
+      content,
+      privacy,
       image: imagePath,
-      groupId: null
+      groupId: null,
+      allowedUsers: privacy === "private" ? selectedFriends : null,
     };
 
     const response = await SendData("/api/v1/set/Post", formData);
@@ -57,7 +60,6 @@ export default function NewPost() {
       const errorBody = await response.json();
       console.log(errorBody);
     } else {
-      console.log("✅ Post created!");
       router.push("/");
     }
   };
@@ -110,21 +112,72 @@ export default function NewPost() {
         </div>
 
         {/* Dropdown Privacy */}
-        <div className={Styles.dropdown}>
-          <label htmlFor="privacy">Privacy</label>
-          <br />
-          <select
-            id="privacy"
-            className={Styles.input}
-            value={privacy}
-            onChange={(e) => setPrivacy(e.target.value)}
-            style={{ padding: "0.5rem", marginTop: "0.5rem" }}
-          >
-            <option value="public">Public</option>
-            <option value="private">Private</option>
-            <option value="folowors">Folowors</option>
-          </select>
+        <div className={Styles.privacy}>
+          <div className={Styles.dropdown}>
+            <label htmlFor="privacy">Privacy</label>
+            <br />
+            <select
+              id="privacy"
+              className={Styles.input}
+              value={privacy}
+              onChange={(e) => setPrivacy(e.target.value)}
+              style={{ padding: "0.5rem", marginTop: "0.5rem" }}
+            >
+              <option value="public">Public</option>
+              <option value="almost private">almost private</option>
+              <option value="private">private</option>
+            </select>
+          </div>
+
+          {privacy === "private" && (
+            <div className={Styles.friendsSection}>
+              <label
+                className={Styles.dropdownToggle}
+                onClick={() => setShowDropdown((prev) => !prev)}
+              >
+                Select Friends ▾
+              </label>
+
+
+              {showDropdown && (
+                <div className={Styles.friendList}>
+                  {["Alice", "Bob", "Charlie", "David", "Eve"].map((friend) => {
+                    const isSelected = selectedFriends.includes(friend);
+
+                    return (
+                      <div
+                        key={friend}
+                        className={`${Styles.friendItem} ${isSelected ? Styles.selected : ""}`}
+                        onClick={() =>
+                          setSelectedFriends((prev) =>
+                            isSelected
+                              ? prev.filter((f) => f !== friend)
+                              : [...prev, friend]
+                          )
+                        }
+                      >
+                        {friend}
+                      </div>
+                    );
+                  })}
+                </div>
+
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Show Selected Friends */}
+        {privacy === "private" && selectedFriends.length > 0 && (
+          <div className={Styles.selectedFriends}>
+            <p>Selected Friends:</p>
+            <ul>
+              {selectedFriends.map((friend) => (
+                <li key={friend}>{friend}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <button type="submit">Post</button>
       </form>

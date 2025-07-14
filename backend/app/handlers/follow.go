@@ -187,3 +187,26 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(responseBody)
 }
+
+func GetUserSuggestions(w http.ResponseWriter, r *http.Request, uid int) {
+	type BodyResponse struct {
+		users []structs.UsersGet
+	}
+
+	Type, err := strconv.Atoi(r.URL.Query().Get("type"))
+	if err != nil && Type != 0 && Type != 1 {
+		logs.ErrorLog.Println("invalid type request: ", Type, err)
+		auth.JsRespond(w, "invalid type request", http.StatusBadRequest)
+		return
+	}
+
+	users, err := modules.GetSuggestions(uid, Type)
+	if err != nil {
+		logs.ErrorLog.Println("Error getting segguestions: ", err)
+		auth.JsRespond(w, "error getting segguestions: ", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(users)
+}

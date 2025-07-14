@@ -12,6 +12,7 @@ import Posts from "@/app/profile/[nickname]/[tab]/Posts.jsx";
 import Following from "@/app/profile/[nickname]/[tab]/Following";
 import Followers from "@/app/profile/[nickname]/[tab]/Followers";
 import Settings from "@/app/profile/[nickname]/[tab]/Settings";
+import { SuggestionList } from "../../components/suggestionList.jsx";
 
 function FollowButton({ targetId, followStatus, setFollowStatus }) {
   // const requestStatus = useRef("");
@@ -319,106 +320,7 @@ export default function Profile() {
         <div className={Style.end}>
           <div className={Style.requists}>
             <h3>Suggestion</h3>
-            <div>
-              <div>
-                <Image
-                  src="/db.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  style={{ borderRadius: "50%" }}
-                />
-                <h5>username</h5>
-              </div>
-              <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
-              </Link>
-            </div>
-            <div>
-              <div>
-                <Image
-                  src="/db.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  style={{ borderRadius: "50%" }}
-                />
-                <h5>username</h5>
-              </div>
-              <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
-              </Link>
-            </div>
-            <div>
-              <div>
-                <Image
-                  src="/db.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  style={{ borderRadius: "50%" }}
-                />
-                <h5>username</h5>
-              </div>
-              <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
-              </Link>
-            </div>
-            <div>
-              <div>
-                <Image
-                  src="/db.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  style={{ borderRadius: "50%" }}
-                />
-                <h5>username</h5>
-              </div>
-              <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
-              </Link>
-            </div>
-            <div>
-              <div>
-                <Image
-                  src="/db.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  style={{ borderRadius: "50%" }}
-                />
-                <h5>username</h5>
-              </div>
-              <Link href="/addUser">
-                <Image
-                  src="/addUser.svg"
-                  alt="profile"
-                  width={25}
-                  height={25}
-                />
-              </Link>
-            </div>
+            <SuggestionList />
           </div>
 
           <div className={Style.requists}>

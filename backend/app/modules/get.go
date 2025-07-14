@@ -575,3 +575,71 @@ func GetSearchprofile(query string, page int) (structs.SearchProfile, error) {
 	rtn.Profiles = profiles
 	return rtn, nil
 }
+
+func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
+	var users []structs.UsersGet
+
+	// Query to get all profiles excluding:
+	// 1. The user themselves
+	// 2. Users they already follow
+	// 3. Users they have sent/received requests to/from
+	// 4. Filter by type (is_user field)
+	query := `
+        SELECT p.id, p.avatar, p.display_name, p.is_user
+        FROM profile p
+        WHERE p.id != ?
+        AND p.is_user = ?
+        AND p.id NOT IN (
+            -- Exclude users already being followed
+            SELECT f.following_id 
+            FROM follow f 
+            WHERE f.follower_id = ?
+        )
+        AND p.id NOT IN (
+            -- Exclude users with pending requests (as sender)
+            SELECT r.receiver_id 
+            FROM request r 
+            WHERE r.sender_id = ? AND r.type = 0
+        )
+        AND p.id NOT IN (
+            -- Exclude users with pending requests (as receiver)
+            SELECT r.sender_id 
+            FROM request r 
+            WHERE r.receiver_id = ? AND r.type = 0
+        )
+        ORDER BY p.created_at DESC
+        LIMIT 20`
+
+	rows, err := db.Query(query, uid, Type, uid, uid, uid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query suggestions: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user structs.UsersGet
+		var isUser bool
+
+		err := rows.Scan(&user.ID, &user.Avatar, &user.Username, &isUser)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan user: %v", err)
+		}
+
+		// Set Is_Group based on is_user field (inverted)
+		user.Is_Group = !isUser
+
+		// Set online status (you might want to implement this based on your logic)
+		user.Online = false // Default to false, implement your online logic here
+
+		// Get relationship status
+		user.FollowStatus = GetRelationship(uid, int(user.ID))
+
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %v", err)
+	}
+
+	return users, nil
+}

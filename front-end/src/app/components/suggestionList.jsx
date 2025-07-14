@@ -13,7 +13,7 @@ export function SuggestionList() {
   useEffect(() => {
     const fetchSugguestion = async () => {
       const response = await GetData("/api/v1/get/userSeggestions", {
-        type: 0,
+        is_user: 1,
       });
       if (response.ok) {
         const data = await response.json();

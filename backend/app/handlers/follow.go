@@ -27,7 +27,6 @@ func FollowHandle(w http.ResponseWriter, r *http.Request, uid int) {
 	var responseBody ResponseBody
 
 	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
-
 	if err != nil {
 		logs.ErrorLog.Println("invalid request body:", err)
 		auth.JsRespond(w, "invalid request body", http.StatusBadRequest)
@@ -45,7 +44,6 @@ func FollowHandle(w http.ResponseWriter, r *http.Request, uid int) {
 	json.NewEncoder(w).Encode(responseBody)
 
 	// TODO notif to group creator
-
 }
 
 // needs header "follow_target" the id of the profile you want to unfollow
@@ -189,18 +187,14 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 }
 
 func GetUserSuggestions(w http.ResponseWriter, r *http.Request, uid int) {
-	type BodyResponse struct {
-		users []structs.UsersGet
-	}
-
-	Type, err := strconv.Atoi(r.URL.Query().Get("type"))
-	if err != nil && Type != 0 && Type != 1 {
-		logs.ErrorLog.Println("invalid type request: ", Type, err)
-		auth.JsRespond(w, "invalid type request", http.StatusBadRequest)
+	is_user, err := strconv.Atoi(r.URL.Query().Get("is_user"))
+	if err != nil && is_user != 0 && is_user != 1 {
+		logs.ErrorLog.Println("invalid is_user request: ", is_user, err)
+		auth.JsRespond(w, "invalid is_user request", http.StatusBadRequest)
 		return
 	}
-
-	users, err := modules.GetSuggestions(uid, Type)
+	fmt.Println(is_user)
+	users, err := modules.GetSuggestions(uid, is_user)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting segguestions: ", err)
 		auth.JsRespond(w, "error getting segguestions: ", http.StatusInternalServerError)

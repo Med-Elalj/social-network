@@ -6,6 +6,7 @@ import (
 
 	"social-network/app/logs"
 	"social-network/app/structs"
+	"social-network/app/ws"
 )
 
 // Insert new post
@@ -75,9 +76,32 @@ func UserFollow(uid int, tid int, followStatus string) error {
 
 	case "follow request":
 		_, err = DB.Exec(`
-        INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
-        VALUES (?, ?, ?, 0)
-    `, uid, tid, tid)
+                INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
+                VALUES (?, ?, ?, 0)
+            `, uid, tid, tid)
+		if err != nil {
+			break
+		}
+		var f structs.Follow_get
+		DB.QueryRow(`
+SELECT 
+    p1.id AS p1_id, 
+    p1.display_name, 
+    p2.id AS p2_id, 
+    p2.display_name, 
+    NOT p2.is_user,
+    COALESCE(go.id, 0) AS group_owner_id, 
+    COALESCE(go.display_name, '') AS group_owner_name
+FROM profile p1
+JOIN profile p2 ON p2.id = ? --following_id
+LEFT JOIN "group" g ON g.id = p2.id
+LEFT JOIN profile go ON go.id = g.creator_id
+WHERE p1.id = ?; --follower_id`,
+			tid, uid).Scan(&f.P1_id, &f.P1_display_name, &f.P2_id, &f.P2_display_name, &f.Is_group, &f.Group_owner_id, &f.Group_owner_name)
+		if f.Is_group {
+			tid = f.Group_owner_id
+		}
+		ws.NotifyUser(tid, followStatus, f)
 
 	default:
 		return nil

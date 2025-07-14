@@ -11,14 +11,14 @@ import (
 
 
 func GetGroupPosts(start, uid, groupId int) ([]structs.Post, error) {
-	query := `SELECT 
+	query := `    SELECT
     p.id AS ID,
     p.group_id AS GroupId,
     p.user_id AS UserId,
     creator.display_name AS UserName,
-    g.name AS GroupName,
+    pg.display_name AS GroupName,
     creator.avatar AS AvatarUser,
-    g.avatar AS AvatarGroup,
+    pg.avatar AS AvatarGroup,
     p.content AS Content,
     p.image_path AS ImagePath,
     p.created_at AS CreatedAt,
@@ -30,10 +30,10 @@ func GetGroupPosts(start, uid, groupId int) ([]structs.Post, error) {
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
 JOIN profile creator ON p.user_id = creator.id
-LEFT JOIN "group" g ON p.group_id = g.id
+LEFT JOIN profile pg ON p.group_id = pg.id
 WHERE 
-	p.group_id = :group_id
-	p.id < :last_post_id 
+	p.group_id = :group_id AND
+	----createdat<lastcreatedat
 ORDER BY p.created_at DESC
 LIMIT 10;`
 	rows, err := DB.Query(query, sql.Named("current_user_id", uid), sql.Named("group_id", groupId), sql.Named("last_post_id", start))
@@ -79,9 +79,9 @@ func GetHomePosts(start ,uid int) ([]structs.Post, error) {
     p.group_id AS GroupId,
     p.user_id AS UserId,
     creator.display_name AS UserName,
-    g.name AS GroupName,
+    pg.display_name AS GroupName,
     creator.avatar AS AvatarUser,
-    g.avatar AS AvatarGroup,
+    pg.avatar AS AvatarGroup,
     p.content AS Content,
     p.image_path AS ImagePath,
     p.created_at AS CreatedAt,
@@ -89,25 +89,27 @@ func GetHomePosts(start ,uid int) ([]structs.Post, error) {
     (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
     CASE WHEN EXISTS (
         SELECT 1 FROM likes l 
-        WHERE l.post_id = p.id AND l.user_id = :current_user_id
+        WHERE l.post_id = p.id AND l.user_id = :me
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
 JOIN profile creator ON p.user_id = creator.id
-LEFT JOIN "group" g ON p.group_id = g.id
-LEFT JOIN follow f ON p.user_id = f.following_id
-WHERE 
-	(p.id < :last_post_id) AND
+LEFT JOIN profile pg ON p.group_id = pg.id
+WHERE
+	--------p.created_at<lastcreatedat
     (p.privacy = 'public') 
     OR 
-    (p.privacy = 'almost_private' AND f.follower_id = :current_user_id)
+    (p.privacy = 'almost_private' AND EXISTS (
+        SELECT 1 FROM follow f 
+        WHERE f.following_id = p.user_id AND f.follower_id = :me
+    ))
     OR
     (p.privacy = 'private' AND EXISTS (
-        SELECT 1 FROM post_visible_followers pvf 
-        WHERE pvf.post_id = p.id AND pvf.follower_id = :current_user_id
+        SELECT 1 FROM postrack pt 
+        WHERE pt.post_id = p.id AND pt.follower_id = :me
     ))
 ORDER BY p.created_at DESC
 LIMIT 10;`
-	rows, err := DB.Query(query, sql.Named("current_user_id", uid), sql.Named("last_post_id", start))
+	rows, err := DB.Query(query, sql.Named("me", uid), sql.Named("last_post_id", start))
 	if err != nil {
 		logs.ErrorLog.Printf("GetHomePosts query error: %q", err.Error())
 		return nil, err
@@ -150,9 +152,9 @@ func GetProfilePosts(start int, uid int, userId int) ([]structs.Post, error) {
     p.group_id AS GroupId,
     p.user_id AS UserId,
     creator.display_name AS UserName,
-    g.name AS GroupName,
+    pg.display_name AS GroupName,
     creator.avatar AS AvatarUser,
-    g.avatar AS AvatarGroup,
+    pg.avatar AS AvatarGroup,
     p.content AS Content,
     p.image_path AS ImagePath,
     p.created_at AS CreatedAt,
@@ -160,28 +162,28 @@ func GetProfilePosts(start int, uid int, userId int) ([]structs.Post, error) {
     (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
     CASE WHEN EXISTS (
         SELECT 1 FROM likes l 
-        WHERE l.post_id = p.id AND l.user_id = :current_user_id 
+        WHERE l.post_id = p.id AND l.user_id = :me
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
 JOIN profile creator ON p.user_id = creator.id
-LEFT JOIN "group" g ON p.group_id = g.id
-WHERE p.user_id = :profile_id AND p.id < :last_post_id
+LEFT JOIN profile pg ON p.group_id = pg.id
+WHERE p.user_id = :profile_id ----andp.created<lastcreatedat
 AND (
     ((SELECT is_public FROM profile WHERE id = :profile_id) = 1 AND p.privacy = 'public')
     OR
     (EXISTS (
         SELECT 1 FROM follow 
-        WHERE follower_id = :current_user_id AND following_id = :profile_id
+        WHERE follower_id = :me AND following_id = :profile_id
     ) AND p.privacy IN ('public', 'almost_private'))
     OR
     (p.privacy = 'private' AND EXISTS (
-        SELECT 1 FROM post_visible_followers pvf 
-        WHERE pvf.post_id = p.id AND pvf.follower_id = :current_user_id
+        SELECT 1 FROM postrack pvf 
+        WHERE pvf.post_id = p.id AND pvf.follower_id = :me
     ))
 )
 ORDER BY p.created_at DESC
 LIMIT 10 ;`
-	rows, err := DB.Query(query, sql.Named("current_user_id", uid), sql.Named("profile_id", userId), sql.Named("last_post_id", start))
+	rows, err := DB.Query(query, sql.Named("me", uid), sql.Named("profile_id", userId), sql.Named("last_post_id", start))
 	if err != nil {
 		logs.ErrorLog.Printf("GetProfilePosts query error: %q", err.Error())
 		return nil, err
@@ -225,9 +227,9 @@ func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
     p.group_id AS GroupId,
     p.user_id AS UserId,
     creator.display_name AS UserName,
-    g.name AS GroupName,
+    pg.display_name AS GroupName,
     creator.avatar AS AvatarUser,
-    g.avatar AS AvatarGroup,
+    pg.avatar AS AvatarGroup,
     p.content AS Content,
     p.image_path AS ImagePath,
     p.created_at AS CreatedAt,
@@ -235,17 +237,17 @@ func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
     (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
     CASE WHEN EXISTS (
         SELECT 1 FROM likes l 
-        WHERE l.post_id = p.id AND l.user_id = :current_user_id
+        WHERE l.post_id = p.id AND l.user_id = :me
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
 JOIN profile creator ON p.user_id = creator.id
-LEFT JOIN "group" g ON p.group_id = g.id
+LEFT JOIN profile pg ON p.group_id = pg.id
 WHERE 
-    p.user_id = :current_user_id AND
-    p.id < :last_post_id  -- Pagination condition
+    p.user_id = :me
+	---------p.created_at>lastcreatedat
 ORDER BY p.created_at DESC
 LIMIT 10;`
-	rows, err := DB.Query(query, sql.Named("current_user_id", uid), sql.Named("last_post_id", start))
+	rows, err := DB.Query(query, sql.Named("me", uid), sql.Named("lastposttime", start))
 	if err != nil {
 		logs.ErrorLog.Printf("GetOwnProfilePosts query error: %q", err.Error())
 		return nil, err

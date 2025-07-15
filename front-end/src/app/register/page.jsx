@@ -4,80 +4,81 @@ import { useState, useRef } from "react";
 import Styles from "./register.module.css";
 import { SendAuthData } from "../sendData.js";
 import { useNotification } from "../context/notificationContext.jsx";
-import { usePasswordToggle, HandleUpload } from "../utils.jsx";
+import { HandleUpload } from "../utils.jsx";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Register() {
   const { connectWebSocket } = useWebSocket();
-  const Router = useRouter();
+  const router = useRouter();
   const fileInputRef = useRef(null);
   const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { showNotification } = useNotification();
+
+  // keep track of the raw file so we can upload on submit
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [avatarName, setAvatarName] = useState("");
+
+  // all your other form fields
   const [formData, setFormData] = useState({
+    fname: "",
+    lname: "",
     username: "",
     email: "",
     password: "",
-    gender: "",
-    fname: "",
-    lname: "",
     birthdate: "",
-    avatar: "",
+    gender: "",
     about: "",
+    // avatarPath will hold the *returned* URL after upload
+    avatarPath: "",
   });
-  const { showNotification } = useNotification();
-  const [avatarName, setAvatarName] = useState("");
-  usePasswordToggle();
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "avatar") {
-      const file = files[0];
-      setAvatarName(file.name);
-      if (file) {
-        setAvatarName(file.name);
-        //rm the upload and get back a public path
-        HandleUpload(file)
-          .then((path) => {
-            setFormData((f) => ({ ...f, avatar: path }));
-          })
-          .catch((err) => {
-            console.error("Avatar upload failed", err);
-          });
-      }
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    const { name, value } = e.target;
+    setFormData((fd) => ({ ...fd, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] ?? null;
+    setSelectedFile(file);
+    setAvatarName(file?.name || "");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isLoggedIn) {
-      return;
-    }
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
+    if (isLoggedIn) return;
+
+    // 1) upload avatar if one was selected
+    let avatarPath = "";
+    if (selectedFile) {
+      avatarPath = await HandleUpload(selectedFile);
+      console.log("k", avatarPath);
+      if (!avatarPath) {
+        return showNotification("Avatar upload failed", "error");
+      }
     }
 
-    console.log("Submitting form...", formData);
+    // 2) build your payload
+    const payload = {
+      ...formData,
+      avatar: avatarPath,
+    };
 
-    const response = await SendAuthData("/api/v1/auth/register", formData);
+    // 3) send it as JSON
+    const response = await SendAuthData("/api/v1/auth/register", payload);
 
     if (response.status !== 200) {
       const errorBody = await response.json();
-      // console.log(errorBody);
-      showNotification(errorBody.error || "Registration failed. Please try again.", "error", 5000);
-    } else {
-      setIsLoggedIn(true);
-      // console.log('Form submitted successfully!');
-      showNotification("Registration successful! Welcome to our social network!", "success", 5000);
-      Router.push("/");
-      connectWebSocket();
+      showNotification(errorBody.error || "Registration failed", "error", 5000);
+      return;
     }
+
+    // 4) on success...
+    setIsLoggedIn(true);
+    showNotification("Registration successful!", "success", 5000);
+    connectWebSocket();
+    router.push("/");
   };
 
   return (
@@ -87,6 +88,7 @@ export default function Register() {
       </div>
       <div className={Styles.formContainer}>
         <form className={Styles.form} onSubmit={handleSubmit}>
+          {/* First & Last Name */}
           <label className={Styles.label} htmlFor="fname">
             First Name
           </label>
@@ -94,7 +96,7 @@ export default function Register() {
             className={Styles.input}
             type="text"
             name="fname"
-            id="firstName"
+            id="fname"
             required
             onChange={handleChange}
           />
@@ -106,11 +108,12 @@ export default function Register() {
             className={Styles.input}
             type="text"
             name="lname"
-            id="lastName"
+            id="lname"
             required
             onChange={handleChange}
           />
 
+          {/* Nickname, Email, Password, DOB, Gender, About */}
           <label className={Styles.label} htmlFor="username">
             Nickname
           </label>
@@ -118,7 +121,8 @@ export default function Register() {
             className={Styles.input}
             type="text"
             name="username"
-            id="nickName"
+            id="username"
+            required
             onChange={handleChange}
           />
 
@@ -134,23 +138,17 @@ export default function Register() {
             onChange={handleChange}
           />
 
-          {/* <input className={styles.input} type="password" name="password" id="password" onChange={handleChange} /> */}
           <label className={Styles.label} htmlFor="password">
             Password
           </label>
-          <div className={Styles.inputWrapper}>
-            <input
-              className={Styles.input}
-              type="password"
-              name="password"
-              id="password"
-              onChange={handleChange}
-              required
-            />
-            <i className="togglePwd">
-              <span className="icon vis_icon material-symbols-outlined">visibility</span>
-            </i>
-          </div>
+          <input
+            className={Styles.input}
+            type="password"
+            name="password"
+            id="password"
+            required
+            onChange={handleChange}
+          />
 
           <label className={Styles.label} htmlFor="birthdate">
             Date of Birth
@@ -159,14 +157,12 @@ export default function Register() {
             className={Styles.input}
             type="date"
             name="birthdate"
-            id="dob"
+            id="birthdate"
             required
             onChange={handleChange}
           />
 
-          <label className={Styles.label} htmlFor="gender" required>
-            Gender
-          </label>
+          <label className={Styles.label}>Gender</label>
           <div>
             <label htmlFor="male">Male</label>
             <input
@@ -191,36 +187,36 @@ export default function Register() {
             />
           </div>
 
+          <label className={Styles.label} htmlFor="about">
+            About Me
+          </label>
+          <textarea
+            className={Styles.input}
+            name="about"
+            id="about"
+            rows={3}
+            onChange={handleChange}
+          />
+
+          {/* Avatar Upload */}
           <button
             type="button"
             className={Styles.label}
             onClick={() => fileInputRef.current.click()}
           >
-            <img src="/Image.svg" alt="Upload" width="24" height="24" /> Upload Avatar
+            Upload Avatar
           </button>
           <input
             ref={fileInputRef}
-            id="profileImg"
             type="file"
             name="avatar"
-            style={{ display: "none" }}
             accept="image/*"
-            onChange={handleChange}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
           />
           {avatarName && <div className={Styles.fileName}>{avatarName}</div>}
 
-          <label className={Styles.label} htmlFor="about">
-            About Me
-          </label>
-          <input
-            className={Styles.input}
-            type="text"
-            name="about"
-            id="about"
-            onChange={handleChange}
-          />
-
-          <button className={Styles.submitButton} type="submit">
+          <button type="submit" className={Styles.submitButton}>
             Register
           </button>
         </form>

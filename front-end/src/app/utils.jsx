@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { SendData } from "./sendData.js";
+import { SendData, fetchWithAuth } from "./sendData.js";
 
 // Notifications
 let notificationCooldown = false;
@@ -271,23 +271,45 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
 
 // upload
 export async function HandleUpload(image) {
-  console.log("iamge : ", image);
-
-  if (!image) return null;
+  if (!image) {
+    console.warn("HandleUpload called with no image");
+    return null;
+  }
 
   const formData = new FormData();
   formData.append("file", image);
 
-  const response = await SendData("/api/v1/upload", formData);
+  for (let [key, val] of formData.entries()) {
+    console.log("FormData entry:", key, val);
+  }
 
-  if (!response.ok) {
-    console.log(response);
-    console.error("Image upload failed");
+  let response;
+  try {
+    response = await fetch("/api/v1/upload", {
+      method: "POST",
+      body: formData,
+    });
+  } catch (err) {
+    console.error("Network/error thrown during fetch:", err);
     return null;
   }
 
-  const { path } = await response.json();
-  return path;
+  const text = await response.text();
+
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    console.error("Response wasn’t valid JSON");
+    return null;
+  }
+
+  if (!response.ok) {
+    console.error("Upload failed with JSON:", json);
+    return null;
+  }
+
+  return json.path;
 }
 
 export const debounce = (func, delay) => {

@@ -12,14 +12,19 @@ export default function Groups() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await GetData("/api/v1/get/groupToJoin");
+      const response = await GetData("/api/v1/get/userSeggestions", {
+        is_user: 0,
+      });
       const body = await response.json();
 
       if (response.status !== 200) {
         console.log("Faild to get groups");
       } else {
-        if (body.groups?.length > 0) {
-          setGroups(body.groups.filter((group) => !group.IsRequested));
+        if (body?.length > 0) {
+          // setGroups(body.groups.filter((group) => !group.IsRequested));
+          setGroups(body);
+        } else {
+          setGroups([])
         }
         console.log("Groups fetched successfully!");
       }
@@ -39,7 +44,7 @@ export default function Groups() {
       const data = await response.json();
       if (response.ok) {
         type = "succes";
-        setGroups((prev) => prev.filter((group) => group.ID != joinedGroupId));
+        setGroups((prev) => prev.filter((group) => group.id != joinedGroupId));
       }
       showNotification(data.message, type);
     }
@@ -54,20 +59,20 @@ export default function Groups() {
       <h1>Groups</h1>
       {groups?.length > 0 ? (
         groups.slice(0, 5).map((Group, i) => (
-          <div key={Group.ID}>
+          <div key={Group.id}>
             <div>
               <Image
-                src={Group.Avatar?.String || "/db.png"}
+                src={Group.pfp?.String || "/db.png"}
                 alt="profile"
                 width={40}
                 height={40}
                 style={{ borderRadius: "50%" }}
               />
-              <h5>{Group.GroupName}</h5>
+              <h5>{Group.name}</h5>
             </div>
             <div>
               <Image
-                onClick={() => setJoinedGroupId(Group.ID)}
+                onClick={() => setJoinedGroupId(Group.id)}
                 src="/join.svg"
                 alt="join"
                 width={25}

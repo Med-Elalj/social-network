@@ -13,6 +13,7 @@ import Following from "@/app/profile/[nickname]/[tab]/Following";
 import Followers from "@/app/profile/[nickname]/[tab]/Followers";
 import Settings from "@/app/profile/[nickname]/[tab]/Settings";
 import { SuggestionList } from "../../components/suggestionList.jsx";
+import { FollowRequestsList } from "../../components/followRequests.jsx";
 
 function FollowButton({ targetId, followStatus, setFollowStatus }) {
   // const requestStatus = useRef("");
@@ -325,122 +326,7 @@ export default function Profile() {
 
           <div className={Style.requists}>
             <h3>Requests</h3>
-            <div>
-              <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
-                <h5>Username</h5>
-              </div>
-              <div className={Style.Buttons}>
-                <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-                <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-              </div>
-            </div>
-            <div>
-              <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
-                <h5>Username</h5>
-              </div>
-              <div className={Style.Buttons}>
-                <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-                <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-              </div>
-            </div>
-            <div>
-              <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
-                <h5>Username</h5>
-              </div>
-              <div className={Style.Buttons}>
-                <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-                <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-              </div>
-            </div>
-            <div>
-              <div>
-                <Image
-                  src="/iconMale.png"
-                  alt="profile"
-                  width={40}
-                  height={40}
-                />
-                <h5>Username</h5>
-              </div>
-              <div className={Style.Buttons}>
-                <Link href="/accept">
-                  <Image
-                    src="/accept.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-                <Link href="/reject">
-                  <Image
-                    src="/reject.svg"
-                    alt="profile"
-                    width={25}
-                    height={25}
-                  />
-                </Link>
-              </div>
-            </div>
+            <FollowRequestsList />
           </div>
         </div>
       </div>

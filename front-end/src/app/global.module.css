@@ -60,15 +60,37 @@
 .friends>a,
 .Requiests>div {
   display: flex;
-  cursor: pointer;
+  /* cursor: pointer; */
   align-items: center;
   margin-bottom: 10px;
   justify-content: space-between;
 }
 
+
+
 .Requiests>div:hover {
   background-color: var(--border-color);
   border-radius: 10px;
+}
+
+.Requiests a {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+.Requiests a:hover{
+  color: var(--hover-color);
+}
+
+.Requiests h2 {
+  font-size: 1em;
+  opacity: .6;
+  word-wrap:break-word;
+}
+
+.Requiests .Buttons>div:hover {
+  background-color: var(--primary-color);
+  cursor: pointer;
 }
 
 .friends>a {
@@ -107,9 +129,10 @@
   text-decoration: none;
 }
 
-.Requiests>div>div {
+.Requiests>div>div, .Requiests>div>a {
   display: flex;
   align-items: center;
+  text-decoration: none;
 }
 
 .friends h5 {

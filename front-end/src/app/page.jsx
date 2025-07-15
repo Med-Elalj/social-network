@@ -12,7 +12,7 @@ import Comments from "./comments.jsx";
 const PostItem = ({ Post, openComments, setOpenComments }) => {
   const authorAvatar = Post?.AvatarUser?.String ? Post.AvatarUser.String : "/iconMale.png";
   const groupAvatar = Post?.AvatarGroup?.String ? Post.AvatarGroup.String : "/iconGroup.png";
-  
+
   return (
     <div key={Post.ID} className={Styles.post}>
       <section className={Styles.userinfo}>
@@ -105,7 +105,7 @@ export default function Home() {
 
     try {
       const startID = reset ? 0 : lastPostID;
-      const response = await SendData("/api/v1/get/posts", { start: startID });
+      const response = await SendData("/api/v1/get/posts", { start: startID, fetch: "home" });
       const Body = await response.json();
 
       if (response.status !== 200) throw Body;
@@ -147,7 +147,7 @@ export default function Home() {
   return (
     <div className={Styles.global}>
       <div className={Styles.firstSide}><Groups /></div>
-      
+
       <div className={Styles.centerContent}>
         {posts.map((Post) => (
           <PostItem

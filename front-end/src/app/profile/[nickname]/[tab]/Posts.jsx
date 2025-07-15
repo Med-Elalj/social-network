@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Style from "../../profile.module.css";
 import Image from "next/image";
-import {SendData} from "../../../sendData.js";
+import { SendData } from "../../../sendData.js";
 import LikeDeslike from "../../../utils.jsx";
 import Comments from "../../../comments.jsx";
 
@@ -21,7 +21,10 @@ export default function Posts(userId) {
       startID = 0;
     }
 
-    const formData = { start: startID, userId: userId };
+    const formData = { start: startID, userId: userId.userId, fetch: "profile" };
+
+    console.log("Fetching posts...");
+    console.log(formData);
 
     try {
       const response = await SendData("/api/v1/get/posts", formData);

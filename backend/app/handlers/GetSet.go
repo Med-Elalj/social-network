@@ -26,8 +26,6 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GetPostsHandler(w, r, data.Sub)
 	case "comments":
 		GetCommentsHandler(w, r, data.Sub)
-	case "groupPosts":
-		GetPostsHandler(w, r, data.Sub)
 	case "groupMembers":
 		GroupMembersHandler(w, r, data.Sub)
 	case "groupFeeds":

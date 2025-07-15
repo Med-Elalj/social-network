@@ -10,48 +10,42 @@ import (
 	"social-network/app/structs"
 )
 
+// func getfollowers(w http.ResponseWriter, r *http.Request, uid int) {
+// 	var dataToFetch map[string]interface{}
+// 	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
+// 	if err != nil {
+// 		logs.ErrorLog.Println("Error decoding request body:", err)
+// 		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
+// 		return
+// 	}
 
-func getfollowers(w http.ResponseWriter, r *http.Request, uid int) {
-	var dataToFetch map[string]interface{}
-	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
-	if err != nil {
-		logs.ErrorLog.Println("Error decoding request body:", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
+// 	startFloat, ok := dataToFetch["start"].(float64)
+// 	if !ok {
+// 		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
+// 		auth.JsRespond(w, "Invalid 'start' value", http.StatusBadRequest)
+// 		return
+// 	}
+// 	start := int(startFloat)
 
-	startFloat, ok := dataToFetch["start"].(float64)
-	if !ok {
-		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
-		auth.JsRespond(w, "Invalid 'start' value", http.StatusBadRequest)
-		return
-	}
-	start := int(startFloat)
+// 	followers, err := modules.GetFollowers(start, uid)
+// 	if err != nil {
+// 		auth.JsRespond(w, "Get Followers failed", http.StatusBadRequest)
+// 		logs.ErrorLog.Println(err)
+// 		return
+// 	}
 
-	followers, err := modules.GetFollowers(start,uid)
-	if err != nil {
-		auth.JsRespond(w, "Get Followers failed", http.StatusBadRequest)
-		logs.ErrorLog.Println(err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message":   "Followers fetched successfully",
-		"followers": followers,
-	})
-}
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(http.StatusOK)
+// 	json.NewEncoder(w).Encode(map[string]interface{}{
+// 		"message":   "Followers fetched successfully",
+// 		"followers": followers,
+// 	})
+// }
 
 func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var post structs.PostCreate
 
 	json.NewDecoder(r.Body).Decode(&post)
-
-	// fmt.Println(post.GroupId)
-	// fmt.Println(uid)
-	// fmt.Println(post.Privacy)
-	// fmt.Println(post.Content)
 
 	if !modules.InsertPost(post, uid, post.GroupId) {
 		auth.JsRespond(w, "Post creation failed", http.StatusBadRequest)
@@ -63,29 +57,7 @@ func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	})
 }
 
-func GetGroupPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var dataToFetch map[string]interface{}
-	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
-	if err != nil {
-		logs.ErrorLog.Println("Error decoding request body:", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-	startFloat, ok := dataToFetch["start"].(float64)
-	if !ok {
-		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
-		auth.JsRespond(w, "Invalid 'start' value", http.StatusBadRequest)
-		return
-	}
-	start := int(startFloat)
-
-	groupId := 0
-	if gid, exists := dataToFetch["groupId"]; exists {
-		if gidFloat, ok := gid.(float64); ok {
-			groupId = int(gidFloat)
-		}
-	}
-
+func GetGroupPostsHandler(w http.ResponseWriter, r *http.Request, uid, start, groupId int) {
 	posts, err := modules.GetGroupPosts(start, uid, groupId)
 	if err != nil {
 		auth.JsRespond(w, "Get Group Posts failed", http.StatusBadRequest)
@@ -101,32 +73,25 @@ func GetGroupPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	})
 }
 
-func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var dataToFetch map[string]interface{}
-	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
+func GetHomePostsHandler(w http.ResponseWriter, r *http.Request, uid int, start int) {
+	posts, err := modules.GetHomePosts(start, uid)
 	if err != nil {
-		logs.ErrorLog.Println("Error decoding request body:", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
+		auth.JsRespond(w, "Get Home Posts failed", http.StatusBadRequest)
+		logs.ErrorLog.Println(err)
 		return
 	}
 
-	startFloat, ok := dataToFetch["start"].(float64)
-	if !ok {
-		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
-		auth.JsRespond(w, "Invalid 'start' value", http.StatusBadRequest)
-		return
-	}
-	start := int(startFloat)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Home Posts fetched successfully",
+		"posts":   posts,
+	})
+}
 
-	userId := 0
-	if userIdMap, ok := dataToFetch["userId"].(map[string]interface{}); ok {
-		if uidFloat, ok := userIdMap["userId"].(float64); ok {
-			userId = int(uidFloat)
-		}
-	}
-
+func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid, start, userId int) {
 	var posts []structs.Post
-	// var err error
+	var err error
 	if userId == 0 {
 		posts, err = modules.GetOwnProfilePosts(start, uid)
 		if err != nil {
@@ -151,59 +116,34 @@ func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	})
 }
 
-func GetHomePostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var dataToFetch map[string]interface{}
-	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
-	if err != nil {
-		logs.ErrorLog.Println("Error decoding request body:", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	startFloat, ok := dataToFetch["start"].(float64)
-	if !ok {
-		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
-		auth.JsRespond(w, "Invalid 'start' value", http.StatusBadRequest)
-		return
-	}
-	start := int(startFloat)
-
-	posts, err := modules.GetHomePosts(start, uid)
-	if err != nil {
-		auth.JsRespond(w, "Get Home Posts failed", http.StatusBadRequest)
-		logs.ErrorLog.Println(err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Home Posts fetched successfully",
-		"posts":   posts,
-	})
+type PostRequest struct {
+	Fetch   string `json:"fetch"`
+	Start   int    `json:"start"`
+	UserID  int    `json:"userId"`
+	GroupId int    `json:"groupId"`
 }
 
 func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var dataToFetch map[string]interface{}
+	var dataToFetch PostRequest
 	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
 	if err != nil {
 		logs.ErrorLog.Println("Error decoding request body:", err)
 		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	forwhat, ok := dataToFetch["fetch"].(string)
-	if !ok {
-		logs.ErrorLog.Println("Invalid 'fetch' value:", dataToFetch["fetch"])
-		auth.JsRespond(w, "Invalid 'fetch' value", http.StatusBadRequest)
+
+	if dataToFetch.Fetch != "home" && dataToFetch.Fetch != "profile" && dataToFetch.Fetch != "group" {
+		auth.JsRespond(w, "Invalid fetch type", http.StatusBadRequest)
 		return
 	}
-	switch forwhat {
+
+	switch dataToFetch.Fetch {
 	case "home":
-		GetHomePostsHandler(w, r, uid)
+		GetHomePostsHandler(w, r, uid, dataToFetch.Start)
 	case "profile":
-		GetProfilePostsHandler(w, r, uid)
+		GetProfilePostsHandler(w, r, uid, dataToFetch.Start, dataToFetch.UserID)
 	case "group":
-		GetGroupPostsHandler(w, r, uid)
+		GetGroupPostsHandler(w, r, uid, dataToFetch.Start, dataToFetch.GroupId)
 	default:
 		auth.JsRespond(w, "Invalid fetch type", http.StatusBadRequest)
 		return

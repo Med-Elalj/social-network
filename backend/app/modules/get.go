@@ -8,10 +8,9 @@ import (
 	"social-network/app/structs"
 )
 
-
-
 func GetGroupPosts(start, uid, groupId int) ([]structs.Post, error) {
-	query := `    SELECT
+	query := `    
+SELECT
     p.id AS ID,
     p.group_id AS GroupId,
     p.user_id AS UserId,
@@ -32,11 +31,17 @@ FROM posts p
 JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
 WHERE 
-	p.group_id = :group_id AND
-	----createdat<lastcreatedat
+    p.group_id = :group_id AND
+    p.id < :last_post_id
 ORDER BY p.created_at DESC
 LIMIT 10;`
-	rows, err := DB.Query(query, sql.Named("current_user_id", uid), sql.Named("group_id", groupId), sql.Named("last_post_id", start))
+
+	rows, err := DB.Query(
+		query,
+		sql.Named("current_user_id", uid),
+		sql.Named("group_id", groupId),
+		sql.Named("last_post_id", start),
+	)
 	if err != nil {
 		logs.ErrorLog.Printf("GetGroupPosts query error: %q", err.Error())
 		return nil, err
@@ -73,7 +78,7 @@ LIMIT 10;`
 	return posts, nil
 }
 
-func GetHomePosts(start ,uid int) ([]structs.Post, error) {
+func GetHomePosts(start, uid int) ([]structs.Post, error) {
 	query := `SELECT 
     p.id AS ID,
     p.group_id AS GroupId,
@@ -220,9 +225,8 @@ LIMIT 10 ;`
 	return posts, nil
 }
 
-
 func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
-	query :=`SELECT 
+	query := `SELECT 
     p.id AS ID,
     p.group_id AS GroupId,
     p.user_id AS UserId,
@@ -284,7 +288,6 @@ LIMIT 10;`
 	return posts, nil
 }
 
-
 // func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 // 	query := `
 // 	WITH
@@ -311,9 +314,9 @@ LIMIT 10;`
 // 	    p.created_at,
 // 	    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
 // 	    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
-// 		CASE 
+// 		CASE
 // 	    WHEN EXISTS (
-// 	        SELECT 1 FROM likes l 
+// 	        SELECT 1 FROM likes l
 // 	        WHERE l.user_id = ? AND l.post_id = p.id AND l.comment_id IS NULL
 // 	    ) THEN 1
 // 	    ELSE 0
@@ -853,8 +856,7 @@ func GetSearchprofile(query string, page int) (structs.SearchProfile, error) {
 	return rtn, nil
 }
 
-
-func GetFollowers(start , uid int) ([]structs.UsersGet, error) {
+func GetFollowers(start, uid int) ([]structs.UsersGet, error) {
 	rows, err := DB.Query(`
 	SELECT
 		p.id

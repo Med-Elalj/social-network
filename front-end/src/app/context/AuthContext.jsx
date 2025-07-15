@@ -1,7 +1,7 @@
 "use client"; // Ensures this is a client-side component
 
 import { createContext, useState, useContext, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { GetData } from "@/app/sendData.js";
 
 // 1. Create the Authentication Context
@@ -28,7 +28,6 @@ export const AuthProvider = ({ children }) => {
         if (response.ok) {
           setIsLoggedIn(data.authenticated);
         }
-
       } catch (error) {
         console.error("Error during auth check:", error);
         setIsLoggedIn(false);

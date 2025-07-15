@@ -11,7 +11,7 @@ import NotificationList from "./notificationList.jsx";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 import { SearchIcon, SearchInput } from "./search.jsx";
 import { useAuth } from "@/app/context/AuthContext.jsx";
-
+import { showNotification } from "../../utils.jsx";
 const RefreshFrequency = 10 * (60 * 1000); // 14 mins since JWT expiry is 15mins
 
 const Routing = () => {
@@ -78,10 +78,7 @@ const Routing = () => {
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
-            <SearchIcon
-              onClick={() => setShowSearch(true)}
-              showSearch={showSearch}
-            />
+            <SearchIcon onClick={() => setShowSearch(true)} showSearch={showSearch} />
           </div>
         )}
 
@@ -94,17 +91,9 @@ const Routing = () => {
                   onClick={() => setIsOpen(true)}
                   onMouseLeave={() => setIsOpen(false)}
                 >
-                  <Image
-                    src="/notification.svg"
-                    alt="notification"
-                    width={25}
-                    height={25}
-                  />
+                  <Image src="/notification.svg" alt="notification" width={25} height={25} />
                   {isOpen && (
-                    <NotificationList
-                      notifications={notifications}
-                      setIsOpen={setIsOpen}
-                    />
+                    <NotificationList notifications={notifications} setIsOpen={setIsOpen} />
                   )}
                 </div>
               </div>
@@ -115,25 +104,28 @@ const Routing = () => {
                   onMouseLeave={() => setIsOpen(false)}
                 >
                   <span className={Styles.iconUser}>
-                    <Image
-                      src="/iconMale.png"
-                      alt="profile"
-                      width={40}
-                      height={40}
-                    />
+                    <Image src="/iconMale.png" alt="profile" width={40} height={40} />
                   </span>
                   {isOpen && (
                     <div className={Styles.dropdownMenu}>
-                      <Link
-                        href={`/profile/me`}
-                        onClick={() => setIsOpen(false)}
-                      >
+                      <Link href={`/profile/me`} onClick={() => setIsOpen(false)}>
                         Profile
                       </Link>
                       <button
                         onClick={async () => {
-                          await LogoutAndRedirect(router);
-                          if (isConnected) closeWebSocket();
+                          // 1) call your logout endpoint
+                          const response = await SendData("/api/v1/auth/logout", null);
+
+                          // 2) update context + redirect
+                          if (response.ok) {
+                            setIsLoggedIn(false);
+                            if (isConnected) closeWebSocket();
+                            router.push("/login");
+                          } else {
+                            const { message } = await response.json().catch(() => ({}));
+                            showNotification(message || "Logout failed", "error");
+                          }
+
                           setIsOpen(false);
                         }}
                         className={Styles.dropdownItem}
@@ -148,9 +140,7 @@ const Routing = () => {
           ) : (
             <>
               <Link
-                className={`${Styles.linkWithIcon} ${
-                  pathname === "/login" ? Styles.active : ""
-                }`}
+                className={`${Styles.linkWithIcon} ${pathname === "/login" ? Styles.active : ""}`}
                 href="/login"
               >
                 Login
@@ -176,10 +166,7 @@ const Routing = () => {
             <NavLink href="/newPost" icon="posts" pathname={pathname} />
             <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
             <NavLink href="/chat" icon="messages" pathname={pathname} />
-            <SearchIcon
-              onClick={() => setShowSearch(true)}
-              showSearch={showSearch}
-            />
+            <SearchIcon onClick={() => setShowSearch(true)} showSearch={showSearch} />
           </>
         )}
       </div>
@@ -193,9 +180,7 @@ const Routing = () => {
 function NavLink({ href, icon, pathname }) {
   return (
     <Link
-      className={`${Styles.linkWithIcon} ${
-        pathname === href ? Styles.active : ""
-      }`}
+      className={`${Styles.linkWithIcon} ${pathname === href ? Styles.active : ""}`}
       href={href}
     >
       <span className={Styles.iconWrapper}>

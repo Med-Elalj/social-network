@@ -4,9 +4,12 @@ import { useState } from "react";
 import Style from "../../profile.module.css"; // Adjust the path as necessary
 import { useNotification } from "../../../context/notificationContext.jsx";
 import { SendData } from "../../../sendData.js";
-import { Router } from "next/dist/client/router.js";
+import { Router } from "next/router";
+import { LogoutAndRedirect } from "@/app/components/Logout.jsx";
+import { useRouter } from "next/navigation";
 
 export default function Settings() {
+  const router = useRouter();
   const [activeForm, setActiveForm] = useState(null); // 'nickname', 'password', or 'delete'
   const [formData, setFormData] = useState({
     nickname: "",
@@ -126,10 +129,7 @@ export default function Settings() {
     });
 
     if (response.ok) {
-      SendData("/api/v1/auth/logout").then(() => {
-        // Redirect to homepage or login page after logout
-        Router.push("/");
-      });
+      await LogoutAndRedirect(router);
       showNotification(
         "Your account has been successfully deleted.",
         "success"
@@ -137,7 +137,7 @@ export default function Settings() {
 
       // Optionally redirect after short delay (e.g., logout or homepage)
       setTimeout(() => {
-        window.location.href = "/goodbye"; // Or login/homepage
+        Router.push("/");
       }, 2000);
     } else {
       showNotification(

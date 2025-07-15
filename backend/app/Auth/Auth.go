@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"social-network/app/Auth/jwt"
@@ -58,6 +59,8 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 	validSession, err := SessionExists(payload.Sub, sessionID)
 	if err != nil || !validSession || sessionID != payload.SessionID {
 		ClearCookie(w, AuthInfo.SessionIDName)
+		logs.InfoLog.Println("Session expired - logged out")
+		fmt.Println("Session expired- logged out")
 		json.NewEncoder(w).Encode(map[string]bool{"authenticated": false})
 		return
 	}
@@ -90,8 +93,5 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	ClearCookie(w, AuthInfo.JwtTokenName)
 	ClearCookie(w, AuthInfo.SessionIDName)
 	ClearCookie(w, AuthInfo.RefreshTokenName)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Logout successful",
-	})
+	JsRespond(w, "Logged out", http.StatusOK)
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import Styles from "./nav.module.css";
 import Link from "next/link";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";

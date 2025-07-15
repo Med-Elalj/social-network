@@ -60,15 +60,37 @@
 .friends>a,
 .Requiests>div {
   display: flex;
-  cursor: pointer;
+  /* cursor: pointer; */
   align-items: center;
   margin-bottom: 10px;
   justify-content: space-between;
 }
 
+
+
 .Requiests>div:hover {
   background-color: var(--border-color);
   border-radius: 10px;
+}
+
+.Requiests a {
+  color: var(--secondary-color);
+  text-decoration: none;
+}
+
+.Requiests a:hover{
+  color: var(--hover-color);
+}
+
+.Requiests h2 {
+  font-size: 1em;
+  opacity: .6;
+  word-wrap:break-word;
+}
+
+.Requiests .Buttons>div:hover {
+  background-color: var(--primary-color);
+  cursor: pointer;
 }
 
 .friends>a {
@@ -130,9 +152,33 @@
   border-radius: 10px;
 }
 
-.Requiests>div>div {
+.grouprequiest {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-bottom: var(--border-color) 1px solid;
+  color: var(--secondary-color);
+}
+
+.grouprequiest>div {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: space-between;
+}
+
+.grouprequiest>div:hover {
+  background-color: var(--border-color);
+  border-radius: 10px;
+}
+
+.Requiests>div>div, .Requiests>div>a {
   display: flex;
   align-items: center;
+  text-decoration: none;
 }
 
 .friends h5 {

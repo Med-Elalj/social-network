@@ -1,0 +1,7 @@
+{"sender":"<system>",
+"uid": "USERID OF FOLOOW  int" ,
+"command":"requested FOLOOW",
+"value": {"senderId":"who's sent follow request", 
+         "senderUserName": "name of sender",
+         "message":"message displayed on front"}
+}

@@ -40,6 +40,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GetFollowRequests(w, r, data.Sub)
 	case "requests":
 		GetRequestsHandler(w, r, data.Sub)
+	case "userSeggestions":
+		GetUserSuggestions(w, r, data.Sub)
 	case "groupData":
 		GetGroupDataHandler(w, r, data.Sub)
 	case "search":

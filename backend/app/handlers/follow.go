@@ -14,28 +14,36 @@ import (
 
 // needs header "follow_target" the id of the profile you want to follow
 func FollowHandle(w http.ResponseWriter, r *http.Request, uid int) {
+	fmt.Println("test this")
 	type BodyRequest struct {
 		Target int    `json:"target"`
 		Status string `json:"status"`
 	}
+	type ResponseBody struct {
+		NewStatus string `json:"new_status"`
+	}
 
 	var bodyRequest BodyRequest
+	var responseBody ResponseBody
 
 	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
-
 	if err != nil {
 		logs.ErrorLog.Println("invalid request body:", err)
 		auth.JsRespond(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	if err := modules.UserFollow(uid, bodyRequest.Target, bodyRequest.Status); err != nil {
+	if responseBody.NewStatus, err = modules.UserFollow(uid, bodyRequest.Target, bodyRequest.Status); err != nil {
 		logs.ErrorLog.Println("Error inserting follow relationship:", err)
-		auth.JsRespond(w, "group joining failed", http.StatusInternalServerError)
+		auth.JsRespond(w, "error sent request, try again on another time", http.StatusInternalServerError)
+		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(responseBody)
+
 	// TODO notif to group creator
-	auth.JsRespond(w, "user send req group successfully", http.StatusOK)
 }
 
 // needs header "follow_target" the id of the profile you want to unfollow
@@ -92,15 +100,18 @@ func GetFollowRequests(w http.ResponseWriter, r *http.Request, uid int) {
 }
 
 func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
-
 	type BodyRequest struct {
-		Id     int    `json:"sender"`
-		Target int    `json:"target"`
-		Status string `json:"status"`
+		Id           int    `json:"sender"`
+		Target       int    `json:"target"`
+		Status       string `json:"status"`
+		IsFollowType bool   `json:"isFollowType"`
 	}
-
+	type ResponseBody struct {
+		NewStatus string `json:"new_status"`
+		Message   string `json:"message"`
+	}
 	var bodyRequest BodyRequest
-
+	var responseBody ResponseBody
 	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
 	if err != nil {
 		logs.ErrorLog.Println("invalid request id:", err)
@@ -108,21 +119,88 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	if bodyRequest.Status == "accept" {
-		if err := modules.InsertFollow(bodyRequest.Id, bodyRequest.Target); err != nil {
-			logs.ErrorLog.Println("Error accepting follow relationship:", err)
-			auth.JsRespond(w, "group accepting failed", http.StatusInternalServerError)
+	// Get target user's privacy status before processing
+	var targetIsPublic bool
+	if bodyRequest.IsFollowType {
+		err = modules.DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, bodyRequest.Id).Scan(&targetIsPublic)
+		if err != nil {
+			logs.ErrorLog.Println("Error getting target user privacy:", err)
+			auth.JsRespond(w, "error processing request", http.StatusInternalServerError)
 			return
 		}
 	}
 
-	if err := modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target); err != nil {
-		logs.ErrorLog.Println("Error rejecting follow relationship:", err)
-		auth.JsRespond(w, "group rejecting failed", http.StatusInternalServerError)
+	if bodyRequest.Status == "accept" {
+		if bodyRequest.IsFollowType {
+			bodyRequest.Target = uid
+		}
+
+		// First, insert the follow relationship (sender follows target)
+		if err := modules.InsertFollow(bodyRequest.Id, bodyRequest.Target); err != nil {
+			logs.ErrorLog.Println("Error accepting follow relationship:", err)
+			auth.JsRespond(w, "follow accepting failed", http.StatusInternalServerError)
+			return
+		}
+
+		// If it's a follow type request and the requester is public,
+		// we should also make the accepter follow back
+		if bodyRequest.IsFollowType && targetIsPublic {
+			// Check if the accepter already follows the requester
+			var alreadyFollowing bool
+			err = modules.DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?)`,
+				uid, bodyRequest.Id).Scan(&alreadyFollowing)
+			if err != nil {
+				logs.ErrorLog.Println("Error checking existing follow:", err)
+				// Continue without follow back, at least the main follow worked
+			} else if !alreadyFollowing {
+				// Make the accepter follow back
+				if err := modules.InsertFollow(uid, bodyRequest.Id); err != nil {
+					logs.ErrorLog.Println("Error inserting follow back:", err)
+					// Continue, the main follow relationship was created
+				}
+			}
+		}
 	}
 
-	auth.JsRespond(w, fmt.Sprintf("user %sed request", bodyRequest.Status), http.StatusOK)
+	// Delete the request after processing
+	if err := modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target); err != nil {
+		logs.ErrorLog.Println("Error deleting follow request:", err)
+		auth.JsRespond(w, "error processing request", http.StatusInternalServerError)
+		return
+	}
 
-	// TODO notif to group creator
+	// Only get relationship status for follow type requests
+	if bodyRequest.IsFollowType {
+		responseBody.NewStatus, err = modules.GetRelationship(uid, bodyRequest.Id)
+		if err != nil {
+			logs.ErrorLog.Println("Error getting relationship:", err)
+			// Don't fail the request, just set a default status
+			responseBody.NewStatus = "follow"
+		}
 
+	}
+
+	responseBody.Message = fmt.Sprintf("Request %sed successfully", bodyRequest.Status)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(responseBody)
+}
+
+func GetUserSuggestions(w http.ResponseWriter, r *http.Request, uid int) {
+	is_user, err := strconv.Atoi(r.URL.Query().Get("is_user"))
+	if err != nil && is_user != 0 && is_user != 1 {
+		logs.ErrorLog.Println("invalid is_user request: ", is_user, err)
+		auth.JsRespond(w, "invalid is_user request", http.StatusBadRequest)
+		return
+	}
+	fmt.Println(is_user)
+	users, err := modules.GetSuggestions(uid, is_user)
+	if err != nil {
+		logs.ErrorLog.Println("Error getting segguestions: ", err)
+		auth.JsRespond(w, "error getting segguestions: ", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(users)
 }

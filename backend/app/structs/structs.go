@@ -137,6 +137,7 @@ type PostCreate struct {
 	Image   PImage      `json:"image"`
 	Privacy PostPrivacy `json:"privacy"`
 	GroupId int         `json:"groupId"`
+	Privetids []int		`json:"privetids"`
 }
 
 type CommentInfo struct {

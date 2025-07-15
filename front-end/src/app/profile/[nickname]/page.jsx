@@ -13,6 +13,7 @@ import Followers from "@/app/profile/[nickname]/[tab]/Followers";
 import Settings from "@/app/profile/[nickname]/[tab]/Settings";
 import { SuggestionList } from "../../components/suggestionList.jsx";
 import { FollowRequestsList } from "../../components/followRequests.jsx";
+import { useNotification } from "../../context/notificationContext.jsx";
 
 function FollowButton({ targetId, followStatus, setFollowStatus }) {
   // const requestStatus = useRef("");

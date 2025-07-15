@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useNotification } from "../context/notificationContext";
-import { SendData } from "../../../utils/sendData";
+import { SendData } from "../sendData.js";
 import Style from "../profile/profile.module.css";
 import Image from "next/image";
 import Link from "next/link";

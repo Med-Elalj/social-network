@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { GetData, SendData } from "../../../utils/sendData.js";
+import { GetData, SendData } from "..//sendData.js";
 import { useNotification } from "../context/notificationContext.jsx";
 import Image from "next/image";
 import { useRouter } from "next/navigation.js";
@@ -11,7 +11,7 @@ export function SuggestionList() {
   const [users, setUsers] = useState([]);
   const [sentUser, setSentUser] = useState(null);
   const { showNotification } = useNotification();
-  const router =  useRouter()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchSugguestion = async () => {
@@ -61,7 +61,7 @@ export function SuggestionList() {
     users.map((user) => {
       return (
         <div key={user.id}>
-          <div onClick={()=>router.push(`/profile/${user.name}`)}>
+          <div onClick={() => router.push(`/profile/${user.name}`)}>
             <Image
               src={user?.pfp?.String ? user.pfp.String : "/iconMale.png"}
               alt={user.name}

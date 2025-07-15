@@ -6,11 +6,7 @@ import { useState, useEffect } from "react";
 import { useNotification } from "../context/notificationContext.jsx";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 import Link from "next/link";
-<<<<<<< HEAD
-import { SendData } from "../sendData";
-=======
-import { SendData } from "../../../utils/sendData";
->>>>>>> 02a31b65687d624e103267da457f8d7a20f55bc8
+import { SendData } from "@/app/sendData.js";
 
 export default function Friends() {
   const [followRequests, setFollowRequests] = useState([]);

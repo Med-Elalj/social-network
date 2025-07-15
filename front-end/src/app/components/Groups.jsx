@@ -59,7 +59,7 @@ export default function Groups() {
         <h1>Groups</h1>
         {groups?.length > 0 ? (
           groups.slice(0, 5).map((Group, i) => (
-            <div key={Group.ID}>
+            <div key={i}>
               <div>
                 <Image
                   src={Group.Avatar?.String || "/db.png"}

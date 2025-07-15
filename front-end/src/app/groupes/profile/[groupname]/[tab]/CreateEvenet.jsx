@@ -9,19 +9,11 @@ export default function CreateEvent({ groupId }) {
     const description = form.description.value.trim();
     const datetime = form.datetime.value;
 
-    const options = Array.from(form.options.selectedOptions).map(opt => opt.value);
-
-    if (options.length < 2) {
-      alert("Please select at least 2 options.");
-      return;
-    }
-
     const payload = {
       groupId,
       title,
       description,
       datetime,
-      options
     };
 
     console.log(payload);
@@ -29,16 +21,15 @@ export default function CreateEvent({ groupId }) {
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit} style={{ width: "97%",marginTop:"10px",marginLeft:"-10px" }}>
+    <form className={styles.form} onSubmit={handleSubmit} style={{ width: "97%", marginTop: "10px", marginLeft: "-10px" }}>
+      <label htmlFor="title">Title</label>
       <input type="text" name="title" placeholder="Event Title" required />
-      <textarea name="description" placeholder="Event Description" required />
-      <input type="datetime-local" name="datetime" required />
 
-      <h4>Options (Select at least two)</h4>
-      <select name="options" required>
-        <option value="Going">Going</option>
-        <option value="Not Going">Not Going</option>
-      </select>
+      <label htmlFor="description">Description</label>
+      <textarea name="description" placeholder="Event Description" required />
+
+      <label htmlFor="datetime">Date and Time</label>
+      <input type="datetime-local" name="datetime" required />
 
       <button type="submit">Create Event</button>
     </form>

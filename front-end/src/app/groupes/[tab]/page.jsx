@@ -29,7 +29,7 @@ export default function Groupes() {
     // get requests
     useEffect(() => {
         const fetchData = async () => {
-            const response = await SendData("/api/v1/get/groupsrequests", 1);
+            const response = await SendData("/api/v1/get/requests", 1);
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);

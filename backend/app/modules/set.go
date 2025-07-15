@@ -6,7 +6,6 @@ import (
 
 	"social-network/app/logs"
 	"social-network/app/structs"
-	"social-network/app/ws"
 )
 
 // Insert new post
@@ -101,7 +100,7 @@ WHERE p1.id = ?; --follower_id`,
 		if f.Is_group {
 			tid = f.Group_owner_id
 		}
-		ws.NotifyUser(tid, followStatus, f)
+		structs.NotifyUser(tid, followStatus, f)
 
 	default:
 		return nil

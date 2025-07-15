@@ -276,7 +276,7 @@ func (u *update) sendToUser() error {
 	return nil
 }
 
-func NotifyUser(uId int, command string, value any) error {
+func notifyUser(uId int, command string, value any) error {
 	u := update{"<system>", uId, command, value}
 	err := u.sendToUser()
 	if err != nil {
@@ -292,4 +292,8 @@ func NotifyAll(command string, value any) error {
 		logs.ErrorLog.Printf("Error sending update message: %v", err)
 	}
 	return err
+}
+
+func init() {
+	structs.NotifyUser = notifyUser
 }

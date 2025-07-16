@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import Styles from "./nav.module.css";
 import Image from "next/image";
-import { GetData } from "@/app/sendData.js";
+import { GetData, SendData } from "@/app/sendData.js";
 import Link from "next/link";
+import { useNotification } from "@/app/context/notificationContext";
+import { showNotification } from "@/app/utils";
 
 export function SearchIcon({ onClick, showSearch }) {
   return (
@@ -33,8 +35,9 @@ export function SearchIcon({ onClick, showSearch }) {
   );
 }
 
-export function SearchInput({ onClose }) {
+export function SearchInput({ onClose, groupId }) {
   const [query, setQuery] = useState("");
+  const {showNotification} = useNotification()
 
   return (
     <div className={Styles.overlay}>
@@ -54,18 +57,19 @@ export function SearchInput({ onClose }) {
 
         {/* Results area */}
         <div className={Styles.results}>
-          <ResultList query={query} />
+          <ResultList query={query} groupId={groupId} />
         </div>
       </div>
     </div>
   );
 }
 
-export function ResultList({ query }) {
+export function ResultList({ query, groupId }) {
   const [results, setResults] = useState([]);
   const [offset, setOffset] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [userToSent, setUserToSent] = useState(null)
 
   useEffect(() => {
     setOffset(1);
@@ -76,27 +80,23 @@ export function ResultList({ query }) {
     const fetchResults = async () => {
       if (!query) return;
       setLoading(true);
-      try {
-        const response = await GetData("/api/v1/get/search", {
-          query: query,
-          offset: offset,
-        });
-        if (response?.ok) {
-          const data = await response.json();
-          
-          // Fix 1: Properly handle array concatenation
-          if (offset === 1) {
-            setResults(data.profiles || []);
-          } else {
-            setResults((prev) => [...prev, ...(data.profiles || [])]);
-          }
-          
-          setHasMore(data.has_more);
+
+      const response = await GetData("/api/v1/get/search", {
+        query: query,
+        offset: offset,
+        groupId: groupId,
+      });
+      if (response?.ok) {
+        const data = await response.json();
+
+        // Fix 1: Properly handle array concatenation
+        if (offset === 1) {
+          setResults(data.profiles || []);
+        } else {
+          setResults((prev) => [...prev, ...(data.profiles || [])]);
         }
-      } catch (error) {
-        console.error('Error fetching search results:', error);
-      } finally {
-        setLoading(false);
+
+        setHasMore(data.has_more);
       }
     };
 
@@ -113,6 +113,22 @@ export function ResultList({ query }) {
     }
   };
 
+  useEffect(()=>{
+    console.log(userToSent)
+    const requestFetch = async ()=> {
+      const response= await SendData('/api/v1/set/sendRequest', userToSent)
+      if (response.ok){
+        showNotification(`request sent succeffully to ${userToSent.id}`)
+      } else {
+        showNotification(`error sending request, try again`)
+      }
+    }
+    if (userToSent!==null) {
+      requestFetch()
+      setUserToSent(null)
+    }
+  }, [userToSent])
+
   return (
     <div
       onScroll={scrollingHandle}
@@ -120,25 +136,32 @@ export function ResultList({ query }) {
     >
       {results?.length > 0 ? (
         results.map((result, index) => (
-          <Link
+          <div
             // Fix 2: Use unique key instead of index
             key={`${result.name}-${index}`}
-            className={Styles.resultItem}
-            href={
-              result.is_group
-                ? `/groupes/profile/${result.name}`
-                : `/profile/${result.name}`
-            }
+            style={{display:"flex", justifyContent:"space-between", alignItems:"center"}}
+            
           >
-            <Image
-              src={result.pfp?.String ? result.pfp.String : "/iconMale.png"}
-              alt="profile"
-              width={50}
-              height={50}
-              style={{ borderRadius: "50%", marginRight: "10px" }}
-            />
-            <h3>{result.name}</h3>
-          </Link>
+            <Link
+              href={
+                result.is_group
+                  ? `/groupes/profile/${result.name}`
+                  : `/profile/${result.name}`
+              }
+              className={Styles.resultItem}
+              style={{width:"100%"}}
+            >
+              <Image
+                src={result.pfp?.String ? result.pfp.String : "/iconMale.png"}
+                alt="profile"
+                width={50}
+                height={50}
+                style={{ borderRadius: "50%", marginRight: "10px" }}
+              />
+              <h3>{result.name}</h3>
+            </Link>
+            {groupId && <button onClick={()=>{console.log("hehehe"),setUserToSent({target:groupId, type:1, receiver_id:result.id})}} style={{width:"150px", height:"30px",backgroundColor:"var(--hover-color)"}}>add user</button>}
+          </div>
         ))
       ) : !loading && query ? (
         // Fix 3: Only show "No results" when there's a query

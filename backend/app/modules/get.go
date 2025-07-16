@@ -541,9 +541,32 @@ func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
 	return chat, nil
 }
 
-func GetSearchprofile(query string, page int) (structs.SearchProfile, error) {
+func GetSearchprofile(query string, page, groupId, uid int) (structs.SearchProfile, error) {
 	offset := (page - 1) * 10
-	rows, err := DB.Query(`
+	var Query string
+	var rows *sql.Rows
+	var err error
+	if groupId != 0 {
+		Query = `
+SELECT
+    p.id,
+    p.display_name,
+    p.avatar,
+    p.is_user
+FROM
+    profile p
+JOIN 
+    follow f ON p.id = f.follower_id
+WHERE
+    f.following_id = ?  -- Your user ID (the person being followed)
+    AND p.display_name LIKE ?
+    AND p.is_user = 1   -- Only users (not groups)
+ORDER BY p.display_name ASC
+LIMIT 11 OFFSET ?;`
+		rows, err = DB.Query(Query, uid, "%"+query+"%", offset)
+
+	} else {
+		Query = `
 	SELECT
 		p.id,
 		p.display_name,
@@ -554,7 +577,9 @@ func GetSearchprofile(query string, page int) (structs.SearchProfile, error) {
 	WHERE
 		p.display_name LIKE ?
 	ORDER BY p.display_name ASC
-	LIMIT 11 OFFSET ?;`, "%"+query+"%", offset)
+	LIMIT 11 OFFSET ?;`
+		rows, err = DB.Query(Query, "%"+query+"%", offset)
+	}
 	if err != nil {
 		logs.ErrorLog.Printf("GetSearchProfile query error: %q", err.Error())
 		return structs.SearchProfile{}, err

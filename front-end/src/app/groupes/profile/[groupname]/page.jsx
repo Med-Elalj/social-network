@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { SendData } from "../../../sendData.js";
 import Style from "./profile.module.css";
@@ -10,6 +10,7 @@ import Posts from "./[tab]/posts.jsx";
 import Members from "./[tab]/members.jsx";
 import CreatePost from "./[tab]/createPost.jsx";
 import { useNotification } from "../../../context/notificationContext.jsx";
+import { SearchInput } from "../../../components/navigation/search.jsx";
 
 export default function Profile() {
   const { groupname } = useParams();
@@ -21,8 +22,17 @@ export default function Profile() {
   const [requests, setRequests] = useState([]);
   const [events, setEvents] = useState([]);
   const [respondUserRequest, setRespondUserRequest] = useState(null);
-  const {showNotification} = useNotification();
+  const { showNotification } = useNotification();
+  const [showSearch, setShowSearch] = useState(false);
 
+  // Memoize the search close handler
+  const handleSearchClose = useCallback(() => {
+    setShowSearch(false);
+    // Reset active section when search is closed
+    setActiveSection("posts");
+  }, []);
+
+  // Fetch group data
   useEffect(() => {
     async function fetchData() {
       try {
@@ -43,15 +53,19 @@ export default function Profile() {
         setIsLoading(false);
       }
     }
-    fetchData();
+    
+    if (groupname) {
+      fetchData();
+    }
   }, [groupname]);
 
-  // get events
+  // Fetch events - only when data.ID changes
   useEffect(() => {
     async function fetchEvents() {
       if (!data?.ID) return;
+      
       try {
-        const res = await SendData(`/api/v1/get/groupEvents`, data?.ID);
+        const res = await SendData(`/api/v1/get/groupEvents`, data.ID);
         if (res.ok) {
           const eventData = await res.json();
           setEvents(eventData);
@@ -63,40 +77,76 @@ export default function Profile() {
         console.error("Error fetching events:", err);
       }
     }
+    
     fetchEvents();
   }, [data?.ID]);
 
-  // get requests
+  // Fetch requests - only once on component mount
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await SendData("/api/v1/get/requests", { type: 1 });
-      const Body = await response.json();
-      if (!response.ok) {
-        console.log(Body);
-      } else {
-        setRequests(Body);
-        console.log("requests fetched successfully!");
+    const fetchRequests = async () => {
+      try {
+        const response = await SendData("/api/v1/get/requests", { type: 1 });
+        const body = await response.json();
+        if (response.ok) {
+          setRequests(body);
+          console.log("requests fetched successfully!");
+        } else {
+          console.log("Error fetching requests:", body);
+        }
+      } catch (err) {
+        console.error("Error fetching requests:", err);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchRequests();
+  }, []); // Empty dependency array - only run once
 
-  useEffect( ()=> {
+  // Handle user request response
+  useEffect(() => {
     const fetchResponse = async () => {
-      const response = await SendData("/api/v1/set/acceptFollow",{sender: respondUserRequest.id, target: data.ID, status:respondUserRequest.status, type:1})
-      if (response.ok) {
-        const responseData=await response.json();
-        showNotification(responseData.message);
-      } else {
-        showNotification("failed to accept or refuse request", "error")
+      if (!respondUserRequest || !data?.ID) return;
+      
+      try {
+        const response = await SendData("/api/v1/set/acceptFollow", {
+          sender: respondUserRequest.id,
+          target: data.ID,
+          status: respondUserRequest.status,
+          type: 1,
+        });
+        
+        if (response.ok) {
+          const responseData = await response.json();
+          showNotification(responseData.message);
+          
+          // Remove the processed request from the requests array
+          setRequests(prev => prev.filter(req => req.sender_id !== respondUserRequest.id));
+        } else {
+          showNotification("failed to accept or refuse request", "error");
+        }
+      } catch (err) {
+        console.error("Error responding to request:", err);
+        showNotification("failed to accept or refuse request", "error");
+      } finally {
+        // Clear the respondUserRequest after processing
+        setRespondUserRequest(null);
       }
-    }
+    };
 
-    if (respondUserRequest) {
-      fetchResponse()
+    fetchResponse();
+  }, [respondUserRequest, data?.ID, showNotification]);
+
+  // Handle "add members" section
+  useEffect(() => {
+    if (activeSection === "add members") {
+      setShowSearch(true);
+    } else {
+      setShowSearch(false);
     }
-  }, [respondUserRequest])
+  }, [activeSection]);
+
+  useEffect( () => {
+    console.log(data)
+  },[data])
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -175,85 +225,99 @@ export default function Profile() {
               >
                 Create Event
               </button>
+              <button 
+                className={Style.button} 
+                onClick={() => setActiveSection("add members")}
+              >
+                Add members
+              </button>
             </div>
           </div>
-          {data?.IsAdmin ? (
+          
+          {data?.IsAdmin && (
             <div className={Style.requests}>
-              {/* reauests to join group */}
               <h2>Requests</h2>
               <div className={Style.requestsContainer}>
-                {requests ? (requests.map((request) => (
-                  <div key={request.sender_id} className={Style.request}>
-                    <div className={Style.avatar}>
-                      <Image
-                        src={
-                          request.avatar?.Valid
-                            ? request.avatar.String
-                            : "/iconMale.png"
-                        }
-                        width={25}
-                        height={25}
-                        alt="avatar"
-                      />
-                      <h4>{request.username ?? "User"}</h4>
+                {requests && requests.length > 0 ? (
+                  requests.map((request) => (
+                    <div key={request.sender_id} className={Style.request}>
+                      <div className={Style.avatar}>
+                        <Image
+                          src={
+                            request.avatar?.Valid
+                              ? request.avatar.String
+                              : "/iconMale.png"
+                          }
+                          width={25}
+                          height={25}
+                          alt="avatar"
+                        />
+                        <h4>{request.username ?? "User"}</h4>
+                      </div>
+                      <div>
+                        <p>
+                          {respondUserRequest?.id !== request.sender_id
+                            ? request.message
+                            : `request ${respondUserRequest.status}ed`}
+                        </p>
+                      </div>
+                      <div>
+                        {respondUserRequest?.id !== request.sender_id ? (
+                          <>
+                            <button
+                              className={Style.button}
+                              onClick={() => {
+                                setRespondUserRequest({
+                                  id: request.sender_id,
+                                  status: "accept",
+                                });
+                              }}
+                            >
+                              Accept
+                            </button>
+                            <button
+                              className={Style.button}
+                              onClick={() => {
+                                setRespondUserRequest({
+                                  id: request.sender_id,
+                                  status: "refuse",
+                                });
+                              }}
+                            >
+                              Decline
+                            </button>
+                          </>
+                        ) : null}
+                      </div>
                     </div>
-                    <div>
-                      <p>{respondUserRequest?.id != request.sender_id ? request.message : `request ${respondUserRequest.status}ed`}</p>
-                    </div>
-                    <div>
-                      {respondUserRequest?.id != request.sender_id ?  
-                      (<><button
-                        className={Style.button}
-                        onClick={() => {
-                          setRespondUserRequest({
-                            id: request.sender_id,
-                            status: "accept",
-                          });
-                        }}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className={Style.button}
-                        onClick={() => {
-                          setRespondUserRequest({
-                            id: request.sender_id,
-                            status: "refuse",
-                          });
-                        }}
-                      >
-                        Decline
-                      </button></> ): <></>}
-                    </div>
-                  </div>
-                ))):<h3>no requests</h3>}
+                  ))
+                ) : (
+                  <h3>no requests</h3>
+                )}
               </div>
             </div>
-          ) : (
-            ""
           )}
         </div>
 
         <div className={Style.second}>
           {isPublic && (
             <>
-              <>
-                {activeSection === "posts" && (
-                  <Posts
-                    activeSection={activeSection}
-                    setActiveSection={setActiveSection}
-                    groupId={data?.ID}
-                  />
-                )}
-                {activeSection === "members" && <Members groupId={data?.ID} />}
-                {activeSection === "createPost" && (
-                  <CreatePost
-                    groupId={data?.ID}
-                    setActiveSection={setActiveSection}
-                  />
-                )}
-                {activeSection === "CreateEvent" && <CreateEvent />}
-              </>
+              {activeSection === "posts" && (
+                <Posts
+                  activeSection={activeSection}
+                  setActiveSection={setActiveSection}
+                  groupId={data?.ID}
+                />
+              )}
+              {activeSection === "members" && <Members groupId={data?.ID} />}
+              {activeSection === "createPost" && (
+                <CreatePost
+                  groupId={data?.ID}
+                  setActiveSection={setActiveSection}
+                />
+              )}
+              {activeSection === "CreateEvent" && <CreateEvent />}
+              {/* Removed the problematic line that was causing re-renders */}
             </>
           )}
         </div>
@@ -277,6 +341,8 @@ export default function Profile() {
             <p>No upcoming events.</p>
           )}
         </div>
+
+        {showSearch && <SearchInput onClose={handleSearchClose} groupId={data?.ID}/>}
       </div>
     </div>
   );

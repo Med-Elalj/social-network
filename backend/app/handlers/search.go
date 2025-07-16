@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -14,6 +15,11 @@ import (
 func GetSearchHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	query := r.URL.Query().Get("query")
 	offsetst := r.URL.Query().Get("offset")
+	groupId, err := strconv.Atoi(r.URL.Query().Get("groupId"))
+	fmt.Println("here", offsetst)
+	if err != nil {
+		groupId = 0
+	}
 	offset, err := strconv.Atoi(offsetst)
 	if err != nil {
 		logs.ErrorLog.Printf("Invalid offset: %q", err)
@@ -21,7 +27,7 @@ func GetSearchHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	profiles, err := modules.GetSearchprofile(query, offset)
+	profiles, err := modules.GetSearchprofile(query, offset, groupId, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("Error getting search profiles: %q", err)
 		auth.JsRespond(w, "Failed to get search profiles", http.StatusInternalServerError)

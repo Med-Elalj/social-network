@@ -12,7 +12,7 @@ import (
 func InsertFollow(follower, following int) error {
 	// Check if relationship already exists
 	var exists bool
-	err := DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?)`,
+	err := DB.QueryRow(`SELECT EXISTS (SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?)`,
 		follower, following).Scan(&exists)
 	if err != nil {
 		logs.ErrorLog.Printf("Error checking existing follow: %v", err)

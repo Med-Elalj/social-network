@@ -38,7 +38,7 @@ export default function Friends() {
 
       const followRequestData = await fetchRequest(
         "/api/v1/get/requests",
-        JSON.stringify({ type: 0 })
+        { type: 0 }
       );
       followRequestData
         ? setFollowRequests(followRequestData)

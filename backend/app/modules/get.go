@@ -651,32 +651,38 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
 	var users []structs.UsersGet
 
 	query := `
-        SELECT p.id, p.avatar, p.display_name, p.is_user
-        FROM profile p
-        WHERE p.id != ?
-        AND p.is_user = ?
-        AND p.id NOT IN (
-            -- Exclude users where uid is follower (following them)
-            SELECT f.following_id 
-            FROM follow f 
-            WHERE f.follower_id = ?
-        )
-        AND p.id NOT IN (
-            -- Exclude users where uid is sender in request
-            SELECT r.target_id 
-            FROM request r 
-            WHERE r.sender_id = ?
-        )
-        AND p.id NOT IN (
-            -- Exclude users where uid is receiver/target in request
-            SELECT r.sender_id 
-            FROM request r 
-            WHERE r.target_id = ?
-        )
-        ORDER BY p.created_at DESC
-        LIMIT 20`
+    	SELECT p.id, p.avatar, p.display_name, p.is_user
+    	FROM profile p
+    	WHERE p.id != ?
+    	AND p.is_user = ?
+    	AND p.id NOT IN (
+    	    -- Exclude users where uid is follower (following them)
+    	    SELECT f.following_id 
+    	    FROM follow f 
+    	    WHERE f.follower_id = ?
+    	)
+    	AND p.id NOT IN (
+    	    -- Exclude users where uid is sender in request
+    	    SELECT r.target_id 
+    	    FROM request r 
+    	    WHERE r.sender_id = ?
+    	)
+    	AND p.id NOT IN (
+    	    -- Exclude users where uid is receiver/target in request
+    	    SELECT r.sender_id 
+    	    FROM request r 
+    	    WHERE r.target_id = ?
+    	)	
+    	AND p.id NOT IN (
+    	    -- Exclude groups where uid is creator
+    	    SELECT g.id 
+    	    FROM "group" g 
+    	    WHERE g.creator_id = ?
+    	)
+    	ORDER BY p.created_at DESC
+    	LIMIT 20`
 
-	rows, err := DB.Query(query, uid, Type, uid, uid, uid)
+	rows, err := DB.Query(query, uid, Type, uid, uid, uid, uid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query suggestions: %v", err)
 	}

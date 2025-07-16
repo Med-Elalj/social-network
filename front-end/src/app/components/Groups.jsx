@@ -23,7 +23,7 @@ export default function Groups() {
           // setGroups(body.groups.filter((group) => !group.IsRequested));
           setGroups(body);
         } else {
-          setGroups([])
+          setGroups([]);
         }
         console.log("Groups fetched successfully!");
       }
@@ -44,9 +44,12 @@ export default function Groups() {
       if (response.ok) {
         type = "succes";
         setGroups((prev) => prev.filter((group) => group.id != joinedGroupId));
+      } else {
+        console.error("failed to send join request to this group");
       }
       showNotification(data.message, type);
     }
+    console.log("group id to join", joinedGroupId);
     if (joinedGroupId) {
       sentJoinHandler();
       setJoinedGroupId(null);
@@ -72,7 +75,7 @@ export default function Groups() {
               </div>
               <div>
                 <Image
-                  onClick={() => setJoinedGroupId(Group.ID)}
+                  onClick={() => setJoinedGroupId(Group.id)}
                   src="/join.svg"
                   alt="join"
                   width={25}
@@ -88,37 +91,39 @@ export default function Groups() {
       <div className={Styles.groups}>
         {/* groups request */}
         <h1>Groups Request</h1>
-        {[].length > 0 ? [1, 2].map((Group, i) => (
-          <div key={Group.ID} className={Styles.grouprequest}>
-            <div >
-              <Image
-                src={Group.Avatar?.String || "/db.png"}
-                alt="profile"
-                width={40}
-                height={40}
-                style={{ borderRadius: "50%" }}
-              />
-              <h5>{Group.GroupName || "Group name"}</h5>
+        {[].length > 0 ? (
+          [1, 2].map((Group, i) => (
+            <div key={Group.ID} className={Styles.grouprequest}>
+              <div>
+                <Image
+                  src={Group.Avatar?.String || "/db.png"}
+                  alt="profile"
+                  width={40}
+                  height={40}
+                  style={{ borderRadius: "50%" }}
+                />
+                <h5>{Group.GroupName || "Group name"}</h5>
+              </div>
+              <div className={Styles.Buttons}>
+                <Image
+                  onClick={() => setJoinedGroupId(Group.ID)}
+                  src="/accept2.svg"
+                  alt="join"
+                  width={25}
+                  height={25}
+                  style={{ marginRight: "10px" }}
+                />
+                <Image
+                  onClick={() => setJoinedGroupId(Group.ID)}
+                  src="/decline.svg"
+                  alt="join"
+                  width={25}
+                  height={25}
+                />
+              </div>
             </div>
-            <div className={Styles.Buttons}>
-              <Image
-                onClick={() => setJoinedGroupId(Group.ID)}
-                src="/accept2.svg"
-                alt="join"
-                width={25}
-                height={25}
-                style={{ marginRight: "10px" }}
-              />
-              <Image
-                onClick={() => setJoinedGroupId(Group.ID)}
-                src="/decline.svg"
-                alt="join"
-                width={25}
-                height={25}
-              />
-            </div>
-          </div>
-        )) : (
+          ))
+        ) : (
           <h3 style={{ textAlign: "center" }}>No groups request</h3>
         )}
       </div>

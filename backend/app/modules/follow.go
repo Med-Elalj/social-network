@@ -230,10 +230,10 @@ func GetFollowRequests(uid int) ([]structs.Gusers, error) {
 	return users, nil
 }
 
-func DeleteRequest(senderId, receiverId, target int) error {
+func DeleteRequest(senderId, receiverId, target, Type int) error {
 	result, err := DB.Exec(`
-        DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0`,
-		senderId, receiverId)
+        DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND target_id = ? AND type = ?`,
+		senderId, receiverId, target, Type)
 	if err != nil {
 		logs.ErrorLog.Printf("error deleting request: %q", err.Error())
 		return errors.New("error deleting request")

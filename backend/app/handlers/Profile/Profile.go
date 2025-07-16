@@ -49,12 +49,48 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request) {
 	if ok && strings.EqualFold(nickname, payload.Username) {
 		// Fetch by ID (self profile)
 		err = modules.DB.QueryRow(`
-			SELECT ID,email, first_name, last_name, display_name, date_of_birth, gender,
-			       avatar, description, is_public, is_user, created_at,
-				   (SELECT COUNT(*) FROM posts p WHERE p.user_id = ID) AS post_count,
-				   (SELECT COUNT(*) FROM follow f WHERE f.following_id = ID) AS follower_count,
-				   (SELECT COUNT(*) FROM follow f WHERE f.follower_id = ID) AS following_count
-			FROM profile WHERE id = ?
+			SELECT
+			    pr.id,
+			    pr.email,
+			    pr.first_name,
+			    pr.last_name,
+			    pr.display_name,
+			    pr.date_of_birth,
+			    pr.gender,
+			    pr.avatar,
+			    pr.description,
+			    pr.is_public,
+			    pr.is_user,
+			    pr.created_at,
+			    (
+			        SELECT
+			            COUNT(*)
+			        FROM
+			            posts p
+			        WHERE
+			            p.user_id = pr.id
+			            AND p.group_id IS NULL
+			    ) AS post_count,
+			    (
+			        SELECT
+			            COUNT(*)
+			        FROM
+			            follow f
+			        WHERE
+			            f.following_id = pr.id
+			    ) AS follower_count,
+			    (
+			        SELECT
+			            COUNT(*)
+			        FROM
+			            follow f
+			        WHERE
+			            f.follower_id = pr.id
+			    ) AS following_count
+			FROM
+			    profile pr
+			WHERE
+			    id = ?;
 		`, payload.Sub).Scan(
 			&profile.ID,
 			&profile.Email,
@@ -164,14 +200,17 @@ func GetFollowers(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := modules.DB.Query(`
 		SELECT
-			f.follower_id,
-			p.display_name,
-			p.avatar
+		    f.follower_id,
+		    p.display_name,
+		    p.avatar
 		FROM
-			follow f
-		JOIN profile p ON f.follower_id = p.id
+		    follow f
+		    JOIN profile p ON (
+		        f.follower_id = p.id
+		        AND p.is_user = 1
+		    )
 		WHERE
-			f.following_id = ? AND f.status = 1;
+		    f.following_id = ?
 	`, userId)
 	if err != nil {
 		logs.ErrorLog.Printf("GetFollowers query error: %q", err.Error())
@@ -206,14 +245,15 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := modules.DB.Query(`
 		SELECT
-			f.following_id,
-			p.display_name,
-			p.avatar
+		    f.following_id,
+		    p.display_name,
+		    p.avatar
 		FROM
-			follow f
-		JOIN profile p ON f.following_id = p.id AND p.is_user = 1
+		    follow f
+		    JOIN profile p ON f.following_id = p.id
+		    AND p.is_user = 1
 		WHERE
-			f.follower_id = ? AND f.status = 1;`, userId)
+		    f.follower_id = ?;`, userId)
 	if err != nil {
 		logs.ErrorLog.Printf("GetFollowing query error: %q", err.Error())
 		json.NewEncoder(w).Encode(err)

@@ -158,6 +158,8 @@ export default function Profile() {
     fetchProfile();
   }, [nickname]);
 
+  console.log("Profile Data : ", profileData);
+
   useEffect(() => {
     if (activeTab === "settings") {
       setActiveSection("Settings");
@@ -268,9 +270,9 @@ export default function Profile() {
                       <h5>
                         {profileData.date_of_birth
                           ? (
-                              new Date().getFullYear() -
-                              new Date(profileData.date_of_birth).getFullYear()
-                            ).toString()
+                            new Date().getFullYear() -
+                            new Date(profileData.date_of_birth).getFullYear()
+                          ).toString()
                           : "N/A"}
                       </h5>
                     </span>

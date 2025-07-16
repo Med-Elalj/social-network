@@ -59,4 +59,5 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 	auth.JsRespond(w, "Request sent successfully", http.StatusOK)
+
 }

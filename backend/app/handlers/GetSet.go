@@ -38,8 +38,6 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GroupImInHandler(w, r, data.Sub)
 	case "groupEvents":
 		GroupEventsHandler(w, r, data.Sub)
-	case "followRequests":
-		GetFollowRequests(w, r, data.Sub)
 	case "requests":
 		GetRequestsHandler(w, r, data.Sub)
 	case "userSeggestions":

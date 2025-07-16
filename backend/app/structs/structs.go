@@ -56,13 +56,14 @@ type User struct {
 	Avatar      Avatar
 }
 
-type UsersGet struct {
-	ID       ID             `json:"id"`
-	Online   bool           `json:"online"`
-	Is_Group bool           `json:"is_group"`
-	Avatar   sql.NullString `json:"pfp"`
-	Username string         `json:"name"` // Exported field
-}
+	type UsersGet struct {
+		ID           ID             `json:"id"`
+		Online       bool           `json:"online"`
+		Is_Group     bool           `json:"is_group"`
+		Avatar       sql.NullString `json:"pfp"`
+		Username     string         `json:"name"` // Exported field
+		FollowStatus string         `json:"status"`
+	}
 
 type Group struct {
 	GroupName string         `json:"groupName"`

@@ -146,6 +146,13 @@
   transform: scale(1.1);
 }
 
+.requists .newStatus,.requists h3 {
+  text-align: center;
+  color: var(--secondary-color);
+  font-weight: 500;
+  font-size: .87em;
+}
+
 .center>span {
   display: flex;
 }

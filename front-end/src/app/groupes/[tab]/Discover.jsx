@@ -1,4 +1,4 @@
-import { GetData, SendData } from "@/app/sendData.js";
+import { SendData } from "@/app/sendData.js";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link.js";
@@ -12,13 +12,13 @@ export default function Discover() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await GetData("/api/v1/get/groupToJoin");
+      const response = await SendData("/api/v1/get/userSeggestions", { is_user: 0 });
       const body = await response.json();
 
       if (response.status !== 200) {
         console.error(body);
       } else {
-        setGroups(body.groups);
+        setGroups(body);
         console.log("Groups fetched successfully!");
       }
     };

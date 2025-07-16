@@ -70,16 +70,16 @@ func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	auth.JsRespond(w, "group Created successfully", http.StatusOK)
 }
 
-func GroupToJoinHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	groups, err := modules.GetGroupToJoin(uid)
-	if err != nil {
-		auth.JsRespond(w, "Failed to get groups to", http.StatusBadRequest)
-		return
-	}
-	json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
-		"groups": groups,
-	})
-}
+// func GroupToJoinHandler(w http.ResponseWriter, r *http.Request, uid int) {
+// 	groups, err := modules.GetGroupToJoin(uid)
+// 	if err != nil {
+// 		auth.JsRespond(w, "Failed to get groups to", http.StatusBadRequest)
+// 		return
+// 	}
+// 	json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
+// 		"groups": groups,
+// 	})
+// }
 
 func GroupMembersHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var groupId int

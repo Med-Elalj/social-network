@@ -337,73 +337,78 @@ func GetGroupFeed(uid int) ([]structs.Post, error) {
 	return posts, nil
 }
 
-func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
-	rows, err := DB.Query(`SELECT
+// func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
+// 	rows, err := DB.Query(`SELECT
+//     p.id,
+//     p.display_name,
+//     p.avatar,
+//     p.description,
+//     CASE
+//         WHEN EXISTS (
+//             SELECT 1
+//             FROM request r
+//             WHERE r.sender_id = ?
+//               AND r.target_id = p.id
+//               AND r.type = 1
+//         ) THEN 1
+//         ELSE 0
+//     END AS is_requested
+// FROM
+//     profile p
+//     JOIN "group" g ON p.id = g.id
+// WHERE
+//     p.is_user = 0
+//     AND p.id NOT IN (
+//         SELECT g2.id FROM "group" g2 WHERE g2.creator_id = ?
+//         UNION
+//         SELECT f.following_id FROM follow f
+//         WHERE f.follower_id = ? AND f.status = 1
+//     )
+// LIMIT 10;`, uid, uid, uid)
+// 	if err != nil {
+// 		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
+// 		return nil, err
+// 	}
+
+// 	var grs []structs.GroupGet
+
+// 	for rows.Next() {
+// 		var gr structs.GroupGet
+// 		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description, &gr.IsRequested); err != nil {
+// 			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
+// 			return nil, err
+// 		}
+// 		grs = append(grs, gr)
+// 	}
+// 	return grs, nil
+// }
+
+func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
+	rows, err := DB.Query(`
+		SELECT
     p.id,
     p.display_name,
     p.avatar,
-    p.description,
-    CASE
-        WHEN EXISTS (
-            SELECT 1
-            FROM request r
-            WHERE r.sender_id = ?
-              AND r.target_id = p.id
-              AND r.type = 1
-        ) THEN 1
-        ELSE 0
-    END AS is_requested
+    p.description
 FROM
     profile p
     JOIN "group" g ON p.id = g.id
 WHERE
     p.is_user = 0
-    AND p.id NOT IN (
-        SELECT g2.id FROM "group" g2 WHERE g2.creator_id = ?
-        UNION
-        SELECT f.following_id FROM follow f
-        WHERE f.follower_id = ? AND f.status = 1
+    AND (
+        g.creator_id = ? -- you are the creator
+        OR p.id IN ( -- or you follow this group
+            SELECT
+                f.following_id
+            FROM
+                follow f
+            WHERE
+                f.follower_id = ?
+                AND p.is_user = 0
+        )
     )
-LIMIT 10;`, uid, uid, uid)
-	if err != nil {
-		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
-		return nil, err
-	}
-
-	var grs []structs.GroupGet
-
-	for rows.Next() {
-		var gr structs.GroupGet
-		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description, &gr.IsRequested); err != nil {
-			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
-			return nil, err
-		}
-		grs = append(grs, gr)
-	}
-	return grs, nil
-}
-
-func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
-	rows, err := DB.Query(`
-		SELECT
-		    p.id,
-		    p.display_name,
-		    p.avatar,
-		    p.description
-		FROM
-		    profile p
-		    JOIN "group" g ON p.id = g.id
-		WHERE
-		    p.is_user = 0
-		    AND (
-		        g.creator_id = ? -- you are the creator
-		        OR p.id IN (    -- or you follow this group
-		            SELECT f.following_id
-		            FROM follow f
-		            WHERE f.follower_id = ? AND f.status = 1
-		        )
-		    )
-		LIMIT 10;`, uid, uid)
+LIMIT
+    10;`, uid, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("GetGroupImIn query error: %q", err.Error())
 		return nil, err

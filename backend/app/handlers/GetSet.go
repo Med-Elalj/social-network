@@ -32,8 +32,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GroupMembersHandler(w, r, data.Sub)
 	case "groupFeeds":
 		GroupFeedsHandler(w, r, data.Sub)
-	case "groupToJoin":
-		GroupToJoinHandler(w, r, data.Sub)
+	// case "groupToJoin":
+	// 	GroupToJoinHandler(w, r, data.Sub)
 	case "groupImIn":
 		GroupImInHandler(w, r, data.Sub)
 	case "groupEvents":

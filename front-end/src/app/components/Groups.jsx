@@ -34,7 +34,7 @@ export default function Groups() {
   useEffect(() => {
     const fetchGroupRequests = async () => {
       try {
-        const response = await SendData("/api/v1/get/requests", { type: 1 });
+        const response = await SendData("/api/v1/get/requests", {  type: 1 });
 
         if (!response.ok) {
           console.error("Failed to fetch group requests");

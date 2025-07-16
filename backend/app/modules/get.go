@@ -8,8 +8,6 @@ import (
 	"social-network/app/structs"
 )
 
-
-
 func GetGroupPosts(start, uid, groupId int) ([]structs.Post, error) {
 	query := `    SELECT
     p.id AS ID,
@@ -33,7 +31,7 @@ JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
 WHERE 
 	p.group_id = :group_id AND
-	----createdat<lastcreatedat
+	(:last_post_id = 0 or p.id < :last_post_id)
 ORDER BY p.created_at DESC
 LIMIT 10;`
 	rows, err := DB.Query(query, sql.Named("current_user_id", uid), sql.Named("group_id", groupId), sql.Named("last_post_id", start))
@@ -73,7 +71,7 @@ LIMIT 10;`
 	return posts, nil
 }
 
-func GetHomePosts(start ,uid int) ([]structs.Post, error) {
+func GetHomePosts(start, uid int) ([]structs.Post, error) {
 	query := `SELECT 
     p.id AS ID,
     p.group_id AS GroupId,
@@ -95,18 +93,32 @@ FROM posts p
 JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
 WHERE
-	--------p.created_at<lastcreatedat
-    (p.privacy = 'public') 
-    OR 
-    (p.privacy = 'almost_private' AND EXISTS (
-        SELECT 1 FROM follow f 
-        WHERE f.following_id = p.user_id AND f.follower_id = :me
-    ))
-    OR
-    (p.privacy = 'private' AND EXISTS (
-        SELECT 1 FROM postrack pt 
-        WHERE pt.post_id = p.id AND pt.follower_id = :me
-    ))
+    (:last_post_id = 0 or p.id < :last_post_id)
+	AND
+    (
+        (p.group_id IS NULL AND p.privacy = 'public')
+        
+        OR
+        
+        (p.group_id IS NULL AND p.privacy = 'almost_private' AND EXISTS (
+            SELECT 1 FROM follow f 
+            WHERE f.following_id = p.user_id AND f.follower_id = :me
+        ))
+        
+        OR
+        
+        (p.group_id IS NULL AND p.privacy = 'private' AND EXISTS (
+            SELECT 1 FROM postrack pt 
+            WHERE pt.post_id = p.id AND pt.follower_id = :me
+        ))
+        
+        OR
+        
+        (p.group_id IS NOT NULL AND EXISTS (
+            SELECT 1 FROM follow f 
+            WHERE f.following_id = p.group_id AND f.follower_id = :me
+        ))
+    )
 ORDER BY p.created_at DESC
 LIMIT 10;`
 	rows, err := DB.Query(query, sql.Named("me", uid), sql.Named("last_post_id", start))
@@ -167,7 +179,7 @@ func GetProfilePosts(start int, uid int, userId int) ([]structs.Post, error) {
 FROM posts p
 JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
-WHERE p.user_id = :profile_id ----andp.created<lastcreatedat
+WHERE p.user_id = :profile_id AND (:last_post_id = 0 or p.id < :last_post_id)
 AND (
     ((SELECT is_public FROM profile WHERE id = :profile_id) = 1 AND p.privacy = 'public')
     OR
@@ -220,9 +232,8 @@ LIMIT 10 ;`
 	return posts, nil
 }
 
-
 func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
-	query :=`SELECT 
+	query := `SELECT 
     p.id AS ID,
     p.group_id AS GroupId,
     p.user_id AS UserId,
@@ -243,8 +254,8 @@ FROM posts p
 JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
 WHERE 
-    p.user_id = :me
-	---------p.created_at>lastcreatedat
+    p.user_id = :me AND
+	(:last_post_id = 0 or p.id < :last_post_id)
 ORDER BY p.created_at DESC
 LIMIT 10;`
 	rows, err := DB.Query(query, sql.Named("me", uid), sql.Named("lastposttime", start))
@@ -284,7 +295,6 @@ LIMIT 10;`
 	return posts, nil
 }
 
-
 // func GetPosts(start, uid, groupId, userId int) ([]structs.Post, error) {
 // 	query := `
 // 	WITH
@@ -311,9 +321,9 @@ LIMIT 10;`
 // 	    p.created_at,
 // 	    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS comment_count,
 // 	    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS like_count,
-// 		CASE 
+// 		CASE
 // 	    WHEN EXISTS (
-// 	        SELECT 1 FROM likes l 
+// 	        SELECT 1 FROM likes l
 // 	        WHERE l.user_id = ? AND l.post_id = p.id AND l.comment_id IS NULL
 // 	    ) THEN 1
 // 	    ELSE 0
@@ -853,8 +863,7 @@ func GetSearchprofile(query string, page int) (structs.SearchProfile, error) {
 	return rtn, nil
 }
 
-
-func GetFollowers(start , uid int) ([]structs.UsersGet, error) {
+func GetFollowers(start, uid int) ([]structs.UsersGet, error) {
 	rows, err := DB.Query(`
 	SELECT
 		p.id
@@ -864,9 +873,10 @@ func GetFollowers(start , uid int) ([]structs.UsersGet, error) {
 		profile p
 	JOIN follow f ON p.id = f.follower_id
 	WHERE
-		p.id > ? AND
-		f.following_id = ?
-		limit 10;`, uid, start)
+		f.following_id = ? AND 
+		(? = 0 OR p.id < ?)
+		order by p.id desc
+		limit 10;`, uid, start, start)
 	if err != nil {
 		logs.ErrorLog.Printf("GetFollowers query error: %q", err.Error())
 		return nil, err

@@ -12,9 +12,7 @@ export default function Groups() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await GetData("/api/v1/get/userSeggestions", {
-        is_user: 0,
-      });
+      const response = await GetData("/api/v1/get/userSeggestions", { is_user: 0 });
       const body = await response.json();
 
       if (response.status !== 200) {
@@ -113,8 +111,8 @@ export default function Groups() {
       <div className={Styles.groups}>
         {/* groups request */}
         <h1>Groups Request</h1>
-        {requests?.length > 0 ? requests.map((Group,_) => (
-          <div key={Group.ID} className={Styles.grouprequest}>
+        {requests?.length > 0 ? requests.map((Group, _) => (
+          <div key={Group.id} className={Styles.grouprequest}>
             <div >
               <Image
                 src={Group.Avatar?.String || "/db.png"}
@@ -123,7 +121,7 @@ export default function Groups() {
                 height={40}
                 style={{ borderRadius: "50%" }}
               />
-              <h5>{Group.GroupName || "Group name"}</h5>
+              <h5>{Group?.message}</h5>
             </div>
             <div className={Styles.Buttons}>
               <Image

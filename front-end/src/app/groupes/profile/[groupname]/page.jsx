@@ -324,7 +324,7 @@ export default function Profile() {
         {/* events */}
         <div className={Style.events}>
           <h2>Upcoming Events</h2>
-          {events.length > 0 ? (
+          {events?.length > 0 ? (
             events?.map((event, index) => (
               <div key={index} className={Style.event}>
                 <h3>{event.title}</h3>

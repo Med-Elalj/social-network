@@ -56,14 +56,14 @@ type User struct {
 	Avatar      Avatar
 }
 
-	type UsersGet struct {
-		ID           ID             `json:"id"`
-		Online       bool           `json:"online"`
-		Is_Group     bool           `json:"is_group"`
-		Avatar       sql.NullString `json:"pfp"`
-		Username     string         `json:"name"` // Exported field
-		FollowStatus string         `json:"status"`
-	}
+type UsersGet struct {
+	ID           ID             `json:"id"`
+	Online       bool           `json:"online"`
+	Is_Group     bool           `json:"is_group"`
+	Avatar       sql.NullString `json:"pfp"`
+	Username     string         `json:"name"` // Exported field
+	FollowStatus string         `json:"status"`
+}
 
 type Group struct {
 	GroupName string         `json:"groupName"`
@@ -93,14 +93,14 @@ type GroupReq struct {
 }
 
 type GroupEvent struct {
-	ID           int       `json:"event_id"`
-	Title        string    `json:"title"`
-	Userid       int       `json:"user_id"`
-	Group_id     int       `json:"group_id"`
-	Description  string    `json:"description"`
-	CreationTime time.Time `json:"creation_time"`
-	Timeof       time.Time `json:"time"`
-	Respond      bool      `json:"respond"`
+	ID           int          `json:"event_id"`
+	Title        string       `json:"title"`
+	Userid       int          `json:"user_id"`
+	Group_id     int          `json:"group_id"`
+	Description  string       `json:"description"`
+	CreationTime time.Time    `json:"creation_time"`
+	Timeof       time.Time    `json:"time"`
+	Respond      sql.NullBool `json:"respond"`
 }
 
 type Gusers struct {
@@ -134,11 +134,11 @@ type PostGet struct {
 }
 
 type PostCreate struct {
-	Content Pbody       `json:"content"`
-	Image   PImage      `json:"image"`
-	Privacy PostPrivacy `json:"privacy"`
-	GroupId int         `json:"groupId"`
-	Privetids []int		`json:"privetids"`
+	Content   Pbody       `json:"content"`
+	Image     PImage      `json:"image"`
+	Privacy   PostPrivacy `json:"privacy"`
+	GroupId   int         `json:"groupId"`
+	Privetids []int       `json:"privetids"`
 }
 
 type CommentInfo struct {

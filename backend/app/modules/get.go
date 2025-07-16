@@ -10,7 +10,7 @@ import (
 )
 
 func GetGroupPosts(start, uid, groupId int) ([]structs.Post, error) {
-	query := `    
+	query := `
 SELECT
     p.id AS ID,
     p.group_id AS GroupId,
@@ -25,13 +25,13 @@ SELECT
     (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
     (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
     CASE WHEN EXISTS (
-        SELECT 1 FROM likes l 
+        SELECT 1 FROM likes l
         WHERE l.post_id = p.id AND l.user_id = :current_user_id
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
 JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
-WHERE 
+WHERE
     p.group_id = :group_id AND
     p.id < :last_post_id
 ORDER BY p.created_at DESC
@@ -80,7 +80,7 @@ LIMIT 10;`
 }
 
 func GetHomePosts(start, uid int) ([]structs.Post, error) {
-	query := `SELECT 
+	query := `SELECT
     p.id AS ID,
     p.group_id AS GroupId,
     p.user_id AS UserId,
@@ -94,7 +94,7 @@ func GetHomePosts(start, uid int) ([]structs.Post, error) {
     (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
     (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
     CASE WHEN EXISTS (
-        SELECT 1 FROM likes l 
+        SELECT 1 FROM likes l
         WHERE l.post_id = p.id AND l.user_id = :me
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
@@ -102,15 +102,15 @@ JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
 WHERE
 	--------p.created_at<lastcreatedat
-    (p.privacy = 'public') 
-    OR 
+    (p.privacy = 'public')
+    OR
     (p.privacy = 'almost_private' AND EXISTS (
-        SELECT 1 FROM follow f 
+        SELECT 1 FROM follow f
         WHERE f.following_id = p.user_id AND f.follower_id = :me
     ))
     OR
     (p.privacy = 'private' AND EXISTS (
-        SELECT 1 FROM postrack pt 
+        SELECT 1 FROM postrack pt
         WHERE pt.post_id = p.id AND pt.follower_id = :me
     ))
 ORDER BY p.created_at DESC
@@ -153,7 +153,7 @@ LIMIT 10;`
 }
 
 func GetProfilePosts(start int, uid int, userId int) ([]structs.Post, error) {
-	query := `SELECT 
+	query := `SELECT
     p.id AS ID,
     p.group_id AS GroupId,
     p.user_id AS UserId,
@@ -167,7 +167,7 @@ func GetProfilePosts(start int, uid int, userId int) ([]structs.Post, error) {
     (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
     (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
     CASE WHEN EXISTS (
-        SELECT 1 FROM likes l 
+        SELECT 1 FROM likes l
         WHERE l.post_id = p.id AND l.user_id = :me
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
@@ -178,12 +178,12 @@ AND (
     ((SELECT is_public FROM profile WHERE id = :profile_id) = 1 AND p.privacy = 'public')
     OR
     (EXISTS (
-        SELECT 1 FROM follow 
+        SELECT 1 FROM follow
         WHERE follower_id = :me AND following_id = :profile_id
     ) AND p.privacy IN ('public', 'almost_private'))
     OR
     (p.privacy = 'private' AND EXISTS (
-        SELECT 1 FROM postrack pvf 
+        SELECT 1 FROM postrack pvf
         WHERE pvf.post_id = p.id AND pvf.follower_id = :me
     ))
 )
@@ -227,7 +227,7 @@ LIMIT 10 ;`
 }
 
 func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
-	query := `SELECT 
+	query := `SELECT
     p.id AS ID,
     p.group_id AS GroupId,
     p.user_id AS UserId,
@@ -241,13 +241,13 @@ func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
     (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
     (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
     CASE WHEN EXISTS (
-        SELECT 1 FROM likes l 
+        SELECT 1 FROM likes l
         WHERE l.post_id = p.id AND l.user_id = :me
     ) THEN 1 ELSE 0 END AS IsLiked
 FROM posts p
 JOIN profile creator ON p.user_id = creator.id
 LEFT JOIN profile pg ON p.group_id = pg.id
-WHERE 
+WHERE
     p.user_id = :me
 	---------p.created_at>lastcreatedat
 ORDER BY p.created_at DESC
@@ -435,40 +435,60 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 }
 
 // anas
-func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
-	rows, err := DB.Query(`    
-	SELECT
-		e.id,
-	    e.user_id,
-	    e.description,
-		e.title,
-		e.timeof,
-		e.created_at,
-		eu.respond
-	FROM
-	    "events" e
-	    JOIN "group" g ON e.group_id = g.id
-		JOIN userevents eu ON e.id = eu.event_id
-	WHERE
-	    g.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
+func GetEvents(groupID int, uid int) ([]structs.GroupEvent, error) {
+	// 1. LEFT JOIN so you get every event in the group
+	const q = `
+    SELECT
+      e.id,
+      e.user_id,
+      e.group_id,
+      e.description,
+      e.title,
+      e.timeof,
+      e.created_at,
+      eu.respond
+    FROM events e
+    LEFT JOIN userevents eu
+      ON e.id = eu.event_id
+     AND eu.user_id = ?
+    WHERE e.group_id = ?
+    ORDER BY e.timeof;
+  `
+
+	rows, err := DB.Query(q, uid, groupID)
 	if err != nil {
-		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
+		logs.ErrorLog.Printf("GetEvents query error: %v", err)
 		return nil, err
 	}
-	var events []structs.GroupEvent
+	defer rows.Close()
+
+	var out []structs.GroupEvent
 	for rows.Next() {
-		var event structs.GroupEvent
-		if err := rows.Scan(event.ID, event.Userid, event.Description, event.Title, event.Timeof, event.CreationTime, event.Respond); err != nil {
-			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
+		var e structs.GroupEvent
+		// 2. scan into *pointers*
+		if err := rows.Scan(
+			&e.ID,
+			&e.Userid,
+			&e.Group_id,
+			&e.Description,
+			&e.Title,
+			&e.Timeof,
+			&e.CreationTime,
+			&e.Respond,
+		); err != nil {
+			logs.ErrorLog.Printf("Error scanning event row: %v", err)
 			return nil, err
 		}
-		events = append(events, event)
+		out = append(out, e)
 	}
-	return events, nil
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func GetMembers(groupid int) ([]structs.Gusers, error) {
-	rows, err := DB.Query(`    
+	rows, err := DB.Query(`
 	SELECT
 	    p.id,
 	    p.display_name,
@@ -713,7 +733,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		profile p
 	JOIN
 		user u ON u.id = p.id
-	INNER JOIN 
+	INNER JOIN
 		follow f ON (f.follower_id = ? OR f.following_id = ?)
 		AND (f.follower_id = p.id OR f.following_id = p.id)
 	LEFT JOIN
@@ -782,7 +802,7 @@ func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
                 (sender.display_name = ? AND recipient.display_name = ?)
                 OR
                 (sender.display_name = ? AND recipient.display_name = ?)
-            
+
             ORDER BY
                 d.created_at DESC
             LIMIT 11 OFFSET ?
@@ -937,20 +957,20 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
         AND p.is_user = ?
         AND p.id NOT IN (
             -- Exclude users where uid is follower (following them)
-            SELECT f.following_id 
-            FROM follow f 
+            SELECT f.following_id
+            FROM follow f
             WHERE f.follower_id = ?
         )
         AND p.id NOT IN (
             -- Exclude users where uid is sender in request
-            SELECT r.target_id 
-            FROM request r 
+            SELECT r.target_id
+            FROM request r
             WHERE r.sender_id = ?
         )
         AND p.id NOT IN (
             -- Exclude users where uid is receiver/target in request
-            SELECT r.sender_id 
-            FROM request r 
+            SELECT r.sender_id
+            FROM request r
             WHERE r.target_id = ?
         )
         ORDER BY p.created_at DESC

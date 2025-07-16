@@ -52,7 +52,7 @@ func InsertPost(post structs.PostCreate, uid, gid int) bool {
 	}
 
 	lastInsertID, _ := res.LastInsertId()
-	if (len(post.Privetids) > 0) {
+	if len(post.Privetids) > 0 {
 		for _, privetId := range post.Privetids {
 			_, err = tx.Exec(`
 				INSERT INTO postrack (post_id, follower_id)
@@ -214,7 +214,17 @@ func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	res, err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	// res, err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	res, err := tx.Exec(
+		`INSERT INTO events (user_id, group_id, description, title, timeof)
+        VALUES (?, ?, ?, ?, ?)`,
+		uid,
+		event.Group_id,
+		event.Description,
+		event.Title,
+		event.Timeof,
+	)
+
 	if err != nil {
 		tx.Rollback()
 		return 0, err
@@ -226,12 +236,12 @@ func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 		return 0, err
 	}
 
-	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, int(lastID), true)
+	_, err = tx.Exec(`INSERT INTO userevents (user_id, event_id, respond) VALUES (?,?,?)`, uid, int(lastID), true)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
 	}
-	query := `insert into request (sender_id, receiver_id, towhat, type) values (?,?,?,?)`
+	query := `insert into request (sender_id, receiver_id, target_id, "type") values (?,?,?,?)`
 	members, err := GetMembers(event.Group_id)
 	if err != nil {
 		tx.Rollback()
@@ -251,17 +261,45 @@ func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 	return int(lastID), nil
 }
 
-func UpdatEventResp(event_id int, uid int, respond bool) error {
+//	func UpdatEventResp(event_id int, uid int, respond bool) error {
+//		tx, err := DB.Begin()
+//		if err != nil {
+//			return err
+//		}
+//		_, err = tx.Exec(`UPDATE userevents SET respond = ? WHERE event_id = ? AND user_id = ?`, respond, event_id, uid)
+//		if err != nil {
+//			tx.Rollback()
+//			return err
+//		}
+//		return nil
+//	}
+
+func UpdateEventResp(userID, eventID int, respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`UPDATE userevent SET respond = ? WHERE event_id = ? AND user_id = ?`, respond, event_id, uid)
+
+	// 1) try updating an existing row
+	_, _ = tx.Exec(
+		`UPDATE userevents
+      SET respond = ?
+      WHERE user_id = ? AND event_id = ?`,
+		respond, userID, eventID,
+	)
+
+	// 2) if no row was updated, insert a new one
+	_, err = tx.Exec(
+		`INSERT OR IGNORE INTO userevents (user_id, event_id, respond)
+     VALUES (?, ?, ?)`,
+		userID, eventID, respond,
+	)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-	return nil
+
+	return tx.Commit()
 }
 
 func InsertUserEvent(event_id int, uid int, respond bool) error {
@@ -269,7 +307,7 @@ func InsertUserEvent(event_id int, uid int, respond bool) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
+	_, err = tx.Exec(`INSERT INTO userevents (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
 	if err != nil {
 		tx.Rollback()
 		return err

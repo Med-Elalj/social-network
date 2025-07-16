@@ -10,30 +10,51 @@ import (
 	"social-network/app/structs"
 )
 
-func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var groupId int
-	json.NewDecoder(r.Body).Decode(&groupId)
+type groupEventsRequest struct {
+	GroupID int `json:"group_id"`
+}
 
-	events, err := modules.GetEvents(groupId, uid)
+type groupEventsResponse struct {
+	Code int                  `json:"code"`
+	Data []structs.GroupEvent `json:"data"`
+}
+
+func GroupEventsHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	var req groupEventsRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		auth.JsRespond(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	events, err := modules.GetEvents(req.GroupID, uid)
 	if err != nil {
 		auth.JsRespond(w, "Failed to get group events", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error getting group events:", err)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string][]structs.GroupEvent{
-		"events": events,
-	})
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(groupEventsResponse{200, events})
+}
+
+type updateRespRequest struct {
+	EventID int  `json:"event_id"`
+	Respond bool `json:"respond"`
 }
 
 func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	var event structs.GroupEvent
-	json.NewDecoder(r.Body).Decode(&event)
-	err := modules.UpdatEventResp(event.ID, uid, event.Respond)
-	if err != nil {
-		auth.JsRespond(w, "Failed to update response", http.StatusBadRequest)
+	var req updateRespRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		auth.JsRespond(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+	//insert user's vote
+	if err := modules.UpdateEventResp(uid, req.EventID, req.Respond); err != nil {
+		auth.JsRespond(w, "Failed to update response", http.StatusInternalServerError)
 		logs.ErrorLog.Println("Error updating response:", err)
 		return
 	}
+	auth.JsRespond(w, "OK", http.StatusOK)
 }
 
 func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
@@ -172,7 +193,7 @@ func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	err = modules.InsertRequest(uid,0, bodyRequest.GroupId, 1)
+	err = modules.InsertRequest(uid, 0, bodyRequest.GroupId, 1)
 	if err != nil {
 		auth.JsRespond(w, "error inserting new request", http.StatusInternalServerError)
 		return

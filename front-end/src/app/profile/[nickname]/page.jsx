@@ -35,6 +35,7 @@ function FollowButton({ targetId, followStatus, setFollowStatus }) {
       body = {
         target: targetId,
         status: followStatus,
+        type: 0
       };
       res = await SendData(`/api/v1/set/follow`, body);
     }

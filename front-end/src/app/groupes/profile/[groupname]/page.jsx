@@ -9,6 +9,7 @@ import CreateEvent from "./[tab]/CreateEvenet.jsx";
 import Posts from "./[tab]/posts.jsx";
 import Members from "./[tab]/members.jsx";
 import CreatePost from "./[tab]/createPost.jsx";
+import { useNotification } from "../../../context/notificationContext.jsx";
 
 export default function Profile() {
   const { groupname } = useParams();
@@ -19,11 +20,15 @@ export default function Profile() {
   const [hasError, setHasError] = useState(false);
   const [requests, setRequests] = useState([]);
   const [events, setEvents] = useState([]);
+  const [respondUserRequest, setRespondUserRequest] = useState(null);
+  const {showNotification} = useNotification();
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await SendData(`/api/v1/get/groupData`, { "groupName": groupname });
+        const res = await SendData(`/api/v1/get/groupData`, {
+          groupName: groupname,
+        });
         if (res.ok) {
           const profileData = await res.json();
           setData(profileData);
@@ -70,12 +75,28 @@ export default function Profile() {
         console.log(Body);
       } else {
         setRequests(Body);
-        console.log('requests fetched successfully!');
+        console.log("requests fetched successfully!");
       }
     };
 
     fetchData();
   }, []);
+
+  useEffect( ()=> {
+    const fetchResponse = async () => {
+      const response = await SendData("/api/v1/set/acceptFollow",{sender: respondUserRequest.id, target: data.ID, status:respondUserRequest.status, type:1})
+      if (response.ok) {
+        const responseData=await response.json();
+        showNotification(responseData.message);
+      } else {
+        showNotification("failed to accept or refuse request", "error")
+      }
+    }
+
+    if (respondUserRequest) {
+      fetchResponse()
+    }
+  }, [respondUserRequest])
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -84,7 +105,6 @@ export default function Profile() {
   if (hasError) {
     return <div>Error loading group data.</div>;
   }
-
 
   return (
     <div className={Style.container}>
@@ -105,7 +125,6 @@ export default function Profile() {
                 alt="cover"
                 layout="fill"
               />
-
             </div>
             <h4>{groupname}</h4>
 
@@ -122,21 +141,19 @@ export default function Profile() {
             </div>
 
             <div className={Style.center}>
-              {
-                data?.Description?.String !== "" ? (
-                  <span>
-                    <h5>Description:</h5>
-                    <p>&nbsp;&nbsp;</p>
-                    <h5>{data?.Description?.String}</h5>
-                  </span>
-                ) : (
-                  <span>
-                    <h5>Description:</h5>
-                    <p>&nbsp;&nbsp;</p>
-                    <h5>No description provided.</h5>
-                  </span>
-                )
-              }
+              {data?.Description?.String !== "" ? (
+                <span>
+                  <h5>Description:</h5>
+                  <p>&nbsp;&nbsp;</p>
+                  <h5>{data?.Description?.String}</h5>
+                </span>
+              ) : (
+                <span>
+                  <h5>Description:</h5>
+                  <p>&nbsp;&nbsp;</p>
+                  <h5>No description provided.</h5>
+                </span>
+              )}
             </div>
 
             <div className={Style.buttons}>
@@ -165,11 +182,15 @@ export default function Profile() {
               {/* reauests to join group */}
               <h2>Requests</h2>
               <div className={Style.requestsContainer}>
-                {requests.map((request, index) => (
-                  <div key={index} className={Style.request}>
+                {requests ? (requests.map((request) => (
+                  <div key={request.sender_id} className={Style.request}>
                     <div className={Style.avatar}>
                       <Image
-                        src={request.avatar?.Valid ? request.avatar.String : "/iconMale.png"}
+                        src={
+                          request.avatar?.Valid
+                            ? request.avatar.String
+                            : "/iconMale.png"
+                        }
                         width={25}
                         height={25}
                         alt="avatar"
@@ -177,28 +198,60 @@ export default function Profile() {
                       <h4>{request.username ?? "User"}</h4>
                     </div>
                     <div>
-                      <p>{request.message}</p>
+                      <p>{respondUserRequest?.id != request.sender_id ? request.message : `request ${respondUserRequest.status}ed`}</p>
                     </div>
                     <div>
-                      <button className={Style.button}>Accept</button>
-                      <button className={Style.button}>Decline</button>
+                      {respondUserRequest?.id != request.sender_id ?  
+                      (<><button
+                        className={Style.button}
+                        onClick={() => {
+                          setRespondUserRequest({
+                            id: request.sender_id,
+                            status: "accept",
+                          });
+                        }}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        className={Style.button}
+                        onClick={() => {
+                          setRespondUserRequest({
+                            id: request.sender_id,
+                            status: "refuse",
+                          });
+                        }}
+                      >
+                        Decline
+                      </button></> ): <></>}
                     </div>
                   </div>
-                ))}
+                ))):<h3>no requests</h3>}
               </div>
             </div>
-          ) : ''
-          }
-
+          ) : (
+            ""
+          )}
         </div>
 
         <div className={Style.second}>
           {isPublic && (
             <>
               <>
-                {activeSection === "posts" && <Posts activeSection={activeSection} setActiveSection={setActiveSection} groupId={data?.ID} />}
+                {activeSection === "posts" && (
+                  <Posts
+                    activeSection={activeSection}
+                    setActiveSection={setActiveSection}
+                    groupId={data?.ID}
+                  />
+                )}
                 {activeSection === "members" && <Members groupId={data?.ID} />}
-                {activeSection === "createPost" && <CreatePost groupId={data?.ID} setActiveSection={setActiveSection} />}
+                {activeSection === "createPost" && (
+                  <CreatePost
+                    groupId={data?.ID}
+                    setActiveSection={setActiveSection}
+                  />
+                )}
                 {activeSection === "CreateEvent" && <CreateEvent />}
               </>
             </>
@@ -224,8 +277,7 @@ export default function Profile() {
             <p>No upcoming events.</p>
           )}
         </div>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }
-

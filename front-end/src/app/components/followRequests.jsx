@@ -32,7 +32,7 @@ export function FollowRequestsList() {
     const response = await SendData(`/api/v1/set/acceptFollow`, {
       status: status,
       sender: id,
-      isFollowType: true,
+      type: 0,
     });
     const data = await response.json();
     if (response.ok) {

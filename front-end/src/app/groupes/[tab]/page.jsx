@@ -10,7 +10,7 @@ import Discover from "./Discover.jsx";
 import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { SendData } from "../../sendData.js";
-import { useNotification } from "../../context/notificationContext.jsx";
+import { useNotification } from "../../context/NotificationContext.jsx";
 import { type } from "os";
 
 export default function Groupes() {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useNotification } from "../context/notificationContext";
+import { useNotification } from "../context/NotificationContext";
 import { SendData } from "@/app/sendData.js";
 import Style from "../profile/profile.module.css";
 import Image from "next/image";

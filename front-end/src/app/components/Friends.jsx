@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
-import { useNotification } from "../context/notificationContext.jsx";
+import { useNotification } from "../context/NotificationContext.jsx";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
 import Link from "next/link";
 import { SendData } from "../sendData.js";

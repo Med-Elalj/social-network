@@ -22,66 +22,89 @@ const toastConfig = {
     title: "Info",
     icon: (
       <svg className="toast__svg" viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
-        <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="2" />
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="2"
+          fill="none"
+        />
+        <line
+          x1="12"
+          y1="8"
+          x2="12"
+          y2="12"
+          stroke="currentColor"
+          strokeWidth="2"
+        />
         <circle cx="12" cy="16" r="1" fill="currentColor" />
       </svg>
     ),
   },
 };
 
-function playSound(name) {
-    if (typeof window === "undefined") return;
-    const sounds = {
-        alert: new Audio("/sounds/alert.mp3"),
-        notification: new Audio("/sounds/notification.mp3"),
-    };
-    const sound = sounds[name];
-    if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch((e) => console.warn("Playback failed:", e));
-    }
+function PlaySound(name) {
+  if (typeof window === "undefined") return;
+
+  const sounds = {
+    alert: new Audio("/sounds/alert.mp3"),
+    notification: new Audio("/sounds/notification.mp3"),
+  };
+
+  const sound = sounds[name];
+  if (sound) {
+    sound.currentTime = 0;
+    sound.play().catch((e) => console.warn("Playback failed:", e));
+  }
 }
 
 export default function Notification({
-    open,
-    message,
-    type = "success",
-    duration = 3000,
-    sound = true,
-    onClose,
+  open,
+  message,
+  type = "success",
+  duration = 3000,
+  sound = true,
+  onClose,
 }) {
-    const [show, setShow] = useState(open);
+  const [show, setShow] = useState(open);
 
-    useEffect(() => {
-        setShow(open);
-        if (open && sound) {
-            playSound(type === "success" ? "notification" : "alert");
-        }
-        if (open && duration > 0) {
-            const timer = setTimeout(() => {
-                setShow(false);
-                if (onClose) onClose();
-            }, duration);
-            return () => clearTimeout(timer);
-        }
-    }, [open, duration, sound, type, onClose]);
+  useEffect(() => {
+    setShow(open);
+    if (open && sound) {
+      PlaySound(type === "success" ? "notification" : "alert");
+    }
 
-    if (!show) return null;
+    if (open && duration > 0) {
+      const timer = setTimeout(() => {
+        setShow(false);
+        if (onClose) onClose();
+      }, duration);
 
-    const config = toastConfig[type] || toastConfig.success;
+      return () => clearTimeout(timer);
+    }
+  }, [open, duration, sound, type, onClose]);
 
-    return (
-        <div className={`toast toast--${type} show`}>
-            <div className="toast__icon" onClick={() => {
-                setShow(false);
-                if (onClose) onClose();
-            }}
-                aria-label="Close">{config.icon}</div>
-            <div className="toast__content">
-                <p className="toast__type">{config.title}</p>
-                <p className="toast__message">{message}</p>
-            </div>
-        </div>
-    );
+  if (!show) return null;
+
+  const config = toastConfig[type] || toastConfig.success;
+
+  return (
+    <div className={`toast toast--${type} show`}>
+      <div
+        className="toast__icon"
+        onClick={() => {
+          setShow(false);
+          if (onClose) onClose();
+        }}
+        aria-label="Close"
+      >
+        {config.icon}
+      </div>
+      <div className="toast__content">
+        <p className="toast__type">{config.title}</p>
+        <p className="toast__message">{message}</p>
+      </div>
+    </div>
+  );
 }

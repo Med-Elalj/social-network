@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link.js";
 import Style from "../groups.module.css";
-import { useNotification } from "../../context/notificationContext.jsx";
+import { useNotification } from "../../context/NotificationContext.jsx";
 
 export default function Discover() {
   const [groups, setGroups] = useState([]);

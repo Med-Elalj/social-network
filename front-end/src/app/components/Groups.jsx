@@ -2,7 +2,7 @@ import Image from "next/image";
 import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
 import { GetData, SendData } from "@/app/sendData.js";
-import { useNotification } from "../context/notificationContext.jsx";
+import { useNotification } from "../context/NotificationContext.jsx";
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);

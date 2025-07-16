@@ -7,7 +7,7 @@ import Styles from "./login.module.css";
 import { SendAuthData } from "../sendData.js";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
-import { useNotification } from "../context/notificationContext.jsx";
+import { useNotification } from "../context/NotificationContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Login() {

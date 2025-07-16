@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Style from "../../profile.module.css"; // Adjust the path as necessary
-import { useNotification } from "../../../context/notificationContext.jsx";
+import { useNotification } from "../../../context/NotificationContext.jsx";
 import { SendData } from "../../../sendData.js";
 import { Router } from "next/dist/client/router.js";
 

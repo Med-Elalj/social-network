@@ -1,11 +1,10 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useNotification } from "./notificationContext";
-
-// import { Notification } from "../components/notification/notification.jsx";
+import { useNotification } from "./NotificationContext";
+import { AuthProvider } from "./AuthContext";
 
 const WebSocketContext = createContext(null);
-const WEBSOCKET_URL = "/api/v1/ws";
+const WEBSOCKET_URL = "http://localhost:8080/api/v1/ws";
 
 export const WebSocketProvider = ({ children }) => {
   const ws = useRef(null);
@@ -76,13 +75,13 @@ export const WebSocketProvider = ({ children }) => {
           connectWebSocket();
         }, 2000);
       } else {
-        console.error("❌ Max reconnect attempts reached");
+        console.log("❌ Max reconnect attempts reached");
       }
     }
 
 
     ws.current.onerror = (err) => {
-      console.error("⚠️ WebSocket error:", err);
+      console.log("⚠️ WebSocket error:", err);
       ws.current?.close();
     };
   };
@@ -120,6 +119,7 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
+    <AuthProvider>
     <WebSocketContext.Provider
       value={{
         sendMessage,
@@ -135,6 +135,7 @@ export const WebSocketProvider = ({ children }) => {
       {children}
 
     </WebSocketContext.Provider>
+    </AuthProvider>
   );
 };
 

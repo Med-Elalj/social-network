@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { GetData, SendData } from "@/app/sendData.js";
-import { useNotification } from "../context/notificationContext.jsx";
+import { useNotification } from "../context/NotificationContext.jsx";
 import Image from "next/image";
 import { useRouter } from "next/navigation.js";
 

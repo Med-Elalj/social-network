@@ -9,7 +9,7 @@ import CreateEvent from "./[tab]/CreateEvenet.jsx";
 import Posts from "./[tab]/posts.jsx";
 import Members from "./[tab]/members.jsx";
 import CreatePost from "./[tab]/createPost.jsx";
-import { useNotification } from "../../../context/notificationContext.jsx";
+import { useNotification } from "../../../context/NotificationContext.jsx";
 import { SearchInput } from "../../../components/navigation/search.jsx";
 
 export default function Profile() {

@@ -19,8 +19,17 @@ func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 		auth.JsRespond(w, "Missing cookies", http.StatusUnauthorized)
 		return
 	}
+	payload, ok := r.Context().Value(auth.UserContextKey).(*jwt.JwtPayload)
+	if !ok {
+		auth.JsRespond(w, "Unauthorized - invalid user", http.StatusUnauthorized)
+		return
+	}
+	if payload.SessionID != sidCookie.Value {
+		auth.JsRespond(w, "Unauthorized - session ID mismatch", http.StatusUnauthorized)
+		return
+	}
 	// Validate session ID and refresh token
-	session, err := auth.GetSessionByID(sidCookie.Value)
+	session, err := auth.GetSessionByID(payload.SessionID)
 	// Check if session exists and is valid
 	if err != nil {
 		auth.JsRespond(w, "Session not found", http.StatusUnauthorized)

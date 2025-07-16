@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { GetData, SendData } from "@/app/sendData.js";
 import { CapitalizeFirstLetter } from "../../utils.jsx";
-import { useNotification } from "../../context/notificationContext.jsx";
+import { useNotification } from "../../context/NotificationContext.jsx";
 import Posts from "@/app/profile/[nickname]/[tab]/Posts.jsx";
 import Following from "@/app/profile/[nickname]/[tab]/Following";
 import Followers from "@/app/profile/[nickname]/[tab]/Followers";

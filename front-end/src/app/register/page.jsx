@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Styles from "./register.module.css";
 import { SendAuthData } from "../sendData.js";
-import { useNotification } from "../context/notificationContext.jsx";
+import { useNotification } from "../context/NotificationContext.jsx";
 import { usePasswordToggle, HandleUpload } from "../utils.jsx";
 import { useRouter } from "next/navigation";
 import { useWebSocket } from "../context/WebSocketContext.jsx";

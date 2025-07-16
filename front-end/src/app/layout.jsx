@@ -3,7 +3,7 @@ import Routing from "./components/navigation/page";
 import "./global.css";
 import { Inter } from "next/font/google";
 import { WebSocketProvider } from "@/app/context/WebSocketContext.jsx";
-import { NotificationProvider } from "@/app/context/notificationContext.jsx";
+import { NotificationProvider } from "@/app/context/NotificationContext.jsx";
 import { AuthProvider } from "@/app/context/AuthContext.jsx";
 
 const inter = Inter({

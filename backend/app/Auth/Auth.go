@@ -75,11 +75,12 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 
 // Logout handler
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// delete from db
-	sidCookie, _ := r.Cookie(AuthInfo.SessionIDName)
-	rtCookie, _ := r.Cookie(AuthInfo.RefreshTokenName)
-	// Invalidate session in DB
-	_, err := modules.DB.Exec(`DELETE FROM sessions WHERE session_id = ? AND refresh_token = ?`, sidCookie.Value, rtCookie.Value)
+	payload, ok := r.Context().Value(UserContextKey).(*jwt.JwtPayload)
+	if !ok {
+		JsRespond(w, "Unauthorized - invalid user", http.StatusUnauthorized)
+		return
+	}
+	_, err := modules.DB.Exec(`DELETE FROM sessions WHERE user_id = ?`, payload.Sub)
 	if err != nil {
 		logs.ErrorLog.Println("Error deleting session:", err)
 		JsRespond(w, "Internal server error", http.StatusInternalServerError)
@@ -90,8 +91,5 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	ClearCookie(w, AuthInfo.JwtTokenName)
 	ClearCookie(w, AuthInfo.SessionIDName)
 	ClearCookie(w, AuthInfo.RefreshTokenName)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Logout successful",
-	})
+	JsRespond(w, "Logged out", http.StatusOK)
 }

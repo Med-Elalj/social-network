@@ -24,7 +24,7 @@ export default function Groups() {
           // setGroups(body.groups.filter((group) => !group.IsRequested));
           setGroups(body);
         } else {
-          setGroups([])
+          setGroups([]);
         }
         console.log("Groups fetched successfully!");
       }
@@ -66,9 +66,12 @@ export default function Groups() {
       if (response.ok) {
         type = "succes";
         setGroups((prev) => prev.filter((group) => group.id != joinedGroupId));
+      } else {
+        console.error("failed to send join request to this group");
       }
       showNotification(data.message, type);
     }
+    console.log("group id to join", joinedGroupId);
     if (joinedGroupId) {
       sentJoinHandler();
       setJoinedGroupId(null);
@@ -94,7 +97,7 @@ export default function Groups() {
               </div>
               <div>
                 <Image
-                  onClick={() => setJoinedGroupId(Group.ID)}
+                  onClick={() => setJoinedGroupId(Group.id)}
                   src="/join.svg"
                   alt="join"
                   width={25}

@@ -101,10 +101,10 @@ func GetFollowRequests(w http.ResponseWriter, r *http.Request, uid int) {
 
 func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 	type BodyRequest struct {
-		Id           int    `json:"sender"`
-		Target       int    `json:"target"`
-		Status       string `json:"status"`
-		IsFollowType bool   `json:"isFollowType"`
+		Id     int    `json:"sender"`
+		Target int    `json:"target"`
+		Status string `json:"status"`
+		Type   int    `json:"type"`
 	}
 	type ResponseBody struct {
 		NewStatus string `json:"new_status"`
@@ -121,7 +121,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 
 	// Get target user's privacy status before processing
 	var targetIsPublic bool
-	if bodyRequest.IsFollowType {
+	if bodyRequest.Type == 0 {
 		err = modules.DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, bodyRequest.Id).Scan(&targetIsPublic)
 		if err != nil {
 			logs.ErrorLog.Println("Error getting target user privacy:", err)
@@ -131,7 +131,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 
 	if bodyRequest.Status == "accept" {
-		if bodyRequest.IsFollowType {
+		if bodyRequest.Type == 0 {
 			bodyRequest.Target = uid
 		}
 
@@ -144,7 +144,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 
 		// If it's a follow type request and the requester is public,
 		// we should also make the accepter follow back
-		if bodyRequest.IsFollowType && targetIsPublic {
+		if bodyRequest.Type == 0 && targetIsPublic {
 			// Check if the accepter already follows the requester
 			var alreadyFollowing bool
 			err = modules.DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM follow WHERE follower_id = ? AND following_id = ?)`,
@@ -163,14 +163,14 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 
 	// Delete the request after processing
-	if err := modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target); err != nil {
+	if err := modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target, bodyRequest.Type); err != nil {
 		logs.ErrorLog.Println("Error deleting follow request:", err)
 		auth.JsRespond(w, "error processing request", http.StatusInternalServerError)
 		return
 	}
 
 	// Only get relationship status for follow type requests
-	if bodyRequest.IsFollowType {
+	if bodyRequest.Type == 0 {
 		responseBody.NewStatus, err = modules.GetRelationship(uid, bodyRequest.Id)
 		if err != nil {
 			logs.ErrorLog.Println("Error getting relationship:", err)

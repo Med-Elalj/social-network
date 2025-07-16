@@ -7,6 +7,7 @@ import { useNotification } from "../context/notificationContext.jsx";
 export default function Groups() {
   const [groups, setGroups] = useState([]);
   const [joinedGroupId, setJoinedGroupId] = useState(null);
+  const [requests, setRequests] = useState([]);
   const { showNotification } = useNotification();
 
   useEffect(() => {
@@ -30,6 +31,27 @@ export default function Groups() {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchGroupRequests = async () => {
+      try {
+        const response = await SendData("/api/v1/get/requests", { type: 1 });
+
+        if (!response.ok) {
+          console.error("Failed to fetch group requests");
+          return;
+        }
+
+        const data = await response.json();
+        setRequests(data);
+        console.log("requests groups:", data);
+      } catch (err) {
+        console.error("Error fetching group requests:", err);
+      }
+    };
+
+    fetchGroupRequests();
   }, []);
 
   useEffect(() => {
@@ -88,7 +110,7 @@ export default function Groups() {
       <div className={Styles.groups}>
         {/* groups request */}
         <h1>Groups Request</h1>
-        {[].length > 0 ? [1, 2].map((Group, i) => (
+        {requests?.length > 0 ? requests.map((Group,_) => (
           <div key={Group.ID} className={Styles.grouprequest}>
             <div >
               <Image

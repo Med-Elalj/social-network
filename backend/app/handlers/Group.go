@@ -135,10 +135,23 @@ func GetGroupDataHandler(w http.ResponseWriter, r *http.Request, uid int) {
 
 	var groupData structs.GroupGet
 
-	query := `SELECT id, display_name, avatar, description, is_Public
-	          FROM profile
-	          WHERE display_name = ? AND is_user = 0;`
-	err := modules.DB.QueryRow(query, groupName).Scan(&groupData.ID, &groupData.GroupName, &groupData.Avatar, &groupData.Description, &groupData.Privacy)
+	query := `
+	SELECT
+	    p.id,
+	    p.display_name,
+	    p.avatar,
+	    p.description,
+	    p.is_Public,
+	    g.creator_id = ? AS is_creator  -- compare creator_id with user_id param
+	FROM
+	    profile p
+	JOIN
+	    "group" g ON g.id = p.id
+	WHERE
+	    p.display_name = ?
+	    AND p.is_user = 0
+	    AND g.id = p.id;`
+	err := modules.DB.QueryRow(query, uid, groupName).Scan(&groupData.ID, &groupData.GroupName, &groupData.Avatar, &groupData.Description, &groupData.Privacy, &groupData.IsAdmin)
 	if err != nil {
 		logs.ErrorLog.Printf("Group Data Handler scan error: %q", err.Error())
 		auth.JsRespond(w, "Failed to get group data", http.StatusBadRequest)
@@ -172,7 +185,7 @@ func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	err = modules.InsertRequest(uid,0, bodyRequest.GroupId, 1)
+	err = modules.InsertRequest(uid, 0, bodyRequest.GroupId, 1)
 	if err != nil {
 		auth.JsRespond(w, "error inserting new request", http.StatusInternalServerError)
 		return

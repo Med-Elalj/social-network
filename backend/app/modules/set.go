@@ -3,6 +3,7 @@ package modules
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"social-network/app/logs"
 	"social-network/app/structs"
@@ -68,7 +69,6 @@ func UserFollow(uid int, tid int, followStatus string) (string, error) {
 				INSERT OR IGNORE INTO follow (follower_id, following_id, status)
 				VALUES (?, ?, 0)
 				`, uid, tid)
-
 		}
 
 	case "unfollow":
@@ -77,7 +77,6 @@ func UserFollow(uid int, tid int, followStatus string) (string, error) {
 				DELETE FROM follow
 				WHERE follower_id = ? AND following_id = ?
 				`, uid, tid)
-
 		}
 
 	case "follow request":
@@ -86,7 +85,6 @@ func UserFollow(uid int, tid int, followStatus string) (string, error) {
         		INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
         		VALUES (?, ?, ?, 0)
     		`, uid, tid, tid)
-
 		}
 	case "cancel request":
 		{
@@ -151,14 +149,12 @@ func IsFollowMe(tid, uid int) (bool, error) {
     WHERE follower_id = ? AND following_id = ?
   )
 `, tid, uid).Scan(&isFollower)
-
 	if err != nil {
 		return false, err
 	}
 
 	// isFollower will be true if tid follows uid
 	return isFollower, nil
-
 }
 
 // anas
@@ -277,6 +273,10 @@ func InsertGroup(gp structs.Group, uid int) error {
 		Privacy = 1
 	} else {
 		Privacy = 0
+	}
+
+	if strings.Contains(gp.GroupName, " ") {
+		gp.GroupName = strings.ReplaceAll(gp.GroupName, " ", "_")
 	}
 	res, err := tx.Exec(`INSERT INTO profile (display_name,avatar,description,is_public, is_user) VALUES (?,?,?,?, 0)`, gp.GroupName, gp.Avatar, gp.About, Privacy)
 	if err != nil {

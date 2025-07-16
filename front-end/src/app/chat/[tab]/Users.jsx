@@ -24,7 +24,6 @@ export default function Users({ users, onUserSelect }) {
     // }, [users]);
 
     const handleUserClick = (user, index) => {
-        console.log("click", user)
         setActiveIndex(index);
         onUserSelect(user);
     };

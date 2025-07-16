@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -16,9 +15,8 @@ func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&bodyRequest); err != nil {
-		fmt.Println(err)
 		logs.ErrorLog.Printf("Failed to decode request body: %q", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest) // error
+		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -28,8 +26,6 @@ func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		auth.JsRespond(w, "Failed to get requests", http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(requests)
 
 	json.NewEncoder(w).Encode(requests)
 }
@@ -63,5 +59,4 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 	auth.JsRespond(w, "Request sent successfully", http.StatusOK)
-
 }

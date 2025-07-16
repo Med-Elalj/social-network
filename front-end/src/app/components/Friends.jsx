@@ -37,8 +37,7 @@ export default function Friends() {
       usersData ? setContacts(usersData) : setContacts([]);
 
       const followRequestData = await fetchRequest(
-        "/api/v1/get/requests",
-        JSON.stringify({ type: 0 })
+        "/api/v1/get/requests",{ type: 0 }
       );
       followRequestData
         ? setFollowRequests(followRequestData)

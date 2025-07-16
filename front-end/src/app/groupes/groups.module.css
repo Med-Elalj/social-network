@@ -50,6 +50,10 @@
     margin-left: 10px;
 }
 
+.Requiests>h3 {
+    text-align: center;
+}
+
 .RequestItem {
     display: flex;
     justify-content: space-between;

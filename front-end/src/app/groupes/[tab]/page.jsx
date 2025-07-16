@@ -29,12 +29,12 @@ export default function Groupes() {
     // get requests
     useEffect(() => {
         const fetchData = async () => {
-            const response = await SendData("/api/v1/get/requests", 1);
+            const response = await SendData("/api/v1/get/requests", { type: 1 });
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);
             } else {
-                setRequests(Body.requests);
+                setRequests(Body);
                 console.log('requests fetched successfully!');
             }
         };
@@ -57,6 +57,12 @@ export default function Groupes() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!GroupName.trim()) {
+            console.log("Group name is required.");
+            showNotification("Group name is required.", "error");
+            return;
+        }
 
         const fetchData = async () => {
             const formData = {
@@ -190,22 +196,22 @@ export default function Groupes() {
 
                         <div className={Style.Requiests}>
                             <h1>Groups requests</h1>
-                            {requests ? <p>No requests</p> : requests && requests.map((request, i) => (
+                            {requests && requests.length > 0 ? requests.map((request, i) => (
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
-                                        <Image src={request.groupImage || "/iconMale.png"} alt="profile" width={25} height={25} />
-                                        <h5>{request.groupName}</h5>
+                                        <Image src={request.groupImage || "/iconGroup.png"} alt="profile" width={25} height={25} style={{ borderRadius: "50%" }} />
+                                        <h4 style={{ marginLeft: "10px" }}>{request.group_name}</h4>
                                     </div>
                                     <div className={Style.Buttons}>
                                         <Link href="/accept">
-                                            <Image src="/accept.svg" alt="accept" width={25} height={25} />
+                                            <Image src="/accept2.svg" alt="accept" width={25} height={25} />
                                         </Link>
                                         <Link href="/reject">
-                                            <Image src="/reject.svg" alt="reject" width={25} height={25} />
+                                            <Image src="/decline.svg" alt="reject" width={25} height={25} />
                                         </Link>
                                     </div>
                                 </div>
-                            ))}
+                            )) : <h3>No requests</h3>}
                         </div>
                     </>
                 }

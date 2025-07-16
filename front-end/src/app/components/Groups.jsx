@@ -59,16 +59,16 @@ export default function Groups() {
         <h1>Groups</h1>
         {groups?.length > 0 ? (
           groups.slice(0, 5).map((Group, i) => (
-            <div key={Group.ID}>
+            <div key={Group.id}>
               <div>
                 <Image
-                  src={Group.Avatar?.String || "/db.png"}
+                  src={Group.pfp?.String || "/iconGroup.png"}
                   alt="profile"
                   width={40}
                   height={40}
                   style={{ borderRadius: "50%" }}
                 />
-                <h5>{Group.GroupName}</h5>
+                <h5>{Group.name}</h5>
               </div>
               <div>
                 <Image

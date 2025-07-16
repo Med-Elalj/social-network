@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -20,7 +19,6 @@ func ProfileSettingsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(r.PathValue("type"))
 	// Step 2: Match request by "type" in path
 	switch r.PathValue("type") {
 	case "updateUsername":

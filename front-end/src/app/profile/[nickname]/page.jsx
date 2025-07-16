@@ -312,7 +312,7 @@ export default function Profile() {
         </div>
 
         <div className={Style.second}>
-          {activeSection === "posts" && <Posts userId={profileData.id} />}
+          {activeSection === "posts" && <Posts data={profileData} />} {/*data passed to Posts} */}
           {activeSection === "followers" && (
             <Followers userId={profileData.id} />
           )}

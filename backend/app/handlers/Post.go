@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -16,18 +15,70 @@ func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 
 	json.NewDecoder(r.Body).Decode(&post)
 
-	fmt.Println(post.GroupId)
-	fmt.Println(uid)
-	fmt.Println(post.Privacy)
-	fmt.Println(post.Content)
-
 	if !modules.InsertPost(post, uid, post.GroupId) {
 		auth.JsRespond(w, "Post creation failed", http.StatusBadRequest)
+		logs.ErrorLog.Println("Post creation failed")
+		return
 	}
+	auth.JsRespond(w, "Post created successfully", http.StatusOK)
+}
+
+func GetGroupPostsHandler(w http.ResponseWriter, r *http.Request, uid, start, groupId int) {
+	posts, err := modules.GetGroupPosts(start, uid, groupId)
+	if err != nil {
+		auth.JsRespond(w, "Get Group Posts failed", http.StatusBadRequest)
+		logs.ErrorLog.Println(err)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Post Added successfully",
+		"message": "Group Posts fetched successfully",
+		"posts":   posts,
+	})
+}
+
+func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid, start, userId int) {
+	var posts []structs.Post
+	var err error
+	if userId == 0 {
+		posts, err = modules.GetOwnProfilePosts(start, uid)
+		if err != nil {
+			auth.JsRespond(w, "Get Own Profile Posts failed", http.StatusBadRequest)
+			logs.ErrorLog.Println(err)
+			return
+		}
+	} else {
+		posts, err = modules.GetProfilePosts(start, uid, userId)
+		if err != nil {
+			auth.JsRespond(w, "Get Profile Posts failed", http.StatusBadRequest)
+			logs.ErrorLog.Println(err)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Profile Posts fetched successfully",
+		"posts":   posts,
+	})
+}
+
+func GetHomePostsHandler(w http.ResponseWriter, r *http.Request, uid, start int) {
+	posts, err := modules.GetHomePosts(start, uid)
+	if err != nil {
+		auth.JsRespond(w, "Get Home Posts failed", http.StatusBadRequest)
+		logs.ErrorLog.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Home Posts fetched successfully",
+		"posts":   posts,
 	})
 }
 
@@ -40,7 +91,13 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	// Parse start
+	forwhat, ok := dataToFetch["fetch"].(string)
+	if !ok {
+		logs.ErrorLog.Println("Invalid 'fetch' value:", dataToFetch["fetch"])
+		auth.JsRespond(w, "Invalid 'fetch' value", http.StatusBadRequest)
+		return
+	}
+
 	startFloat, ok := dataToFetch["start"].(float64)
 	if !ok {
 		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
@@ -49,6 +106,12 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 	start := int(startFloat)
 
+	userId := 0
+	uidFloat, ok := dataToFetch["userId"].(float64)
+	if ok {
+		userId = int(uidFloat)
+	}
+
 	groupId := 0
 	if gid, exists := dataToFetch["groupId"]; exists {
 		if gidFloat, ok := gid.(float64); ok {
@@ -56,24 +119,51 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		}
 	}
 
-	userId := 0
-	if userIdMap, ok := dataToFetch["userId"].(map[string]interface{}); ok {
-		if uidFloat, ok := userIdMap["userId"].(float64); ok {
-			userId = int(uidFloat)
-		}
-	}
-
-	posts, err := modules.GetPosts(start, uid, groupId, userId)
-	if err != nil {
-		auth.JsRespond(w, "Get Posts failed", http.StatusBadRequest)
-		logs.ErrorLog.Println(err)
+	switch forwhat {
+	case "home":
+		GetHomePostsHandler(w, r, uid, start)
+	case "profile":
+		GetProfilePostsHandler(w, r, uid, start, userId)
+	case "group":
+		GetGroupPostsHandler(w, r, uid, start, groupId)
+	default:
+		auth.JsRespond(w, "Invalid fetch type", http.StatusBadRequest)
 		return
+	}
+}
+
+func GetFollowersHandler(w http.ResponseWriter, r *http.Request, uid int) {
+	rows, err := modules.DB.Query(`
+		SELECT
+		    f.follower_id,
+		    p.display_name
+		FROM
+		    follow f
+		    JOIN profile p ON (
+		        f.following_id = p.id
+		        AND p.is_user = 1
+		    )
+		WHERE
+		    f.follower_id = ?
+	`, uid)
+	if err != nil {
+		logs.ErrorLog.Printf("GetFollowers query error: %q", err.Error())
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	var followers []structs.UsersGet
+	for rows.Next() {
+		var follower structs.UsersGet
+		if err := rows.Scan(&follower.ID, &follower.Username); err != nil {
+			logs.ErrorLog.Printf("Error scanning followers: %q", err.Error())
+			http.Error(w, "Error processing data", http.StatusInternalServerError)
+			return
+		}
+		followers = append(followers, follower)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Posts fetched successfully",
-		"posts":   posts,
-	})
+	json.NewEncoder(w).Encode(followers)
 }

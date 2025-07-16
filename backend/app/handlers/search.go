@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,7 +15,6 @@ func GetSearchHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	query := r.URL.Query().Get("query")
 	offsetst := r.URL.Query().Get("offset")
 	groupId, err := strconv.Atoi(r.URL.Query().Get("groupId"))
-	fmt.Println("here", offsetst)
 	if err != nil {
 		groupId = 0
 	}

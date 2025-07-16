@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import Style from "../../profile.module.css";
 import Image from "next/image";
-import {SendData} from "../../../sendData.js";
+import { SendData } from "../../../sendData.js";
 import LikeDeslike from "../../../utils.jsx";
 import Comments from "../../../comments.jsx";
 
-export default function Posts(userId) {
+export default function Posts({ data }) {
   const [openComments, setOpenComments] = useState(null);
   const [posts, setPosts] = useState([]);
   const [lastPostID, setLastPostID] = useState(0);
@@ -21,7 +21,7 @@ export default function Posts(userId) {
       startID = 0;
     }
 
-    const formData = { start: startID, userId: userId };
+    const formData = { start: startID, userId: data.isSelf ? 0 : data.id, fetch: "profile" };
 
     try {
       const response = await SendData("/api/v1/get/posts", formData);

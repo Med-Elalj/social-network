@@ -135,10 +135,11 @@ type PostGet struct {
 }
 
 type PostCreate struct {
-	Content Pbody       `json:"content"`
-	Image   PImage      `json:"image"`
-	Privacy PostPrivacy `json:"privacy"`
-	GroupId int         `json:"groupId"`
+	Content  Pbody       `json:"content"`
+	Image    PImage      `json:"image"`
+	Privacy  PostPrivacy `json:"privacy"`
+	GroupId  int         `json:"groupId"`
+	Privates []UsersGet  `json:"privetids"`
 }
 
 type CommentInfo struct {

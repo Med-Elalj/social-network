@@ -36,7 +36,6 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			auth.JsRespond(w, "Unauthorized - session not found", http.StatusUnauthorized)
 			return
 		}
-		// fmt.Println("MiddleWare Session details:", session)
 		// verify IP & User-Agent bind to session
 		clientIP := auth.GetIP(r)
 		if session.IP != clientIP {

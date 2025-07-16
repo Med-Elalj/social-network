@@ -23,7 +23,7 @@ export default function Home() {
 
     try {
       const startID = reset ? 0 : lastPostID;
-      const response = await SendData("/api/v1/get/posts", { start: startID });
+      const response = await SendData("/api/v1/get/posts", { start: startID,fetch:"home" });
       const Body = await response.json();
 
       if (response.status !== 200) throw Body;

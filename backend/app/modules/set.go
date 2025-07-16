@@ -17,6 +17,8 @@ func InsertPost(post structs.PostCreate, uid, gid int) bool {
 		return false
 	}
 
+	fmt.Println(post)
+
 	var groupId interface{}
 	if gid == 0 {
 		groupId = nil
@@ -46,15 +48,25 @@ func InsertPost(post structs.PostCreate, uid, gid int) bool {
 		return false
 	}
 
+	lastInsertID, _ := res.LastInsertId()
+	if len(post.Privates) > 0 {
+		for _, private := range post.Privates {
+			_, err = tx.Exec(`
+				INSERT INTO postrack (post_id, follower_id)
+				VALUES (?, ?)`, lastInsertID, private.ID)
+			if err != nil {
+				tx.Rollback()
+				logs.ErrorLog.Printf("Error inserting into postrack: %q", err.Error())
+				return false
+			}
+		}
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		logs.ErrorLog.Printf("Transaction commit error: %q", err.Error())
 		return false
 	}
-
-	lastInsertID, _ := res.LastInsertId()
-	logs.InfoLog.Println("Post inserted with ID ", lastInsertID)
-
 	return true
 }
 
@@ -66,7 +78,7 @@ func UserFollow(uid int, tid int, followStatus string) (string, error) {
 	case "follow", "follow back":
 		{
 			_, err = DB.Exec(`
-				INSERT OR IGNORE INTO follow (follower_id, following_id, status)
+				INSERT OR IGNORE INTO follow (follower_id, following_id)
 				VALUES (?, ?, 0)
 				`, uid, tid)
 		}

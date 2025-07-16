@@ -26,14 +26,10 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GetPostsHandler(w, r, data.Sub)
 	case "comments":
 		GetCommentsHandler(w, r, data.Sub)
-	case "groupPosts":
-		GetPostsHandler(w, r, data.Sub)
 	case "groupMembers":
 		GroupMembersHandler(w, r, data.Sub)
 	case "groupFeeds":
 		GroupFeedsHandler(w, r, data.Sub)
-	// case "groupToJoin":
-	// 	GroupToJoinHandler(w, r, data.Sub)
 	case "groupImIn":
 		GroupImInHandler(w, r, data.Sub)
 	case "groupEvents":
@@ -46,6 +42,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		GetGroupDataHandler(w, r, data.Sub)
 	case "search":
 		GetSearchHandler(w, r, data.Sub)
+	case "myFollowers":
+		GetFollowersHandler(w, r, data.Sub)
 	case "users":
 		payload := r.Context().Value(auth.UserContextKey)
 		data, ok := payload.(*jwt.JwtPayload)
@@ -59,8 +57,6 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		jsonData, _ := json.Marshal(usernames)
 		w.Write(jsonData)
-	// case "follow":
-	// 	modules.GetRequests(w, r, 1)
 	case "dmhistory":
 		target := r.Header.Get("target")
 		page, err := strconv.Atoi(r.Header.Get("page"))

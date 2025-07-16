@@ -21,7 +21,7 @@ export default function Posts({ activeSection, setActiveSection, groupId }) {
             startID = 0;
         }
 
-        const formData = { start: startID, groupId: groupId };
+        const formData = { start: startID, groupId: groupId, fetch: "group" };
 
         try {
             const response = await SendData("/api/v1/get/posts", formData);
@@ -106,6 +106,7 @@ export default function Posts({ activeSection, setActiveSection, groupId }) {
                                             alt="group avatar"
                                             width={25}
                                             height={25}
+                                            style={{ borderRadius: "50%" }}
                                         />
                                     ) : (
                                         <Image

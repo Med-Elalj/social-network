@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import Styles from "./newPost.module.css";
-import { SendData } from "../sendData.js";
+import { GetData, SendData } from "../sendData.js";
 import { useRouter } from "next/navigation";
 import { HandleUpload } from "../utils.jsx";
 
@@ -13,6 +13,7 @@ export default function NewPost() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [users, setUsers] = useState(null);
   const fileInputRef = useRef(null);
   const router = useRouter();
 
@@ -51,7 +52,7 @@ export default function NewPost() {
       privacy,
       image: imagePath,
       groupId: null,
-      allowedUsers: privacy === "private" ? selectedFriends : null,
+      privetids: privacy === "private" ? selectedFriends : [],
     };
 
     const response = await SendData("/api/v1/set/Post", formData);
@@ -63,6 +64,25 @@ export default function NewPost() {
       router.push("/");
     }
   };
+
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await GetData(`/api/v1/get/myFollowers`);
+        if (res.ok) {
+          const data = await res.json();
+          setUsers(data);
+        } else {
+          console.error("Failed to fetch followers");
+        }
+      } catch (err) {
+        console.error("Error fetching followers:", err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   return (
     <div className={Styles.form}>
@@ -124,7 +144,7 @@ export default function NewPost() {
               style={{ padding: "0.5rem", marginTop: "0.5rem" }}
             >
               <option value="public">Public</option>
-              <option value="almost private">almost private</option>
+              <option value="almost_private">almost private</option>
               <option value="private">private</option>
             </select>
           </div>
@@ -141,25 +161,26 @@ export default function NewPost() {
 
               {showDropdown && (
                 <div className={Styles.friendList}>
-                  {["Alice", "Bob", "Charlie", "David", "Eve"].map((friend) => {
+                  {users ? users?.map((friend) => {
                     const isSelected = selectedFriends.includes(friend);
 
                     return (
                       <div
-                        key={friend}
+                        key={friend.id}
                         className={`${Styles.friendItem} ${isSelected ? Styles.selected : ""}`}
                         onClick={() =>
-                          setSelectedFriends((prev) =>
-                            isSelected
+                          setSelectedFriends((prev) => {
+                            return isSelected
                               ? prev.filter((f) => f !== friend)
                               : [...prev, friend]
+                          }
                           )
                         }
                       >
-                        {friend}
+                        {friend.name}
                       </div>
                     );
-                  })}
+                  }) : "No Friends"}
                 </div>
 
               )}
@@ -173,7 +194,7 @@ export default function NewPost() {
             <p>Selected Friends:</p>
             <ul>
               {selectedFriends.map((friend) => (
-                <li key={friend}>{friend}</li>
+                <li key={friend.id}>{friend.name}</li>
               ))}
             </ul>
           </div>

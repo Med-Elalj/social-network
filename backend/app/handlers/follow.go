@@ -14,7 +14,6 @@ import (
 
 // needs header "follow_target" the id of the profile you want to follow
 func FollowHandle(w http.ResponseWriter, r *http.Request, uid int) {
-	fmt.Println("test this")
 	type BodyRequest struct {
 		Target int    `json:"target"`
 		Status string `json:"status"`
@@ -193,7 +192,6 @@ func GetUserSuggestions(w http.ResponseWriter, r *http.Request, uid int) {
 		auth.JsRespond(w, "invalid is_user request", http.StatusBadRequest)
 		return
 	}
-	fmt.Println(is_user)
 	users, err := modules.GetSuggestions(uid, is_user)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting segguestions: ", err)

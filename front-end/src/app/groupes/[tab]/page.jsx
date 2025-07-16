@@ -11,6 +11,7 @@ import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { SendData } from "../../sendData.js";
 import { useNotification } from "../../context/notificationContext.jsx";
+import { type } from "os";
 
 export default function Groupes() {
     const router = useRouter();
@@ -24,6 +25,7 @@ export default function Groupes() {
     const [requests, setRequests] = useState([]);
     const [about, setAbout] = useState("");
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [userResponse, setUserResponse] = useState(null);
     const { showNotification } = useNotification();
 
     // get requests
@@ -51,9 +53,23 @@ export default function Groupes() {
         }
     };
 
+
     const handleExit = (e) => {
         router.push('/groupes/feed')
     };
+
+
+    const ARequest = async (DataToFetch) => {
+        const response = await SendData("/api/v1/set/acceptFollow", DataToFetch);
+        const Body = await response.json();
+        if (response.ok) {
+            showNotification(`Your @${DataToFetch.status}ing the request `)
+            setUserResponse({id: DataToFetch.sender, status: DataToFetch.status});
+        } else {
+            showNotification(`can't ${DataToFetch.status} request, try again`, "error");
+        }
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -200,16 +216,17 @@ export default function Groupes() {
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
                                         <Image src={request.groupImage || "/iconGroup.png"} alt="profile" width={25} height={25} style={{ borderRadius: "50%" }} />
-                                        <h4 style={{ marginLeft: "10px" }}>{request.group_name}</h4>
+                                        <h4 style={{ marginLeft: "10px" }}>{userResponse?.id != request.sender_id ?`${request?.username} send you a join request to group ${request?.group_name}`:`the request ${userResponse.status}ed`}</h4>
                                     </div>
-                                    <div className={Style.Buttons}>
-                                        <Link href="/accept">
+                                    {userResponse?.id != request.sender_id ? (<div className={Style.Buttons}>
+                                        <div onClick={() => ARequest({ sender: request.sender_id, target: request.group_id, status: 'accept', type: 1 })}>
                                             <Image src="/accept2.svg" alt="accept" width={25} height={25} />
-                                        </Link>
-                                        <Link href="/reject">
+                                        </div>
+                                        <div onClick={() => ARequest({ sender: request.sender_id, target: request.group_id, status: 'refuse', type: 1 })}>
                                             <Image src="/decline.svg" alt="reject" width={25} height={25} />
-                                        </Link>
-                                    </div>
+                                        </div>
+                                    </div>) : <></>}
+
                                 </div>
                             )) : <h3>No requests</h3>}
                         </div>

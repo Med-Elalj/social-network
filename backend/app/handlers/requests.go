@@ -34,7 +34,7 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var bodyRequest struct {
 		Target     int  `json:"target"`
 		Type       int  `json:"type"`
-		ReceiverId int  `json:"receiver_id`
+		ReceiverId int  `json:"receiver_id"`
 		Is_public  bool `json:"is_public"`
 	}
 

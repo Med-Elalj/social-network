@@ -60,7 +60,7 @@ export default function Discover() {
     <div className={groups ? Style.groupGrid : Style.noPosts}>
       {groups ? (
         groups.map((Group) => (
-          <div className={Style.groupCard} key={Group.ID}>
+          <div className={Style.groupCard} key={Group.id}>
             <Image
               src={Group?.Avatar?.Valid ? Group.Avatar.String : "/db.png"}
               alt="profile"

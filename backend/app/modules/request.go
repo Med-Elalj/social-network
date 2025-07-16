@@ -2,6 +2,7 @@ package modules
 
 import (
 	"errors"
+	"fmt"
 
 	"social-network/app/logs"
 )
@@ -29,6 +30,7 @@ func InsertRequest(senderId, receiverId, target, typeId int) error {
 }
 
 func InsertGroupRequestFromUser(senderId, targetId, receiverId int) error {
+	fmt.Println(senderId, targetId, receiverId)
 	_, err := DB.Exec(`
 		INSERT INTO request (sender_id, receiver_id, target_id, type)
 		VALUES (?,?,?,1);`, senderId, receiverId, targetId)

@@ -1,4 +1,5 @@
 import styles from "../profile.module.css";
+import { SendData } from "@/app/sendData.js";
 
 export default function CreateEvent({ groupId }) {
   const handleSubmit = async (e) => {
@@ -10,14 +11,22 @@ export default function CreateEvent({ groupId }) {
     const datetime = form.datetime.value;
 
     const payload = {
-      groupId,
-      title,
-      description,
-      datetime,
+      group_id: groupId,
+      title: title,
+      description: description,
+      time: datetime,
     };
 
-    console.log(payload);
-    // await SendData("/api/v1/events/create", payload);
+    console.log("front event data : ", payload);
+    const response = await SendData("/api/v1/set/eventCreation", payload);
+    const Body = await response.json();
+
+    if (response.status !== 200) {
+      const errorBody = await response.json();
+      console.log(errorBody);
+    } else {
+      console.log("✅ Event created!");
+    }
   };
 
   return (

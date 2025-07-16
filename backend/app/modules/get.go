@@ -33,7 +33,7 @@ WHERE
 	p.group_id = ? AND
 	(? = 0 or p.id < ?)
 ORDER BY p.created_at DESC
-LIMIT 10;`		
+LIMIT 10;`
 	rows, err := DB.Query(query, uid, groupId, start, start)
 	if err != nil {
 		logs.ErrorLog.Printf("GetGroupPosts query error: %q", err.Error())
@@ -398,7 +398,7 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	var events []structs.GroupEvent
 	for rows.Next() {
 		var event structs.GroupEvent
-		if err := rows.Scan(event.ID, event.Userid, event.Description, event.Title, event.Timeof, event.CreationTime, event.Respond); err != nil {
+		if err := rows.Scan(&event.ID, &event.Userid, &event.Description, &event.Title, &event.Timeof, &event.CreationTime, &event.Respond); err != nil {
 			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
 			return nil, err
 		}
@@ -462,84 +462,84 @@ func GetMembers(groupid int) ([]structs.Gusers, error) {
 func GetGroupFeed(uid int) ([]structs.Post, error) {
 	rows, err := DB.Query(`
 		WITH
-		    user_groups AS (
-		        SELECT
-		            id
-		        FROM
-		            "group"
-		        WHERE
-		            creator_id = ?
-		        UNION
-		        SELECT
-		            following_id
-		        FROM
-		            follow
-		        WHERE
-		            follower_id = ?
-		            AND status = 1
-		    ),
-		    posts_with_rn AS (
-		        SELECT
-		            p.*,
-		            ROW_NUMBER() OVER (
-		                PARTITION BY
-		                    p.group_id
-		                ORDER BY
-		                    p.created_at DESC
-		            ) AS rn
-		        FROM
-		            posts p
-		            JOIN user_groups ug ON p.group_id = ug.id
-		    )
-		SELECT
-		    pwr.id,
-		    pwr.group_id,
-		    pwr.user_id,
-		    pwr.content,
-		    author.display_name AS UserName,
-		    group_profile.display_name AS GroupName,
-		    author.avatar AS AvatarUser,
-		    group_profile.avatar AS AvatarGroup,
-		    pwr.image_path,
-		    pwr.created_at,
-		    (
-		        SELECT
-		            COUNT(*)
-		        FROM
-		            likes l
-		        WHERE
-		            l.post_id = pwr.id
-		    ) AS like_count,
-		    (
-		        SELECT
-		            COUNT(*)
-		        FROM
-		            comments c
-		        WHERE
-		            c.post_id = pwr.id
-		    ) AS comment_count,
-		    CASE
-		        WHEN EXISTS (
-		            SELECT
-		                1
-		            FROM
-		                likes l
-		            WHERE
-		                l.user_id = ?
-		                AND l.post_id = pwr.id
-		                AND l.comment_id IS NULL
-		        ) THEN 1
-		        ELSE 0
-		    END AS is_liked
-		FROM
-		    posts_with_rn pwr
-		    JOIN profile author ON author.id = pwr.user_id
-		    JOIN profile group_profile ON group_profile.id = pwr.group_id
-		WHERE
-		    pwr.rn <= 2
-		ORDER BY
-		    pwr.group_id,
-		    pwr.created_at DESC;`, uid, uid, uid)
+    user_groups AS (
+        SELECT
+            id
+        FROM
+            "group"
+        WHERE
+            creator_id = ?
+        UNION
+        SELECT
+            following_id
+        FROM
+            follow
+        WHERE
+            follower_id = ?
+             
+    ),
+    posts_with_rn AS (
+        SELECT
+            p.*,
+            ROW_NUMBER() OVER (
+                PARTITION BY
+                    p.group_id
+                ORDER BY
+                    p.created_at DESC
+            ) AS rn
+        FROM
+            posts p
+            JOIN user_groups ug ON p.group_id = ug.id
+    )
+SELECT
+    pwr.id,
+    pwr.group_id,
+    pwr.user_id,
+    pwr.content,
+    author.display_name AS UserName,
+    group_profile.display_name AS GroupName,
+    author.avatar AS AvatarUser,
+    group_profile.avatar AS AvatarGroup,
+    pwr.image_path,
+    pwr.created_at,
+    (
+        SELECT
+            COUNT(*)
+        FROM
+            likes l
+        WHERE
+            l.post_id = pwr.id
+    ) AS like_count,
+    (
+        SELECT
+            COUNT(*)
+        FROM
+            comments c
+        WHERE
+            c.post_id = pwr.id
+    ) AS comment_count,
+    CASE
+        WHEN EXISTS (
+            SELECT
+                1
+            FROM
+                likes l
+            WHERE
+                l.user_id = ?
+                AND l.post_id = pwr.id
+                AND l.comment_id IS NULL
+        ) THEN 1
+        ELSE 0
+    END AS is_liked
+FROM
+    posts_with_rn pwr
+    JOIN profile author ON author.id = pwr.user_id
+    JOIN profile group_profile ON group_profile.id = pwr.group_id
+WHERE
+    pwr.rn <= 2
+ORDER BY
+    pwr.group_id,
+    pwr.created_at DESC;`, uid, uid, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("GetgroupFeed query error: %q", err.Error())
 		return nil, err

@@ -68,7 +68,7 @@ export default function Profile() {
         const res = await SendData(`/api/v1/get/groupEvents`, data.ID);
         if (res.ok) {
           const eventData = await res.json();
-          setEvents(eventData);
+          setEvents(eventData.events);
         } else {
           setHasError(true);
         }
@@ -80,6 +80,9 @@ export default function Profile() {
     
     fetchEvents();
   }, [data?.ID]);
+
+  console.log(events);
+  
 
   // Fetch requests - only once on component mount
   useEffect(() => {
@@ -143,10 +146,6 @@ export default function Profile() {
       setShowSearch(false);
     }
   }, [activeSection]);
-
-  useEffect( () => {
-    console.log(data)
-  },[data])
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -316,7 +315,7 @@ export default function Profile() {
                   setActiveSection={setActiveSection}
                 />
               )}
-              {activeSection === "CreateEvent" && <CreateEvent />}
+              {activeSection === "CreateEvent" && <CreateEvent groupId={data?.ID}/>}
               {/* Removed the problematic line that was causing re-renders */}
             </>
           )}
@@ -326,11 +325,11 @@ export default function Profile() {
         <div className={Style.events}>
           <h2>Upcoming Events</h2>
           {events.length > 0 ? (
-            events.map((event, index) => (
+            events?.map((event, index) => (
               <div key={index} className={Style.event}>
-                <h3>{event.name}</h3>
+                <h3>{event.title}</h3>
                 <p>{event.description}</p>
-                <p>{event.date}</p>
+                <p>{event.time}</p>
                 <div>
                   <button className={Style.button}>Going</button>
                   <button className={Style.button}>Not going</button>

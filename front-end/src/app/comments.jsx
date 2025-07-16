@@ -100,11 +100,6 @@ export default function Comments({ Post, onClose }) {
     }
   };
 
-  Comments.map(com => {
-    console.log("Comments:", com);
-    console.log("img path:", com.image_path)
-  })
-
   return (
     console.log(Post),
 

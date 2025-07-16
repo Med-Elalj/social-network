@@ -40,6 +40,7 @@ func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.GroupEvent
 
 	json.NewDecoder(r.Body).Decode(&event)
+
 	lastID, err := modules.Insertevent(event, uid)
 	if err != nil {
 		auth.JsRespond(w, "Failed to create event", http.StatusBadRequest)

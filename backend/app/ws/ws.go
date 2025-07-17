@@ -136,11 +136,12 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 	if err != nil {
 		logs.ErrorLog.Printf("add conn to map %q", err)
 	}
+	fmt.Println("groups", groups)
 	for _, v := range groups {
 		id := int(v.ID)
 		if ws, ok := sockets[id]; ok {
 			if g, ok := ws.(*group); ok {
-				g.subs[id] = struct{}{}
+				g.subs[uID] = struct{}{}
 			} else {
 				logs.ErrorLog.Fatalln("user with group id", sockets, uID, groups, id)
 			}
@@ -149,7 +150,9 @@ func addConnToMap(uID int, connection *websocket.Conn) bool {
 			g.subs = map[int]struct{}{uID: {}}
 			g.id = id
 			sockets[id] = &g
+			fmt.Println("g", g)
 		}
+		fmt.Println("group id:", v.ID, "sockets:", sockets, "group:", sockets[v.ID])
 	}
 	return true
 }
@@ -178,6 +181,7 @@ func getData(r *http.Request) (int, string) {
 }
 
 func (m *message) send() error {
+	fmt.Println("websockets :", sockets)
 	err := modules.AddDm(m.Sender, m.Receiver, m.Message)
 	if err != nil {
 		err = errors.New("failed to store message in db with error: " + err.Error())
@@ -211,11 +215,11 @@ func (m *message) send() error {
 func (g *group) WriteMessage(messageType int, data []byte) error {
 	g.Lock()
 	defer g.Unlock()
-
+	fmt.Println("groups: ")
 	for id := range g.subs {
 		if profile, exist := sockets[id]; !exist {
 			if ws, is := profile.(*websocket.Conn); is {
-				ws.WriteMessage(websocket.TextMessage, data)
+				fmt.Printf("group user err: %q", ws.WriteMessage(websocket.TextMessage, data))
 			} else {
 				logs.ErrorLog.Printf("how did we get here ??%v %v %v\n", sockets, id, data)
 			}

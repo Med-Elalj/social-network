@@ -52,6 +52,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		usernames, err := modules.GetUserNames(data.Sub)
+		fmt.Println("users ", usernames)
 		if err != nil {
 			logs.ErrorLog.Printf("routes.go 60 %q", err.Error())
 		}
@@ -74,7 +75,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		username := data.Username
-		dms, err := modules.GetdmHistory(username, target, page)
+		dms, err := modules.GetdmHistory(data.Sub, username, target, page)
 		if err != nil {
 			logs.ErrorLog.Printf("routes.go 69 %q", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)

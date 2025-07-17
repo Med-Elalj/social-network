@@ -656,7 +656,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		NOT p.is_user AS is_group
 	FROM
 		profile p
-	JOIN
+	LEFT JOIN
 		user u ON u.id = p.id
 	INNER JOIN 
 		follow f ON (f.follower_id = ? OR f.following_id = ?)
@@ -668,7 +668,6 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		)
 	WHERE
 		p.id != ?
-		AND p.is_user = 1
 	GROUP BY
 		p.id, p.display_name
 	ORDER BY
@@ -700,7 +699,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	return userS, nil
 }
 
-func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
+func GetdmHistory(uid1 int, uname1, uname2 string, page int) (structs.Chat, error) {
 	// var d time.Time
 	var chat structs.Chat
 
@@ -712,24 +711,32 @@ func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
         SELECT *
         FROM (
             SELECT
-                sender.id,sender.display_name, d.content, d.created_at
-            FROM
-                message d
-            JOIN
-                profile sender ON d.sender_id = sender.id
-            JOIN
-                profile recipient ON d.receiver_id = recipient.id
-            WHERE
-                (sender.display_name = ? AND recipient.display_name = ?)
-                OR
-                (sender.display_name = ? AND recipient.display_name = ?)
-            
-            ORDER BY
-                d.created_at DESC
-            LIMIT 11 OFFSET ?
+    		    sender.id,sender.display_name, d.content, d.created_at
+    		FROM
+    		    message d
+    		JOIN
+    		    profile sender ON d.sender_id = sender.id
+    		JOIN
+    		    profile recipient ON d.receiver_id = recipient.id
+    		WHERE
+    		(recipient.is_user = 1 AND 
+    		    (sender.display_name = ? AND recipient.display_name = ?)
+    		    OR
+    		    (sender.display_name = ? AND recipient.display_name = ?)
+    		) OR (
+    		    recipient.is_user = 0 AND (
+    		        EXISTS (
+    		            SELECT 1 FROM follow f WHERE f.follower_id = ? 
+    		            AND f.following_id = recipient.id
+    		        )
+    		    )
+    		)
+    		ORDER BY
+    		    d.created_at DESC
+    		LIMIT 11 OFFSET ?
         ) AS sub
         ORDER BY created_at ASC;
-    `, uname1, uname2, uname2, uname1, offset)
+    `, uname1, uname2, uname2, uname1, uid1, offset)
 	if err != nil {
 		logs.ErrorLog.Printf("Error getting messages: %q", err.Error())
 		return chat, err

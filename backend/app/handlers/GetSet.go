@@ -107,8 +107,8 @@ func SetHandler(w http.ResponseWriter, r *http.Request) {
 		JoinGroup(w, r, data.Sub)
 	case "eventCreation":
 		GroupEventCreation(w, r, data.Sub)
-	case "eventResponse":
-		UpdateResponseHandler(w, r, data.Sub)
+	case "reactionEvents":
+		GroupEventResponse(w, r, data.Sub)
 	case "follow":
 		FollowHandle(w, r, data.Sub)
 	case "acceptFollow":

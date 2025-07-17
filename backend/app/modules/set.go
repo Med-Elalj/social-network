@@ -178,12 +178,12 @@ func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 	return int(lastID), nil
 }
 
-func UpdatEventResp(event_id int, uid int, respond bool) error {
+func InsertUserEvent(event_id int, uid int, respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`UPDATE userevent SET respond = ? WHERE event_id = ? AND user_id = ?`, respond, event_id, uid)
+	_, err = tx.Exec(`INSERT INTO userevents (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -191,12 +191,12 @@ func UpdatEventResp(event_id int, uid int, respond bool) error {
 	return nil
 }
 
-func InsertUserEvent(event_id int, uid int, respond bool) error {
+func UpdatEventResp(event_id int, uid int, respond bool) error {
 	tx, err := DB.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`INSERT INTO userevents (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
+	_, err = tx.Exec(`UPDATE userevents SET respond = ? WHERE event_id = ? AND user_id = ?`, respond, event_id, uid)
 	if err != nil {
 		tx.Rollback()
 		return err

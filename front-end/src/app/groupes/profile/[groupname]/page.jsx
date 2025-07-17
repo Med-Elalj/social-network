@@ -14,7 +14,6 @@ import { SearchInput } from "../../../components/navigation/search.jsx";
 import { Countdown } from "../../../utils.jsx";
 
 export default function Profile() {
-  const { groupname } = useParams();
   const [activeSection, setActiveSection] = useState("posts");
   const [data, setData] = useState(null);
   const [isPublic, setIsPublic] = useState(false);
@@ -23,9 +22,14 @@ export default function Profile() {
   const [requests, setRequests] = useState([]);
   const [events, setEvents] = useState([]);
   const [respondUserRequest, setRespondUserRequest] = useState(null);
-  const { showNotification } = useNotification();
   const [showSearch, setShowSearch] = useState(false);
   const [joinedGroupId, setJoinedGroupId] = useState(null);
+  const [reactionEventRequest, setReactionEventRequest] = useState(null);
+  const [fetchedReactionEvents, setFetchedReactionEvents] = useState([]);
+
+
+  const { showNotification } = useNotification();
+  const { groupname } = useParams();
 
   // Memoize the search close handler
   const handleSearchClose = useCallback(() => {
@@ -164,6 +168,30 @@ export default function Profile() {
       setJoinedGroupId(null);
     }
   }, [joinedGroupId]);
+
+  // send reaction events
+  useEffect(() => {
+    async function fetchReactionEvents() {
+      if (!reactionEventRequest) return;
+      console.log("reactionEventRequest:", reactionEventRequest);
+
+
+      try {
+        const response = await SendData("/api/v1/set/reactionEvents", reactionEventRequest);
+        if (!response.ok) return
+        const reactionEventData = await response.json();
+        setFetchedReactionEvents(reactionEventData.events);
+      } catch (err) {
+        setHasError(true);
+        console.error("Error fetching reaction events:", err);
+      } finally {
+        setReactionEventRequest(null);
+      }
+    }
+
+    fetchReactionEvents();
+  }, [reactionEventRequest]);
+
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -353,8 +381,10 @@ export default function Profile() {
           <div className={Style.events}>
             <h2>Upcoming Events</h2>
             {events?.length > 0 ? (
-              events?.map((event, index) => (
-                <div key={index} className={Style.event}>
+
+              events?.map((event) => (
+                console.log(event),
+                <div key={event.event_id} className={Style.event}>
                   <h3>{event.title}</h3>
                   <p>{event.description}</p>
                   <Countdown
@@ -362,8 +392,27 @@ export default function Profile() {
                     onComplete={() => console.log("event started")}
                   />
                   <div>
-                    <button className={Style.button}>Going</button>
-                    <button className={Style.button}>Not going</button>
+                    <button
+                      className={Style.button}
+                      onClick={() => setReactionEventRequest({
+                        event_id: event.event_id,
+                        response: true,
+                        is_reacted: event.respond.Valid ? event.respond.Bool : false
+                      })}
+                    >
+                      Going
+                    </button>
+
+                    <button
+                      className={Style.button}
+                      onClick={() => setReactionEventRequest({
+                        event_id: event.event_id,
+                        response: false,
+                        is_reacted: event.respond.Valid ? event.respond.Bool : false
+                      })}
+                    >
+                      Not Going
+                    </button>
                   </div>
                 </div>
               ))

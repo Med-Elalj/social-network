@@ -473,19 +473,17 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	rows, err := DB.Query(`    
 	SELECT
-		e.id,
+	    e.id,
 	    e.user_id,
 	    e.description,
-		e.title,
-		e.timeof,
-		e.created_at,
-		eu.respond
+	    e.title,
+	    e.timeof,
+	    eu.respond
 	FROM
-	    "events" e
-	    JOIN "group" g ON e.group_id = g.id
-		JOIN userevents eu ON e.id = eu.event_id
-	WHERE
-	    g.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
+	    events e
+	LEFT JOIN userevents eu ON e.id = eu.event_id AND eu.user_id = ?
+	WHERE e.group_id = ?
+	ORDER BY e.timeof ASC;`, uid, group_id)
 	if err != nil {
 		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
 		return nil, err
@@ -493,7 +491,7 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	var events []structs.GroupEvent
 	for rows.Next() {
 		var event structs.GroupEvent
-		if err := rows.Scan(&event.ID, &event.Userid, &event.Description, &event.Title, &event.Timeof, &event.CreationTime, &event.Respond); err != nil {
+		if err := rows.Scan(&event.ID, &event.Userid, &event.Description, &event.Title, &event.Timeof, &event.Respond); err != nil {
 			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
 			return nil, err
 		}

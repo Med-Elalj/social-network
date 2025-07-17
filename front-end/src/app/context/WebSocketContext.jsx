@@ -1,7 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useNotification } from "./NotificationContext";
-import { AuthProvider } from "./AuthContext";
 
 const WebSocketContext = createContext(null);
 const WEBSOCKET_URL = "http://localhost:8080/api/v1/ws";
@@ -119,7 +118,6 @@ export const WebSocketProvider = ({ children }) => {
   };
 
   return (
-    <AuthProvider>
     <WebSocketContext.Provider
       value={{
         sendMessage,
@@ -133,9 +131,7 @@ export const WebSocketProvider = ({ children }) => {
       }}
     >
       {children}
-
     </WebSocketContext.Provider>
-    </AuthProvider>
   );
 };
 

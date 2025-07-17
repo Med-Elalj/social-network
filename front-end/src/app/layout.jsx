@@ -53,7 +53,6 @@ export default function Layout({ children }) {
       <body>
         <AuthProvider>
           {" "}
-          {/* Ensure AuthProvider is wrapping everything */}
           <NotificationProvider>
             <WebSocketProvider>
               <Routing />

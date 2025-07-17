@@ -14,7 +14,7 @@ OUT-PORT=9090
 
 all: get-keys run-frontend run-backend
 	@echo "\033[1m\033[96m✅ All services are up and running!\033[0m"
-	@echo "\033[1m\033[96m🌐 Webapp running at:\033[0m \033[1m\033[92mhttps://localhost:8080\033[0m"
+	@echo "\033[1m\033[96m🌐 Webapp running at:\033[0m \033[1m\033[92mhttp://localhost:8080\033[0m"
 	@echo "\033[1m\033[90m────────────────────────────────────────────────────────\033[0m"
 
 run-frontend:
@@ -54,13 +54,18 @@ get-keys:
 
 
 docker:
-	@echo "\033[1m\033[92mGetting docker ready for first use\nPlease Wait...\033[0m"
-	@curl -fsSL https://get.docker.com/rootless 2>/dev/null | sh >/dev/null 2>&1
-	@echo "\033[1m\033[92mCopy paste the following command to start docker in rootless mode:\033[0m"
-	export PATH=$(HOME)/bin:$$PATH
-	export DOCKER_HOST=unix://$(XDG_RUNTIME_DIR)/docker.sock
+	@if docker info --format '{{.SecurityOptions}}' | grep -q "rootless"; then \
+		echo "\033[1m\033[92mDocker is already running in rootless mode.\033[0m"; \
+	else \
+	echo "\033[1m\033[92mInstalling docker in rootless mode...\033[0m"; \
+	echo "\033[1m\033[92mRun "make docker" Twice to install docker\033[0m"; \
+	zsh ./install-docker-rootless.zsh; \
+	source ~/.zshrc; \
+	fi
+#@echo "\033[1m\033[92mGetting docker ready for first use\nPlease Wait...\033[0m"
+#@curl -fsSL https://get.docker.com/rootless 2>/dev/null | sh >/dev/null 2>&1
 
-run-docker:
+run-docker: docker
 	@exec "clear"
 	@echo "\033[1m\033[92mStarting docker-compose...\033[0m"
 	@docker-compose up --build

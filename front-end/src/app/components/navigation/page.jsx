@@ -10,9 +10,33 @@ import Styles from "./nav.module.css";
 import NotificationList from "./notificationList.jsx";
 import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 import { SearchIcon, SearchInput } from "./search.jsx";
-import { useAuth } from "@/app/context/AuthContext.jsx";
+import {  useAuth } from "@/app/context/AuthContext.jsx";
+import { externalNotification } from "@/app/context/NotificationContext.jsx";
 
 const RefreshFrequency = 10 * (60 * 1000); // 14 mins since JWT expiry is 15mins
+
+function ProtectedLink({ isLoggedIn, href, className, children }) {
+  const handleClick = (e) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+    }
+  };
+
+  return (
+    <Link
+      href={href}
+      className={className}
+      onClick={handleClick}
+      style={{
+        opacity: isLoggedIn ? 1 : 0.5,
+        cursor: isLoggedIn ? "pointer" : "not-allowed",
+      }}
+    >
+      {children}
+    </Link>
+  );
+}
+
 
 const Routing = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,24 +49,28 @@ const Routing = () => {
 
   const publicRoutes = ["/login", "/register"];
   const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
-
   // 🧑‍💻 Redirect Logic and Route Protection
   useEffect(() => {
-    if (!loading && !isLoggedIn && !isPublic) {
-      router.push("/login");
-    } else if (isLoggedIn && isPublic) {
-      router.push("/");
+    if (loading) return;
+
+    if (!isLoggedIn && !isPublic) {
+      router.replace("/login");
+    } else if (isLoggedIn && isPublic && pathname !== "/") {
+      router.replace("/");
     }
-  }, [isLoggedIn, pathname, loading]);
+  }, [isLoggedIn, pathname, loading, router]);
 
   useEffect(() => {
-    setInterval(() => {
-      if (isLoggedIn) {
-        refreshAccessToken();
-      }
-    }, RefreshFrequency);
-  }, [isLoggedIn]);
+    if (!isLoggedIn) return;
 
+    const interval = setInterval(() => {
+      refreshAccessToken();
+    }, RefreshFrequency);
+
+    return () => clearInterval(interval);
+  }, [isLoggedIn]);
+  console.log(isLoggedIn, "isLoggedIn",loading,"loading");
+  
   // Fetch notifications when dropdown opens
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -67,9 +95,13 @@ const Routing = () => {
     <div>
       <div className={Styles.nav}>
         <div className={Styles.leftSection}>
-          <Link className={Styles.loginTitle} href={"/"}>
+          <ProtectedLink
+            className={Styles.loginTitle}
+            href={"/"}
+            isLoggedIn={isLoggedIn}
+          >
             Social Network
-          </Link>
+          </ProtectedLink>
         </div>
 
         {isLoggedIn && (
@@ -132,7 +164,11 @@ const Routing = () => {
                       </Link>
                       <button
                         onClick={async () => {
-                          await LogoutAndRedirect({router, isLoggedIn, setIsLoggedIn});
+                          await LogoutAndRedirect({
+                            router,
+                            isLoggedIn,
+                            setIsLoggedIn,
+                          });
                           if (isConnected) closeWebSocket();
                           setIsOpen(false);
                         }}
@@ -170,18 +206,32 @@ const Routing = () => {
 
       {/* Bottom nav */}
       <div className={`${isLoggedIn ? Styles.bottomNav : Styles.logged}`}>
-        {isLoggedIn && (
           <>
-            <NavLink href="/" icon="home" pathname={pathname} />
-            <NavLink href="/newPost" icon="posts" pathname={pathname} />
-            <NavLink href="/groupes/feed" icon="groupe" pathname={pathname} />
-            <NavLink href="/chat" icon="messages" pathname={pathname} />
+            <NavLink
+              href="/"
+              icon="home"
+              pathname={pathname}
+            />
+            <NavLink
+              href="/newPost"
+              icon="posts"
+              pathname={pathname}
+            />
+            <NavLink
+              href="/groupes/feed"
+              icon="groupe"
+              pathname={pathname}
+            />
+            <NavLink
+              href="/chat"
+              icon="messages"
+              pathname={pathname}
+            />
             <SearchIcon
               onClick={() => setShowSearch(true)}
               showSearch={showSearch}
             />
           </>
-        )}
       </div>
 
       {showSearch && <SearchInput onClose={handleSearchClose} />}
@@ -191,12 +241,17 @@ const Routing = () => {
 
 // Helper component for NavLink
 function NavLink({ href, icon, pathname }) {
+  const { isLoggedIn, loading } = useAuth();
+
+  if (loading || isLoggedIn === null) return null;
+
   return (
-    <Link
+    <ProtectedLink
       className={`${Styles.linkWithIcon} ${
         pathname === href ? Styles.active : ""
       }`}
       href={href}
+      isLoggedIn={isLoggedIn}
     >
       <span className={Styles.iconWrapper}>
         <Image
@@ -214,7 +269,7 @@ function NavLink({ href, icon, pathname }) {
           className={Styles.iconDefault}
         />
       </span>
-    </Link>
+    </ProtectedLink>
   );
 }
 

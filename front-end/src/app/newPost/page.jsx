@@ -5,6 +5,7 @@ import Styles from "./newPost.module.css";
 import { GetData, SendData } from "../sendData.js";
 import { useRouter } from "next/navigation";
 import { HandleUpload } from "../utils.jsx";
+import { useAuth } from "@/app/context/AuthContext.jsx";
 
 export default function NewPost() {
   const [content, setContent] = useState("");
@@ -16,6 +17,7 @@ export default function NewPost() {
   const [users, setUsers] = useState(null);
   const fileInputRef = useRef(null);
   const router = useRouter();
+  const {isloading, isLoggedIn} = useAuth();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -67,6 +69,7 @@ export default function NewPost() {
 
 
   useEffect(() => {
+    if (isloading || !isLoggedIn) return;
     const fetchUsers = async () => {
       try {
         const res = await GetData(`/api/v1/get/myFollowers`);
@@ -82,7 +85,7 @@ export default function NewPost() {
     };
 
     fetchUsers();
-  }, []);
+  }, [isloading, isLoggedIn]);
 
   return (
     <div className={Styles.form}>

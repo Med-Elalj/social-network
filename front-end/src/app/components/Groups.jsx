@@ -3,14 +3,18 @@ import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
 import { GetData, SendData } from "@/app/sendData.js";
 import { useNotification } from "../context/NotificationContext.jsx";
+import  {useAuth} from "../context/AuthContext.jsx";
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
   const [joinedGroupId, setJoinedGroupId] = useState(null);
   const [requests, setRequests] = useState([]);
   const { showNotification } = useNotification();
+  const {isloading,isLoggedIn} = useAuth();
+  if (isloading) return null;
 
   useEffect(() => {
+    if (!isLoggedIn) return;
     const fetchData = async () => {
       const response = await GetData("/api/v1/get/userSeggestions", { is_user: 0 });
       const body = await response.json();
@@ -29,9 +33,10 @@ export default function Groups() {
     };
 
     fetchData();
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
     const fetchGroupRequests = async () => {
       try {
         const response = await SendData("/api/v1/get/requests", { type: 1 });
@@ -50,7 +55,7 @@ export default function Groups() {
     };
 
     fetchGroupRequests();
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     async function sentJoinHandler() {

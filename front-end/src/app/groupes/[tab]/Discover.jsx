@@ -4,12 +4,15 @@ import Image from "next/image";
 import Link from "next/link.js";
 import Style from "../groups.module.css";
 import { useNotification } from "../../context/NotificationContext.jsx";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function Discover() {
   const [groups, setGroups] = useState([]);
   const [joinedGroupId, setJoinedGroupId] = useState(null);
   const { showNotification } = useNotification();
-
+  const {isloading,isLoggedIn} = useAuth();
+  if (isloading) return null;
+  if (!isLoggedIn) return;
   useEffect(() => {
     const fetchData = async () => {
       const response = await SendData("/api/v1/get/userSeggestions", { is_user: 0 });

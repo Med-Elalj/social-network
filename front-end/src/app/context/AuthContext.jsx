@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useState, useContext, useEffect } from "react";
-import { useRouter } from "next/router";
+import { createContext, useContext, useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { GetData } from "@/app/sendData.js";
 
 // 1. Create the Authentication Context
@@ -16,6 +16,31 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [loading, setLoading] = useState(true);
+  const didFetchRef = useRef(false);
+
+useEffect(() => {
+  if (didFetchRef.current) return; // prevent double-fetch
+  didFetchRef.current = true;
+
+  const checkAuth = async () => {
+    try {
+      const response = await GetData("/api/v1/auth/status", {
+        credentials: "include",
+      });
+      const data = await response.json();
+      setIsLoggedIn(data.authenticated);
+    } catch (err) {
+      console.error(err);
+      setIsLoggedIn(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  checkAuth();
+}, []);
+
+console.log("AuthProvider: checking auth status...");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -27,10 +52,11 @@ export const AuthProvider = ({ children }) => {
 
         if (response.ok) {
           setIsLoggedIn(data.authenticated);
+        } else {
+          setIsLoggedIn(false);
         }
-
       } catch (error) {
-        console.error("Error during auth check:", error);
+        console.error("Auth error:", error);
         setIsLoggedIn(false);
       } finally {
         setLoading(false);
@@ -40,39 +66,14 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  const value = useMemo(
+    () => ({ isLoggedIn, loading, setIsLoggedIn }),
+    [isLoggedIn, loading]
+  );
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, loading, setIsLoggedIn }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-// 4. AuthCheck Component to conditionally render content based on authentication status
-const AuthCheck = ({ children }) => {
-  const { isLoggedIn, loading } = useAuth();
-  const router = useRouter();
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (isMounted && !loading && !isLoggedIn) {
-      router.push("/login");
-    }
-  }, [isLoggedIn, loading, router, isMounted]);
-
-  if (loading || !isMounted) {
-    return <div>Loading...</div>; // Show loading state while checking auth and when component is mounting
-  }
-
-  if (!isLoggedIn) {
-    return <div>Please log in to access this content.</div>;
-  }
-
-  return <>{children}</>;
-};
-
-export default AuthCheck;

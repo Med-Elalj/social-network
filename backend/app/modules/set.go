@@ -79,7 +79,7 @@ func UserFollow(uid int, tid int, followStatus string) (string, error) {
 		{
 			_, err = DB.Exec(`
 				INSERT OR IGNORE INTO follow (follower_id, following_id)
-				VALUES (?, ?, 0)
+				VALUES (?, ?)
 				`, uid, tid)
 		}
 

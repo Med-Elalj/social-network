@@ -4,6 +4,7 @@ import Styles from "./global.module.css";
 import LikeDeslike from "./utils.jsx";
 import { SendData } from "./sendData.js";
 import { HandleUpload } from "./utils.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
 
 export default function Comments({ Post, onClose }) {
   const [content, setContent] = useState("");
@@ -15,6 +16,7 @@ export default function Comments({ Post, onClose }) {
   const [commentImage, setCommentImage] = useState(null);
   const commentFileRef = useRef(null);
 
+  const {isloading, isLoggedIn} = useAuth();
   const handleCommentImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setCommentImage(file);
@@ -22,6 +24,7 @@ export default function Comments({ Post, onClose }) {
 
   const fetchData = async (reset = false) => {
     if (loading || (!hasMore && !reset)) return;
+    if (isloading || !isLoggedIn) return;
     setLoading(true);
 
     const startID = reset ? 0 : LastCommentID;

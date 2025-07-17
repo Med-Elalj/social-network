@@ -100,26 +100,29 @@ func GetFollowRequests(w http.ResponseWriter, r *http.Request, uid int) {
 
 func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 	type BodyRequest struct {
-		Id     int    `json:"sender"`
-		Target int    `json:"target"`
-		Status string `json:"status"`
-		Type   int    `json:"type"`
+		Id        int    `json:"sender"`
+		Target    int    `json:"target"`
+		Status    string `json:"status"`
+		Type      int    `json:"type"`
+		IsSpecial bool   `json:"isSpecial"`
 	}
 	type ResponseBody struct {
 		NewStatus string `json:"new_status"`
 		Message   string `json:"message"`
 	}
+
+	var err error
+	var targetIsPublic bool
 	var bodyRequest BodyRequest
 	var responseBody ResponseBody
-	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
+
+	err = json.NewDecoder(r.Body).Decode(&bodyRequest)
 	if err != nil {
 		logs.ErrorLog.Println("invalid request id:", err)
 		auth.JsRespond(w, "invalid request id", http.StatusBadRequest)
 		return
 	}
-
 	// Get target user's privacy status before processing
-	var targetIsPublic bool
 	if bodyRequest.Type == 0 {
 		err = modules.DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, bodyRequest.Id).Scan(&targetIsPublic)
 		if err != nil {
@@ -135,7 +138,13 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		}
 
 		// First, insert the follow relationship (sender follows target)
-		if err := modules.InsertFollow(bodyRequest.Id, bodyRequest.Target); err != nil {
+		if bodyRequest.IsSpecial {
+			err = modules.InsertFollow(uid, bodyRequest.Target)
+		} else {
+			err = modules.InsertFollow(bodyRequest.Id, bodyRequest.Target)
+		}
+
+		if err != nil {
 			logs.ErrorLog.Println("Error accepting follow relationship:", err)
 			auth.JsRespond(w, "follow accepting failed", http.StatusInternalServerError)
 			return
@@ -161,8 +170,8 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		}
 	}
 
-	// Delete the request after processing
-	if err := modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target, bodyRequest.Type); err != nil {
+	err = modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target, bodyRequest.Type)
+	if err != nil {
 		logs.ErrorLog.Println("Error deleting follow request:", err)
 		auth.JsRespond(w, "error processing request", http.StatusInternalServerError)
 		return

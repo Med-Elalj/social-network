@@ -8,7 +8,7 @@ import (
 )
 
 func InsertRequest(senderId, receiverId, target, typeId int) error {
-	if typeId == 1 {
+	if typeId == 1 && receiverId == 0 {
 		err := DB.QueryRow(`SELECT g.creator_id FROM "group" g WHERE g.id = ?`, target).Scan(&receiverId)
 		if err != nil {
 			logs.ErrorLog.Printf("error getting group creator id: %q", err.Error())

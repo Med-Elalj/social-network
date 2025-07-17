@@ -763,21 +763,21 @@ func GetSearchprofile(query string, page, groupId, uid int) (structs.SearchProfi
 	var err error
 	if groupId != 0 {
 		Query = `
-SELECT
-    p.id,
-    p.display_name,
-    p.avatar,
-    p.is_user
-FROM
-    profile p
-JOIN 
-    follow f ON p.id = f.follower_id
-WHERE
-    f.following_id = ?  -- Your user ID (the person being followed)
-    AND p.display_name LIKE ?
-    AND p.is_user = 1   -- Only users (not groups)
-ORDER BY p.display_name ASC
-LIMIT 11 OFFSET ?;`
+	SELECT
+	    p.id,
+	    p.display_name,
+	    p.avatar,
+	    p.is_user
+	FROM
+	    profile p
+	JOIN 
+	    follow f ON p.id = f.follower_id
+	WHERE
+	    f.following_id = ?  -- Your user ID (the person being followed)
+	    AND p.display_name LIKE ?
+	    AND p.is_user = 1   -- Only users (not groups)
+	ORDER BY p.display_name ASC
+	LIMIT 11 OFFSET ?;`
 		rows, err = DB.Query(Query, uid, "%"+query+"%", offset)
 
 	} else {

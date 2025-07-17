@@ -15,7 +15,7 @@ func LikeDislike(w http.ResponseWriter, r *http.Request, uid int) {
 	json.NewDecoder(r.Body).Decode(&LikeInfo)
 
 	if !modules.LikeDeslike(LikeInfo, uid) {
-		auth.JsRespond(w, "Like/deslike failed", http.StatusBadRequest)
+		auth.JsResponse(w, "Like/deslike failed", http.StatusBadRequest)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)

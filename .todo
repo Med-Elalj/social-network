@@ -1,5 +1,6 @@
 # Amine
-ADD CORS
-ADD RateLimiter
-check auth globally for extra protection
+ADD RateLimiter / throttle
+
+update upload path for each image 
+
 ###

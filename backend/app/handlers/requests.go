@@ -16,14 +16,14 @@ func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 
 	if err := json.NewDecoder(r.Body).Decode(&bodyRequest); err != nil {
 		logs.ErrorLog.Printf("Failed to decode request body: %q", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	requests, err := modules.GetRequests(uid, bodyRequest.Type)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting requests:", err)
-		auth.JsRespond(w, "Failed to get requests", http.StatusInternalServerError)
+		auth.JsResponse(w, "Failed to get requests", http.StatusInternalServerError)
 		return
 	}
 
@@ -40,7 +40,7 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 
 	if err := json.NewDecoder(r.Body).Decode(&bodyRequest); err != nil {
 		logs.ErrorLog.Printf("Failed to decode request body: %q", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
@@ -49,25 +49,25 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 			err := modules.InsertFollow(uid, bodyRequest.Target)
 			if err != nil {
 				logs.ErrorLog.Println("Error inserting follow relationship:", err)
-				auth.JsRespond(w, "Failed to send follow request", http.StatusInternalServerError)
+				auth.JsResponse(w, "Failed to send follow request", http.StatusInternalServerError)
 				return
 			}
-			auth.JsRespond(w, "Follow request sent successfully", http.StatusOK)
+			auth.JsResponse(w, "Follow request sent successfully", http.StatusOK)
 			return
 		}
 
 		if err := modules.InsertRequest(uid, bodyRequest.Target, bodyRequest.Target, bodyRequest.Type); err != nil {
 			logs.ErrorLog.Println("Error sending request:", err)
-			auth.JsRespond(w, "Failed to send request", http.StatusInternalServerError)
+			auth.JsResponse(w, "Failed to send request", http.StatusInternalServerError)
 			return
 		}
 	} else {
 		if err := modules.InsertGroupRequestFromUser(uid, bodyRequest.Target, bodyRequest.ReceiverId); err != nil {
 			logs.ErrorLog.Println("Error sending request:", err)
-			auth.JsRespond(w, "Failed to send request", http.StatusInternalServerError)
+			auth.JsResponse(w, "Failed to send request", http.StatusInternalServerError)
 			return
 		}
 	}
 
-	auth.JsRespond(w, "Request sent successfully", http.StatusOK)
+	auth.JsResponse(w, "Request sent successfully", http.StatusOK)
 }

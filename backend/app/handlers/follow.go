@@ -28,13 +28,13 @@ func FollowHandle(w http.ResponseWriter, r *http.Request, uid int) {
 	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
 	if err != nil {
 		logs.ErrorLog.Println("invalid request body:", err)
-		auth.JsRespond(w, "invalid request body", http.StatusBadRequest)
+		auth.JsResponse(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if responseBody.NewStatus, err = modules.UserFollow(uid, bodyRequest.Target, bodyRequest.Status); err != nil {
 		logs.ErrorLog.Println("Error inserting follow relationship:", err)
-		auth.JsRespond(w, "error sent request, try again on another time", http.StatusInternalServerError)
+		auth.JsResponse(w, "error sent request, try again on another time", http.StatusInternalServerError)
 		return
 	}
 
@@ -50,18 +50,18 @@ func FollowersLeave(w http.ResponseWriter, r *http.Request, uid int) {
 	gid, err := strconv.Atoi(r.Header.Get("follow_target"))
 	if err != nil {
 		logs.ErrorLog.Println("Error converting group ID:", err)
-		auth.JsRespond(w, "group id is required", http.StatusBadRequest)
+		auth.JsResponse(w, "group id is required", http.StatusBadRequest)
 		return
 	}
 
 	if err := modules.DeleteFollow(uid, gid); err != nil {
 		logs.ErrorLog.Println("Error deleting follow relationship:", err)
-		auth.JsRespond(w, "group leaving failed", http.StatusInternalServerError)
+		auth.JsResponse(w, "group leaving failed", http.StatusInternalServerError)
 		return
 	}
 
 	// TODO notif to group creator
-	auth.JsRespond(w, "user left group successfully", http.StatusOK)
+	auth.JsResponse(w, "user left group successfully", http.StatusOK)
 }
 
 // needs header "follower_target" the id of the follower you want to accept
@@ -74,24 +74,24 @@ func FollowersAccept(w http.ResponseWriter, r *http.Request, uid int) {
 	folower_id, err := strconv.Atoi(r.Header.Get("follower_target"))
 	if err != nil {
 		logs.ErrorLog.Println("Error converting group ID:", err)
-		auth.JsRespond(w, "follower_id as header is required", http.StatusBadRequest)
+		auth.JsResponse(w, "follower_id as header is required", http.StatusBadRequest)
 		return
 	}
 	if err := modules.AcceptFollow(uid, gid, folower_id); err != nil {
 		logs.ErrorLog.Println("Error accepting follow relationship:", err)
-		auth.JsRespond(w, "group accepting failed", http.StatusInternalServerError)
+		auth.JsResponse(w, "group accepting failed", http.StatusInternalServerError)
 		return
 	}
 
 	// TODO notif to group creator
-	auth.JsRespond(w, "user accepted group successfully", http.StatusOK)
+	auth.JsResponse(w, "user accepted group successfully", http.StatusOK)
 }
 
 func GetFollowRequests(w http.ResponseWriter, r *http.Request, uid int) {
 	users, err := modules.GetFollowRequests(uid)
 	if err != nil {
 		logs.ErrorLog.Println("Error get follow requests from Db:", err)
-		auth.JsRespond(w, "get follow requests failed", http.StatusInternalServerError)
+		auth.JsResponse(w, "get follow requests failed", http.StatusInternalServerError)
 	}
 	json.NewEncoder(w).Encode(map[string][]structs.Gusers{
 		"users": users,
@@ -114,7 +114,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 	err := json.NewDecoder(r.Body).Decode(&bodyRequest)
 	if err != nil {
 		logs.ErrorLog.Println("invalid request id:", err)
-		auth.JsRespond(w, "invalid request id", http.StatusBadRequest)
+		auth.JsResponse(w, "invalid request id", http.StatusBadRequest)
 		return
 	}
 
@@ -124,7 +124,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		err = modules.DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, bodyRequest.Id).Scan(&targetIsPublic)
 		if err != nil {
 			logs.ErrorLog.Println("Error getting target user privacy:", err)
-			auth.JsRespond(w, "error processing request", http.StatusInternalServerError)
+			auth.JsResponse(w, "error processing request", http.StatusInternalServerError)
 			return
 		}
 	}
@@ -137,7 +137,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		// First, insert the follow relationship (sender follows target)
 		if err := modules.InsertFollow(bodyRequest.Id, bodyRequest.Target); err != nil {
 			logs.ErrorLog.Println("Error accepting follow relationship:", err)
-			auth.JsRespond(w, "follow accepting failed", http.StatusInternalServerError)
+			auth.JsResponse(w, "follow accepting failed", http.StatusInternalServerError)
 			return
 		}
 
@@ -164,7 +164,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 	// Delete the request after processing
 	if err := modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target, bodyRequest.Type); err != nil {
 		logs.ErrorLog.Println("Error deleting follow request:", err)
-		auth.JsRespond(w, "error processing request", http.StatusInternalServerError)
+		auth.JsResponse(w, "error processing request", http.StatusInternalServerError)
 		return
 	}
 
@@ -189,13 +189,13 @@ func GetUserSuggestions(w http.ResponseWriter, r *http.Request, uid int) {
 	is_user, err := strconv.Atoi(r.URL.Query().Get("is_user"))
 	if err != nil && is_user != 0 && is_user != 1 {
 		logs.ErrorLog.Println("invalid is_user request: ", is_user, err)
-		auth.JsRespond(w, "invalid is_user request", http.StatusBadRequest)
+		auth.JsResponse(w, "invalid is_user request", http.StatusBadRequest)
 		return
 	}
 	users, err := modules.GetSuggestions(uid, is_user)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting segguestions: ", err)
-		auth.JsRespond(w, "error getting segguestions: ", http.StatusInternalServerError)
+		auth.JsResponse(w, "error getting segguestions: ", http.StatusInternalServerError)
 		return
 	}
 

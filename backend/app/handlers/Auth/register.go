@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	auth "social-network/app/Auth"
 	"social-network/app/logs"
@@ -17,16 +18,13 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if len(user.UserName) == 0 {
 		user.UserName = auth.GenerateNickname(user.Fname, user.Lname)
 		if user.UserName == "" {
-			auth.JsRespond(w, "Please enter a valid username.", http.StatusBadRequest)
+			auth.JsResponse(w, "Please enter a valid username.", http.StatusBadRequest)
 		}
 	}
 
 	if err := user.ValidateRegister(); len(err) != 0 {
 		logs.ErrorLog.Println("Validation failed for user input")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]any{
-			"error": err,
-		})
+		auth.JsResponse(w, strings.Join(err, ", "), http.StatusBadRequest)
 		return
 	}
 
@@ -34,7 +32,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logs.ErrorLog.Println("Error inserting user into database:", err)
 		if structs.SqlConstraint(&err) {
-			auth.JsRespond(w, "Username or email already exists", http.StatusConflict)
+			auth.JsResponse(w, "Username or email already exists", http.StatusConflict)
 			return
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -43,5 +41,5 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	auth.Authorize(w, r, int(userID))
-	auth.JsRespond(w, "Registration successful", http.StatusOK)
+	auth.JsResponse(w, "Registration successful", http.StatusOK)
 }

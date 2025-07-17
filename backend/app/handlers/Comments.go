@@ -15,7 +15,7 @@ func CreateComment(w http.ResponseWriter, r *http.Request, uid int) {
 	json.NewDecoder(r.Body).Decode(&comment)
 
 	if !modules.InsertComment(comment, uid) {
-		auth.JsRespond(w, "Comment creation failed", http.StatusBadRequest)
+		auth.JsResponse(w, "Comment creation failed", http.StatusBadRequest)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -33,7 +33,7 @@ func GetCommentsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 
 	comments, ok := modules.GetComments(commentData, uid)
 	if !ok {
-		auth.JsRespond(w, "Failed to get comments", http.StatusBadRequest)
+		auth.JsResponse(w, "Failed to get comments", http.StatusBadRequest)
 		return
 	}
 

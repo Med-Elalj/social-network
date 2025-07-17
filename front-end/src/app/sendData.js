@@ -24,7 +24,7 @@ export async function refreshAccessToken() {
   }
 }
 
-async function fetchWithAuth(path, options = {}) {
+export async function fetchWithAuth(path, options = {}) {
   let url = BACKEND_URL + path;
   let res = await fetch(url, {
     ...options,

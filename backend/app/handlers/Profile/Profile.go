@@ -151,7 +151,7 @@ WHERE
 		)
 		if err != nil {
 			logs.ErrorLog.Println("DB error:", err)
-			auth.JsRespond(w, "Bad request", http.StatusBadRequest)
+			auth.JsResponse(w, "Bad request", http.StatusBadRequest)
 			return
 		}
 
@@ -173,7 +173,7 @@ WHERE
 
 		profile.FollowStatus, err = modules.GetRelationship(payload.Sub, profile.ID)
 		if err != nil {
-			auth.JsRespond(w, "Feild to get relationship", http.StatusNotFound)
+			auth.JsResponse(w, "Feild to get relationship", http.StatusNotFound)
 			return
 		}
 
@@ -182,10 +182,10 @@ WHERE
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			auth.JsRespond(w, "Profile not found", http.StatusNotFound)
+			auth.JsResponse(w, "Profile not found", http.StatusNotFound)
 		} else {
 			logs.ErrorLog.Println("DB error:", err)
-			auth.JsRespond(w, "Internal Server Error", http.StatusInternalServerError)
+			auth.JsResponse(w, "Internal Server Error", http.StatusInternalServerError)
 		}
 		return
 	}
@@ -244,7 +244,7 @@ func GetFollowing(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.Atoi(userIdStr)
 	if err != nil {
 		logs.ErrorLog.Println("Invalid userId:", err)
-		auth.JsRespond(w, "Invalid userId", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid userId", http.StatusBadRequest)
 		return
 	}
 

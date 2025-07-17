@@ -3,8 +3,8 @@ import Image from "next/image";
 import Styles from "./global.module.css";
 import LikeDeslike from "./utils.jsx";
 import { SendData } from "./sendData.js";
-import { HandleUpload } from "./utils.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import { HandleUpload } from  "@/app/components/upload.jsx";
 
 export default function Comments({ Post, onClose }) {
   const [content, setContent] = useState("");

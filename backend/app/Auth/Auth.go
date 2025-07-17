@@ -13,14 +13,14 @@ func Authorize(w http.ResponseWriter, r *http.Request, userID int) {
 	username, err := GetElemVal[string]("display_name", "profile", `id = ?`, userID)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting username:", err)
-		JsRespond(w, "Bad request", http.StatusBadRequest)
+		JsResponse(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 
 	jwtToken, sessionID, refreshToken, err := CheckSession(r, userID, username)
 	if err != nil {
 		logs.ErrorLog.Println(err)
-		JsRespond(w, "Session error", http.StatusInternalServerError)
+		JsResponse(w, "Session error", http.StatusInternalServerError)
 		return
 	}
 
@@ -77,13 +77,13 @@ func CheckAuthHandler(w http.ResponseWriter, r *http.Request) {
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	payload, ok := r.Context().Value(UserContextKey).(*jwt.JwtPayload)
 	if !ok {
-		JsRespond(w, "Unauthorized - invalid user", http.StatusUnauthorized)
+		JsResponse(w, "Unauthorized - invalid user", http.StatusUnauthorized)
 		return
 	}
 	_, err := modules.DB.Exec(`DELETE FROM sessions WHERE user_id = ?`, payload.Sub)
 	if err != nil {
 		logs.ErrorLog.Println("Error deleting session:", err)
-		JsRespond(w, "Internal server error", http.StatusInternalServerError)
+		JsResponse(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
@@ -91,5 +91,5 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	ClearCookie(w, AuthInfo.JwtTokenName)
 	ClearCookie(w, AuthInfo.SessionIDName)
 	ClearCookie(w, AuthInfo.RefreshTokenName)
-	JsRespond(w, "Logged out", http.StatusOK)
+	JsResponse(w, "Logged out", http.StatusOK)
 }

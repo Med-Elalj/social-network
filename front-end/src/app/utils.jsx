@@ -269,27 +269,6 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
   );
 }
 
-// upload
-export async function HandleUpload(image) {
-  console.log("iamge : ", image);
-
-  if (!image) return null;
-
-  const formData = new FormData();
-  formData.append("file", image);
-
-  const response = await SendData("/api/v1/upload", formData);
-
-  if (!response.ok) {
-    console.error("Image upload failed");
-    return null;
-  }
-
-  const { path } = await response.json();
-  return path;
-}
-
-
 export function TimeAgo(timestamp) {
   const now = new Date();
   const past = new Date(timestamp.replace(" ", "T")); // Parse properly

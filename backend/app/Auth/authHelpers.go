@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
 	"social-network/app/logs"
 	"social-network/app/modules"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type contextKey string
@@ -177,11 +178,17 @@ func CheckPassword(password string, userID int) bool {
 	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)) == nil
 }
 
-func JsRespond(w http.ResponseWriter, message string, code int) {
+func JsResponse(w http.ResponseWriter, message string, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(responseMessage{
 		Message: message,
 		Code:    code,
 	})
+}
+
+func JsMapResponse(w http.ResponseWriter, data map[string]any, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(data)
 }

@@ -31,7 +31,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil || !auth.CheckPassword(credentials.Password, id) {
 		logs.ErrorLog.Println("Error logging in:", err)
-		auth.JsRespond(w, "Invalid credentials", http.StatusUnauthorized)
+		auth.JsResponse(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
@@ -48,6 +48,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Content-Type", "application/json")
 	// w.WriteHeader(http.StatusOK)
 	auth.Authorize(w, r, id)
-	auth.JsRespond(w, "Login successful", http.StatusOK)
+	auth.JsResponse(w, "Login successful", http.StatusOK)
 	// json.NewEncoder(w).Encode(resp)
 }

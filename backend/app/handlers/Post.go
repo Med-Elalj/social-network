@@ -16,17 +16,17 @@ func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	json.NewDecoder(r.Body).Decode(&post)
 
 	if !modules.InsertPost(post, uid, post.GroupId) {
-		auth.JsRespond(w, "Post creation failed", http.StatusBadRequest)
+		auth.JsResponse(w, "Post creation failed", http.StatusBadRequest)
 		logs.ErrorLog.Println("Post creation failed")
 		return
 	}
-	auth.JsRespond(w, "Post created successfully", http.StatusOK)
+	auth.JsResponse(w, "Post created successfully", http.StatusOK)
 }
 
 func GetGroupPostsHandler(w http.ResponseWriter, r *http.Request, uid, start, groupId int) {
 	posts, err := modules.GetGroupPosts(start, uid, groupId)
 	if err != nil {
-		auth.JsRespond(w, "Get Group Posts failed", http.StatusBadRequest)
+		auth.JsResponse(w, "Get Group Posts failed", http.StatusBadRequest)
 		logs.ErrorLog.Println(err)
 		return
 	}
@@ -45,14 +45,14 @@ func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid, start, 
 	if userId == 0 {
 		posts, err = modules.GetOwnProfilePosts(start, uid)
 		if err != nil {
-			auth.JsRespond(w, "Get Own Profile Posts failed", http.StatusBadRequest)
+			auth.JsResponse(w, "Get Own Profile Posts failed", http.StatusBadRequest)
 			logs.ErrorLog.Println(err)
 			return
 		}
 	} else {
 		posts, err = modules.GetProfilePosts(start, uid, userId)
 		if err != nil {
-			auth.JsRespond(w, "Get Profile Posts failed", http.StatusBadRequest)
+			auth.JsResponse(w, "Get Profile Posts failed", http.StatusBadRequest)
 			logs.ErrorLog.Println(err)
 			return
 		}
@@ -69,7 +69,7 @@ func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid, start, 
 func GetHomePostsHandler(w http.ResponseWriter, r *http.Request, uid, start int) {
 	posts, err := modules.GetHomePosts(start, uid)
 	if err != nil {
-		auth.JsRespond(w, "Get Home Posts failed", http.StatusBadRequest)
+		auth.JsResponse(w, "Get Home Posts failed", http.StatusBadRequest)
 		logs.ErrorLog.Println(err)
 		return
 	}
@@ -87,21 +87,21 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
 	if err != nil {
 		logs.ErrorLog.Println("Error decoding request body:", err)
-		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	forwhat, ok := dataToFetch["fetch"].(string)
 	if !ok {
 		logs.ErrorLog.Println("Invalid 'fetch' value:", dataToFetch["fetch"])
-		auth.JsRespond(w, "Invalid 'fetch' value", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid 'fetch' value", http.StatusBadRequest)
 		return
 	}
 
 	startFloat, ok := dataToFetch["start"].(float64)
 	if !ok {
 		logs.ErrorLog.Println("Invalid 'start' value:", dataToFetch["start"])
-		auth.JsRespond(w, "Invalid 'start' value", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid 'start' value", http.StatusBadRequest)
 		return
 	}
 	start := int(startFloat)
@@ -127,7 +127,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	case "group":
 		GetGroupPostsHandler(w, r, uid, start, groupId)
 	default:
-		auth.JsRespond(w, "Invalid fetch type", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid fetch type", http.StatusBadRequest)
 		return
 	}
 }

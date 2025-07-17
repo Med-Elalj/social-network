@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect, use } from "react";
+import { useState, useRef, useEffect } from "react";
 import Styles from "./newPost.module.css";
 import { GetData, SendData } from "../sendData.js";
 import { useRouter } from "next/navigation";
-import { HandleUpload } from "../utils.jsx";
+import { HandleUpload } from "@/app/components/upload.jsx"; // <-- Import your upload helper function
 import { useAuth } from "@/app/context/AuthContext.jsx";
 
 export default function NewPost() {
@@ -17,7 +17,7 @@ export default function NewPost() {
   const [users, setUsers] = useState(null);
   const fileInputRef = useRef(null);
   const router = useRouter();
-  const {isloading, isLoggedIn} = useAuth();
+  const { isloading, isLoggedIn } = useAuth();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -28,10 +28,10 @@ export default function NewPost() {
   };
 
   const cancelImage = () => {
-    setImage(null); // clear the file from state
-    setPreviewUrl(null); // remove the preview URL
+    setImage(null);
+    setPreviewUrl(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // reset the <input>
+      fileInputRef.current.value = "";
     }
   };
 
@@ -44,9 +44,15 @@ export default function NewPost() {
     }
 
     let imagePath = null;
+
     if (image) {
-      imagePath = await HandleUpload(image);
-      console.log("path:", imagePath);
+      imagePath = await HandleUpload(image); // <-- use the upload helper function here
+
+      if (!imagePath) {
+        console.error("Image upload failed. Please try again.");
+        return;
+      }
+      console.log("Uploaded image path:", imagePath);
     }
 
     const formData = {
@@ -57,19 +63,23 @@ export default function NewPost() {
       privetids: privacy === "private" ? selectedFriends : [],
     };
 
-    const response = await SendData("/api/v1/set/Post", formData);
+    try {
+      const response = await SendData("/api/v1/set/Post", formData);
 
-    if (response.status !== 200) {
-      const errorBody = await response.json();
-      console.log(errorBody);
-    } else {
-      router.push("/");
+      if (!response.ok) {
+        const errorBody = await response.json();
+        console.error("Post creation failed:", errorBody);
+      } else {
+        router.push("/");
+      }
+    } catch (err) {
+      console.error("Error sending post data:", err);
     }
   };
 
-
   useEffect(() => {
     if (isloading || !isLoggedIn) return;
+
     const fetchUsers = async () => {
       try {
         const res = await GetData(`/api/v1/get/myFollowers`);
@@ -126,7 +136,7 @@ export default function NewPost() {
               <button
                 type="button"
                 className={Styles.cancelButton}
-                onClick={cancelImage} // ← wire up cancel
+                onClick={cancelImage}
               >
                 ✕
               </button>
@@ -161,31 +171,32 @@ export default function NewPost() {
                 Select Friends ▾
               </label>
 
-
               {showDropdown && (
                 <div className={Styles.friendList}>
-                  {users ? users?.map((friend) => {
-                    const isSelected = selectedFriends.includes(friend);
+                  {users
+                    ? users.map((friend) => {
+                        const isSelected = selectedFriends.includes(friend);
 
-                    return (
-                      <div
-                        key={friend.id}
-                        className={`${Styles.friendItem} ${isSelected ? Styles.selected : ""}`}
-                        onClick={() =>
-                          setSelectedFriends((prev) => {
-                            return isSelected
-                              ? prev.filter((f) => f !== friend)
-                              : [...prev, friend]
-                          }
-                          )
-                        }
-                      >
-                        {friend.name}
-                      </div>
-                    );
-                  }) : "No Friends"}
+                        return (
+                          <div
+                            key={friend.id}
+                            className={`${Styles.friendItem} ${
+                              isSelected ? Styles.selected : ""
+                            }`}
+                            onClick={() =>
+                              setSelectedFriends((prev) =>
+                                isSelected
+                                  ? prev.filter((f) => f !== friend)
+                                  : [...prev, friend]
+                              )
+                            }
+                          >
+                            {friend.name}
+                          </div>
+                        );
+                      })
+                    : "No Friends"}
                 </div>
-
               )}
             </div>
           )}

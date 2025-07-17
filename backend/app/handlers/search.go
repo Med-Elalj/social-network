@@ -21,14 +21,14 @@ func GetSearchHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	offset, err := strconv.Atoi(offsetst)
 	if err != nil {
 		logs.ErrorLog.Printf("Invalid offset: %q", err)
-		auth.JsRespond(w, "Invalid offset", http.StatusBadRequest)
+		auth.JsResponse(w, "Invalid offset", http.StatusBadRequest)
 		return
 	}
 
 	profiles, err := modules.GetSearchprofile(query, offset, groupId, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("Error getting search profiles: %q", err)
-		auth.JsRespond(w, "Failed to get search profiles", http.StatusInternalServerError)
+		auth.JsResponse(w, "Failed to get search profiles", http.StatusInternalServerError)
 		return
 	}
 

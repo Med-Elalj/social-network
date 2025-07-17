@@ -230,76 +230,35 @@ func GetFollowRequests(uid int) ([]structs.Gusers, error) {
 	return users, nil
 }
 
-func DebugAndDeleteRequests(uid, target, Type int) error {
-	// First, let's see what requests exist
-	rows, err := DB.Query(`
-		SELECT sender_id, receiver_id, target_id, type, created_at 
-		FROM request 
-		WHERE receiver_id = ? AND target_id = ? AND type = ?
-		ORDER BY created_at`,
-		uid, target, Type)
+func DeleteRequest(senderId, uid, target, Type int) error {
+	var result sql.Result
+	var err error
+
+	if Type == 1 {
+		// Delete all requests for type 1 (ignore sender)
+		result, err = DB.Exec(`
+            DELETE FROM request WHERE receiver_id = ? AND target_id = ? AND type = ?`,
+			uid, target, Type)
+	} else {
+		// Delete specific request for type 0 (include sender)
+		result, err = DB.Exec(`
+            DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND target_id = ? AND type = ?`,
+			senderId, uid, target, Type)
+	}
+
 	if err != nil {
-		logs.ErrorLog.Printf("error querying requests: %q", err.Error())
-		return errors.New("error querying requests")
-	}
-	defer rows.Close()
-
-	var requestsToDelete []struct {
-		SenderID   int
-		ReceiverID int
-		TargetID   int
-		Type       int
-		CreatedAt  string
-	}
-
-	logs.InfoLog.Printf("=== Requests found for receiver:%d, target:%d, type:%d ===", uid, target, Type)
-
-	for rows.Next() {
-		var req struct {
-			SenderID   int
-			ReceiverID int
-			TargetID   int
-			Type       int
-			CreatedAt  string
-		}
-
-		err := rows.Scan(&req.SenderID, &req.ReceiverID, &req.TargetID, &req.Type, &req.CreatedAt)
-		if err != nil {
-			logs.ErrorLog.Printf("error scanning request row: %q", err.Error())
-			continue
-		}
-
-		requestsToDelete = append(requestsToDelete, req)
-		logs.InfoLog.Printf("  Found: sender=%d, receiver=%d, target=%d, type=%d, created_at=%s",
-			req.SenderID, req.ReceiverID, req.TargetID, req.Type, req.CreatedAt)
-	}
-
-	if len(requestsToDelete) == 0 {
-		logs.InfoLog.Printf("No requests found to delete")
-		return nil
-	}
-
-	// Now delete them all
-	result, err := DB.Exec(`
-		DELETE FROM request 
-		WHERE receiver_id = ? AND target_id = ? AND type = ?`,
-		uid, target, Type)
-	if err != nil {
-		logs.ErrorLog.Printf("error deleting requests: %q", err.Error())
-		return errors.New("error deleting requests")
+		logs.ErrorLog.Printf("error deleting request: %q", err.Error())
+		return errors.New("error deleting request")
 	}
 
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		logs.ErrorLog.Printf("error checking deleted rows: %q", err.Error())
-		return errors.New("error checking deleted rows")
+		logs.ErrorLog.Printf("error getting rows affected: %q", err.Error())
+		return errors.New("error getting rows affected")
 	}
-
-	logs.InfoLog.Printf("Expected to delete %d requests, actually deleted %d", len(requestsToDelete), rowsAffected)
-
-	if rowsAffected != int64(len(requestsToDelete)) {
-		logs.ErrorLog.Printf("WARNING: Mismatch between expected and actual deletions!")
+	if rowsAffected == 0 {
+		logs.ErrorLog.Println("no rows affected, request not found")
+		return errors.New("request not found")
 	}
-
 	return nil
 }

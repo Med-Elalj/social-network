@@ -171,7 +171,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		}
 	}
 
-	err = modules.DebugAndDeleteRequests(uid, bodyRequest.Target, bodyRequest.Type)
+	err = modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target, bodyRequest.Type)
 	if err != nil {
 		logs.ErrorLog.Println("Error deleting follow request:", err)
 		auth.JsRespond(w, "error processing request", http.StatusInternalServerError)

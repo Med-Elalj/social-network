@@ -110,7 +110,7 @@ export default function Friends() {
         {followRequests?.length > 0 ? (
           followRequests.map((user) => (
             <div
-              key={user.id}
+              key={`${user.sender_id}_${user.receiver_id}`}
               style={{
                 display: "flex",
                 alignItems: "center",

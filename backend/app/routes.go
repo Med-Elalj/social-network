@@ -37,7 +37,7 @@ func SetupMux() http.Handler {
 
 	fileServer := http.FileServer(http.Dir("../front-end/public/uploads"))
 	mux.Handle("/uploads/", http.StripPrefix("/uploads/", fileServer))
-	
+
 	ServerMux := MW.CorsMiddleware(mux)
 	return ServerMux
 }

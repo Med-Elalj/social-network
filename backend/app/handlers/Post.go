@@ -135,7 +135,7 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 func GetFollowersHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	rows, err := modules.DB.Query(`
 		SELECT
-		    f.follower_id,
+		    p.id,
 		    p.display_name
 		FROM
 		    follow f

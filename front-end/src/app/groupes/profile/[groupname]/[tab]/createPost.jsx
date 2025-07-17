@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import Styles from "../../../../newPost/newPost.module.css";
 import { SendData } from "@/app/sendData.js";
 import { useRouter } from "next/navigation";
-import { HandleUpload } from "../../../../utils.jsx";
+import { HandleUpload } from "@/app/components/upload.jsx";
 
 export default function CreatePost({ groupId, setActiveSection }) {
     const [content, setContent] = useState("");

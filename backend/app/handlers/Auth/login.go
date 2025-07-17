@@ -35,19 +35,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// resp := map[string]any{
-	// 	"message":  "Login successful",
-	// 	"username": userName,
-	// }
-
-	// // only include avatar if present
-	// if avatar.Valid {
-	// 	resp["avatar"] = avatar.String
-	// }
-
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
 	auth.Authorize(w, r, id)
-	auth.JsResponse(w, "Login successful", http.StatusOK)
-	// json.NewEncoder(w).Encode(resp)
+	auth.JsMapResponse(w, map[string]any{
+		"message":  "Login successful",
+		"avatar":   avatar.String,
+	}, http.StatusOK)
 }

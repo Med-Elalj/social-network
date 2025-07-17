@@ -57,7 +57,6 @@ export default function Layout({ children }) {
             <WebSocketProvider>
               <Routing />
               <div>{children}</div>
-              {/* <Footer/> */}
             </WebSocketProvider>
           </NotificationProvider>
         </AuthProvider>

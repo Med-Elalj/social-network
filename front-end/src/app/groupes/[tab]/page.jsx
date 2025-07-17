@@ -11,7 +11,7 @@ import YourGroups from "./YourGroups.jsx";
 import CreateGroup from "./CreateGroup.jsx";
 import { SendData } from "../../sendData.js";
 import { useNotification } from "../../context/NotificationContext.jsx";
-import { type } from "os";
+import { HandleUpload } from "../../components/upload.jsx";
 
 export default function Groupes() {
     const router = useRouter();
@@ -51,8 +51,13 @@ export default function Groupes() {
             console.log(file)
             setPreviewUrl(URL.createObjectURL(file));
         }
+        if (file && file.type.startsWith("image/")) {
+            setImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        } else {
+            showNotification("Please select a valid image file", "error");
+        }
     };
-
 
     const handleExit = (e) => {
         router.push('/groupes/feed')
@@ -64,7 +69,7 @@ export default function Groupes() {
         const Body = await response.json();
         if (response.ok) {
             showNotification(`Your @${DataToFetch.status}ing the request `)
-            setUserResponse({id: DataToFetch.sender, status: DataToFetch.status});
+            setUserResponse({ id: DataToFetch.sender, status: DataToFetch.status });
         } else {
             showNotification(`can't ${DataToFetch.status} request, try again`, "error");
         }
@@ -75,33 +80,33 @@ export default function Groupes() {
         e.preventDefault();
 
         if (!GroupName.trim()) {
-            console.log("Group name is required.");
             showNotification("Group name is required.", "error");
             return;
         }
 
-        const fetchData = async () => {
-            const formData = {
-                "groupName": GroupName,
-                "privacy": privacy,
-                "about": about,
-                "avatar": image
-            };
+        let image_path = null;
 
-            const response = await SendData("/api/v1/set/GroupCreation", formData);
-            const Body = await response.json();
-            if (!response.ok) {
-                console.log(Body);
-                showNotification("Error creating group: " + Body.message, "error");
-            } else {
-                router.push('/groupes/feed')
-                await router.push("/groupes/feed");
-                await router.replace("/groupes/feed");
-                console.log('Posts fetched successfully!');
-            }
+        if (image) {
+            image_path = await HandleUpload(image);
+        }
+
+        const formData = {
+            groupName: GroupName,
+            about,
+            privacy,
+            "avatar": image_path,
         };
+        console.log("Form Data:", formData);
+        
+        const response = await SendData("/api/v1/set/GroupCreation", formData);
+        const Body = await response.json();
 
-        fetchData();
+        if (!response.ok) {
+            showNotification("Error creating group: " + Body.message, "error");
+        } else {
+            showNotification("Group created!", "success");
+            router.replace("/groupes/feed");
+        }
     }
 
     useEffect(() => {
@@ -216,7 +221,7 @@ export default function Groupes() {
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
                                         <Image src={request.groupImage || "/iconGroup.png"} alt="profile" width={25} height={25} style={{ borderRadius: "50%" }} />
-                                        <h4 style={{ marginLeft: "10px" }}>{userResponse?.id != request.sender_id ?`${request?.username} send you a join request to group ${request?.group_name}`:`the request ${userResponse.status}ed`}</h4>
+                                        <h4 style={{ marginLeft: "10px" }}>{userResponse?.id != request.sender_id ? `${request?.username} send you a join request to group ${request?.group_name}` : `the request ${userResponse.status}ed`}</h4>
                                     </div>
                                     {userResponse?.id != request.sender_id ? (<div className={Style.Buttons}>
                                         <div onClick={() => ARequest({ sender: request.sender_id, target: request.group_id, status: 'accept', type: 1 })}>

@@ -17,12 +17,12 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false );
 
-  const { isLoggedIn } = useAuth();
+  const { isloading, isLoggedIn } = useAuth();
 
   /* ---------------- data fetching (unchanged) ---------------- */
   const fetchData = async (reset = false) => {
     if (loading || (!hasMore && !reset)) return;
-    if (!isLoggedIn) return;
+    if ( isloading || !isLoggedIn) return;
     setLoading(true);
 
     try {

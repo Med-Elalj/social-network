@@ -66,10 +66,10 @@ type UsersGet struct {
 }
 
 type Group struct {
-	GroupName string         `json:"groupName"`
-	Avatar    sql.NullString `json:"avatar"`
-	About     string         `json:"about"`
-	Privacy   PostPrivacy    `json:"privacy"`
+	GroupName string      `json:"groupName"`
+	Avatar    string      `json:"avatar"`
+	About     string      `json:"about"`
+	Privacy   PostPrivacy `json:"privacy"`
 }
 
 type GroupGet struct {

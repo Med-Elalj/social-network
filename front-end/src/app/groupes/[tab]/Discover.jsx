@@ -10,9 +10,10 @@ export default function Discover() {
   const [groups, setGroups] = useState([]);
   const [joinedGroupId, setJoinedGroupId] = useState(null);
   const { showNotification } = useNotification();
-  const {isloading,isLoggedIn} = useAuth();
-  if (isloading) return null;
+  const { isloading, isLoggedIn } = useAuth();
+  if (isloading) return;
   if (!isLoggedIn) return;
+
   useEffect(() => {
     const fetchData = async () => {
       const response = await SendData("/api/v1/get/userSeggestions", { is_user: 0 });
@@ -38,14 +39,13 @@ export default function Discover() {
       let type = "error";
       const data = await response.json();
       if (response.ok) {
-        type = "succes";
+        type = "success";
         setGroups((prev) =>
-          prev.map((group) => {
-            return group.ID == joinedGroupId
-              ? { ...prev, IsRequested: true }
-              : prev;
-          })
+          prev.map((group) =>
+            group.ID == joinedGroupId ? { ...group, IsRequested: true } : group
+          )
         );
+
       }
       showNotification(data.message, type);
     }

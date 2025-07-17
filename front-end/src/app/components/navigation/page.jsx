@@ -12,6 +12,8 @@ import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 import { SearchIcon, SearchInput } from "./search.jsx";
 import {  useAuth } from "@/app/context/AuthContext.jsx";
 import { externalNotification } from "@/app/context/NotificationContext.jsx";
+import { UserAvatar } from "../upload.jsx";
+
 
 const RefreshFrequency = 10 * (60 * 1000); // 14 mins since JWT expiry is 15mins
 
@@ -146,14 +148,15 @@ const Routing = () => {
                   onClick={() => setIsOpen(true)}
                   onMouseLeave={() => setIsOpen(false)}
                 >
-                  <span className={Styles.iconUser}>
+                  <UserAvatar className={Styles.linkWithIcon} />
+                  {/* <span className={Styles.iconUser}>
                     <Image
                       src="/iconMale.png"
                       alt="profile"
                       width={40}
                       height={40}
                     />
-                  </span>
+                  </span> */}
                   {isOpen && (
                     <div className={Styles.dropdownMenu}>
                       <Link

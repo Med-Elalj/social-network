@@ -41,6 +41,12 @@ export default function Login() {
       setIsLoggedIn(true);
       router.push("/?login=success");
 
+      if (res.avatar) {
+        localStorage.setItem("avatar", res.avatar);
+      } else if (!localStorage.getItem("avatar") && res.avatar) {
+        localStorage.removeItem("avatar");
+      }
+
       // router.push("/");
       showNotification("Login successful!", "success", 5000);
     } else {
@@ -50,7 +56,11 @@ export default function Login() {
       } catch {
         errorBody = { error: "Unknown error" };
       }
-      showNotification(errorBody.error || "Login failed. Please try again.", "error", 5000);
+      showNotification(
+        errorBody.error || "Login failed. Please try again.",
+        "error",
+        5000
+      );
     }
   };
 
@@ -99,6 +109,5 @@ export default function Login() {
         </form>
       </div>
     </>
-
   );
 }

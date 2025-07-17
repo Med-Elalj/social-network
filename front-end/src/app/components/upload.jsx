@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fetchWithAuth } from "../sendData";
+import Image from "next/image";
 
 // Reusable Upload Function
 export async function HandleUpload(image) {
@@ -70,5 +71,20 @@ export default function UploadForm() {
         />
       )}
     </div>
+  );
+}
+
+export function UserAvatar({ className }) {
+  const [avatar, setAvatar] = useState(null);
+
+  useEffect(() => {
+    const storedAvatar = localStorage.getItem("avatar");
+    if (storedAvatar) setAvatar(storedAvatar);
+  }, []);
+
+  return (
+    <span className={className}>
+      <Image src={avatar || "/iconMale.png"} alt="profile" width={40} height={40} />
+    </span>
   );
 }

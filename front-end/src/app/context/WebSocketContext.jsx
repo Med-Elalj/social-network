@@ -5,7 +5,7 @@ import { useNotification } from "./notificationContext";
 // import { Notification } from "../components/notification/notification.jsx";
 
 const WebSocketContext = createContext(null);
-const WEBSOCKET_URL = "/api/v1/ws";
+const WEBSOCKET_URL = "http://localhost:8080/api/v1/ws";
 
 export const WebSocketProvider = ({ children }) => {
   const ws = useRef(null);

@@ -23,7 +23,7 @@ export default function Home() {
 
     try {
       const startID = reset ? 0 : lastPostID;
-      const response = await SendData("/api/v1/get/posts", { start: startID,fetch:"home" });
+      const response = await SendData("/api/v1/get/posts", { start: startID, fetch: "home" });
       const Body = await response.json();
 
       if (response.status !== 200) throw Body;
@@ -59,7 +59,7 @@ export default function Home() {
   /* ---------------- render ---------------- */
   return (
     <div className={Styles.global}>
-      <div className={Styles.firstSide}><Groups/></div>
+      <div className={Styles.firstSide}><Groups /></div>
 
       <div className={Styles.centerContent}>
         {posts.map((Post) => {
@@ -86,14 +86,14 @@ export default function Home() {
                       height={25}
                     />
                   ) :
-                   (
-                    <Image
-                      src={authorAvatar}
-                      alt="author avatar"
-                      width={25}
-                      height={25}
-                    />
-                  )
+                    (
+                      <Image
+                        src={authorAvatar}
+                        alt="author avatar"
+                        width={25}
+                        height={25}
+                      />
+                    )
                   }
 
                   {/* texts block */}
@@ -158,7 +158,7 @@ export default function Home() {
                     setOpenComments((open) => (open === Post.ID ? null : Post.ID))
                   }
                 >
-                  <Image src="/comment.svg" alt="comment" width={20} height={20}/>
+                  <Image src="/comment.svg" alt="comment" width={20} height={20} />
                   <p>{Post.CommentCount}</p>
                 </div>
               </section>
@@ -179,7 +179,7 @@ export default function Home() {
         })}
       </div>
 
-      <div className={Styles.thirdSide}><Friends/></div>
+      <div className={Styles.thirdSide}><Friends /></div>
     </div>
   );
 }

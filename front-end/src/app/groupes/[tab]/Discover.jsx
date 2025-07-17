@@ -28,7 +28,6 @@ export default function Discover() {
 
   useEffect(() => {
     async function sentJoinHandler() {
-      console.log("group id to join", joinedGroupId);
       const response = await SendData("/api/v1/set/joinGroup", {
         groupId: joinedGroupId,
       });
@@ -52,32 +51,23 @@ export default function Discover() {
     }
   }, [joinedGroupId]);
 
-  useEffect(() => {
-    console.log(groups);
-  }, [groups]);
-
   return (
     <div className={groups ? Style.groupGrid : Style.noPosts}>
       {groups ? (
         groups.map((Group) => (
-          <div className={Style.groupCard} key={Group.id}>
+          <div className={Style.groupCard} key={Group.ID}>
             <Image
-              src={Group?.Avatar?.Valid ? Group.Avatar.String : "/db.png"}
+              src={Group?.pfp?.Valid ? Group?.pfp?.String : "/iconGroup.png"}
               alt="profile"
               width={50}
               height={50}
               sizes="(max-width: 768px) 100vw, 250px"
               className={Style.groupAvatar}
             />
-            <h4>{Group.GroupName}</h4>
-            <p>
-              {Group.Description?.Valid
-                ? Group.Description.String
-                : "No description"}
-            </p>
+            <h4>{Group.name}</h4>
             {!Group.IsRequested ? (
               <h3
-                onClick={() => setJoinedGroupId(Group.ID)}
+                onClick={() => setJoinedGroupId(Group.id)}
                 className={Style.acceptBtn}
               >
                 Join Group

@@ -10,6 +10,7 @@ import (
 	"social-network/app/structs"
 )
 
+// function to create a post
 func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	var post structs.PostCreate
 
@@ -23,65 +24,7 @@ func PostCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	auth.JsRespond(w, "Post created successfully", http.StatusOK)
 }
 
-func GetGroupPostsHandler(w http.ResponseWriter, r *http.Request, uid, start, groupId int) {
-	posts, err := modules.GetGroupPosts(start, uid, groupId)
-	if err != nil {
-		auth.JsRespond(w, "Get Group Posts failed", http.StatusBadRequest)
-		logs.ErrorLog.Println(err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Group Posts fetched successfully",
-		"posts":   posts,
-	})
-}
-
-func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid, start, userId int) {
-	var posts []structs.Post
-	var err error
-	if userId == 0 {
-		posts, err = modules.GetOwnProfilePosts(start, uid)
-		if err != nil {
-			auth.JsRespond(w, "Get Own Profile Posts failed", http.StatusBadRequest)
-			logs.ErrorLog.Println(err)
-			return
-		}
-	} else {
-		posts, err = modules.GetProfilePosts(start, uid, userId)
-		if err != nil {
-			auth.JsRespond(w, "Get Profile Posts failed", http.StatusBadRequest)
-			logs.ErrorLog.Println(err)
-			return
-		}
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Profile Posts fetched successfully",
-		"posts":   posts,
-	})
-}
-
-func GetHomePostsHandler(w http.ResponseWriter, r *http.Request, uid, start int) {
-	posts, err := modules.GetHomePosts(start, uid)
-	if err != nil {
-		auth.JsRespond(w, "Get Home Posts failed", http.StatusBadRequest)
-		logs.ErrorLog.Println(err)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Home Posts fetched successfully",
-		"posts":   posts,
-	})
-}
-
+// function to get posts with filter of wich page to fetch
 func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var dataToFetch map[string]interface{}
 	err := json.NewDecoder(r.Body).Decode(&dataToFetch)
@@ -132,10 +75,73 @@ func GetPostsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 }
 
+// function to get posts of home page
+func GetHomePostsHandler(w http.ResponseWriter, r *http.Request, uid, start int) {
+	posts, err := modules.GetHomePosts(start, uid)
+	if err != nil {
+		auth.JsRespond(w, "Get Home Posts failed", http.StatusBadRequest)
+		logs.ErrorLog.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Home Posts fetched successfully",
+		"posts":   posts,
+	})
+}
+
+// function to get posts of profile page
+func GetProfilePostsHandler(w http.ResponseWriter, r *http.Request, uid, start, userId int) {
+	var posts []structs.Post
+	var err error
+	if userId == 0 {
+		posts, err = modules.GetOwnProfilePosts(start, uid)
+		if err != nil {
+			auth.JsRespond(w, "Get Own Profile Posts failed", http.StatusBadRequest)
+			logs.ErrorLog.Println(err)
+			return
+		}
+	} else {
+		posts, err = modules.GetProfilePosts(start, uid, userId)
+		if err != nil {
+			auth.JsRespond(w, "Get Profile Posts failed", http.StatusBadRequest)
+			logs.ErrorLog.Println(err)
+			return
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Profile Posts fetched successfully",
+		"posts":   posts,
+	})
+}
+
+// function to get posts of group page
+func GetGroupPostsHandler(w http.ResponseWriter, r *http.Request, uid, start, groupId int) {
+	posts, err := modules.GetGroupPosts(start, uid, groupId)
+	if err != nil {
+		auth.JsRespond(w, "Get Group Posts failed", http.StatusBadRequest)
+		logs.ErrorLog.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Group Posts fetched successfully",
+		"posts":   posts,
+	})
+}
+
+// function to get followers
 func GetFollowersHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	rows, err := modules.DB.Query(`
 		SELECT
-		    f.follower_id,
+		    p.id,
 		    p.display_name
 		FROM
 		    follow f

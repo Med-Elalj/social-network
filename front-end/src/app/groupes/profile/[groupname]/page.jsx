@@ -11,6 +11,7 @@ import Members from "./[tab]/members.jsx";
 import CreatePost from "./[tab]/createPost.jsx";
 import { useNotification } from "../../../context/notificationContext.jsx";
 import { SearchInput } from "../../../components/navigation/search.jsx";
+import { Countdown } from "../../../utils.jsx";
 
 export default function Profile() {
   const { groupname } = useParams();
@@ -24,6 +25,7 @@ export default function Profile() {
   const [respondUserRequest, setRespondUserRequest] = useState(null);
   const { showNotification } = useNotification();
   const [showSearch, setShowSearch] = useState(false);
+  const [joinedGroupId, setJoinedGroupId] = useState(null);
 
   // Memoize the search close handler
   const handleSearchClose = useCallback(() => {
@@ -42,7 +44,7 @@ export default function Profile() {
         if (res.ok) {
           const profileData = await res.json();
           setData(profileData);
-          setIsPublic(profileData?.Privacy || false);
+          setIsPublic(profileData?.isPublic || false);
         } else {
           setHasError(true);
         }
@@ -53,7 +55,7 @@ export default function Profile() {
         setIsLoading(false);
       }
     }
-    
+
     if (groupname) {
       fetchData();
     }
@@ -63,7 +65,7 @@ export default function Profile() {
   useEffect(() => {
     async function fetchEvents() {
       if (!data?.ID) return;
-      
+
       try {
         const res = await SendData(`/api/v1/get/groupEvents`, data.ID);
         if (res.ok) {
@@ -77,12 +79,9 @@ export default function Profile() {
         console.error("Error fetching events:", err);
       }
     }
-    
+
     fetchEvents();
   }, [data?.ID]);
-
-  console.log(events);
-  
 
   // Fetch requests - only once on component mount
   useEffect(() => {
@@ -108,7 +107,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchResponse = async () => {
       if (!respondUserRequest || !data?.ID) return;
-      
+
       try {
         const response = await SendData("/api/v1/set/acceptFollow", {
           sender: respondUserRequest.id,
@@ -116,11 +115,11 @@ export default function Profile() {
           status: respondUserRequest.status,
           type: 1,
         });
-        
+
         if (response.ok) {
           const responseData = await response.json();
           showNotification(responseData.message);
-          
+
           // Remove the processed request from the requests array
           setRequests(prev => prev.filter(req => req.sender_id !== respondUserRequest.id));
         } else {
@@ -147,6 +146,25 @@ export default function Profile() {
     }
   }, [activeSection]);
 
+  // Send join request
+  useEffect(() => {
+    async function sentJoinHandler() {
+      const response = await SendData("/api/v1/set/joinGroup", {
+        groupId: joinedGroupId,
+      });
+      let type = "error";
+      const data = await response.json();
+      if (response.ok) {
+        type = "succes";
+      }
+      showNotification(data.message, type);
+    }
+    if (joinedGroupId) {
+      sentJoinHandler();
+      setJoinedGroupId(null);
+    }
+  }, [joinedGroupId]);
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -170,7 +188,7 @@ export default function Profile() {
           <div className={Style.profileInfo}>
             <div className={Style.avatar}>
               <Image
-                src={data?.Avatar?.Valid ? data.Avatar.String : "/groupsBg.png"}
+                src={data?.Avatar?.Valid ? data.Avatar.String : "/iconGroup.png"}
                 alt="cover"
                 layout="fill"
               />
@@ -190,49 +208,58 @@ export default function Profile() {
             </div>
 
             <div className={Style.center}>
-              {data?.Description?.String !== "" ? (
-                <span>
-                  <h5>Description:</h5>
-                  <p>&nbsp;&nbsp;</p>
-                  <h5>{data?.Description?.String}</h5>
-                </span>
-              ) : (
-                <span>
-                  <h5>Description:</h5>
-                  <p>&nbsp;&nbsp;</p>
-                  <h5>No description provided.</h5>
-                </span>
-              )}
+              <span>
+                {data?.Description?.String !== "" && (
+                  <>
+                    <h5>Description:</h5>
+                    <p>&nbsp;&nbsp;</p>
+                    <h5>{data?.Description?.String}</h5>
+                  </>
+                )}
+              </span>
             </div>
 
             <div className={Style.buttons}>
-              <button
-                className={Style.button}
-                onClick={() => setActiveSection("posts")}
-              >
-                Posts
-              </button>
-              <button
-                className={Style.button}
-                onClick={() => setActiveSection("members")}
-              >
-                Members
-              </button>
-              <button
-                className={Style.button}
-                onClick={() => setActiveSection("CreateEvent")}
-              >
-                Create Event
-              </button>
-              <button 
-                className={Style.button} 
-                onClick={() => setActiveSection("add members")}
-              >
-                Add members
-              </button>
+              {(data?.IsAdmin || data?.IsMember) ? (
+                <>
+                  <button
+                    className={Style.button}
+                    onClick={() => setActiveSection("posts")}
+                  >
+                    Posts
+                  </button>
+                  <button
+                    className={Style.button}
+                    onClick={() => setActiveSection("members")}
+                  >
+                    Members
+                  </button>
+                  <button
+                    className={Style.button}
+                    onClick={() => setActiveSection("CreateEvent")}
+                  >
+                    Create Event
+                  </button>
+                  <button
+                    className={Style.button}
+                    onClick={() => setActiveSection("add members")}
+                  >
+                    Add members
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className={Style.button}
+                    onClick={() => setJoinedGroupId(data.ID)}
+                  >
+                    Join Group
+                  </button>
+                </>
+              )}
             </div>
           </div>
-          
+
           {data?.IsAdmin && (
             <div className={Style.requests}>
               <h2>Requests</h2>
@@ -299,7 +326,8 @@ export default function Profile() {
         </div>
 
         <div className={Style.second}>
-          {isPublic && (
+
+          {(data.IsAdmin || data.IsMember) && (
             <>
               {activeSection === "posts" && (
                 <Posts
@@ -315,33 +343,37 @@ export default function Profile() {
                   setActiveSection={setActiveSection}
                 />
               )}
-              {activeSection === "CreateEvent" && <CreateEvent groupId={data?.ID}/>}
-              {/* Removed the problematic line that was causing re-renders */}
+              {activeSection === "CreateEvent" && <CreateEvent groupId={data?.ID} setActiveSection={setActiveSection} />}
             </>
           )}
         </div>
 
         {/* events */}
-        <div className={Style.events}>
-          <h2>Upcoming Events</h2>
-          {events?.length > 0 ? (
-            events?.map((event, index) => (
-              <div key={index} className={Style.event}>
-                <h3>{event.title}</h3>
-                <p>{event.description}</p>
-                <p>{event.time}</p>
-                <div>
-                  <button className={Style.button}>Going</button>
-                  <button className={Style.button}>Not going</button>
+        {(data.IsAdmin || data.IsMember) && (
+          <div className={Style.events}>
+            <h2>Upcoming Events</h2>
+            {events?.length > 0 ? (
+              events?.map((event, index) => (
+                <div key={index} className={Style.event}>
+                  <h3>{event.title}</h3>
+                  <p>{event.description}</p>
+                  <Countdown
+                    targetTimeISO={event.time}
+                    onComplete={() => console.log("event started")}
+                  />
+                  <div>
+                    <button className={Style.button}>Going</button>
+                    <button className={Style.button}>Not going</button>
+                  </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p>No upcoming events.</p>
-          )}
-        </div>
+              ))
+            ) : (
+              <p>No upcoming events.</p>
+            )}
+          </div>
+        )}
 
-        {showSearch && <SearchInput onClose={handleSearchClose} groupId={data?.ID}/>}
+        {showSearch && <SearchInput onClose={handleSearchClose} groupId={data?.ID} />}
       </div>
     </div>
   );

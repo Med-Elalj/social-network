@@ -81,6 +81,7 @@ type GroupGet struct {
 	MemberCount int
 	IsRequested bool
 	IsAdmin     bool
+	IsMember    bool
 }
 
 type SearchProfile struct {

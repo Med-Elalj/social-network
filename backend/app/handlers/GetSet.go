@@ -58,11 +58,12 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		jsonData, _ := json.Marshal(usernames)
 		w.Write(jsonData)
 	case "dmhistory":
-		target := r.Header.Get("target")
-		page, err := strconv.Atoi(r.Header.Get("page"))
+		target := r.URL.Query().Get("person_name")
+		page, err := strconv.Atoi(r.URL.Query().Get("page"))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, `{error": "expected page value"}`)
+			fmt.Println(err)
 			return
 		}
 		payload := r.Context().Value(auth.UserContextKey)

@@ -28,7 +28,10 @@ func SqlConstraint(err *error) bool {
 	return false
 }
 
-var Sockets = make(map[int]Profile)
+var (
+	Sockets    = make(map[int]Profile)
+	NotifyUser func(uId int, command string, value any) error // ws.NotifyUser
+)
 
 type Profile interface {
 	WriteMessage(messageType int, data []byte) error

@@ -23,7 +23,10 @@ export default function Home() {
 
     try {
       const startID = reset ? 0 : lastPostID;
-      const response = await SendData("/api/v1/get/posts", { start: startID,fetch:"home" });
+      const response = await SendData("/api/v1/get/posts", {
+        start: startID,
+        fetch: "home",
+      });
       const Body = await response.json();
 
       if (response.status !== 200) throw Body;
@@ -44,13 +47,15 @@ export default function Home() {
     }
   };
 
-  useEffect(() => { fetchData(true); }, []);
   useEffect(() => {
     const onScroll = () => {
       if (
-        window.innerHeight + window.scrollY >= document.body.offsetHeight - 100 &&
-        hasMore && !loading
-      ) setTimeout(fetchData, 1_000);
+        window.innerHeight + window.scrollY >=
+          document.body.offsetHeight - 100 &&
+        hasMore &&
+        !loading
+      )
+        setTimeout(fetchData, 1_000);
     };
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
@@ -59,13 +64,15 @@ export default function Home() {
   /* ---------------- render ---------------- */
   return (
     <div className={Styles.global}>
-      <div className={Styles.firstSide}><Groups/></div>
+      <div className={Styles.firstSide}>
+        <Groups />
+      </div>
 
       <div className={Styles.centerContent}>
         {posts.map((Post) => {
           /* ► ONE canonical avatar for the author ◄ */
           const authorAvatar = Post?.AvatarUser?.String
-            ? `${Post.AvatarUser.String}`  // or full URL if stored externally
+            ? `${Post.AvatarUser.String}` // or full URL if stored externally
             : "/iconMale.png";
 
           return (
@@ -85,16 +92,14 @@ export default function Home() {
                       width={25}
                       height={25}
                     />
-                  ) :
-                   (
+                  ) : (
                     <Image
                       src={authorAvatar}
                       alt="author avatar"
                       width={25}
                       height={25}
                     />
-                  )
-                  }
+                  )}
 
                   {/* texts block */}
                   <div className={Styles.texts}>
@@ -107,7 +112,9 @@ export default function Home() {
                         <div className={Styles.user}>
                           <Image
                             src={
-                              Post.AvatarUser.Valid ? `${Post.AvatarUser.String}` : "/iconMale.png"
+                              Post.AvatarUser.Valid
+                                ? `${Post.AvatarUser.String}`
+                                : "/iconMale.png"
                             }
                             alt="avatar"
                             width={20}
@@ -138,7 +145,11 @@ export default function Home() {
                   width={250}
                   height={200}
                   sizes="(max-width:768px) 100vw, 250px"
-                  style={{ width: "100%", height: "auto", borderRadius: "10px" }}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    borderRadius: "10px",
+                  }}
                   unoptimized
                 />
               )}
@@ -155,10 +166,17 @@ export default function Home() {
                 <div
                   className={Styles.action}
                   onClick={() =>
-                    setOpenComments((open) => (open === Post.ID ? null : Post.ID))
+                    setOpenComments((open) =>
+                      open === Post.ID ? null : Post.ID
+                    )
                   }
                 >
-                  <Image src="/comment.svg" alt="comment" width={20} height={20}/>
+                  <Image
+                    src="/comment.svg"
+                    alt="comment"
+                    width={20}
+                    height={20}
+                  />
                   <p>{Post.CommentCount}</p>
                 </div>
               </section>
@@ -170,7 +188,10 @@ export default function Home() {
                   onClick={() => setOpenComments(null)}
                 >
                   <div onClick={(e) => e.stopPropagation()}>
-                    <Comments Post={Post} onClose={() => setOpenComments(null)} />
+                    <Comments
+                      Post={Post}
+                      onClose={() => setOpenComments(null)}
+                    />
                   </div>
                 </div>
               )}
@@ -179,7 +200,9 @@ export default function Home() {
         })}
       </div>
 
-      <div className={Styles.thirdSide}><Friends/></div>
+      <div className={Styles.thirdSide}>
+        <Friends />
+      </div>
     </div>
   );
 }

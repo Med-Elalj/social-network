@@ -822,7 +822,7 @@ func GetSearchprofile(query string, page, groupId, uid int) (structs.SearchProfi
 	return rtn, nil
 }
 
-func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
+func GetSuggestions(uid int, is_user int) ([]structs.UsersGet, error) {
 	var users []structs.UsersGet
 
 	query := `
@@ -857,7 +857,7 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
     	ORDER BY p.created_at DESC
     	LIMIT 20`
 
-	rows, err := DB.Query(query, uid, Type, uid, uid, uid, uid)
+	rows, err := DB.Query(query, uid, is_user, uid, uid, uid, uid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query suggestions: %v", err)
 	}
@@ -892,4 +892,28 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
 	}
 
 	return users, nil
+}
+
+// UserInfoForNotification retrieves id, display_name, and a message for a given user id from profile table
+func UserInfoForNotification(senderId, receiverId, targetId int) (structs.UserNotification, error) {
+	var info structs.UserNotification
+	row := DB.QueryRow(`SELECT id, display_name, is_user FROM profile WHERE id = ?`, senderId)
+	err := row.Scan(&info.Sender.ID, &info.Sender.DisplayName, &info.Sender.IsUser)
+	if err != nil {
+		return info, err
+	}
+
+	row = DB.QueryRow(`SELECT id, display_name, is_user FROM profile WHERE id = ?`, receiverId)
+	err = row.Scan(&info.Receiver.ID, &info.Receiver.DisplayName, &info.Receiver.IsUser)
+	if err != nil {
+		return info, err
+	}
+
+	row = DB.QueryRow(`SELECT id, display_name, is_user FROM profile WHERE id = ?`, targetId)
+	err = row.Scan(&info.Target.ID, &info.Target.DisplayName, &info.Target.IsUser)
+	if err != nil {
+		return info, err
+	}
+
+	return info, nil
 }

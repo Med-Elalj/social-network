@@ -3,15 +3,14 @@ import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
 import { GetData, SendData } from "@/app/sendData.js";
 import { useNotification } from "../context/notificationContext.jsx";
+import { useWebSocket } from "../context/WebSocketContext.jsx";
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
-  const [joinedGroupId, setJoinedGroupId] = useState(null);
   const [requests, setRequests] = useState([]);
   const [respond, setRespond] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [processedRequests, setProcessedRequests] = useState(new Set());
   const { showNotification } = useNotification();
+  const { newGroupRequest } = useWebSocket(); // Get from WebSocket context
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +38,37 @@ export default function Groups() {
     };
 
     fetchData();
-  }, [showNotification]);
+  }, []);
+
+  useEffect(() => {
+    console.log("New group request received:", newGroupRequest);
+
+    if (newGroupRequest) {
+      setRequests((prev) => {
+        const exists = prev.some(
+          (req) =>
+            req.sender_id === newGroupRequest.sender.id &&
+            req.group_id === newGroupRequest.target.id
+        );
+
+        if (!exists) {
+          const newRequest = {
+            sender_id: newGroupRequest.sender.id,
+            group_id: newGroupRequest.target.id,
+            username: newGroupRequest.receiver.display_name,
+            group_name: newGroupRequest.target.display_name,
+            message: newGroupRequest.message,
+            isRespond: false,
+          };
+
+          console.log("Adding new group request:", newRequest);
+          return [...prev, newRequest];
+        }
+
+        return prev;
+      });
+    }
+  }, [newGroupRequest]);
 
   useEffect(() => {
     const fetchGroupRequests = async () => {
@@ -53,8 +82,8 @@ export default function Groups() {
         }
 
         const data = await response.json();
-        setRequests(data);
-        console.log("requests groups:", data);
+        setRequests(data || []);
+        console.log("Existing group requests:", data);
       } catch (err) {
         console.error("Error fetching group requests:", err);
         showNotification("Error loading group requests", "error");
@@ -62,76 +91,81 @@ export default function Groups() {
     };
 
     fetchGroupRequests();
-  }, [showNotification]);
+  }, []);
 
   useEffect(() => {
-    if (!respond) return;
-
     const handleRequestResponse = async () => {
-      setLoading(true);
       try {
         console.log("Processing request:", respond);
         const response = await SendData("/api/v1/set/acceptFollow", respond);
-        
+
         if (response.ok) {
-          showNotification(`Request ${respond.status}ed successfully`, "success");
-          
-          // Add to processed requests
-          const requestKey = `${respond.sender}_${respond.target}`;
-          setProcessedRequests(prev => new Set([...prev, requestKey]));
-          
-          // Remove the processed request from the requests list
-          setRequests(prevRequests => 
-            prevRequests.filter(req => 
-              !(req.sender_id === respond.sender && req.group_id === respond.target)
+          showNotification(
+            `Request ${respond.status}ed successfully`,
+            "success"
+          );
+
+          // Update the processed request in the requests list
+          setRequests((prevRequests) =>
+            prevRequests.map((req) =>
+              req.sender_id === respond.sender &&
+              req.group_id === respond.target
+                ? { ...req, isRespond: true, processedStatus: respond.status }
+                : req
             )
           );
         } else {
           console.error("Failed to process request");
-          showNotification("Failed to process request. Please try again.", "error");
+          showNotification(
+            "Failed to process request. Please try again.",
+            "error"
+          );
         }
       } catch (error) {
         console.error("Error processing request:", error);
-        showNotification("Error processing request. Please try again.", "error");
-      } finally {
-        setLoading(false);
-        setRespond(null);
+        showNotification(
+          "Error processing request. Please try again.",
+          "error"
+        );
       }
     };
 
-    handleRequestResponse();
-  }, [respond, showNotification]);
+    if (respond) {
+      handleRequestResponse();
+    }
+  }, [respond]);
 
   const handleJoinGroup = async (groupId) => {
-    if (loading) return;
-    
-    setLoading(true);
     try {
-      const response = await SendData("/api/v1/set/sendRequest", { 
+      const response = await SendData("/api/v1/set/sendRequest", {
         target: groupId,
-        type:1 
+        type: 1,
       });
-      
+
       if (response.ok) {
         showNotification("Join request sent successfully", "success");
-        setJoinedGroupId(groupId);
-        
+
         // Update the groups list to reflect the request was sent
-        setGroups(prevGroups => 
-          prevGroups.map(group => 
-            group.id === groupId ? { ...group, IsRequested: true } : group
-          )
+        setGroups((prevGroups) =>
+          prevGroups.map((group) => {
+            return group.id === groupId
+              ? { ...group, IsRequested: true }
+              : group;
+          })
         );
       } else {
         console.error("Failed to send join request");
-        showNotification("Failed to send join request. Please try again.", "error");
+        showNotification(
+          "Failed to send join request. Please try again.",
+          "error"
+        );
       }
     } catch (error) {
       console.error("Error sending join request:", error);
-      showNotification("Error sending join request. Please try again.", "error");
-    } finally {
-      setLoading(false);
-      setJoinedGroupId(null);
+      showNotification(
+        "Error sending join request. Please try again.",
+        "error"
+      );
     }
   };
 
@@ -152,19 +186,25 @@ export default function Groups() {
                 />
                 <h5>{Group.name}</h5>
               </div>
-              <div>
-                <Image
-                  onClick={() => handleJoinGroup(Group.id)}
-                  src="/join.svg"
-                  alt="join"
-                  width={25}
-                  height={25}
-                  style={{ 
-                    cursor: loading ? "not-allowed" : "pointer",
-                    opacity: loading ? 0.5 : 1
-                  }}
-                />
-              </div>
+              {!Group?.IsRequested ? (
+                <div>
+                  <Image
+                    onClick={() => handleJoinGroup(Group.id)}
+                    src="/join.svg"
+                    alt="join"
+                    width={25}
+                    height={25}
+                    style={{
+                      cursor: "pointer",
+                      opacity: 1,
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className={Styles.requested}>
+                  <span>Requested</span>
+                </div>
+              )}
             </div>
           ))
         ) : (
@@ -173,37 +213,43 @@ export default function Groups() {
       </div>
 
       <div className={Styles.groups}>
-        <h1>Groups Request</h1>
+        <h1>Group Requests</h1>
         {requests?.length > 0 ? (
-          requests.map((Group) => {
-            const requestKey = `${Group.sender_id}_${Group.group_id}`;
-            const isProcessed = processedRequests.has(requestKey);
-            
+          requests.map((request) => {
             return (
-              <div key={`${Group.sender_id}_${Group.group_id}`} className={Styles.grouprequest}>
+              <div
+                key={`${request.sender_id}_${request.group_id}`}
+                className={Styles.grouprequest}
+              >
                 <div>
                   <Image
-                    src={Group.Avatar?.String || "/db.png"}
+                    src={request.avatar?.String || "/db.png"}
                     alt="profile"
                     width={40}
                     height={40}
                     style={{ borderRadius: "50%" }}
                   />
-                  <h5>
-                    {isProcessed 
-                      ? `Request has been processed`
-                      : `${Group?.username} sent you a join request to group ${Group?.group_name}`
-                    }
-                  </h5>
+                  <div>
+                    <h5>
+                      {!request?.isRespond
+                        ? request.message ||
+                          `${request.username} wants to join ${request.group_name}`
+                        : `You ${request.processedStatus}ed the request`}
+                    </h5>
+                    {request.username && request.group_name && (
+                      <p style={{ fontSize: "12px", color: "#666" }}>
+                        {request.username} → {request.group_name}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                
-                {!isProcessed && (
+                {!request?.isRespond ? (
                   <div className={Styles.Buttons}>
                     <Image
                       onClick={() =>
                         setRespond({
-                          sender: Group.sender_id,
-                          target: Group.group_id,
+                          sender: request.sender_id,
+                          target: request.group_id,
                           type: 1,
                           status: "accept",
                           isSpecial: true,
@@ -213,17 +259,17 @@ export default function Groups() {
                       alt="accept"
                       width={25}
                       height={25}
-                      style={{ 
-                        marginRight: "10px", 
-                        cursor: loading ? "not-allowed" : "pointer",
-                        opacity: loading ? 0.5 : 1
+                      style={{
+                        marginRight: "10px",
+                        cursor: "pointer",
+                        opacity: 1,
                       }}
                     />
                     <Image
                       onClick={() =>
                         setRespond({
-                          sender: Group.sender_id,
-                          target: Group.group_id,
+                          sender: request.sender_id,
+                          target: request.group_id,
                           type: 1,
                           status: "refuse",
                         })
@@ -232,18 +278,22 @@ export default function Groups() {
                       alt="decline"
                       width={25}
                       height={25}
-                      style={{ 
-                        cursor: loading ? "not-allowed" : "pointer",
-                        opacity: loading ? 0.5 : 1
+                      style={{
+                        cursor: "pointer",
+                        opacity: 1,
                       }}
                     />
+                  </div>
+                ) : (
+                  <div className={Styles.processedStatus}>
+                    <span>Request {request.processedStatus}ed</span>
                   </div>
                 )}
               </div>
             );
           })
         ) : (
-          <h3 style={{ textAlign: "center" }}>No groups request</h3>
+          <h3 style={{ textAlign: "center" }}>No group requests</h3>
         )}
       </div>
     </>

@@ -257,12 +257,6 @@ func (u *update) sendToUser() error {
 		return err
 	}
 
-	if err := modules.AddDm(u.Uid, u.Uid, string(responseData)); err != nil {
-		err = errors.New("failed to store message in db with error: " + err.Error())
-		logs.ErrorLog.Printf("Error storing message in database: %v", err)
-		return err
-	}
-
 	if profile, exist := sockets[u.Uid]; !exist {
 		logs.ErrorLog.Printf("User %d not found or not connected\n", u.Uid)
 		return fmt.Errorf("user not found or not connected")
@@ -276,7 +270,7 @@ func (u *update) sendToUser() error {
 	return nil
 }
 
-func NotifyUser(uId int, command string, value any) error {
+func notifyUser(uId int, command string, value any) error {
 	u := update{"<system>", uId, command, value}
 	err := u.sendToUser()
 	if err != nil {
@@ -292,4 +286,8 @@ func NotifyAll(command string, value any) error {
 		logs.ErrorLog.Printf("Error sending update message: %v", err)
 	}
 	return err
+}
+
+func init() {
+	structs.NotifyUser = notifyUser
 }

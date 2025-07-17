@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -43,6 +44,8 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		auth.JsRespond(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
+
+	fmt.Println("request body:", bodyRequest)
 
 	if bodyRequest.ReceiverId == 0 {
 		if bodyRequest.Type == 0 && bodyRequest.Is_public {

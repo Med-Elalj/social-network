@@ -27,7 +27,7 @@ function FollowButton({ targetId, followStatus, setFollowStatus }) {
       body = {
         sender: targetId,
         status: requestStatus,
-        isFollowType: true,
+        type: 0,
       };
 
       res = await SendData(`/api/v1/set/acceptFollow`, body);
@@ -35,7 +35,7 @@ function FollowButton({ targetId, followStatus, setFollowStatus }) {
       body = {
         target: targetId,
         status: followStatus,
-        type: 0
+        type: 0,
       };
       res = await SendData(`/api/v1/set/follow`, body);
     }
@@ -54,7 +54,7 @@ function FollowButton({ targetId, followStatus, setFollowStatus }) {
     <div style={{ marginTop: "1rem", alignSelf: "center" }}>
       {followStatus !== "accept | refuse" ? (
         <button
-          onClick={handleFollow}
+          onClick={() => handleFollow()}
           className={`${Style.followBtn} ${Style.follow}`}
         >
           {followStatus}
@@ -62,17 +62,13 @@ function FollowButton({ targetId, followStatus, setFollowStatus }) {
       ) : (
         <>
           <button
-            onClick={() => {
-              handleFollow("accept");
-            }}
+            onClick={() => handleFollow("accept")}
             className={`${Style.followBtn} ${Style.follow}`}
           >
             accept
           </button>
           <button
-            onClick={() => {
-              handleFollow("refuse");
-            }}
+            onClick={() => handleFollow("refuse")}
             className={`${Style.followBtn} ${Style.follow}`}
           >
             refuse
@@ -271,9 +267,9 @@ export default function Profile() {
                       <h5>
                         {profileData.date_of_birth
                           ? (
-                            new Date().getFullYear() -
-                            new Date(profileData.date_of_birth).getFullYear()
-                          ).toString()
+                              new Date().getFullYear() -
+                              new Date(profileData.date_of_birth).getFullYear()
+                            ).toString()
                           : "N/A"}
                       </h5>
                     </span>
@@ -312,7 +308,8 @@ export default function Profile() {
         </div>
 
         <div className={Style.second}>
-          {activeSection === "posts" && <Posts data={profileData} />} {/*data passed to Posts} */}
+          {activeSection === "posts" && <Posts data={profileData} />}{" "}
+          {/*data passed to Posts} */}
           {activeSection === "followers" && (
             <Followers userId={profileData.id} />
           )}

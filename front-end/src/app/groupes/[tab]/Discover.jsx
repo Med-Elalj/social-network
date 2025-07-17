@@ -7,12 +7,14 @@ import { useNotification } from "../../context/notificationContext.jsx";
 
 export default function Discover() {
   const [groups, setGroups] = useState([]);
-  const [joinedGroupId, setJoinedGroupId] = useState(null);
+  const [joinedGroup, setJoinedGroup] = useState(null);
   const { showNotification } = useNotification();
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await SendData("/api/v1/get/userSeggestions", { is_user: 0 });
+      const response = await SendData("/api/v1/get/userSeggestions", {
+        is_user: 0,
+      });
       const body = await response.json();
 
       if (response.status !== 200) {
@@ -28,17 +30,15 @@ export default function Discover() {
 
   useEffect(() => {
     async function sentJoinHandler() {
-      console.log("group id to join", joinedGroupId);
-      const response = await SendData("/api/v1/set/joinGroup", {
-        groupId: joinedGroupId,
-      });
+      console.log("group id to join", joinedGroup);
+      const response = await SendData("/api/v1/set/sendRequest", joinedGroup);
       let type = "error";
       const data = await response.json();
       if (response.ok) {
         type = "succes";
         setGroups((prev) =>
           prev.map((group) => {
-            return group.ID == joinedGroupId
+            return group.id == joinedGroup.target
               ? { ...prev, IsRequested: true }
               : prev;
           })
@@ -46,11 +46,11 @@ export default function Discover() {
       }
       showNotification(data.message, type);
     }
-    if (joinedGroupId) {
+    if (joinedGroup) {
       sentJoinHandler();
-      setJoinedGroupId(null);
+      setJoinedGroup(null);
     }
-  }, [joinedGroupId]);
+  }, [joinedGroup]);
 
   useEffect(() => {
     console.log(groups);
@@ -77,7 +77,7 @@ export default function Discover() {
             </p>
             {!Group.IsRequested ? (
               <h3
-                onClick={() => setJoinedGroupId(Group.ID)}
+                onClick={() => setJoinedGroup({ target: Group.id, type: 1 })}
                 className={Style.acceptBtn}
               >
                 Join Group

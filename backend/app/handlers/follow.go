@@ -123,6 +123,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 	// Get target user's privacy status before processing
+	fmt.Println(bodyRequest)
 	if bodyRequest.Type == 0 {
 		err = modules.DB.QueryRow(`SELECT is_public FROM profile WHERE id = ?`, bodyRequest.Id).Scan(&targetIsPublic)
 		if err != nil {
@@ -170,7 +171,7 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 		}
 	}
 
-	err = modules.DeleteRequest(bodyRequest.Id, uid, bodyRequest.Target, bodyRequest.Type)
+	err = modules.DebugAndDeleteRequests(uid, bodyRequest.Target, bodyRequest.Type)
 	if err != nil {
 		logs.ErrorLog.Println("Error deleting follow request:", err)
 		auth.JsRespond(w, "error processing request", http.StatusInternalServerError)

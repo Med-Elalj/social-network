@@ -12,8 +12,7 @@ export default function Friends() {
   const [followRequests, setFollowRequests] = useState([]);
   const [contacts, setContacts] = useState([]);
   const { showNotification } = useNotification();
-  const { updateOnlineUser, newNotification } = useWebSocket();
-  const { responseUserId, setResponseUserId } = useState(0);
+  const { updateOnlineUser, newFollowRequest } = useWebSocket();
 
   useEffect(() => {
     async function fetchRequest(url, body) {
@@ -36,9 +35,9 @@ export default function Friends() {
       const usersData = await fetchRequest("/api/v1/get/users");
       usersData ? setContacts(usersData) : setContacts([]);
 
-      const followRequestData = await fetchRequest(
-        "/api/v1/get/requests",{ type: 0 }
-      );
+      const followRequestData = await fetchRequest("/api/v1/get/requests", {
+        type: 0,
+      });
       followRequestData
         ? setFollowRequests(followRequestData)
         : setFollowRequests([]);
@@ -46,6 +45,29 @@ export default function Friends() {
 
     handleRequests();
   }, []);
+
+  useEffect(() => {
+    if (newFollowRequest) {
+      console.log("Received newFollowRequest:", newFollowRequest);
+
+      setFollowRequests((prev) => {
+
+
+        const exists = prev.some((req) => req.sender_id === newFollowRequest.sender_id);
+        if (!exists) {
+          return [
+            ...prev,
+            {
+              sender_id: newFollowRequest.sender.id,
+              username: newFollowRequest.receiver.display_name,
+              status: null,
+            },
+          ];
+        }
+        return prev;
+      });
+    }
+  }, [newFollowRequest]);
 
   useEffect(() => {
     if (updateOnlineUser?.uid) {
@@ -61,21 +83,6 @@ export default function Friends() {
     }
   }, [updateOnlineUser]);
 
-  // useEffect(() => {
-  //   if (
-  //     newNotification?.command == "followRequest" &&
-  //     newNotification?.value == "request" &&
-  //     followRequests
-  //   ) {
-  //     showNotification(newNotification.message)
-  //     setFollowRequests((prev) => [
-  //       ...prev,
-  //       { sender_id: newNotification.uid, Name: newNotification.sender },
-  //     ]);
-  //   }
-  // }, [newNotification]);
-  
-
   async function responseHandle(id, status) {
     const response = await SendData(`/api/v1/set/acceptFollow`, {
       status: status,
@@ -85,13 +92,16 @@ export default function Friends() {
     const data = await response.json();
     if (response.ok) {
       showNotification(data.message, response.ok ? "succes" : "error");
-      setFollowRequests(prev=>prev.map(item=>item.sender_id === id ? {...item, status: status} : item))
+      setFollowRequests((prev) =>
+        prev.map((item) =>
+          item.sender_id === id ? { ...item, status: status } : item
+        )
+      );
     } else {
       console.error(error);
       showNotification(`can't ${status} request, try again`, "error");
     }
   }
-
 
   return (
     <>
@@ -99,8 +109,18 @@ export default function Friends() {
         <h1>Follow requests</h1>
         {followRequests?.length > 0 ? (
           followRequests.map((user) => (
-            <div key={user.sender_id}>
-              <Link href={`profile/${user.username}`}>
+            <div
+              key={user.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                alignItems: "center",
+              }}
+            >
+              <Link
+                href={`profile/${user.username}`}
+                style={{ display: "flex", alignItems: "center" }}
+              >
                 <Image
                   src={
                     user.group_avatar?.String
@@ -147,7 +167,7 @@ export default function Friends() {
         <h1>Contacts</h1>
         {contacts?.length > 0 ? (
           contacts.map((user) => (
-            <Link href={`/chat?goTo=${user.name}`} key={user.id} >
+            <Link href={`/chat?goTo=${user.name}`} key={user.id}>
               <div>
                 <Image
                   src={user.pfp?.String ? user.pfp.String : "/iconMale.png"}

@@ -93,25 +93,45 @@ func UserFollow(uid int, tid int, followStatus string) (string, error) {
 
 	case "follow request":
 		{
+			// Insert the follow request
 			_, err = DB.Exec(`
-        		INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
-        		VALUES (?, ?, ?, 0)
-    		`, uid, tid, tid)
+                INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
+                VALUES (?, ?, ?, 0)
+            `, uid, tid, tid)
+			if err != nil {
+				break
+			}
+
+			notifTosent, err := UserInfoForNotification(uid, tid, tid)
+			notifTosent.Message = notifTosent.Sender.DisplayName + " sent you a follow request"
+			if err != nil {
+				logs.ErrorLog.Printf("Error getting user info for notification: %v", err)
+				return "", fmt.Errorf("error getting user info for notification: %w", err)
+			}
+
+			structs.NotifyUser(tid, "follow_request", notifTosent)
+
 		}
+
 	case "cancel request":
 		{
 			_, err = DB.Exec(`
         		DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0`,
 				uid, tid)
+			if err != nil {
+				break
+			}
+
 		}
 	}
+
 	if err != nil {
-		return newStatus, errors.New("error inserting follow request " + err.Error())
+		return newStatus, errors.New("error processing follow action: " + err.Error())
 	}
 
 	newStatus, err = GetRelationship(uid, tid)
 	if err != nil {
-		return newStatus, errors.New("error getting relationship" + err.Error())
+		return newStatus, errors.New("error getting relationship: " + err.Error())
 	}
 
 	return newStatus, nil
@@ -186,25 +206,25 @@ func updpost(newpost structs.Post) error {
 	return nil
 }
 
-// func inviteToGroup(invitedid, gid, sender_id int) error {
-// 	_, err := DB.Exec(`
-// 		INSERT INTO follow (follower_id, following_id, status)
-// 		VALUES (?, ?, 0)
-// 		ON CONFLICT (follower_id, following_id) DO NOTHING;`, invitedid, gid)
-// 	if err != nil {
-// 		logs.ErrorLog.Printf("Error inserting follow: %v", err)
-// 		return fmt.Errorf("error inserting follow: %w", err)
-// 	}
-// 	_, err = DB.Exec(`
-// 		insert into requests (sender_id, receiver_id, towhat, type)
-// 		values (?, ?,? , 1)`, sender_id, invitedid, gid)
-// 	if err != nil {
-// 		logs.ErrorLog.Printf("Error inserting group invite request: %v", err)
-// 		return fmt.Errorf("error inserting group invite request: %w", err)
-// 	}
-// 	logs.InfoLog.Printf("User %d invited to group %d", invitedid, gid)
-// 	return nil
-// }
+func inviteToGroup(invitedid, gid, sender_id int) error {
+	_, err := DB.Exec(`
+		INSERT INTO follow (follower_id, following_id, status)
+		VALUES (?, ?, 0)
+		ON CONFLICT (follower_id, following_id) DO NOTHING;`, invitedid, gid)
+	if err != nil {
+		logs.ErrorLog.Printf("Error inserting follow: %v", err)
+		return fmt.Errorf("error inserting follow: %w", err)
+	}
+	_, err = DB.Exec(`
+		insert into requests (sender_id, receiver_id, towhat, type)
+		values (?, ?,? , 1)`, sender_id, invitedid, gid)
+	if err != nil {
+		logs.ErrorLog.Printf("Error inserting group invite request: %v", err)
+		return fmt.Errorf("error inserting group invite request: %w", err)
+	}
+	logs.InfoLog.Printf("User %d invited to group %d", invitedid, gid)
+	return nil
+}
 
 // anas
 func Insertevent(event structs.GroupEvent, uid int) (int, error) {
@@ -212,7 +232,7 @@ func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	res, err := tx.Exec(`INSERT INTO events (user_id,group_id,description,title,timeof) VALUES (?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
+	res, err := tx.Exec(`INSERT INTO events (user_id,group_id,content,title,timeof) VALUES (?,?,?,?,?,?)`, uid, event.Group_id, event.Description, event.Title, event.Timeof)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
@@ -224,12 +244,12 @@ func Insertevent(event structs.GroupEvent, uid int) (int, error) {
 		return 0, err
 	}
 
-	_, err = tx.Exec(`INSERT INTO userevents (user_id, event_id, respond) VALUES (?,?,?)`, uid, int(lastID), true)
+	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, int(lastID), true)
 	if err != nil {
 		tx.Rollback()
 		return 0, err
 	}
-	query := `insert into request (sender_id, receiver_id, target_id, type) values (?,?,?,?)`
+	query := `insert into request (sender_id, receiver_id, towhat, type) values (?,?,?,?)`
 	members, err := GetMembers(event.Group_id)
 	if err != nil {
 		tx.Rollback()
@@ -267,7 +287,7 @@ func InsertUserEvent(event_id int, uid int, respond bool) error {
 	if err != nil {
 		return err
 	}
-	_, err = tx.Exec(`INSERT INTO userevents (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
+	_, err = tx.Exec(`INSERT INTO userevent (user_id, event_id, respond) VALUES (?,?,?)`, uid, event_id, respond)
 	if err != nil {
 		tx.Rollback()
 		return err

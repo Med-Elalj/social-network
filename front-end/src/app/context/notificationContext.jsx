@@ -1,6 +1,7 @@
 "use client";
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import Notification from "../components/notification.jsx"; // Adjust path
+// import { useWebSocket } from "./notificationContext.jsx"; // Adjust path
 
 const NotificationContext = createContext();
 
@@ -12,6 +13,7 @@ export function NotificationProvider({ children }) {
     duration: 3000,
   });
 
+
   const showNotification = useCallback((message, type = "success", duration = 3000) => {
     setNotification({ open: true, message, type, duration });
   }, []);
@@ -19,6 +21,7 @@ export function NotificationProvider({ children }) {
   const closeNotification = useCallback(() => {
     setNotification((n) => ({ ...n, open: false }));
   }, []);
+
 
   return (
     <NotificationContext.Provider value={{ showNotification }}>

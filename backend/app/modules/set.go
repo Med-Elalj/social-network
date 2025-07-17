@@ -188,6 +188,12 @@ func InsertUserEvent(event_id int, uid int, respond bool) error {
 		tx.Rollback()
 		return err
 	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -201,6 +207,12 @@ func UpdatEventResp(event_id int, uid int, respond bool) error {
 		tx.Rollback()
 		return err
 	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

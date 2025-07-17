@@ -49,17 +49,6 @@ func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	auth.JsRespond(w, "event adding successfully", http.StatusOK)
 }
 
-// func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
-// 	var event structs.GroupEvent
-// 	json.NewDecoder(r.Body).Decode(&event)
-// 	err := modules.UpdatEventResp(event.ID, uid, event.Respond)
-// 	if err != nil {
-// 		auth.JsRespond(w, "Failed to update response", http.StatusBadRequest)
-// 		logs.ErrorLog.Println("Error updating response:", err)
-// 		return
-// 	}
-// }
-
 func GroupEventResponse(w http.ResponseWriter, r *http.Request, uid int) {
 	var event structs.EventResponse
 	json.NewDecoder(r.Body).Decode(&event)
@@ -216,6 +205,17 @@ func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
 
 	auth.JsRespond(w, "join request sented succeffully", http.StatusOK)
 }
+
+// func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
+// 	var event structs.GroupEvent
+// 	json.NewDecoder(r.Body).Decode(&event)
+// 	err := modules.UpdatEventResp(event.ID, uid, event.Respond)
+// 	if err != nil {
+// 		auth.JsRespond(w, "Failed to update response", http.StatusBadRequest)
+// 		logs.ErrorLog.Println("Error updating response:", err)
+// 		return
+// 	}
+// }
 
 // func GroupToJoinHandler(w http.ResponseWriter, r *http.Request, uid int) {
 // 	groups, err := modules.GetGroupToJoin(uid)

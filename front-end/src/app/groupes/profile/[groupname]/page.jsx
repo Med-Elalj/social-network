@@ -391,25 +391,36 @@ export default function Profile() {
                     targetTimeISO={event.time}
                     onComplete={() => console.log("event started")}
                   />
+                  {event.respond?.Bool ?
+                    <>
+                      <p>You are going</p>
+                    </> :
+                    <>
+                      <p>You are not going</p>
+                    </>}
                   <div>
                     <button
                       className={Style.button}
-                      onClick={() => setReactionEventRequest({
-                        event_id: event.event_id,
-                        response: true,
-                        is_reacted: event.respond.Valid ? event.respond.Bool : false
-                      })}
+                      onClick={() =>
+                        setReactionEventRequest({
+                          event_id: event.event_id,
+                          response: true,
+                          is_reacted: event.respond.Valid ? event.respond.Bool : false,
+                        })
+                      }
                     >
                       Going
                     </button>
 
                     <button
                       className={Style.button}
-                      onClick={() => setReactionEventRequest({
-                        event_id: event.event_id,
-                        response: false,
-                        is_reacted: event.respond.Valid ? event.respond.Bool : false
-                      })}
+                      onClick={() =>
+                        setReactionEventRequest({
+                          event_id: event.event_id,
+                          response: false,
+                          is_reacted: event.respond.Valid ? event.respond.Bool : false,
+                        })
+                      }
                     >
                       Not Going
                     </button>
@@ -424,6 +435,6 @@ export default function Profile() {
 
         {showSearch && <SearchInput onClose={handleSearchClose} groupId={data?.ID} />}
       </div>
-    </div>
+    </div >
   );
 }

@@ -53,7 +53,7 @@ export default function Profile() {
         setIsLoading(false);
       }
     }
-    
+
     if (groupname) {
       fetchData();
     }
@@ -63,7 +63,7 @@ export default function Profile() {
   useEffect(() => {
     async function fetchEvents() {
       if (!data?.ID) return;
-      
+
       try {
         const res = await SendData(`/api/v1/get/groupEvents`, data.ID);
         if (res.ok) {
@@ -77,12 +77,12 @@ export default function Profile() {
         console.error("Error fetching events:", err);
       }
     }
-    
+
     fetchEvents();
   }, [data?.ID]);
 
   console.log(events);
-  
+
 
   // Fetch requests - only once on component mount
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchResponse = async () => {
       if (!respondUserRequest || !data?.ID) return;
-      
+
       try {
         const response = await SendData("/api/v1/set/acceptFollow", {
           sender: respondUserRequest.id,
@@ -116,11 +116,11 @@ export default function Profile() {
           status: respondUserRequest.status,
           type: 1,
         });
-        
+
         if (response.ok) {
           const responseData = await response.json();
           showNotification(responseData.message);
-          
+
           // Remove the processed request from the requests array
           setRequests(prev => prev.filter(req => req.sender_id !== respondUserRequest.id));
         } else {
@@ -224,15 +224,15 @@ export default function Profile() {
               >
                 Create Event
               </button>
-              <button 
-                className={Style.button} 
+              <button
+                className={Style.button}
                 onClick={() => setActiveSection("add members")}
               >
                 Add members
               </button>
             </div>
           </div>
-          
+
           {data?.IsAdmin && (
             <div className={Style.requests}>
               <h2>Requests</h2>
@@ -299,7 +299,7 @@ export default function Profile() {
         </div>
 
         <div className={Style.second}>
-          {isPublic && (
+          {data.isMumber || data.IsAdmin && (
             <>
               {activeSection === "posts" && (
                 <Posts
@@ -315,7 +315,7 @@ export default function Profile() {
                   setActiveSection={setActiveSection}
                 />
               )}
-              {activeSection === "CreateEvent" && <CreateEvent groupId={data?.ID}/>}
+              {activeSection === "CreateEvent" && <CreateEvent groupId={data?.ID} />}
               {/* Removed the problematic line that was causing re-renders */}
             </>
           )}
@@ -341,7 +341,7 @@ export default function Profile() {
           )}
         </div>
 
-        {showSearch && <SearchInput onClose={handleSearchClose} groupId={data?.ID}/>}
+        {showSearch && <SearchInput onClose={handleSearchClose} groupId={data?.ID} />}
       </div>
     </div>
   );

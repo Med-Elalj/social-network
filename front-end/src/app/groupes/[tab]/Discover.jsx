@@ -11,8 +11,7 @@ export default function Discover() {
   const [joinedGroupId, setJoinedGroupId] = useState(null);
   const { showNotification } = useNotification();
   const { isloading, isLoggedIn } = useAuth();
-  if (isloading) return;
-  if (!isLoggedIn) return;
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,23 +58,25 @@ export default function Discover() {
     console.log(groups);
   }, [groups]);
 
+  if (isloading || !isLoggedIn) return null;
+
   return (
     <div className={groups ? Style.groupGrid : Style.noPosts}>
       {groups ? (
         groups.map((Group) => (
           <div className={Style.groupCard} key={Group.id}>
             <Image
-              src={Group?.Avatar?.Valid ? Group.Avatar.String : "/db.png"}
+              src={Group?.pfp?.Valid ? Group.pfp.String : "/db.png"}
               alt="profile"
               width={50}
               height={50}
               sizes="(max-width: 768px) 100vw, 250px"
               className={Style.groupAvatar}
             />
-            <h4>{Group.GroupName}</h4>
+            <h4>{Group.name}</h4>
             <p>
-              {Group.Description?.Valid
-                ? Group.Description.String
+              {Group.Description
+                ? Group.Description
                 : "No description"}
             </p>
             {!Group.IsRequested ? (

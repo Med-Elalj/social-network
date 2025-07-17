@@ -826,7 +826,7 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
 	var users []structs.UsersGet
 
 	query := `
-    	SELECT p.id, p.avatar, p.display_name, p.is_user
+    	SELECT p.id, p.avatar, p.display_name, p.is_user,p.description
     	FROM profile p
     	WHERE p.id != ?
     	AND p.is_user = ?
@@ -867,7 +867,7 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
 		var user structs.UsersGet
 		var isUser bool
 
-		err := rows.Scan(&user.ID, &user.Avatar, &user.Username, &isUser)
+		err := rows.Scan(&user.ID, &user.Avatar, &user.Username, &isUser, &user.Description)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan user: %v", err)
 		}

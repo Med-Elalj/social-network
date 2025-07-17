@@ -62,6 +62,7 @@ type UsersGet struct {
 	Is_Group     bool           `json:"is_group"`
 	Avatar       sql.NullString `json:"pfp"`
 	Username     string         `json:"name"` // Exported field
+	Description  string         `json:"Description"`
 	FollowStatus string         `json:"status"`
 }
 

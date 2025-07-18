@@ -193,7 +193,7 @@ func (m *message) send() error {
 	if profile, exist := sockets[m.Sender]; !exist {
 		logs.ErrorLog.Printf("User %d not found or not connected\n", m.Receiver)
 		return fmt.Errorf("user not found or not connected")
-	} else {
+	} else if _, e := sockets[m.Receiver].(*group); !e {
 		err = profile.WriteMessage(websocket.TextMessage, responseData)
 		if err != nil {
 			logs.ErrorLog.Println(err)

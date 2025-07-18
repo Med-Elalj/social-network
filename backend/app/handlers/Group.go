@@ -190,7 +190,7 @@ func GetGroupDataHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	groupData.MemberCount = memberCount + 1
+	groupData.MemberCount = memberCount
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(groupData)

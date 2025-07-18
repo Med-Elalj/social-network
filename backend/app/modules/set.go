@@ -275,18 +275,14 @@ func InsertGroup(gp structs.Group, uid int) error {
 		return err
 	}
 
-	// _, err = res.LastInsertId()
-	// if err != nil {
-	// 	tx.Rollback()
-	// 	return nil, err
-	// }
-	// _, err = tx.Exec(`INSERT INTO groupmember (group_id, user_id, active)
-	// VALUES (?, ?, ?)`,
-	// 	ID, gp.Cid, 3)
-	// if err != nil {
-	// 	tx.Rollback()
-	// 	return nil, err
-	// }
+	_, err = tx.Exec(`INSERT INTO "follow" (follower_id, following_id)
+	VALUES (?, ?)`,
+		uid, ID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	if err := tx.Commit(); err != nil {
 		logs.ErrorLog.Printf("Error committing transaction: %v", err)
 		return err

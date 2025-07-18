@@ -33,8 +33,6 @@ export default function Login() {
     }
     const response = await SendAuthData("/api/v1/auth/login", formData);
 
-    console.log("login Response status:", response.status);
-
     if (response.ok) {
       const res = await response.json();
       if (!isConnected) connectWebSocket();

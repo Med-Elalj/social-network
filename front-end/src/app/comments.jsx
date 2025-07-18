@@ -107,9 +107,6 @@ export default function Comments({ Post, onClose }) {
     }
   };
 
-  console.log("Post", Post);
-
-
   return (
     <div className={Styles.commentPopup}>
       <button className={Styles.closeBtn} onClick={onClose}>

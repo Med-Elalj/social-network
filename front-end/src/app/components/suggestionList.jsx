@@ -40,7 +40,6 @@ export function SuggestionList() {
         setUsers((prev) => {
           return prev.map((user) => {
             {
-              console.log(user);
               return user.id == sentUser.id
                 ? { ...user, isFollowSent: true }
                 : user;
@@ -54,8 +53,6 @@ export function SuggestionList() {
       responseFetch();
     }
   }, [sentUser]);
-
-  useEffect(() => console.log("users suggestions", users), [users]);
 
   return users?.length > 0 ? (
     users.map((user) => {

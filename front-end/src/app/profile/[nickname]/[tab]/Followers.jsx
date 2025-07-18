@@ -30,8 +30,6 @@ export default function Followers({ userId }) {
         <div className={Style.followList}>
             <h1>Followers</h1>
             {users && users?.map((user, i) => (
-                console.log(user),
-
                 <div key={i} className={Style.NewUser}>
                     <div>
                         <Image

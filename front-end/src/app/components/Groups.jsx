@@ -26,7 +26,6 @@ export default function Groups() {
         const body = await response.json();
 
         if (response.status !== 200) {
-          console.log("Failed to get groups");
           showNotification("Failed to load groups", "error");
         } else {
           if (body?.length > 0) {
@@ -46,8 +45,6 @@ export default function Groups() {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    console.log("New group request received:", newGroupRequest);
-
     if (newGroupRequest) {
       setRequests((prev) => {
         const exists = prev.some(
@@ -65,8 +62,6 @@ export default function Groups() {
             message: newGroupRequest.message,
             isRespond: false,
           };
-
-          console.log("Adding new group request:", newRequest);
           return [...prev, newRequest];
         }
 
@@ -89,7 +84,6 @@ export default function Groups() {
 
         const data = await response.json();
         setRequests(data || []);
-        console.log("Existing group requests:", data);
       } catch (err) {
         console.error("Error fetching group requests:", err);
         showNotification("Error loading group requests", "error");
@@ -102,7 +96,6 @@ export default function Groups() {
   useEffect(() => {
     const handleRequestResponse = async () => {
       try {
-        console.log("Processing request:", respond);
         const response = await SendData("/api/v1/set/acceptFollow", respond);
 
         if (response.ok) {

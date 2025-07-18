@@ -114,7 +114,6 @@ export function ResultList({ query, groupId }) {
   };
 
   useEffect(()=>{
-    console.log(userToSent)
     const requestFetch = async ()=> {
       const response= await SendData('/api/v1/set/sendRequest', userToSent)
       if (response.ok){
@@ -160,7 +159,7 @@ export function ResultList({ query, groupId }) {
               />
               <h3>{result.name}</h3>
             </Link>
-            {groupId && <button onClick={()=>{console.log("hehehe"),setUserToSent({target:groupId, type:1, receiver_id:result.id})}} style={{width:"150px", height:"30px",backgroundColor:"var(--hover-color)"}}>add user</button>}
+            {groupId && <button onClick={()=>{setUserToSent({target:groupId, type:1, receiver_id:result.id})}} style={{width:"150px", height:"30px",backgroundColor:"var(--hover-color)"}}>add user</button>}
           </div>
         ))
       ) : !loading && query ? (

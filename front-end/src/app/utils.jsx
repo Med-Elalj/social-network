@@ -235,12 +235,11 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
       setLikeCount(liked ? likeCount - 1 : likeCount + 1);
 
       const response = await SendData("/api/v1/set/like", likeInfo);
-      const body = await response.json();
+      const _ = await response.json();
 
       if (response.status === 200) {
         console.log("Like/Dislike processed successfully!");
       } else {
-        console.log(body);
         setLiked(liked);
         setLikeCount(liked ? likeCount - 1 : likeCount + 1);
       }

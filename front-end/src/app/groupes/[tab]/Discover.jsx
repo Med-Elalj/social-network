@@ -33,7 +33,6 @@ export default function Discover() {
 
   useEffect(() => {
     async function sentJoinHandler() {
-      console.log("group id to join", joinedGroup);
       const response = await SendData("/api/v1/set/sendRequest", joinedGroup);
       let type = "error";
       const data = await response.json();
@@ -55,10 +54,6 @@ export default function Discover() {
       setJoinedGroup(null);
     }
   }, [joinedGroup]);
-
-  useEffect(() => {
-    console.log(groups);
-  }, [groups]);
 
   if (isloading || !isLoggedIn) return null;
 

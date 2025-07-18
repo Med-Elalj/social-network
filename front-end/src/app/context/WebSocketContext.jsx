@@ -49,7 +49,6 @@ export const WebSocketProvider = ({ children }) => {
               `New messsage from ${data.author_name}`,
               "success"
             );
-            // showNotification(`New message from ${data.author_name}`, "success", true, 5000);
             console.warn("Message not for this chat:", data);
           } else {
             showNotification(`${data.content}`, "error");
@@ -57,7 +56,6 @@ export const WebSocketProvider = ({ children }) => {
         }
       } else if ((data.sender === "<system>", data.command)) {
         if (data.command == "online") {
-          // console.log("data received via websocket: ", data);
           setUpdateOnlineUser(data);
         } else {
           showNotification(data.value.message, "info");

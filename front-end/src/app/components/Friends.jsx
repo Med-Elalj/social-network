@@ -48,11 +48,7 @@ export default function Friends() {
 
   useEffect(() => {
     if (newFollowRequest) {
-      console.log("Received newFollowRequest:", newFollowRequest);
-
       setFollowRequests((prev) => {
-
-
         const exists = prev.some((req) => req.sender_id === newFollowRequest.sender_id);
         if (!exists) {
           return [

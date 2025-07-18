@@ -75,7 +75,6 @@ export default function Chat() {
   }, [selectedUser]);
 
   const handleTabClick = (selectedTab) => {
-    console.log("selected tab: ", selectedTab);
     setActiveTab(selectedTab);
   };
 

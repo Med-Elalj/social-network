@@ -6,6 +6,7 @@ import { GetData, SendData } from "../sendData.js";
 import { useRouter } from "next/navigation";
 import { HandleUpload } from "@/app/components/upload.jsx"; // <-- Import your upload helper function
 import { useAuth } from "@/app/context/AuthContext.jsx";
+import { useNotification } from "../context/NotificationContext.jsx";
 
 export default function NewPost() {
   const [content, setContent] = useState("");
@@ -18,6 +19,7 @@ export default function NewPost() {
   const fileInputRef = useRef(null);
   const router = useRouter();
   const { isloading, isLoggedIn } = useAuth();
+  const { showNotification } = useNotification();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -39,7 +41,7 @@ export default function NewPost() {
     e.preventDefault();
 
     if (!content.trim()) {
-      console.log("Content is required.");
+      showNotification("Content is required.");
       return;
     }
 
@@ -52,7 +54,6 @@ export default function NewPost() {
         console.error("Image upload failed. Please try again.");
         return;
       }
-      console.log("Uploaded image path:", imagePath);
     }
 
     const formData = {
@@ -175,26 +176,25 @@ export default function NewPost() {
                 <div className={Styles.friendList}>
                   {users
                     ? users.map((friend) => {
-                        const isSelected = selectedFriends.includes(friend);
+                      const isSelected = selectedFriends.includes(friend);
 
-                        return (
-                          <div
-                            key={friend.id}
-                            className={`${Styles.friendItem} ${
-                              isSelected ? Styles.selected : ""
+                      return (
+                        <div
+                          key={friend.id}
+                          className={`${Styles.friendItem} ${isSelected ? Styles.selected : ""
                             }`}
-                            onClick={() =>
-                              setSelectedFriends((prev) =>
-                                isSelected
-                                  ? prev.filter((f) => f !== friend)
-                                  : [...prev, friend]
-                              )
-                            }
-                          >
-                            {friend.name}
-                          </div>
-                        );
-                      })
+                          onClick={() =>
+                            setSelectedFriends((prev) =>
+                              isSelected
+                                ? prev.filter((f) => f !== friend)
+                                : [...prev, friend]
+                            )
+                          }
+                        >
+                          {friend.name}
+                        </div>
+                      );
+                    })
                     : "No Friends"}
                 </div>
               )}

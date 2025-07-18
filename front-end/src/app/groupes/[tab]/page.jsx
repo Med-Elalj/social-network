@@ -30,11 +30,9 @@ export default function Groupes() {
     // get requests
     useEffect(() => {
         const fetchData = async () => {
-            const response = await SendData("/api/v1/get/requests", { type: 1, is_special:true });
+            const response = await SendData("/api/v1/get/requests", { type: 1, is_special: true });
             const Body = await response.json();
-            if (!response.ok) {
-                console.log(Body);
-            } else {
+            if (response.ok) {
                 setRequests(Body);
                 console.log('requests fetched successfully!');
             }
@@ -47,7 +45,6 @@ export default function Groupes() {
         const file = e.target.files[0];
         if (file) {
             setImage(file);
-            console.log(file)
             setPreviewUrl(URL.createObjectURL(file));
         }
         if (file && file.type.startsWith("image/")) {
@@ -95,8 +92,7 @@ export default function Groupes() {
             privacy,
             "avatar": image_path,
         };
-        console.log("Form Data:", formData);
-        
+
         const response = await SendData("/api/v1/set/GroupCreation", formData);
         const Body = await response.json();
 

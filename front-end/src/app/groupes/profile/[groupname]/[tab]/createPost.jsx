@@ -3,6 +3,7 @@ import Styles from "../../../../newPost/newPost.module.css";
 import { SendData } from "@/app/sendData.js";
 import { useRouter } from "next/navigation";
 import { HandleUpload } from "@/app/components/upload.jsx";
+import { useNotification } from "../../../../context/NotificationContext";
 
 export default function CreatePost({ groupId, setActiveSection }) {
     const [content, setContent] = useState("");
@@ -10,6 +11,7 @@ export default function CreatePost({ groupId, setActiveSection }) {
     const [previewUrl, setPreviewUrl] = useState(null);
     const router = useRouter();
     const fileInputRef = useRef(null);
+    const { showNotification } = useNotification();
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -31,14 +33,13 @@ export default function CreatePost({ groupId, setActiveSection }) {
         e.preventDefault();
 
         if (!content.trim()) {
-            console.log("Content is required.");
+            showNotification("Content is required.");
             return;
         }
 
         let imagePath = null;
         if (image) {
             imagePath = await HandleUpload(image);
-            console.log("path:", imagePath);
         }
 
         const formData = {
@@ -52,9 +53,7 @@ export default function CreatePost({ groupId, setActiveSection }) {
 
         if (response.status !== 200) {
             const errorBody = await response.json();
-            console.log(errorBody);
         } else {
-            console.log("✅ Post created!");
             setActiveSection("posts");
         }
     };

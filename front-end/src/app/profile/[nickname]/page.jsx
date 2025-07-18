@@ -41,7 +41,6 @@ function FollowButton({ targetId, followStatus, setFollowStatus }) {
 
     if (res.status === 200) {
       const result = await res.json();
-      console.log(result.new_status);
       setFollowStatus(result.new_status);
       showNotification(`${followStatus} sent successfully`, "success");
     } else {
@@ -153,8 +152,6 @@ export default function Profile() {
 
     fetchProfile();
   }, [nickname]);
-
-  console.log("Profile Data : ", profileData);
 
   useEffect(() => {
     if (activeTab === "settings") {

@@ -20,9 +20,7 @@ export function FollowRequestsList() {
         followRequestData?.length > 0
           ? setFollowRequests(followRequestData)
           : setFollowRequests([]);
-      } else {
-        console.log("error here")
-      }
+      } 
     }
 
     handleRequests();

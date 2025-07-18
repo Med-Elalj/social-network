@@ -64,8 +64,6 @@ export default function Register() {
       data.append(key, formData[key]);
     }
 
-    console.log("Submitting form...", formData);
-
     const response = await SendAuthData("/api/v1/auth/register", formData);
 
     if (response.status !== 200) {
@@ -76,7 +74,6 @@ export default function Register() {
       showNotification(errorBody.error || "Registration failed. Please try again.", "error", 5000);
     } else {
       setIsLoggedIn(true);
-      // console.log('Form submitted successfully!');
       showNotification("Registration successful! Welcome to our social network!", "success", 5000);
       Router.push("/");
       connectWebSocket();

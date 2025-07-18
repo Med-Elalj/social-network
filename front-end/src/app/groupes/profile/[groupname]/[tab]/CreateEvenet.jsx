@@ -41,8 +41,7 @@ export default function CreateEvent({ groupId, setActiveSection }) {
     const response = await SendData("/api/v1/set/eventCreation", payload);
 
     if (response.status !== 200) {
-      const errorBody = await response.json();
-      console.log(errorBody);
+      const _ = await response.json();
     } else {
       showNotification("Event created successfully!", "success");
       setActiveSection("posts");

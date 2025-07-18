@@ -199,10 +199,6 @@ export default function Profile() {
     fetchReactionEvents();
   }, [reactionEventRequest]);
 
-
-  useEffect(() => console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaa events", events), [events])
-  useEffect(() => console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaa respondUserRequest", respondUserRequest), [respondUserRequest])
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -394,7 +390,6 @@ export default function Profile() {
             {events?.length > 0 ? (
 
               events?.map((event) => (
-                console.log(event),
                 <div key={event?.event_id} className={Style.event}>
                   <h3>{event.title}</h3>
                   <p>{event.description}</p>

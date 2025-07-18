@@ -17,8 +17,8 @@ import (
 var mux = http.NewServeMux()
 
 func SetupMux() http.Handler {
-	mux.Handle("/", IndexHandler())
-
+	mux.HandleFunc("/", IndexHandler)
+	
 	// auth handlers
 	mux.HandleFunc("GET /api/v1/auth/status", auth.CheckAuthHandler)
 	mux.HandleFunc("POST /api/v1/auth/refresh", MW.AuthMiddleware(handlers.RefreshHandler))

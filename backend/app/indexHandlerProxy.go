@@ -1,7 +1,8 @@
+//go:build useproxy
+
 package handlers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -9,11 +10,9 @@ import (
 )
 
 func IndexHandler() http.Handler {
-	// Assumes Next.js dev server is running at localhost:3000
 	target, err := url.Parse("http://localhost:3000")
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Using Next.js dev server at", target.String())
 	return httputil.NewSingleHostReverseProxy(target)
 }

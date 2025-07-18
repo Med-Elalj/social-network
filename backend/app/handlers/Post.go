@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
@@ -11,16 +12,16 @@ import (
 )
 
 func GetAvatarHandler(w http.ResponseWriter, r *http.Request, uid int) {
-	Avatar, err := auth.GetElemVal[string]("avatar", "profile", `id = ?`, uid)
+	Avatar, err := auth.GetElemVal[sql.NullString]("avatar", "profile", `id = ?`, uid)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting avatar:", err)
 		auth.JsResponse(w, "Error getting avatar", http.StatusInternalServerError)
 		return
 	}
-	if Avatar != "" {
+	if Avatar.Valid {
 		auth.JsMapResponse(w, map[string]any{
 			"message": "Avatar fetched successfully",
-			"avatar":  Avatar,
+			"avatar":  Avatar.String,
 		}, http.StatusOK)
 		return
 	}

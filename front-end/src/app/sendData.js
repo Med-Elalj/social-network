@@ -1,6 +1,6 @@
 "use client";
 
-const BACKEND_URL = "http://localhost:8080";
+export const BACKEND_URL = "http://localhost:8080";
 
 export async function refreshAccessToken() {
 
@@ -8,6 +8,7 @@ export async function refreshAccessToken() {
   try {
     const res = await fetch(BACKEND_URL + '/api/v1/auth/refresh', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
     });
 

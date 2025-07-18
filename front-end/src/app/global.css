@@ -131,6 +131,15 @@ body {
 .toast--error:before {
   background-color: #FF4444;
 }
+/* Info Toast */
+.toast--success .toast__icon {
+  background-color: rgb(128, 47, 128);
+}
+
+.toast--success:before {
+  background-color: #441080;
+}
+
 /* Marks inputs directly following labels */
 form > label:has(+input:required)::after {
   content: " *";

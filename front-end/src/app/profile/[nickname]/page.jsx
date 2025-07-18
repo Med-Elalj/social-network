@@ -183,11 +183,12 @@ export default function Profile() {
     <div className={Style.container}>
       <div className={Style.header}>
         <Image
-          src={profileData?.avatar ? profileData.avatar : "/groupsBg.png"}
-          alt="user avatar"
-          fill
-          style={{ objectFit: "inherit" }}
-        />
+      src="/bannerBG.png"
+      alt="user banner"
+      fill
+      // style={{ objectFit: "cover" }}
+      priority
+    />
       </div>
       <div className={Style.body}>
         <div className={Style.first}>

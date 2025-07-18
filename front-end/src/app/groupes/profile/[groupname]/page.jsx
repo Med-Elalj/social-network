@@ -159,7 +159,7 @@ export default function Profile() {
       let type = "error";
       const data = await response.json();
       if (response.ok) {
-        type = "succes";
+        type = "success";
       }
       showNotification(data.message, type);
     }
@@ -215,7 +215,7 @@ export default function Profile() {
     <div className={Style.container}>
       <div className={Style.header}>
         <Image
-          src={data?.Avatar?.String ? data.Avatar.String : "/groupsBg.png"}
+          src={ "/bannerBG.png"}
           fill
           alt="cover"
         />

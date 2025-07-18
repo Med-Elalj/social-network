@@ -228,7 +228,7 @@ export default function Groups() {
               >
                 <div>
                   <Image
-                    src={request.avatar?.String || "/db.png"}
+                    src={request.avatar?.String || "/bannerBG.png"}
                     alt="profile"
                     width={40}
                     height={40}

@@ -7,10 +7,11 @@
 }
 
 .header {
-    height: 40%;
-    position: relative;
-    z-index: -1;
-    border-bottom: solid 1px var(--border-color);
+  position: relative;
+  height: 40vh;            
+  border-bottom: 1px solid var(--border-color);
+  overflow: hidden;
+  z-index: 0;
 }
 
 .body {

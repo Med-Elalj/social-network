@@ -87,7 +87,7 @@ export default function Profile() {
   return (
     <div className={Style.container}>
       <div className={Style.header}>
-        <Image src="/db.png" fill alt="cover" />
+        <Image src="/bannerBG.png" fill alt="cover" />
       </div>
       <div className={Style.body}>
         <div className={Style.first}>
@@ -100,7 +100,7 @@ export default function Profile() {
                   height: "200px",
                 }}
               >
-                <Image src="/db.png" alt="cover" fill />
+                <Image src="/bannerBG.png" alt="cover" fill />
               </div>
               <h4>@{CapitalizeFirstLetter(profileData?.display_name)}</h4>
             </div>
@@ -197,7 +197,7 @@ export default function Profile() {
             <div>
               <div>
                 <Image
-                  src="/db.png"
+                  src="/bannerBG.png"
                   alt="profile"
                   width={40}
                   height={40}
@@ -217,7 +217,7 @@ export default function Profile() {
             <div>
               <div>
                 <Image
-                  src="/db.png"
+                  src="/bannerBG.png"
                   alt="profile"
                   width={40}
                   height={40}
@@ -237,7 +237,7 @@ export default function Profile() {
             <div>
               <div>
                 <Image
-                  src="/db.png"
+                  src="/bannerBG.png"
                   alt="profile"
                   width={40}
                   height={40}
@@ -257,7 +257,7 @@ export default function Profile() {
             <div>
               <div>
                 <Image
-                  src="/db.png"
+                  src="/bannerBG.png"
                   alt="profile"
                   width={40}
                   height={40}
@@ -277,7 +277,7 @@ export default function Profile() {
             <div>
               <div>
                 <Image
-                  src="/db.png"
+                  src="/bannerBG.png"
                   alt="profile"
                   width={40}
                   height={40}

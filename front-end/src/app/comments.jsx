@@ -95,7 +95,8 @@ export default function Comments({ Post, onClose }) {
         console.log("Comment error:", Body);
       } else {
         setContent("");
-        fetchData(true); // reset + reload comments
+        setCommentImage(null);
+        fetchData(true);
         console.log(Body.message);
       }
     } catch (err) {

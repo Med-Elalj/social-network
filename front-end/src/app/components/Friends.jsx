@@ -91,7 +91,7 @@ export default function Friends() {
     });
     const data = await response.json();
     if (response.ok) {
-      showNotification(data.message, response.ok ? "succes" : "error");
+      showNotification(data.message, response.ok ? "success" : "error");
       setFollowRequests((prev) =>
         prev.map((item) =>
           item.sender_id === id ? { ...item, status: status } : item

@@ -102,7 +102,7 @@
 | | | |____main.db
 | |____go.sum
 | |____go.mod
-| |____db.png
+| |____bannerBG.png
 |____Makefile
 |____package-lock.json
 |____front-end
@@ -138,7 +138,7 @@
 | | |____groupe.svg
 | | |____create.svg
 | | |____Like.svg
-| | |____db.png
+| | |____bannerBG.png
 | | |____iconMale.png
 | | |____notification.svg
 | | |____private.svg

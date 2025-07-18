@@ -42,8 +42,8 @@ export default function Home() {
         return Array.from(new Map(combined.map((p) => [p.ID, p])).values());
       });
 
-      setLastPostID(newPosts.at(-1)?.ID ?? lastPostID);
-      setHasMore(newPosts.length > 0);
+      setLastPostID(newPosts?.at(-1)?.ID ?? lastPostID);
+      setHasMore(newPosts?.length > 0);
     } catch (err) {
       console.error("Fetch error:", err);
     } finally {

@@ -74,17 +74,27 @@ export default function UploadForm() {
   );
 }
 
+import { fetchAvatar } from "@/app/utils";
+
 export function UserAvatar({ className }) {
-  const [avatar, setAvatar] = useState(null);
+  const [avatar, setAvatar] = useState("");
 
   useEffect(() => {
-    const storedAvatar = localStorage.getItem("avatar");
-    if (storedAvatar) setAvatar(storedAvatar);
+    async function loadAvatar() {
+      const result = await fetchAvatar();
+      setAvatar(result);
+    }
+    loadAvatar();
   }, []);
 
   return (
-    <span className={className} >
-      <Image src={avatar || "/iconMale.png"} alt="profile" width={40} height={40} style={{ borderRadius: "50%" }} />
+    <span className={className}>
+      <Image
+        src={avatar ? `/${avatar.replace(/^\/+/, "")}` : "/iconMale.png"}
+        alt="profile"
+        width={40}
+        height={40}
+      />
     </span>
   );
 }

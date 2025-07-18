@@ -52,7 +52,6 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		usernames, err := modules.GetUserNames(data.Sub)
-		fmt.Println("users ", usernames)
 		if err != nil {
 			logs.ErrorLog.Printf("routes.go 60 %q", err.Error())
 		}
@@ -64,7 +63,6 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, `{error": "expected page value"}`)
-			fmt.Println(err)
 			return
 		}
 		payload := r.Context().Value(auth.UserContextKey)

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -32,7 +33,6 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		// Query DB for session details (including stored IP and User-Agent)
 		session, err := auth.GetSessionByID(payload.SessionID)
 		if err != nil {
-			auth.ClearCookie(w, auth.AuthInfo.JwtTokenName)
 			auth.JsResponse(w, "Unauthorized - session not found", http.StatusUnauthorized)
 			return
 		}
@@ -75,4 +75,26 @@ func CorsMiddleware(next http.Handler) http.Handler {
 		// Continue to actual handler
 		next.ServeHTTP(w, r)
 	})
+}
+
+func UnauthenticatedRateLimit(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ip := auth.GetIP(r)
+		auth.ApplyRateLimit(ip, w, r, next)
+	}
+}
+
+func AuthenticatedRateLimit(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var key string
+
+		if payload, ok := r.Context().Value(auth.UserContextKey).(*jwt.JwtPayload); ok {
+			uName := payload.Username
+			key = fmt.Sprintf("user:%s", uName)
+		} else {
+			ip := auth.GetIP(r)
+			key = fmt.Sprintf("ip:%s", ip)
+		}
+		auth.ApplyRateLimit(key, w, r, next)
+	}
 }

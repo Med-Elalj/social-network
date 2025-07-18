@@ -65,7 +65,7 @@ export default function Groups() {
       let type = "error";
       const data = await response.json();
       if (response.ok) {
-        type = "succes";
+        type = "success";
         setGroups((prev) => prev.filter((group) => group.id != joinedGroupId));
       } else {
         console.error("failed to send join request to this group");

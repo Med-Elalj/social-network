@@ -159,7 +159,7 @@ export default function Profile() {
       let type = "error";
       const data = await response.json();
       if (response.ok) {
-        type = "succes";
+        type = "success";
       }
       showNotification(data.message, type);
     }

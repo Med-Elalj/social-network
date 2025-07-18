@@ -96,7 +96,7 @@ func GetElemVal[T any](selectedElem, from, whereClause string, args ...any) (T, 
 	if err != nil {
 		var zero T
 		if err == sql.ErrNoRows {
-			return zero, nil // no result, return empty value
+			return zero, nil
 		}
 		logs.ErrorLog.Println("Database error:", err)
 		return zero, err

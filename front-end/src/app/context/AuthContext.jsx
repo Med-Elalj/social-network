@@ -1,9 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { GetData } from "@/app/sendData.js";
 
+import { BACKEND_URL } from "@/app/sendData.js";
 // 1. Create the Authentication Context
 const AuthContext = createContext();
 
@@ -24,7 +23,8 @@ useEffect(() => {
 
   const checkAuth = async () => {
     try {
-      const response = await GetData("/api/v1/auth/status", {
+      const response = await fetch(BACKEND_URL+"/api/v1/auth/status", {
+        method: "GET",
         credentials: "include",
       });
       const data = await response.json();
@@ -45,8 +45,9 @@ console.log("AuthProvider: checking auth status...");
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await GetData("/api/v1/auth/status", {
+        const response = await fetch(BACKEND_URL+"/api/v1/auth/status", {
           credentials: "include",
+          method: "GET",
         });
         const data = await response.json();
 

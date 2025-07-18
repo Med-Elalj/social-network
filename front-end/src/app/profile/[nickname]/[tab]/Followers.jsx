@@ -35,7 +35,7 @@ export default function Followers({ userId }) {
                 <div key={i} className={Style.NewUser}>
                     <div>
                         <Image
-                            src={user.pfp.Valid ? user.php.String : "/iconMale.png"}
+                            src={user.pfp?.Valid ? user.pfp.String : "/iconMale.png"}
                             alt="profile"
                             width={40}
                             height={40}

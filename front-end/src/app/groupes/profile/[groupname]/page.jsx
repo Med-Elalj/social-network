@@ -215,7 +215,7 @@ export default function Profile() {
     <div className={Style.container}>
       <div className={Style.header}>
         <Image
-          src={data?.Avatar?.Valid ? data.Avatar.String : "/groupsBg.png"}
+          src={data?.Avatar?.String ? data.Avatar.String : "/groupsBg.png"}
           fill
           alt="cover"
         />

@@ -31,7 +31,7 @@ export default function Groupes() {
     // get requests
     useEffect(() => {
         const fetchData = async () => {
-            const response = await SendData("/api/v1/get/requests", { type: 1 });
+            const response = await SendData("/api/v1/get/requests", { type: 1, is_special:true });
             const Body = await response.json();
             if (!response.ok) {
                 console.log(Body);
@@ -221,7 +221,7 @@ export default function Groupes() {
                                 <div key={i} className={Style.RequestItem}>
                                     <div>
                                         <Image src={request.groupImage || "/iconGroup.png"} alt="profile" width={25} height={25} style={{ borderRadius: "50%" }} />
-                                        <h4 style={{ marginLeft: "10px" }}>{userResponse?.id != request.sender_id ? `${request?.username} send you a join request to group ${request?.group_name}` : `the request ${userResponse.status}ed`}</h4>
+                                        <h4 style={{ marginLeft: "10px" }}>{userResponse?.id != request.sender_id ? request.message : `the request ${userResponse.status}ed`}</h4>
                                     </div>
                                     {userResponse?.id != request.sender_id ? (<div className={Style.Buttons}>
                                         <div onClick={() => ARequest({ sender: request.sender_id, target: request.group_id, status: 'accept', type: 1 })}>

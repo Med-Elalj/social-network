@@ -78,7 +78,7 @@ export default function Groups() {
     if (!isLoggedIn) return;
     const fetchGroupRequests = async () => {
       try {
-        const response = await SendData("/api/v1/get/requests", { type: 1 });
+        const response = await SendData("/api/v1/get/requests", { type: 1, is_special:true });
 
         if (!response.ok) {
           console.error("Failed to fetch group requests");

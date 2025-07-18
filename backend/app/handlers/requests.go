@@ -12,7 +12,8 @@ import (
 
 func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var bodyRequest struct {
-		Type int `json:"type"`
+		Type      int  `json:"type"`
+		IsSpecial bool `json:"is_special"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&bodyRequest); err != nil {
@@ -21,7 +22,7 @@ func GetRequestsHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	requests, err := modules.GetRequests(uid, bodyRequest.Type)
+	requests, err := modules.GetRequests(uid, bodyRequest.Type, bodyRequest.IsSpecial)
 	if err != nil {
 		logs.ErrorLog.Println("Error getting requests:", err)
 		auth.JsResponse(w, "Failed to get requests", http.StatusInternalServerError)

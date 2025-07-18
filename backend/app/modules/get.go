@@ -420,10 +420,11 @@ func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
 	return posts, nil
 }
 
-func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
+func GetRequests(uid, tpdefind int, isSpecial bool) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 	SELECT
 	    r.sender_id,
+
 	    r.target_id,
 	    r.type,
 	    COALESCE(pg.display_name, pe_group.display_name, ''),
@@ -464,6 +465,18 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 			request.Message = fmt.Sprintf("%s create a new event on %s group", request.Username, request.GroupName)
 		}
 
+		var isCreator bool
+
+		DB.QueryRow(`SELECT 1 FROM 'group' WHERE id = ? AND creator_id = ?`, request.GroupId, uid).Scan(&isCreator)
+
+		if request.Type == 1 && isSpecial {
+			if request.SenderId != uid && !isCreator {
+				request.Message = fmt.Sprintf("%s asked you to join %s group", request.Username, request.GroupName)
+				requests = append(requests, request)
+				fmt.Println("i'm here now", request)
+			}
+			continue
+		}
 		requests = append(requests, request)
 	}
 	return requests, nil

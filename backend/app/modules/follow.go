@@ -18,7 +18,7 @@ func InsertFollow(follower, following int) error {
 		logs.ErrorLog.Printf("Error checking existing follow: %v", err)
 		return errors.New("error checking existing follow relationship")
 	}
-
+	fmt.Println("is eixists", exists)
 	if exists {
 		// Relationship already exists, don't insert duplicate
 		return nil

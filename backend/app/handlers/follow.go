@@ -138,13 +138,13 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 			bodyRequest.Target = uid
 		}
 
-		// First, insert the follow relationship (sender follows target)
-		if bodyRequest.IsSpecial {
-			err = modules.InsertFollow(uid, bodyRequest.Target)
-		} else {
-			err = modules.InsertFollow(bodyRequest.Id, bodyRequest.Target)
+		if bodyRequest.IsSpecial && bodyRequest.Type == 1 {
+			bodyRequest.Id = uid
 		}
 
+		// First, insert the follow relationship (sender follows target)
+
+		err = modules.InsertFollow(bodyRequest.Id, bodyRequest.Target)
 		if err != nil {
 			logs.ErrorLog.Println("Error accepting follow relationship:", err)
 			auth.JsResponse(w, "follow accepting failed", http.StatusInternalServerError)
@@ -186,7 +186,6 @@ func FollowersAR(w http.ResponseWriter, r *http.Request, uid int) {
 			// Don't fail the request, just set a default status
 			responseBody.NewStatus = "follow"
 		}
-
 	}
 
 	responseBody.Message = fmt.Sprintf("Request %sed successfully", bodyRequest.Status)

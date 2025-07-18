@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -42,21 +43,44 @@ func GroupEventCreation(w http.ResponseWriter, r *http.Request, uid int) {
 
 	json.NewDecoder(r.Body).Decode(&event)
 
-	lastID, err := modules.Insertevent(event, uid)
+	_, err := modules.Insertevent(event, uid)
 	if err != nil {
 		auth.JsResponse(w, "Failed to create event", http.StatusBadRequest)
 		logs.ErrorLog.Println("Error inserting event into database:", err)
 		return
 	}
 
-	err = modules.InsertUserEvent(lastID, uid, true)
-	if err != nil {
-		auth.JsResponse(w, "Failed to add creator to the event", http.StatusBadRequest)
-		logs.ErrorLog.Println("Error inserting event into database:", err)
-		return
-	}
+	// err = modules.InsertUserEvent(lastID, uid, true)
+	// if err != nil {
+	// 	auth.JsResponse(w, "Failed to add creator to the event", http.StatusBadRequest)
+	// 	logs.ErrorLog.Println("Error inserting event into database:", err)
+	// 	return
+	// }
 
 	auth.JsResponse(w, "event adding successfully", http.StatusOK)
+}
+
+func GroupEventResponse(w http.ResponseWriter, r *http.Request, uid int) {
+	var event structs.EventResponse
+	json.NewDecoder(r.Body).Decode(&event)
+
+	if event.IsReacted {
+		err := modules.UpdatEventResp(event.ID, uid, event.Response)
+		if err != nil {
+			auth.JsResponse(w, "Failed to update response", http.StatusBadRequest)
+			logs.ErrorLog.Println("Error updating response:", err)
+			return
+		}
+		auth.JsResponse(w, "event updated successfully", http.StatusOK)
+	} else {
+		err := modules.InsertUserEvent(event.ID, uid, event.Response)
+		if err != nil {
+			auth.JsResponse(w, "Failed to join event", http.StatusBadRequest)
+			logs.ErrorLog.Println("Error inserting event into database:", err)
+			return
+		}
+		auth.JsResponse(w, "event joined successfully", http.StatusOK)
+	}
 }
 
 func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
@@ -72,17 +96,6 @@ func GroupCreation(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 	auth.JsResponse(w, "group Created successfully", http.StatusOK)
 }
-
-// func GroupToJoinHandler(w http.ResponseWriter, r *http.Request, uid int) {
-// 	groups, err := modules.GetGroupToJoin(uid)
-// 	if err != nil {
-// 		auth.JsRespond(w, "Failed to get groups to", http.StatusBadRequest)
-// 		return
-// 	}
-// 	json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
-// 		"groups": groups,
-// 	})
-// }
 
 func GroupMembersHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var groupId int
@@ -139,23 +152,30 @@ func GetGroupDataHandler(w http.ResponseWriter, r *http.Request, uid int) {
 	var groupData structs.GroupGet
 
 	query := `
-	SELECT
-	    p.id,
-	    p.display_name,
-	    p.avatar,
-	    p.description,
-	    p.is_Public,
-	    g.creator_id = ? AS is_creator  -- compare creator_id with user_id param
-	FROM
-	    profile p
-	JOIN
-	    "group" g ON g.id = p.id
-	WHERE
-	    p.display_name = ?
-	    AND p.is_user = 0
-	    AND g.id = p.id;`
-	err := modules.DB.QueryRow(query, uid, groupName).Scan(&groupData.ID, &groupData.GroupName, &groupData.Avatar, &groupData.Description, &groupData.Privacy, &groupData.IsAdmin)
-	if err != nil {
+		SELECT
+			p.id,
+			p.display_name,
+			p.avatar,
+			p.description,
+			p.is_public,
+			CASE
+				WHEN g.creator_id = ? THEN 1
+				ELSE 0
+			END AS is_creator,
+			CASE
+				WHEN f.follower_id IS NOT NULL THEN 1
+				ELSE 0
+			END AS is_member
+		FROM
+			profile p
+			JOIN "group" g ON g.id = p.id
+			LEFT JOIN follow f ON f.following_id = g.id
+			AND f.follower_id = ?
+		WHERE
+			p.display_name = ?
+			AND p.is_user = 0;`
+	err := modules.DB.QueryRow(query, uid, uid, groupName).Scan(&groupData.ID, &groupData.GroupName, &groupData.Avatar, &groupData.Description, &groupData.Privacy, &groupData.IsAdmin, &groupData.IsMember)
+	if err != nil && err != sql.ErrNoRows {
 		logs.ErrorLog.Printf("Group Data Handler scan error: %q", err.Error())
 		auth.JsResponse(w, "Failed to get group data", http.StatusBadRequest)
 		return
@@ -187,6 +207,7 @@ func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
 		auth.JsResponse(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
+	fmt.Println("Group ID:", bodyRequest.GroupId)
 
 	err = modules.InsertRequest(uid, 0, bodyRequest.GroupId, 1)
 	if err != nil {
@@ -196,3 +217,25 @@ func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
 
 	auth.JsResponse(w, "join request sented succeffully", http.StatusOK)
 }
+
+// func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {
+// 	var event structs.GroupEvent
+// 	json.NewDecoder(r.Body).Decode(&event)
+// 	err := modules.UpdatEventResp(event.ID, uid, event.Respond)
+// 	if err != nil {
+// 		auth.JsResponse(w, "Failed to update response", http.StatusBadRequest)
+// 		logs.ErrorLog.Println("Error updating response:", err)
+// 		return
+// 	}
+// }
+
+// func GroupToJoinHandler(w http.ResponseWriter, r *http.Request, uid int) {
+// 	groups, err := modules.GetGroupToJoin(uid)
+// 	if err != nil {
+// 		auth.JsResponse(w, "Failed to get groups to", http.StatusBadRequest)
+// 		return
+// 	}
+// 	json.NewEncoder(w).Encode(map[string][]structs.GroupGet{
+// 		"groups": groups,
+// 	})
+// }

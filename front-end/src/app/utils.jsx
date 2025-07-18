@@ -290,3 +290,44 @@ export function TimeAgo(timestamp) {
   if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
   return `${years} year${years !== 1 ? "s" : ""} ago`;
 }
+
+export function Countdown({ targetTimeISO, onComplete }) {
+  const [countdown, setCountdown] = useState("");
+
+  useEffect(() => {
+    const targetTime = new Date(targetTimeISO).getTime();
+
+    if (isNaN(targetTime) || targetTime <= Date.now()) {
+      setCountdown("Event started or invalid date");
+      if (onComplete) onComplete();
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        setCountdown("Event started");
+        if (onComplete) onComplete();
+        clearInterval(intervalId);
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+    };
+
+    updateCountdown();
+
+    const intervalId = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [targetTimeISO, onComplete]);
+
+  return <p style={{ color: "#FFBB00" }}>{countdown}</p>;
+}

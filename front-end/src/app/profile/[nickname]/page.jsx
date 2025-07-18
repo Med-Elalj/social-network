@@ -44,7 +44,7 @@ function FollowButton({ targetId, followStatus, setFollowStatus }) {
       const result = await res.json();
       console.log(result.new_status);
       setFollowStatus(result.new_status);
-      showNotification(`${followStatus} sent succeffully`, "succes");
+      showNotification(`${followStatus} sent successfully`, "success");
     } else {
       showNotification(`Failed to ${followStatus}`, "error");
     }

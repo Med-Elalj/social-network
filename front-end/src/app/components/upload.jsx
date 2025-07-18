@@ -83,8 +83,8 @@ export function UserAvatar({ className }) {
   }, []);
 
   return (
-    <span className={className}>
-      <Image src={avatar || "/iconMale.png"} alt="profile" width={40} height={40} />
+    <span className={className} >
+      <Image src={avatar || "/iconMale.png"} alt="profile" width={40} height={40} style={{borderRadius:"50%"}}/>
     </span>
   );
 }

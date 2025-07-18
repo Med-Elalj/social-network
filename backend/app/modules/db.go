@@ -30,6 +30,7 @@ func SetTables() *sql.DB {
 	if err != nil {
 		logs.FatalLog.Fatalln("Failed to enable foreign keys:", err)
 	}
+
 	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
 	if err != nil {
 		logs.FatalLog.Fatalln("driver instance error:", err)

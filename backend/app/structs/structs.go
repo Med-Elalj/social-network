@@ -82,6 +82,7 @@ type GroupGet struct {
 	MemberCount int
 	IsRequested bool
 	IsAdmin     bool
+	IsMember    bool
 }
 
 type SearchProfile struct {
@@ -103,6 +104,12 @@ type GroupEvent struct {
 	CreationTime string `json:"creation_time"`
 	Timeof       string `json:"time"`
 	Respond      bool   `json:"respond"`
+}
+
+type EventResponse struct {
+	ID        int  `json:"event_id"`
+	Response  bool `json:"response"`
+	IsReacted bool `json:"is_reacted"`
 }
 
 type Gusers struct {

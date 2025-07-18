@@ -4,7 +4,7 @@ package requests
 // 	body, err := io.ReadAll(r.Body)
 // 	if err != nil {
 // 		logs.Println("Error reading request body:", err)
-// 		auth.JsRespond(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
+// 		auth.JsResponse(w, `{"error": "`+err.Error()+`"}`, http.StatusBadRequest)
 // 		return
 // 	}
 
@@ -25,7 +25,7 @@ package requests
 // 	}
 
 // 	if !db.InsertComment(comment, uid) {
-// 		structs.JsRespond(w, "Comment creation failed", http.StatusInternalServerError)
+// 		structs.JsResponse(w, "Comment creation failed", http.StatusInternalServerError)
 // 	}
-// 	structs.JsRespond(w, "Comment posted successfully", http.StatusOK)
+// 	structs.JsResponse(w, "Comment posted successfully", http.StatusOK)
 // }

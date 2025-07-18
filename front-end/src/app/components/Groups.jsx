@@ -48,7 +48,6 @@ export default function Groups() {
 
         const data = await response.json();
         setRequests(data);
-        console.log("requests groups:", data);
       } catch (err) {
         console.error("Error fetching group requests:", err);
       }
@@ -59,7 +58,6 @@ export default function Groups() {
 
   useEffect(() => {
     async function sentJoinHandler() {
-      console.log("group id to join", joinedGroupId);
       const response = await SendData("/api/v1/set/sendRequest", {
         target: joinedGroupId,
         type: 1,
@@ -74,7 +72,6 @@ export default function Groups() {
       }
       showNotification(data.message, type);
     }
-    console.log("group id to join", joinedGroupId);
     if (joinedGroupId) {
       sentJoinHandler();
       setJoinedGroupId(null);

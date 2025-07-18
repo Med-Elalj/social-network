@@ -1,7 +1,10 @@
 import styles from "../profile.module.css";
 import { SendData } from "@/app/sendData.js";
+import { useNotification } from "@/app/context/NotificationContext";
 
-export default function CreateEvent({ groupId }) {
+export default function CreateEvent({ groupId, setActiveSection }) {
+  const { showNotification } = useNotification();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -10,22 +13,39 @@ export default function CreateEvent({ groupId }) {
     const description = form.description.value.trim();
     const datetime = form.datetime.value;
 
+    const selectedTime = new Date(datetime).getTime();
+    const oneYearFromNow = Date.now() + 1 * 365 * 24 * 60 * 60 * 1000;
+
+    if (selectedTime <= Date.now()) {
+      showNotification("Date and time must be in the future", "error");
+      return;
+    }
+
+    if (selectedTime > oneYearFromNow) {
+      showNotification("Date and time cannot be more than 1 year in the future", "error");
+      return;
+    }
+    
+    if (title === "" || description === "" || datetime === "") {
+      showNotification("All fields are required", "error");
+      return;
+    }
+
     const payload = {
       group_id: groupId,
-      title: title,
-      description: description,
+      title,
+      description,
       time: datetime,
     };
 
-    console.log("front event data : ", payload);
     const response = await SendData("/api/v1/set/eventCreation", payload);
-    const Body = await response.json();
 
     if (response.status !== 200) {
       const errorBody = await response.json();
       console.log(errorBody);
     } else {
-      console.log("✅ Event created!");
+      showNotification("Event created successfully!", "success");
+      setActiveSection("posts");
     }
   };
 

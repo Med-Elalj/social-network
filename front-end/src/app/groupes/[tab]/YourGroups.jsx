@@ -25,11 +25,10 @@ export default function YourGroups() {
 
     return (
         <div className={groups ? Style.groupGrid : Style.noPosts}>
-            {groups ? (groups.map((Group, _) => (
-                console.log(Group),
+            {groups ? (groups.map((Group) => (
                 <div className={Style.groupCard} key={Group.ID}>
                     <Image
-                        src={Group.Avatar?.String || "/db.png"}
+                        src={Group.Avatar?.String || "/iconGroup.png"}
                         alt="profile"
                         width={50}
                         height={50}

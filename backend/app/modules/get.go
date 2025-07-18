@@ -8,33 +8,48 @@ import (
 	"social-network/app/structs"
 )
 
+// function to get group page posts
 func GetGroupPosts(start, uid, groupId int) ([]structs.Post, error) {
-	query := `SELECT
-    p.id,
-    p.group_id,
-    p.user_id,
-    creator.display_name,
-    pg.display_name,
-    creator.avatar,
-    pg.avatar,
-    p.content,
-    p.image_path,
-    p.created_at,
-    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
-    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
-    CASE WHEN EXISTS (
-        SELECT 1 FROM likes l 
-        WHERE l.post_id = p.id AND l.user_id = ?
-    ) THEN 1 ELSE 0 END AS IsLiked
-FROM posts p
-JOIN profile creator ON p.user_id = creator.id
-LEFT JOIN profile pg ON p.group_id = pg.id
-WHERE 
-	p.group_id = ? AND
-	(? = 0 or p.id < ?)
-ORDER BY p.created_at DESC
-LIMIT 10;`
-	rows, err := DB.Query(query, uid, groupId, start, start)
+	query := `
+	SELECT
+	    p.id,
+	    p.group_id,
+	    p.user_id,
+	    creator.display_name,
+	    pg.display_name,
+	    creator.avatar,
+	    pg.avatar,
+	    p.content,
+	    p.privacy,
+	    p.image_path,
+	    p.created_at,
+	    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
+	    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
+	    CASE 
+	        WHEN EXISTS (
+	            SELECT 1 FROM likes l 
+	            WHERE l.post_id = p.id AND l.user_id = ?
+	        ) THEN 1 ELSE 0 
+	    END AS IsLiked
+	FROM posts p
+	JOIN profile creator ON p.user_id = creator.id
+	LEFT JOIN profile pg ON p.group_id = pg.id
+	WHERE 
+	    p.group_id = ?
+	    AND (? = 0 OR p.id < ?)
+	    AND (
+	        EXISTS (
+	            SELECT 1 FROM follow f
+	            WHERE f.follower_id = ? AND f.following_id = p.group_id
+	        )
+	        OR EXISTS (
+	            SELECT 1 FROM "group" g
+	            WHERE g.id = p.group_id AND g.creator_id = ?
+	        )
+	    )
+	ORDER BY p.created_at DESC
+	LIMIT 10;`
+	rows, err := DB.Query(query, uid, groupId, start, start, uid, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("GetGroupPosts query error: %q", err.Error())
 		return nil, err
@@ -52,6 +67,7 @@ LIMIT 10;`
 			&post.AvatarUser,
 			&post.AvatarGroup,
 			&post.Content,
+			&post.Privacy,
 			&post.ImagePath,
 			&post.CreatedAt,
 			&post.CommentCount,
@@ -71,56 +87,124 @@ LIMIT 10;`
 	return posts, nil
 }
 
+// function to get home page posts
 func GetHomePosts(start, uid int) ([]structs.Post, error) {
-	query := `SELECT 
-    p.id AS ID,
-    p.group_id AS GroupId,
-    p.user_id AS UserId,
-    creator.display_name AS UserName,
-    pg.display_name AS GroupName,
-    creator.avatar AS AvatarUser,
-    pg.avatar AS AvatarGroup,
-    p.content AS Content,
-    p.image_path AS ImagePath,
-    p.created_at AS CreatedAt,
-    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
-    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
-    CASE WHEN EXISTS (
-        SELECT 1 FROM likes l 
-        WHERE l.post_id = p.id AND l.user_id = :me
-    ) THEN 1 ELSE 0 END AS IsLiked
-FROM posts p
-JOIN profile creator ON p.user_id = creator.id
-LEFT JOIN profile pg ON p.group_id = pg.id
-WHERE
-    (:last_post_id = 0 or p.id < :last_post_id)
-	AND
-    (
-        (p.group_id IS NULL AND p.privacy = 'public')
-        
-        OR
-        
-        (p.group_id IS NULL AND p.privacy = 'almost_private' AND EXISTS (
-            SELECT 1 FROM follow f 
-            WHERE f.following_id = p.user_id AND f.follower_id = :me
-        ))
-        
-        OR
-        
-        (p.group_id IS NULL AND p.privacy = 'private' AND EXISTS (
-            SELECT 1 FROM postrack pt 
-            WHERE pt.post_id = p.id AND pt.follower_id = :me
-        ))
-        
-        OR
-        
-        (p.group_id IS NOT NULL AND EXISTS (
-            SELECT 1 FROM follow f 
-            WHERE f.following_id = p.group_id AND f.follower_id = :me
-        ))
-    )
-ORDER BY p.created_at DESC
-LIMIT 10;`
+	query := `
+	SELECT
+		p.id AS ID,
+		p.group_id AS GroupId,
+		p.user_id AS UserId,
+		creator.display_name AS UserName,
+		pg.display_name AS GroupName,
+		creator.avatar AS AvatarUser,
+		pg.avatar AS AvatarGroup,
+		p.content AS Content,
+		p.Privacy AS Privacy,
+		p.image_path AS ImagePath,
+		p.created_at AS CreatedAt,
+		(
+			SELECT
+				COUNT(*)
+			FROM
+				comments c
+			WHERE
+				c.post_id = p.id
+		) AS CommentCount,
+		(
+			SELECT
+				COUNT(*)
+			FROM
+				likes l
+			WHERE
+				l.post_id = p.id
+		) AS LikeCount,
+		CASE
+			WHEN EXISTS (
+				SELECT
+					1
+				FROM
+					likes l
+				WHERE
+					l.post_id = p.id
+					AND l.user_id = :me
+			) THEN 1
+			ELSE 0
+		END AS IsLiked
+	FROM
+		posts p
+		JOIN profile creator ON p.user_id = creator.id
+		LEFT JOIN profile pg ON p.group_id = pg.id
+	WHERE
+		(
+			:last_post_id = 0
+			OR p.id < :last_post_id
+		)
+		AND (
+			-- Public posts (not in group)
+			(
+				p.group_id IS NULL
+				AND p.privacy = 'public'
+			)
+			-- Almost private posts (only if I'm following the user)
+			OR (
+				p.group_id IS NULL
+				AND p.privacy = 'almost_private'
+				AND EXISTS (
+					SELECT
+						1
+					FROM
+						follow f
+					WHERE
+						f.following_id = p.user_id
+						AND f.follower_id = :me
+				)
+			)
+			-- Private posts: only if mine OR shared with me via postrack
+			OR (
+				p.group_id IS NULL
+				AND p.privacy = 'private'
+				AND (
+					p.user_id = :me
+					OR EXISTS (
+						SELECT
+							1
+						FROM
+							postrack pt
+						WHERE
+							pt.post_id = p.id
+							AND pt.follower_id = :me
+					)
+				)
+			)
+			-- Group posts: only if I'm in the group (follow the group)
+			OR (
+				p.group_id IS NOT NULL
+				AND (
+					EXISTS (
+						SELECT
+							1
+						FROM
+							follow f
+						WHERE
+							f.following_id = p.group_id
+							AND f.follower_id = :me
+					)
+					OR EXISTS (
+						SELECT
+							1
+						FROM
+							"group" g
+						WHERE
+							g.id = p.group_id
+							AND g.creator_id = :me
+					)
+				)
+			)
+		)
+	ORDER BY
+		p.created_at DESC
+	LIMIT
+		10;`
 	rows, err := DB.Query(query, sql.Named("me", uid), sql.Named("last_post_id", start))
 	if err != nil {
 		logs.ErrorLog.Printf("GetHomePosts query error: %q", err.Error())
@@ -139,6 +223,7 @@ LIMIT 10;`
 			&post.AvatarUser,
 			&post.AvatarGroup,
 			&post.Content,
+			&post.Privacy,
 			&post.ImagePath,
 			&post.CreatedAt,
 			&post.CommentCount,
@@ -158,44 +243,52 @@ LIMIT 10;`
 	return posts, nil
 }
 
+// function to get profile page posts
 func GetProfilePosts(start int, uid int, userId int) ([]structs.Post, error) {
-	query := `SELECT 
-    p.id,
-    p.group_id,
-    p.user_id,
-    creator.display_name,
-    pg.display_name,
-    creator.avatar,
-    pg.avatar,
-    p.content,
-    p.image_path,
-    p.created_at,
-    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
-    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
-    CASE WHEN EXISTS (
-        SELECT 1 FROM likes l 
-        WHERE l.post_id = p.id AND l.user_id = ?
-    ) THEN 1 ELSE 0 END AS IsLiked
-FROM posts p
-JOIN profile creator ON p.user_id = creator.id
-LEFT JOIN profile pg ON p.group_id = pg.id
-WHERE p.user_id = ? AND (? = 0 or p.id < ?)
-AND (
-    ((SELECT is_public FROM profile WHERE id = ?) = 1 AND p.privacy = 'public')
-    OR
-    (EXISTS (
-        SELECT 1 FROM follow 
-        WHERE follower_id = ? AND following_id = ?
-    ) AND p.privacy IN ('public', 'almost_private'))
-    OR
-    (p.privacy = 'private' AND EXISTS (
-        SELECT 1 FROM postrack pvf 
-        WHERE pvf.post_id = p.id AND pvf.follower_id = ?
-    ))
-)
-ORDER BY p.created_at DESC
-LIMIT 10 ;`
-	rows, err := DB.Query(query, uid, userId, start, start, userId, uid, userId, uid)
+	query := `
+	SELECT 
+	    p.id,
+	    p.group_id,
+	    p.user_id,
+	    author.display_name,
+	    pg.display_name,
+	    author.avatar,
+	    pg.avatar,
+	    p.content,
+	    p.privacy,
+	    p.image_path,
+	    p.created_at,
+	    (SELECT COUNT(*) FROM comments c WHERE c.post_id = p.id) AS CommentCount,
+	    (SELECT COUNT(*) FROM likes l WHERE l.post_id = p.id) AS LikeCount,
+	    CASE WHEN EXISTS (
+	        SELECT 1 FROM likes l 
+	        WHERE l.post_id = p.id AND l.user_id = ?
+	    ) THEN 1 ELSE 0 END AS IsLiked
+	FROM posts p
+	JOIN profile author ON p.user_id = author.id
+	LEFT JOIN profile pg ON p.group_id = pg.id
+	WHERE 
+	    p.user_id = ?
+	    AND (? = 0 OR p.id < ?)
+	    AND (
+	        (author.is_public = 1 AND p.privacy = 'public')
+	        OR (
+	            EXISTS (
+	                SELECT 1 FROM follow 
+	                WHERE follower_id = ? AND following_id = ?
+	            ) AND p.privacy IN ('public', 'almost_private')
+	        )
+	        OR (
+	            p.privacy = 'private'
+	            AND EXISTS (
+	                SELECT 1 FROM postrack 
+	                WHERE post_id = p.id AND follower_id = ?
+	            )
+	        )
+	    )
+	ORDER BY p.created_at DESC
+	LIMIT 10;`
+	rows, err := DB.Query(query, uid, userId, start, start, uid, userId, uid)
 	if err != nil {
 		logs.ErrorLog.Printf("GetProfilePosts query error: %q", err.Error())
 		return nil, err
@@ -213,6 +306,7 @@ LIMIT 10 ;`
 			&post.AvatarUser,
 			&post.AvatarGroup,
 			&post.Content,
+			&post.Privacy,
 			&post.ImagePath,
 			&post.CreatedAt,
 			&post.CommentCount,
@@ -232,8 +326,10 @@ LIMIT 10 ;`
 	return posts, nil
 }
 
+// function to get own profile page posts
 func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
-	query := `SELECT
+	query := `
+	SELECT
 	    p.id,
 	    p.group_id,
 	    p.user_id,
@@ -324,7 +420,6 @@ func GetOwnProfilePosts(start int, uid int) ([]structs.Post, error) {
 	return posts, nil
 }
 
-// to do offset
 func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	rows, err := DB.Query(`
 	SELECT
@@ -374,23 +469,21 @@ func GetRequests(uid, tpdefind int) ([]structs.RequestsGet, error) {
 	return requests, nil
 }
 
-// anas
+// function to get group events
 func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	rows, err := DB.Query(`    
 	SELECT
-		e.id,
+	    e.id,
 	    e.user_id,
 	    e.description,
-		e.title,
-		e.timeof,
-		e.created_at,
-		eu.respond
+	    e.title,
+	    e.timeof,
+	    eu.respond
 	FROM
-	    "events" e
-	    JOIN "group" g ON e.group_id = g.id
-		JOIN userevents eu ON e.id = eu.event_id
-	WHERE
-	    g.id = ? AND eu.user_id = ?;`, group_id, uid, "event")
+	    events e
+	LEFT JOIN userevents eu ON e.id = eu.event_id AND eu.user_id = ?
+	WHERE e.group_id = ?
+	ORDER BY e.timeof ASC;`, uid, group_id)
 	if err != nil {
 		logs.ErrorLog.Printf("Getevent query error: %q", err.Error())
 		return nil, err
@@ -398,7 +491,7 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	var events []structs.GroupEvent
 	for rows.Next() {
 		var event structs.GroupEvent
-		if err := rows.Scan(&event.ID, &event.Userid, &event.Description, &event.Title, &event.Timeof, &event.CreationTime, &event.Respond); err != nil {
+		if err := rows.Scan(&event.ID, &event.Userid, &event.Description, &event.Title, &event.Timeof, &event.Respond); err != nil {
 			logs.ErrorLog.Printf("Error scanning events: %q", err.Error())
 			return nil, err
 		}
@@ -556,52 +649,6 @@ ORDER BY
 	}
 	return posts, nil
 }
-
-// func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
-// 	rows, err := DB.Query(`SELECT
-//     p.id,
-//     p.display_name,
-//     p.avatar,
-//     p.description,
-//     CASE
-//         WHEN EXISTS (
-//             SELECT 1
-//             FROM request r
-//             WHERE r.sender_id = ?
-//               AND r.target_id = p.id
-//               AND r.type = 1
-//         ) THEN 1
-//         ELSE 0
-//     END AS is_requested
-// FROM
-//     profile p
-//     JOIN "group" g ON p.id = g.id
-// WHERE
-//     p.is_user = 0
-//     AND p.id NOT IN (
-//         SELECT g2.id FROM "group" g2 WHERE g2.creator_id = ?
-//         UNION
-//         SELECT f.following_id FROM follow f
-//         WHERE f.follower_id = ? AND f.status = 1
-//     )
-// LIMIT 10;`, uid, uid, uid)
-// 	if err != nil {
-// 		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
-// 		return nil, err
-// 	}
-
-// 	var grs []structs.GroupGet
-
-// 	for rows.Next() {
-// 		var gr structs.GroupGet
-// 		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description, &gr.IsRequested); err != nil {
-// 			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
-// 			return nil, err
-// 		}
-// 		grs = append(grs, gr)
-// 	}
-// 	return grs, nil
-// }
 
 func GetGroupImIn(uid int) ([]structs.GroupGet, error) {
 	rows, err := DB.Query(`
@@ -893,3 +940,49 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
 
 	return users, nil
 }
+
+// func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
+// 	rows, err := DB.Query(`SELECT
+//     p.id,
+//     p.display_name,
+//     p.avatar,
+//     p.description,
+//     CASE
+//         WHEN EXISTS (
+//             SELECT 1
+//             FROM request r
+//             WHERE r.sender_id = ?
+//               AND r.target_id = p.id
+//               AND r.type = 1
+//         ) THEN 1
+//         ELSE 0
+//     END AS is_requested
+// FROM
+//     profile p
+//     JOIN "group" g ON p.id = g.id
+// WHERE
+//     p.is_user = 0
+//     AND p.id NOT IN (
+//         SELECT g2.id FROM "group" g2 WHERE g2.creator_id = ?
+//         UNION
+//         SELECT f.following_id FROM follow f
+//         WHERE f.follower_id = ? AND f.status = 1
+//     )
+// LIMIT 10;`, uid, uid, uid)
+// 	if err != nil {
+// 		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
+// 		return nil, err
+// 	}
+
+// 	var grs []structs.GroupGet
+
+// 	for rows.Next() {
+// 		var gr structs.GroupGet
+// 		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description, &gr.IsRequested); err != nil {
+// 			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
+// 			return nil, err
+// 		}
+// 		grs = append(grs, gr)
+// 	}
+// 	return grs, nil
+// }

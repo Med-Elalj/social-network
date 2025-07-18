@@ -151,6 +151,10 @@
     opacity: 1;
     width: 24%;
     height: auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) var(--primary-color);
     margin-right: 2vw;
     display: flex;
     align-items: center;

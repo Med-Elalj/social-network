@@ -37,7 +37,7 @@ export default function GroupPosts() {
             <section className={Styles.userinfo}>
               <div className={Styles.user}>
                 <Image
-                  src={Post.AvatarGroup?.String ? `/${Post.AvatarGroup.String}` : "/iconMale.png"}
+                  src={Post.AvatarGroup?.String ? `${Post.AvatarGroup.String}` : "/iconMale.png"}
                   alt="avatar"
                   width={25}
                   height={25}
@@ -49,7 +49,7 @@ export default function GroupPosts() {
                       <div className={Styles.user}>
                         <Image
                           src={
-                            Post.AvatarUser?.String ? `/${Post.AvatarUser.String}` : "/iconMale.png"
+                            Post.AvatarUser?.String ? `${Post.AvatarUser.String}` : "/iconMale.png"
                           }
                           alt="avatar"
                           width={20}

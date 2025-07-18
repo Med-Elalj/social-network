@@ -70,7 +70,9 @@ export default function Register() {
 
     if (response.status !== 200) {
       const errorBody = await response.json();
-      // console.log(errorBody);
+      if (formData.avatar) {
+        localStorage.setItem("avatar", formData.avatar);
+      }
       showNotification(errorBody.error || "Registration failed. Please try again.", "error", 5000);
     } else {
       setIsLoggedIn(true);

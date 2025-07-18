@@ -711,32 +711,39 @@ func GetdmHistory(uid1 int, uname1, uname2 string, page int) (structs.Chat, erro
         SELECT *
         FROM (
             SELECT
-    		    sender.id,sender.display_name, d.content, d.created_at
+                sender.id,sender.display_name, d.content, d.created_at
     		FROM
     		    message d
     		JOIN
     		    profile sender ON d.sender_id = sender.id
     		JOIN
     		    profile recipient ON d.receiver_id = recipient.id
-    		WHERE
-    		(recipient.is_user = 1 AND 
-    		    (sender.display_name = ? AND recipient.display_name = ?)
-    		    OR
-    		    (sender.display_name = ? AND recipient.display_name = ?)
-    		) OR (
-    		    recipient.is_user = 0 AND (
+    		WHERE(
+                (
+                    recipient.is_user
+                    AND
+                    (? IN (sender.display_name ,recipient.display_name))
+                    AND
+                    (? IN (sender.display_name ,recipient.display_name))
+                ) OR 
+    		    (
+                    recipient.display_name = ? 
+                    AND (NOT recipient.is_user)
+                    AND (
     		        EXISTS (
     		            SELECT 1 FROM follow f WHERE f.follower_id = ? 
     		            AND f.following_id = recipient.id
     		        )
+                )
     		    )
     		)
     		ORDER BY
+
     		    d.created_at DESC
     		LIMIT 11 OFFSET ?
         ) AS sub
         ORDER BY created_at ASC;
-    `, uname1, uname2, uname2, uname1, uid1, offset)
+    `, uname1, uname2, uname2, uid1, offset)
 	if err != nil {
 		logs.ErrorLog.Printf("Error getting messages: %q", err.Error())
 		return chat, err
@@ -744,12 +751,7 @@ func GetdmHistory(uid1 int, uname1, uname2 string, page int) (structs.Chat, erro
 	defer rows.Close()
 
 	// var messages []structs.Message
-	var count int
 	for rows.Next() {
-		if count == 10 {
-			chat.HasMore = true
-			break
-		}
 
 		var message structs.Message
 		if err := rows.Scan(&message.Sender, &message.SenderName, &message.Content, &message.Time); err != nil {
@@ -757,9 +759,12 @@ func GetdmHistory(uid1 int, uname1, uname2 string, page int) (structs.Chat, erro
 			return chat, err
 		}
 		chat.Messages = append(chat.Messages, message)
-		count++
 	}
 
+	if len(chat.Messages) == 11 {
+		chat.HasMore = true
+		chat.Messages = chat.Messages[1:]
+	}
 	return chat, nil
 }
 

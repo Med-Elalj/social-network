@@ -148,7 +148,7 @@ const Routing = () => {
                   onClick={() => setIsOpen(true)}
                   onMouseLeave={() => setIsOpen(false)}
                 >
-                  <UserAvatar className={Styles.linkWithIcon} />
+                  <UserAvatar className={Styles.profileIcon} />
                   {/* <span className={Styles.iconUser}>
                     <Image
                       src="/iconMale.png"

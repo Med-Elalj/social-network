@@ -117,7 +117,7 @@ export default function Groups() {
           <div key={Group.id} className={Styles.grouprequest}>
             <div >
               <Image
-                src={Group.Avatar?.String || "/db.png"}
+                src={Group.Avatar?.String || "/bannerBG.png"}
                 alt="profile"
                 width={40}
                 height={40}

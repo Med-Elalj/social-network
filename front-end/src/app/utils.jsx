@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { SendData } from "./sendData.js";
+import { GetData, SendData } from "./sendData.js";
 
 // Notifications
 let notificationCooldown = false;
@@ -289,6 +289,18 @@ export function TimeAgo(timestamp) {
   if (weeks < 5) return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
   if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
   return `${years} year${years !== 1 ? "s" : ""} ago`;
+}
+
+export async function fetchAvatar() {
+  const res = await GetData("/api/v1/get/avatar");
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.warn("Avatar fetch failed:", data.message);
+    return "";
+  }
+
+  return data.avatar || "";
 }
 
 export function Countdown({ targetTimeISO, onComplete }) {

@@ -29,7 +29,7 @@ export default function Discover() {
             {groups && groups.map((Group, i) => (
                 <div className={Style.groupCard} key={Group.ID}>
                     <Image
-                        src={Group.Avatar?.String || "/db.png"}
+                        src={Group.Avatar?.String || "/bannerBG.png"}
                         alt="profile"
                         width={50}
                         height={50}

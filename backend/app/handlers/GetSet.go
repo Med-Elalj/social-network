@@ -22,6 +22,8 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.PathValue("type") {
+	case "avatar":
+		GetAvatarHandler(w, r, data.Sub)
 	case "posts":
 		GetPostsHandler(w, r, data.Sub)
 	case "comments":

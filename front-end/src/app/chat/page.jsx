@@ -13,7 +13,7 @@ import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 import { GetData } from "@/app/sendData.js";
 
 export default function Chat() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("Users");
   const [selectedUser, setSelectedUser] = useState(null);
   // const [previewUrl, setPreviewUrl] = useState(null);
   const [personalDiscussions, setPersonalDiscussions] = useState([]);
@@ -87,7 +87,7 @@ export default function Chat() {
 
         <div className={Style.select}>
           <Tab
-            name="all"
+            name="Users"
             icon="messages"
             activeTab={activeTab}
             onClick={handleTabClick}
@@ -101,7 +101,7 @@ export default function Chat() {
         </div>
 
         {{
-          all: (
+          Users: (
             <Users users={personalDiscussions} onUserSelect={setSelectedUser} />
           ),
           groups: (

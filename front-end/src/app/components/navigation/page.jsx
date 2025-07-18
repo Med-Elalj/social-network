@@ -71,7 +71,6 @@ const Routing = () => {
 
     return () => clearInterval(interval);
   }, [isLoggedIn]);
-  isLoggedIn, "isLoggedIn",loading,"loading");
   
   // Fetch notifications when dropdown opens
   useEffect(() => {

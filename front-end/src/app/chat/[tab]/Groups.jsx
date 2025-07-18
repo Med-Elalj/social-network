@@ -22,10 +22,11 @@ export default function Groups({ groups, onUserSelect }) {
                         >
                             <div className={Style.userImageWrapper}>
                                 <Image
-                                    src={`/${group.avatar ?? "iconMale.png"}`}
+                                    src={group.pfp?.String ? group.pfp.String : "iconMale.png"}
                                     width={50}
                                     height={50}
                                     alt="userProfile"
+                                    style={{ borderRadius: "50%" }}
                                 />
                             </div>
                             <h4>{group.name}</h4>

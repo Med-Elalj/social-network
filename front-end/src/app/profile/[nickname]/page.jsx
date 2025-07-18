@@ -3,7 +3,7 @@
 import Style from "../profile.module.css";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { GetData, SendData } from "@/app/sendData.js";
 import { CapitalizeFirstLetter } from "../../utils.jsx";
@@ -16,7 +16,6 @@ import { SuggestionList } from "../../components/suggestionList.jsx";
 import { FollowRequestsList } from "../../components/followRequests.jsx";
 
 function FollowButton({ targetId, followStatus, setFollowStatus }) {
-  // const requestStatus = useRef("");
   const { showNotification } = useNotification();
 
   const handleFollow = async (requestStatus) => {
@@ -267,9 +266,9 @@ export default function Profile() {
                       <h5>
                         {profileData.date_of_birth
                           ? (
-                              new Date().getFullYear() -
-                              new Date(profileData.date_of_birth).getFullYear()
-                            ).toString()
+                            new Date().getFullYear() -
+                            new Date(profileData.date_of_birth).getFullYear()
+                          ).toString()
                           : "N/A"}
                       </h5>
                     </span>

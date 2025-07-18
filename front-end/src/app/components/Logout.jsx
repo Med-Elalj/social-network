@@ -1,5 +1,5 @@
 import { SendData } from "@/app/sendData.js";
-import { externalNotification } from "../context/NotificationContext";
+import { externalNotification } from "../context/NotificationContext.jsx";
 
 export async function LogoutAndRedirect({ router, isLoggedIn, setIsLoggedIn }) {
   if (!isLoggedIn) return;

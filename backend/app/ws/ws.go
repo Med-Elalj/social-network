@@ -184,6 +184,7 @@ func (m *message) send() error {
 	fmt.Println("websockets :", sockets)
 	err := modules.AddDm(m.Sender, m.Receiver, m.Message)
 	if err != nil {
+		fmt.Println("errpr", err)
 		err = errors.New("failed to store message in db with error: " + err.Error())
 		logs.ErrorLog.Printf("Error storing message in database: %v", err)
 		return err

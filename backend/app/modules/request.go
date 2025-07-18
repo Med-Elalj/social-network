@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 
@@ -10,7 +11,6 @@ import (
 
 func InsertRequest(senderId, receiverId, target, typeId int) error {
 	var isToAdmin bool
-	fmt.Println(target)
 	if typeId == 1 && receiverId == 0 {
 		isToAdmin = true
 		err := DB.QueryRow(`SELECT g.creator_id FROM "group" g WHERE g.id = ?`, target).Scan(&receiverId)
@@ -23,7 +23,23 @@ func InsertRequest(senderId, receiverId, target, typeId int) error {
 			return errors.New("group creator not found")
 		}
 	}
-	_, err := DB.Exec(`
+
+	var exists int
+	err := DB.QueryRow(`
+		SELECT 1 FROM request
+		WHERE sender_id = ? AND receiver_id = ? AND target_id = ? AND type = ?
+	`, senderId, receiverId, target, typeId).Scan(&exists)
+
+	if err == nil {
+		// Request already exists — just return silently
+		return nil
+	} else if err != sql.ErrNoRows {
+		// Unexpected database error
+		logs.ErrorLog.Printf("error checking existing request: %q", err.Error())
+		return errors.New("error checking existing request")
+	}
+
+	_, err = DB.Exec(`
           INSERT INTO request (sender_id, receiver_id, target_id, type)
     VALUES (?, ?, ?, ?);`, senderId, receiverId, target, typeId)
 	if err != nil {

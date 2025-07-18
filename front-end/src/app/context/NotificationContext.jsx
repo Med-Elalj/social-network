@@ -33,19 +33,19 @@ export function NotificationProvider({ children }) {
     duration: 3000,
   });
 
-const showNotification = useCallback((message, type = "success", duration = 3000) => {
-  if (Array.isArray(message)) {
-    message = message.join(", ");
-  } else if (typeof message === "object" && message !== null) {
-    try {
-      message = message.message || JSON.stringify(message);
-    } catch {
-      message = "Invalid message";
+  const showNotification = useCallback((message, type = "success", duration = 3000) => {
+    if (Array.isArray(message)) {
+      message = message.join(", ");
+    } else if (typeof message === "object" && message !== null) {
+      try {
+        message = message.message || JSON.stringify(message);
+      } catch {
+        message = "Invalid message";
+      }
     }
-  }
 
-  setNotification({ open: true, message, type, duration });
-}, []);
+    setNotification({ open: true, message, type, duration });
+  }, []);
 
 
   const closeNotification = useCallback(() => {

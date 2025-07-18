@@ -478,7 +478,7 @@ func GetEvents(group_id int, uid int) ([]structs.GroupEvent, error) {
 	    e.description,
 	    e.title,
 	    e.timeof,
-	    eu.respond
+	    COALESCE(eu.respond, 0) as respond
 	FROM
 	    events e
 	LEFT JOIN userevents eu ON e.id = eu.event_id AND eu.user_id = ?

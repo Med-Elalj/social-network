@@ -243,7 +243,7 @@ func DeleteRequest(senderId, uid, target, Type int) error {
 		// Delete specific request for type 0 (include sender)
 		result, err = DB.Exec(`
             DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND target_id = ? AND type = ?`,
-			senderId, uid, target, Type)
+			senderId, uid, uid, Type)
 	}
 
 	if err != nil {

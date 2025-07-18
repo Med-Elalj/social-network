@@ -6,6 +6,7 @@ import Image from "next/image";
 import { GetData, SendData } from "@/app/sendData.js";
 import Link from "next/link";
 import { useNotification } from "@/app/context/NotificationContext";
+import { showNotification } from "@/app/utils";
 
 export function SearchIcon({ onClick, showSearch }) {
   return (

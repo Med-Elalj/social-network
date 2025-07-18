@@ -1,6 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useNotification } from "./NotificationContext";
+import { useNotification } from "./NotificationContext.jsx";
 
 const WebSocketContext = createContext(null);
 const WEBSOCKET_URL = "http://localhost:8080/api/v1/ws";
@@ -109,6 +109,7 @@ export const WebSocketProvider = ({ children }) => {
 
   const sendMessage = (msg) => {
     if (ws.current?.readyState === WebSocket.OPEN) {
+      console.log("to send", msg);
       ws.current.send(JSON.stringify(msg));
     } else {
       console.warn("Can't send message: WebSocket not open");

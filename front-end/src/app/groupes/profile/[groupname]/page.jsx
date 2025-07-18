@@ -59,7 +59,7 @@ export default function Profile() {
         setIsLoading(false);
       }
     }
-    
+
     if (groupname) {
       fetchData();
     }
@@ -69,7 +69,7 @@ export default function Profile() {
   useEffect(() => {
     async function fetchEvents() {
       if (!data?.ID) return;
-      
+
       try {
         const res = await SendData(`/api/v1/get/groupEvents`, data.ID);
         if (res.ok) {
@@ -173,17 +173,24 @@ export default function Profile() {
   useEffect(() => {
     async function fetchReactionEvents() {
       if (!reactionEventRequest) return;
-      console.log("reactionEventRequest:", reactionEventRequest);
-
 
       try {
         const response = await SendData("/api/v1/set/reactionEvents", reactionEventRequest);
-        if (!response.ok) return
+        if (!response.ok) return;
+
         const reactionEventData = await response.json();
-        setFetchedReactionEvents(reactionEventData.events);
+
+        // ✅ Update the 'respond' field in the current events state
+        setEvents((prevEvents) =>
+          prevEvents.map((event) =>
+            event.event_id === reactionEventRequest.event_id
+              ? { ...event, respond: reactionEventRequest.response }
+              : event
+          )
+        );
       } catch (err) {
         setHasError(true);
-        console.error("Error fetching reaction events:", err);
+        console.error("Error reacting to event:", err);
       } finally {
         setReactionEventRequest(null);
       }
@@ -192,6 +199,9 @@ export default function Profile() {
     fetchReactionEvents();
   }, [reactionEventRequest]);
 
+
+  useEffect(() => console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaa events", events), [events])
+  useEffect(() => console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaa respondUserRequest", respondUserRequest), [respondUserRequest])
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -324,6 +334,7 @@ export default function Profile() {
                                 setRespondUserRequest({
                                   id: request.sender_id,
                                   status: "accept",
+
                                 });
                               }}
                             >
@@ -391,7 +402,7 @@ export default function Profile() {
                     targetTimeISO={event.time}
                     onComplete={() => console.log("event started")}
                   />
-                  {event.respond?.Bool ?
+                  {event.respond ?
                     <>
                       <p>You are going</p>
                     </> :
@@ -401,12 +412,14 @@ export default function Profile() {
                   <div>
                     <button
                       className={Style.button}
-                      onClick={() =>
+                      onClick={() => {
                         setReactionEventRequest({
                           event_id: event.event_id,
                           response: true,
-                          is_reacted: event.respond.Valid ? event.respond.Bool : false,
+                          is_reacted: true,
                         })
+                      }
+
                       }
                     >
                       Going
@@ -418,7 +431,7 @@ export default function Profile() {
                         setReactionEventRequest({
                           event_id: event.event_id,
                           response: false,
-                          is_reacted: event.respond.Valid ? event.respond.Bool : false,
+                          is_reacted: true,
                         })
                       }
                     >

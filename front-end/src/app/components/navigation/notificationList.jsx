@@ -16,7 +16,7 @@ export default function NotificationList({ notifications, setIsOpen }) {
         <div className={`${Styles.dropdownMenu} ${Styles.notification}`}>
             {notifications?.length > 0 ?  (
                 notifications.map((notification) => (
-                    <Link key={notification.id} href={notification.type==0? `/profile/${notification.username}` : notification.type== 1 ? `/groupes/profile/${notification.group_name}` : ""} onClick={() => setIsOpen(false)}>
+                    <Link key={`${notification.id}_`} href={notification.type==0? `/profile/${notification.username}` : notification.type== 1 ? `/groupes/profile/${notification.group_name}` : ""} onClick={() => setIsOpen(false)}>
                         <span style={{color:"var(--third-color)"}}>{notification.type==0? "Follow request: ": notification.type==1? "Join group: " : "New event: "}</span>{notification.message}
                     </Link>
                 ))

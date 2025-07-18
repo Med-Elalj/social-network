@@ -230,27 +230,35 @@ func GetFollowRequests(uid int) ([]structs.Gusers, error) {
 	return users, nil
 }
 
-func DeleteRequest(senderId, receiverId, target, Type int) error {
-	result, err := DB.Exec(`
-        DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND target_id = ? AND type = ?`,
-		senderId, receiverId, target, Type)
+func DeleteRequest(senderId, uid, target, Type int) error {
+	var result sql.Result
+	var err error
+
+	if Type == 1 {
+		// Delete all requests for type 1 (ignore sender)
+		result, err = DB.Exec(`
+            DELETE FROM request WHERE receiver_id = ? AND target_id = ? AND type = ?`,
+			uid, target, Type)
+	} else {
+		// Delete specific request for type 0 (include sender)
+		result, err = DB.Exec(`
+            DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND target_id = ? AND type = ?`,
+			senderId, uid, target, Type)
+	}
+
 	if err != nil {
 		logs.ErrorLog.Printf("error deleting request: %q", err.Error())
 		return errors.New("error deleting request")
 	}
 
-	// Check if any rows were actually deleted
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		logs.ErrorLog.Printf("error checking deleted rows: %q", err.Error())
-		return errors.New("error checking deleted rows")
+		logs.ErrorLog.Printf("error getting rows affected: %q", err.Error())
+		return errors.New("error getting rows affected")
 	}
-
 	if rowsAffected == 0 {
-		logs.ErrorLog.Printf("no request found to delete for sender:%d, receiver:%d, target:%d",
-			senderId, receiverId, target)
-		// Don't return error here, as the request might have been already deleted
+		logs.ErrorLog.Println("no rows affected, request not found")
+		return errors.New("request not found")
 	}
-
 	return nil
 }

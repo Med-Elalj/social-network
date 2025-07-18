@@ -188,3 +188,26 @@ type Chat struct {
 	Messages []Message `json:"messages"`
 	HasMore  bool      `json:"has_more"`
 }
+
+type Follow_get struct {
+	P1_id            int    `json:"p1_id"`
+	P1_display_name  string `json:"P1_display_name"`
+	P2_id            int    `json:"P2_id"`
+	P2_display_name  string `json:"P2_display_name"`
+	Is_group         bool   `json:"is_group"`
+	Group_owner_id   int    `json:"Group_owner_id"`
+	Group_owner_name string `	json:"Group_owner_name"`
+}
+
+type DisplayNameOfId struct {
+	ID          int    `json:"id"`
+	DisplayName string `json:"display_name"`
+	IsUser      bool   `json:"is_user"`
+}
+
+type UserNotification struct {
+	Sender   DisplayNameOfId `json:"sender"`
+	Receiver DisplayNameOfId `json:"receiver"`
+	Target  DisplayNameOfId `json:"target"`	
+	Message  string          `json:"message"`
+}

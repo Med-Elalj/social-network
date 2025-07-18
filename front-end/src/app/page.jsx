@@ -77,11 +77,12 @@ export default function Home() {
         <Groups />
       </div>
 
+
       <div className={Styles.centerContent}>
         {posts.map((Post) => {
           /* ► ONE canonical avatar for the author ◄ */
           const authorAvatar = Post?.AvatarUser?.String
-            ? `${Post.AvatarUser.String}` // or full URL if stored externally
+            ? `${Post.AvatarUser.String}`  // or full URL if stored externally
             : "/iconMale.png";
 
           return (

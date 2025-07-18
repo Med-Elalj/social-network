@@ -13,12 +13,9 @@ BEGIN
             FROM
                 follow
             WHERE
-                follow.status = 1
-                AND (
-                    (follow.follower_id = NEW.sender_id AND follow.following_id = NEW.receiver_id)
-                    OR
-                    (follow.follower_id = NEW.receiver_id AND follow.following_id = NEW.sender_id)
-                )
+                (follow.follower_id = NEW.sender_id AND follow.following_id = NEW.receiver_id)
+                OR
+                (follow.follower_id = NEW.receiver_id AND follow.following_id = NEW.sender_id)
             LIMIT 1
         );
 END;

@@ -52,17 +52,19 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		usernames, err := modules.GetUserNames(data.Sub)
+		fmt.Println("users ", usernames)
 		if err != nil {
 			logs.ErrorLog.Printf("routes.go 60 %q", err.Error())
 		}
 		jsonData, _ := json.Marshal(usernames)
 		w.Write(jsonData)
 	case "dmhistory":
-		target := r.Header.Get("target")
-		page, err := strconv.Atoi(r.Header.Get("page"))
+		target := r.URL.Query().Get("person_name")
+		page, err := strconv.Atoi(r.URL.Query().Get("page"))
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, `{error": "expected page value"}`)
+			fmt.Println(err)
 			return
 		}
 		payload := r.Context().Value(auth.UserContextKey)
@@ -73,7 +75,7 @@ func GetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		username := data.Username
-		dms, err := modules.GetdmHistory(username, target, page)
+		dms, err := modules.GetdmHistory(data.Sub, username, target, page)
 		if err != nil {
 			logs.ErrorLog.Printf("routes.go 69 %q", err.Error())
 			w.WriteHeader(http.StatusInternalServerError)

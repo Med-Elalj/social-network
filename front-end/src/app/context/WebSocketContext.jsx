@@ -16,6 +16,8 @@ export const WebSocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [updateOnlineUser, setUpdateOnlineUser] = useState(null);
   const [newNotification, setNewNotification] = useState(null);
+  const [newFollowRequest, setNewFollowRequest] = useState(null);
+  const [newGroupRequest, setNewGroupRequest] = useState(null);
   const { showNotification } = useNotification();
   const target = useRef(null);
 
@@ -37,30 +39,38 @@ export const WebSocketProvider = ({ children }) => {
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
 
-      console.log("the target is: ", target.current);
       if (data.content) {
         if ([data.sender, data.receiver].includes(target.current)) {
           data.sent_at = new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
           setNewMessage(data);
         } else {
           if (data?.author_name != "system") {
-            showNotification(`New messsage from ${data.author_name}`, "success");
+            showNotification(
+              `New messsage from ${data.author_name}`,
+              "success"
+            );
             // showNotification(`New message from ${data.author_name}`, "success", true, 5000);
             console.warn("Message not for this chat:", data);
           } else {
-            showNotification(`${data.content}`, "error")
+            showNotification(`${data.content}`, "error");
           }
         }
-      } else if (data.sender === "<system>", data.command) {
+      } else if ((data.sender === "<system>", data.command)) {
         if (data.command == "online") {
           // console.log("data received via websocket: ", data);
-          setUpdateOnlineUser(data)
+          setUpdateOnlineUser(data);
         } else {
-          setNewNotification(data)
-          showNotification(data.content, "info")
+          showNotification(data.value.message, "info");
+          // setNewNotification({ ...data.value, type: data.command });
+          if (data?.command === "group_request") {
+            console.log("new group request received: ", data.value);
+            setNewGroupRequest(data.value);
+          } else if (data?.command === "follow_request") {
+            console.log("Received newFollowRequest:", data.value);
+            setNewFollowRequest(data.value);
+          }
         }
       }
-
     };
 
     ws.current.onclose = () => {
@@ -76,8 +86,7 @@ export const WebSocketProvider = ({ children }) => {
       } else {
         console.log("❌ Max reconnect attempts reached");
       }
-    }
-
+    };
 
     ws.current.onerror = (err) => {
       console.log("⚠️ WebSocket error:", err);
@@ -93,14 +102,13 @@ export const WebSocketProvider = ({ children }) => {
       if (reconnectTimeout.current) {
         clearTimeout(reconnectTimeout.current);
       }
-    };		// if _, e := helpers.Sockets[username.Username]; e {
+    }; // if _, e := helpers.Sockets[username.Username]; e {
     // 	username.Online = true
     // }
   }, []);
 
   const sendMessage = (msg) => {
     if (ws.current?.readyState === WebSocket.OPEN) {
-      console.log("this message sent via websocket: ", msg);
       ws.current.send(JSON.stringify(msg));
     } else {
       console.warn("Can't send message: WebSocket not open");
@@ -128,6 +136,8 @@ export const WebSocketProvider = ({ children }) => {
         isConnected,
         updateOnlineUser,
         newNotification,
+        newFollowRequest,
+        newGroupRequest,
       }}
     >
       {children}

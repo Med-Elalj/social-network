@@ -18,20 +18,12 @@ export default function Chat() {
   // const [previewUrl, setPreviewUrl] = useState(null);
   const [personalDiscussions, setPersonalDiscussions] = useState([]);
   const [groupDiscussions, setGroupDiscussions] = useState([]);
-  const { setTarget, updateOnlineUser, newMessage } = useWebSocket()
-
-
+  const { setTarget, updateOnlineUser, newMessage } = useWebSocket();
 
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        const response = await GetData("/api/v1/get/users", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await GetData("/api/v1/get/users");
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -57,11 +49,13 @@ export default function Chat() {
 
   useEffect(() => {
     if (newMessage?.uid) {
-      setPersonalDiscussions(prev => {
-        { prev.newMessage.uid, prev.filter(user => user.id != newMessage.uid) }
-      })
+      setPersonalDiscussions((prev) => {
+        {
+          prev.newMessage.uid, prev.filter((user) => user.id != newMessage.uid);
+        }
+      });
     }
-  }, [newMessage])
+  }, [newMessage]);
 
   useEffect(() => {
     if (updateOnlineUser && updateOnlineUser.uid) {
@@ -74,7 +68,6 @@ export default function Chat() {
       );
     }
   }, [updateOnlineUser]);
-
 
   useEffect(() => {
     if (selectedUser) setTarget(selectedUser.id);
@@ -138,18 +131,24 @@ export default function Chat() {
             <>
               <div className={Style.top}>
                 <Image
-                  src={`${selectedUser?.pfp?.String ? selectedUser.pfp.String : "/iconMale.png"}`}
+                  src={`${
+                    selectedUser?.pfp?.String
+                      ? selectedUser.pfp.String
+                      : "/iconMale.png"
+                  }`}
                   width={50}
                   height={50}
                   alt="userProfile"
-                  style={{borderRadius:"50%"}}
+                  style={{ borderRadius: "50%" }}
                 />
-                <Link href={`/profile/${selectedUser.name}`}><div className={Style.userInfo}>
-                  <h5>{selectedUser.name}</h5>
-                  <h6>
-                    {selectedUser.online == true ? "online" : "offline"}
-                  </h6>
-                </div></Link>
+                <Link href={`/profile/${selectedUser.name}`}>
+                  <div className={Style.userInfo}>
+                    <h5>{selectedUser.name}</h5>
+                    <h6>
+                      {selectedUser.online == true ? "online" : "offline"}
+                    </h6>
+                  </div>
+                </Link>
               </div>
 
               <div className={Style.body}>
@@ -157,8 +156,6 @@ export default function Chat() {
               </div>
 
               <div className={Style.bottom}>
-
-
                 {/* <input type="text" name="message" id="message" value={content} onChange={(e) => setContent(e.target.value)} />
 
                                 <Image
@@ -198,5 +195,3 @@ function Tab({ name, icon, activeTab, onClick }) {
     </div>
   );
 }
-
-

@@ -703,7 +703,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		NOT p.is_user AS is_group
 	FROM
 		profile p
-	JOIN
+	LEFT JOIN
 		user u ON u.id = p.id
 	INNER JOIN 
 		follow f ON (f.follower_id = ? OR f.following_id = ?)
@@ -715,7 +715,6 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		)
 	WHERE
 		p.id != ?
-		AND p.is_user = 1
 	GROUP BY
 		p.id, p.display_name
 	ORDER BY
@@ -747,7 +746,7 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 	return userS, nil
 }
 
-func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
+func GetdmHistory(uid1 int, uname1, uname2 string, page int) (structs.Chat, error) {
 	// var d time.Time
 	var chat structs.Chat
 
@@ -759,24 +758,32 @@ func GetdmHistory(uname1, uname2 string, page int) (structs.Chat, error) {
         SELECT *
         FROM (
             SELECT
-                sender.id,sender.display_name, d.content, d.created_at
-            FROM
-                message d
-            JOIN
-                profile sender ON d.sender_id = sender.id
-            JOIN
-                profile recipient ON d.receiver_id = recipient.id
-            WHERE
-                (sender.display_name = ? AND recipient.display_name = ?)
-                OR
-                (sender.display_name = ? AND recipient.display_name = ?)
-            
-            ORDER BY
-                d.created_at DESC
-            LIMIT 11 OFFSET ?
+    		    sender.id,sender.display_name, d.content, d.created_at
+    		FROM
+    		    message d
+    		JOIN
+    		    profile sender ON d.sender_id = sender.id
+    		JOIN
+    		    profile recipient ON d.receiver_id = recipient.id
+    		WHERE
+    		(recipient.is_user = 1 AND 
+    		    (sender.display_name = ? AND recipient.display_name = ?)
+    		    OR
+    		    (sender.display_name = ? AND recipient.display_name = ?)
+    		) OR (
+    		    recipient.is_user = 0 AND (
+    		        EXISTS (
+    		            SELECT 1 FROM follow f WHERE f.follower_id = ? 
+    		            AND f.following_id = recipient.id
+    		        )
+    		    )
+    		)
+    		ORDER BY
+    		    d.created_at DESC
+    		LIMIT 11 OFFSET ?
         ) AS sub
         ORDER BY created_at ASC;
-    `, uname1, uname2, uname2, uname1, offset)
+    `, uname1, uname2, uname2, uname1, uid1, offset)
 	if err != nil {
 		logs.ErrorLog.Printf("Error getting messages: %q", err.Error())
 		return chat, err
@@ -810,21 +817,21 @@ func GetSearchprofile(query string, page, groupId, uid int) (structs.SearchProfi
 	var err error
 	if groupId != 0 {
 		Query = `
-SELECT
-    p.id,
-    p.display_name,
-    p.avatar,
-    p.is_user
-FROM
-    profile p
-JOIN 
-    follow f ON p.id = f.follower_id
-WHERE
-    f.following_id = ?  -- Your user ID (the person being followed)
-    AND p.display_name LIKE ?
-    AND p.is_user = 1   -- Only users (not groups)
-ORDER BY p.display_name ASC
-LIMIT 11 OFFSET ?;`
+	SELECT
+	    p.id,
+	    p.display_name,
+	    p.avatar,
+	    p.is_user
+	FROM
+	    profile p
+	JOIN 
+	    follow f ON p.id = f.follower_id
+	WHERE
+	    f.following_id = ?  -- Your user ID (the person being followed)
+	    AND p.display_name LIKE ?
+	    AND p.is_user = 1   -- Only users (not groups)
+	ORDER BY p.display_name ASC
+	LIMIT 11 OFFSET ?;`
 		rows, err = DB.Query(Query, uid, "%"+query+"%", offset)
 
 	} else {
@@ -869,7 +876,7 @@ LIMIT 11 OFFSET ?;`
 	return rtn, nil
 }
 
-func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
+func GetSuggestions(uid int, is_user int) ([]structs.UsersGet, error) {
 	var users []structs.UsersGet
 
 	query := `
@@ -904,7 +911,7 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
     	ORDER BY p.created_at DESC
     	LIMIT 20`
 
-	rows, err := DB.Query(query, uid, Type, uid, uid, uid, uid)
+	rows, err := DB.Query(query, uid, is_user, uid, uid, uid, uid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query suggestions: %v", err)
 	}
@@ -941,48 +948,26 @@ func GetSuggestions(uid int, Type int) ([]structs.UsersGet, error) {
 	return users, nil
 }
 
-// func GetGroupToJoin(uid int) ([]structs.GroupGet, error) {
-// 	rows, err := DB.Query(`SELECT
-//     p.id,
-//     p.display_name,
-//     p.avatar,
-//     p.description,
-//     CASE
-//         WHEN EXISTS (
-//             SELECT 1
-//             FROM request r
-//             WHERE r.sender_id = ?
-//               AND r.target_id = p.id
-//               AND r.type = 1
-//         ) THEN 1
-//         ELSE 0
-//     END AS is_requested
-// FROM
-//     profile p
-//     JOIN "group" g ON p.id = g.id
-// WHERE
-//     p.is_user = 0
-//     AND p.id NOT IN (
-//         SELECT g2.id FROM "group" g2 WHERE g2.creator_id = ?
-//         UNION
-//         SELECT f.following_id FROM follow f
-//         WHERE f.follower_id = ? AND f.status = 1
-//     )
-// LIMIT 10;`, uid, uid, uid)
-// 	if err != nil {
-// 		logs.ErrorLog.Printf("GetGroupToJoin query error: %q", err.Error())
-// 		return nil, err
-// 	}
+// UserInfoForNotification retrieves id, display_name, and a message for a given user id from profile table
+func UserInfoForNotification(senderId, receiverId, targetId int) (structs.UserNotification, error) {
+	var info structs.UserNotification
+	row := DB.QueryRow(`SELECT id, display_name, is_user FROM profile WHERE id = ?`, senderId)
+	err := row.Scan(&info.Sender.ID, &info.Sender.DisplayName, &info.Sender.IsUser)
+	if err != nil {
+		return info, err
+	}
 
-// 	var grs []structs.GroupGet
+	row = DB.QueryRow(`SELECT id, display_name, is_user FROM profile WHERE id = ?`, receiverId)
+	err = row.Scan(&info.Receiver.ID, &info.Receiver.DisplayName, &info.Receiver.IsUser)
+	if err != nil {
+		return info, err
+	}
 
-// 	for rows.Next() {
-// 		var gr structs.GroupGet
-// 		if err := rows.Scan(&gr.ID, &gr.GroupName, &gr.Avatar, &gr.Description, &gr.IsRequested); err != nil {
-// 			logs.ErrorLog.Printf("Error scanning groups %q", err.Error())
-// 			return nil, err
-// 		}
-// 		grs = append(grs, gr)
-// 	}
-// 	return grs, nil
-// }
+	row = DB.QueryRow(`SELECT id, display_name, is_user FROM profile WHERE id = ?`, targetId)
+	err = row.Scan(&info.Target.ID, &info.Target.DisplayName, &info.Target.IsUser)
+	if err != nil {
+		return info, err
+	}
+
+	return info, nil
+}

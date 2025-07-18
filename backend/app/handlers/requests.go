@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	auth "social-network/app/Auth"
@@ -44,6 +45,8 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
+	fmt.Println("request body:", bodyRequest)
+
 	if bodyRequest.ReceiverId == 0 {
 		if bodyRequest.Type == 0 && bodyRequest.Is_public {
 			err := modules.InsertFollow(uid, bodyRequest.Target)
@@ -56,7 +59,7 @@ func SendRequestHandler(w http.ResponseWriter, r *http.Request, uid int) {
 			return
 		}
 
-		if err := modules.InsertRequest(uid, bodyRequest.Target, bodyRequest.Target, bodyRequest.Type); err != nil {
+		if err := modules.InsertRequest(uid, bodyRequest.ReceiverId, bodyRequest.Target, bodyRequest.Type); err != nil {
 			logs.ErrorLog.Println("Error sending request:", err)
 			auth.JsResponse(w, "Failed to send request", http.StatusInternalServerError)
 			return

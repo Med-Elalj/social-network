@@ -97,25 +97,45 @@ func UserFollow(uid int, tid int, followStatus string) (string, error) {
 
 	case "follow request":
 		{
+			// Insert the follow request
 			_, err = DB.Exec(`
-        		INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
-        		VALUES (?, ?, ?, 0)
-    		`, uid, tid, tid)
+                INSERT OR IGNORE INTO request (sender_id, receiver_id, target_id, type)
+                VALUES (?, ?, ?, 0)
+            `, uid, tid, tid)
+			if err != nil {
+				break
+			}
+
+			notifTosent, err := UserInfoForNotification(uid, tid, tid)
+			notifTosent.Message = notifTosent.Sender.DisplayName + " sent you a follow request"
+			if err != nil {
+				logs.ErrorLog.Printf("Error getting user info for notification: %v", err)
+				return "", fmt.Errorf("error getting user info for notification: %w", err)
+			}
+
+			structs.NotifyUser(tid, "follow_request", notifTosent)
+
 		}
+
 	case "cancel request":
 		{
 			_, err = DB.Exec(`
         		DELETE FROM request WHERE sender_id = ? AND receiver_id = ? AND type = 0`,
 				uid, tid)
+			if err != nil {
+				break
+			}
+
 		}
 	}
+
 	if err != nil {
-		return newStatus, errors.New("error inserting follow request " + err.Error())
+		return newStatus, errors.New("error processing follow action: " + err.Error())
 	}
 
 	newStatus, err = GetRelationship(uid, tid)
 	if err != nil {
-		return newStatus, errors.New("error getting relationship" + err.Error())
+		return newStatus, errors.New("error getting relationship: " + err.Error())
 	}
 
 	return newStatus, nil

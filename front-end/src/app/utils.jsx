@@ -271,7 +271,7 @@ export default function LikeDeslike({ EntityID, EntityType, isLiked, currentLike
 
 export function TimeAgo(timestamp) {
   const now = new Date();
-  const past = new Date(timestamp.replace(" ", "T")); // Parse properly
+  const past = new Date(timestamp?.replace(" ", "T")); // Parse properly
   const diffMs = now - past;
 
   const seconds = Math.floor(diffMs / 1000);

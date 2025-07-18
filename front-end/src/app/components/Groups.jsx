@@ -3,8 +3,9 @@ import Styles from "../global.module.css";
 import { useState, useEffect } from "react";
 import { GetData, SendData } from "@/app/sendData.js";
 import { useNotification } from "../context/NotificationContext.jsx";
-import  {useAuth} from "../context/AuthContext.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 import { useWebSocket } from "../context/WebSocketContext.jsx";
+import Link from "next/link";
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -12,7 +13,7 @@ export default function Groups() {
   const [respond, setRespond] = useState(null);
   const { showNotification } = useNotification();
   const { newGroupRequest } = useWebSocket(); // Get from WebSocket context
-  const {isloading,isLoggedIn} = useAuth();
+  const { isloading, isLoggedIn } = useAuth();
   if (isloading) return null;
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function Groups() {
     if (!isLoggedIn) return;
     const fetchGroupRequests = async () => {
       try {
-        const response = await SendData("/api/v1/get/requests", { type: 1, is_special:true });
+        const response = await SendData("/api/v1/get/requests", { type: 1, is_special: true });
 
         if (!response.ok) {
           console.error("Failed to fetch group requests");
@@ -114,7 +115,7 @@ export default function Groups() {
           setRequests((prevRequests) =>
             prevRequests.map((req) =>
               req.sender_id === respond.sender &&
-              req.group_id === respond.target
+                req.group_id === respond.target
                 ? { ...req, isRespond: true, processedStatus: respond.status }
                 : req
             )
@@ -182,13 +183,15 @@ export default function Groups() {
           groups.slice(0, 5).map((Group) => (
             <div key={Group.id}>
               <div>
-                <Image
-                  src={Group.pfp?.String || "/iconGroup.png"}
-                  alt="profile"
-                  width={40}
-                  height={40}
-                  style={{ borderRadius: "50%" }}
-                />
+                <Link href={`/groupes/profile/${Group.name}`}>
+                  <Image
+                    src={Group.pfp?.String || "/iconGroup.png"}
+                    alt="profile"
+                    width={40}
+                    height={40}
+                    style={{ borderRadius: "50%" }}
+                  />
+                </Link>
                 <h5>{Group.name}</h5>
               </div>
               {!Group?.IsRequested ? (
@@ -238,7 +241,7 @@ export default function Groups() {
                     <h5>
                       {!request?.isRespond
                         ? request.message ||
-                          `${request.username} wants to join ${request.group_name}`
+                        `${request.username} wants to join ${request.group_name}`
                         : `You ${request.processedStatus}ed the request`}
                     </h5>
                     {request.username && request.group_name && (

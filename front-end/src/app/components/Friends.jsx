@@ -110,7 +110,7 @@ export default function Friends() {
         {followRequests?.length > 0 ? (
           followRequests.map((user) => (
             <div
-              key={`${user.sender_id}_${user.receiver_id}`}
+              key={`${user.sender_id}_${user?.receiver_id}`}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -178,9 +178,11 @@ export default function Friends() {
                 />
                 <h5>{user.name}</h5>
               </div>
-              <p className={user.online ? Styles.online : Styles.offline}>
-                {user.online ? "online" : "offline"}
-              </p>
+              {!user.is_group &&
+                <p className={user.online ? Styles.online : Styles.offline}>
+                  {user.online ? "online" : "offline"}
+                </p>
+              }
             </Link>
           ))
         ) : (

@@ -68,7 +68,7 @@ export default function Discover() {
         groups.map((Group) => (
           <div className={Style.groupCard} key={Group?.id}>
             <Image
-              src={Group?.pfp?.Valid ? Group?.pfp?.String : "/iconGroup.png"}
+              src={Group?.pfp?.String ? Group?.pfp?.String : "/iconGroup.png"}
               alt="profile"
               width={50}
               height={50}

@@ -9,20 +9,21 @@ import { useEffect, useState } from "react";
 import LikeDeslike, { TimeAgo } from "./utils.jsx";
 import Comments from "./comments.jsx";
 import { useAuth } from "./context/AuthContext";
+import Link from "next/link";
 
 export default function Home() {
   const [openComments, setOpenComments] = useState(null);
   const [posts, setPosts] = useState([]);
   const [lastPostID, setLastPostID] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false );
+  const [loading, setLoading] = useState(false);
 
   const { isloading, isLoggedIn } = useAuth();
 
   /* ---------------- data fetching (unchanged) ---------------- */
   const fetchData = async (reset = false) => {
     if (loading || (!hasMore && !reset)) return;
-    if ( isloading || !isLoggedIn) return;
+    if (isloading || !isLoggedIn) return;
     setLoading(true);
 
     try {
@@ -60,7 +61,7 @@ export default function Home() {
     const onScroll = () => {
       if (
         window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 100 &&
+        document.body.offsetHeight - 100 &&
         hasMore &&
         !loading
       )
@@ -79,7 +80,7 @@ export default function Home() {
 
 
       <div className={Styles.centerContent}>
-        {posts.map((Post) => {
+        {posts?.map((Post) => {
           /* ► ONE canonical avatar for the author ◄ */
           const authorAvatar = Post?.AvatarUser?.String
             ? `${Post.AvatarUser.String}`  // or full URL if stored externally
@@ -91,25 +92,27 @@ export default function Home() {
               <section className={Styles.userinfo}>
                 <div className={Styles.user}>
                   {/* left-most avatar or group badge */}
-                  {Post.GroupId?.Valid ? (
-                    <Image
-                      src={
-                        Post.AvatarGroup?.String
-                          ? `${Post.AvatarGroup.String}`
-                          : "/iconGroup.png"
-                      }
-                      alt="group avatar"
-                      width={25}
-                      height={25}
-                    />
-                  ) : (
-                    <Image
-                      src={authorAvatar}
-                      alt="author avatar"
-                      width={25}
-                      height={25}
-                    />
-                  )}
+                  <Link href={`/profile/${Post.UserName}`}>
+                    {Post.GroupId?.Valid ? (
+                      <Image
+                        src={
+                          Post.AvatarGroup?.String
+                            ? `${Post.AvatarGroup.String}`
+                            : "/iconGroup.png"
+                        }
+                        alt="group avatar"
+                        width={25}
+                        height={25}
+                      />
+                    ) : (
+                      <Image
+                        src={authorAvatar}
+                        alt="author avatar"
+                        width={25}
+                        height={25}
+                      />
+                    )}
+                  </Link>
 
                   {/* texts block */}
                   <div className={Styles.texts}>

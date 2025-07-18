@@ -2,8 +2,7 @@
 
 import Style from "../groups.module.css";
 import Image from "next/image";
-import Link from "next/link";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import GroupPosts from "./GroupPosts.jsx";
 import Discover from "./Discover.jsx";

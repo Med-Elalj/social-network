@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Styles from "./global.module.css";
-import LikeDeslike from "./utils.jsx";
+import LikeDeslike, { TimeAgo } from "./utils.jsx";
 import { SendData } from "./sendData.js";
 import { useAuth } from "./context/AuthContext.jsx";
-import { HandleUpload } from  "@/app/components/upload.jsx";
+import { HandleUpload } from "@/app/components/upload.jsx";
 
 export default function Comments({ Post, onClose }) {
   const [content, setContent] = useState("");
@@ -16,7 +16,7 @@ export default function Comments({ Post, onClose }) {
   const [commentImage, setCommentImage] = useState(null);
   const commentFileRef = useRef(null);
 
-  const {isloading, isLoggedIn} = useAuth();
+  const { isloading, isLoggedIn } = useAuth();
   const handleCommentImageChange = (e) => {
     const file = e.target.files[0];
     if (file) setCommentImage(file);
@@ -36,13 +36,17 @@ export default function Comments({ Post, onClose }) {
 
       const newComments = Body.comments || [];
 
+      if (newComments[0]?.ID === Comments[length - 1]?.ID) {
+        setHasMore(false);
+      }
+
       setComments((prev) => {
         const combined = reset ? newComments : [...prev, ...newComments];
         const unique = Array.from(new Map(combined.map((c) => [c.ID, c])).values());
         return unique;
       });
 
-      if (newComments.length === 0) {
+      if (newComments.length === 0 || !newComments || newComments.length < 10) {
         setHasMore(false);
       } else {
         setLastCommentID(newComments[newComments.length - 1].ID);
@@ -97,16 +101,16 @@ export default function Comments({ Post, onClose }) {
         setContent("");
         setCommentImage(null);
         fetchData(true);
-        console.log(Body.message);
       }
     } catch (err) {
       console.error("Submit error:", err);
     }
   };
 
-  return (
-    console.log(Post),
+  console.log("Post", Post);
 
+
+  return (
     <div className={Styles.commentPopup}>
       <button className={Styles.closeBtn} onClick={onClose}>
         <Image src="/exit.svg" alt="exit" width={30} height={30} />
@@ -118,10 +122,11 @@ export default function Comments({ Post, onClose }) {
           <div className={Styles.userInfo}>
             <div className={Styles.first}>
               <Image
-                src={Post.AvatarGroup?.String ? `/${Post.AvatarGroup.String}` : "/iconMale.png"}
+                src={Post.AvatarGroup?.String ? Post.AvatarGroup.String : "/iconMale.png"}
                 alt="avatar"
                 width={25}
                 height={25}
+                style={{ borderRadius: "50%" }}
               />
               <div>
                 {Post.GroupId?.Valid ? (
@@ -129,12 +134,13 @@ export default function Comments({ Post, onClose }) {
                     <p>{Post.GroupName.String}</p>
                     <div className={Styles.user}>
                       <Image
-                        src={Post.AvatarUser?.String ? `/${Post.Avatar.String}` : "/iconMale.png"}
+                        src={Post.AvatarUser?.String ? Post.AvatarUser.String : "/iconMale.png"}
                         alt="avatar"
                         width={20}
                         height={20}
+                        style={{ borderRadius: "50%" }}
                       />
-                      <p>{Post.UserName}</p>
+                      <p>{Post.GroupName?.String}</p>
                     </div>
                   </>
                 ) : (
@@ -146,13 +152,13 @@ export default function Comments({ Post, onClose }) {
               </div>
             </div>
             <div>
-              <p>{Post.CreatedAt.replace("T", " ").slice(0, -1)}</p>
+              <p>{TimeAgo(Post.CreatedAt)}</p>
             </div>
           </div>
 
           <div className={Styles.postContent}>
             <p>{Post.Content}</p>
-            {Post.ImagePath.Valid ? (
+            {Post.ImagePath.String ? (
               <Image src={`${Post.ImagePath?.String}`} alt="comment" width={30} height={30} />
             ) : null}
           </div>
@@ -161,8 +167,6 @@ export default function Comments({ Post, onClose }) {
         {/* Comments list */}
         <div className={Styles.comments}>
           {Comments.map((Comment) => (
-            console.log(Comment),
-
             <div key={Comment.ID} className={Styles.comment}>
               <div className={Styles.first}>
                 <div>
@@ -173,17 +177,18 @@ export default function Comments({ Post, onClose }) {
                     alt="avatar"
                     width={30}
                     height={30}
+                    style={{ borderRadius: "50%" }}
                   />
                   <p>{Comment.Author}</p>
                 </div>
                 <div>
-                  <p>{Comment.CreatedAt.replace("T", " ").slice(0, -1)}</p>
+                  <p>{TimeAgo(Comment.CreatedAt)}</p>
                 </div>
               </div>
               <div className={Styles.texts}>
                 <p>{Comment.Content}</p>
 
-                {Comment.image_path?.Valid && (
+                {Comment.image_path?.String && (
                   <Image
                     src={
                       Comment.image_path.String.startsWith("/")

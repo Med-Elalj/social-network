@@ -79,25 +79,11 @@ export default function Chat() {
     setActiveTab(selectedTab);
   };
 
-  const handleMediaChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      // setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
-
   return (
     <div className={Style.container}>
       <div className={Style.first}>
         <div className={Style.header}>
           <h1>Chats</h1>
-          <Image
-            src="/newMessage.svg"
-            width={25}
-            height={25}
-            alt="newMessage"
-          />
         </div>
 
         <div className={Style.select}>
@@ -131,11 +117,10 @@ export default function Chat() {
             <>
               <div className={Style.top}>
                 <Image
-                  src={`${
-                    selectedUser?.pfp?.String
+                  src={`${selectedUser?.pfp?.String
                       ? selectedUser.pfp.String
                       : "/iconMale.png"
-                  }`}
+                    }`}
                   width={50}
                   height={50}
                   alt="userProfile"
@@ -156,16 +141,6 @@ export default function Chat() {
               </div>
 
               <div className={Style.bottom}>
-                {/* <input type="text" name="message" id="message" value={content} onChange={(e) => setContent(e.target.value)} />
-
-                                <Image
-                                    src="send.svg"
-                                    width={25}
-                                    height={25}
-                                    alt="send"
-                                    onClick={handleSend}
-                                    style={{ cursor: "pointer", marginRight: "6%" }}
-                                /> */}
                 <ChatInput target={selectedUser.id} />
               </div>
             </>

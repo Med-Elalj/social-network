@@ -322,6 +322,7 @@
   background-color: var(--primary-color);
   color: var(--secondary-color);
   width: 48vw;
+  height: 50vh;
 }
 
 .postSmall .userInfo {
@@ -352,11 +353,11 @@
 }
 
 .postSmall .postContent img {
-  width: 50%;
-  height: 50%;
+  width: 46.5vw;
+  height: 37vh;
   border-radius: 8px;
   border: 1px solid var(--border-color);
-  margin: 1vh 12vw;
+  margin: 1vh;
 }
 
 .postSmall .postContent p {
@@ -365,7 +366,7 @@
 
 .commentCreation {
   width: 48vw;
-  height: 20vh;
+  height: auto;
   margin: 2vh 1vw;
   border: 1px solid var(--border-color);
   border-radius: 8px;

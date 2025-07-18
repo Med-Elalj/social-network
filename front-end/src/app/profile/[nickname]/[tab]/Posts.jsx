@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Style from "../../profile.module.css";
 import Image from "next/image";
 import { SendData } from "../../../sendData.js";
-import LikeDeslike from "../../../utils.jsx";
+import LikeDeslike, { TimeAgo } from "../../../utils.jsx";
 import Comments from "../../../comments.jsx";
 
 export default function Posts({ data }) {
@@ -79,7 +79,7 @@ export default function Posts({ data }) {
   return (
     <>
       {posts && posts.map((Post) => (
-        <div key={Post.ID} className={Style.post} style={{ width: "80%", marginLeft: "10%" }}>
+        <div key={Post?.ID} className={Style.post} style={{ width: "80%", marginLeft: "10%" }}>
           <section className={Style.userinfo}>
             <div className={Style.user}>
               {/* Main Avatar */}
@@ -97,7 +97,7 @@ export default function Posts({ data }) {
                     <p>{Post.GroupName.String}</p>
                     <div className={Style.user}>
                       <Image
-                        src={Post.AvatarUser?.String ? `${Post.Avatar.String}` : '/iconMale.png'}
+                        src={Post.AvatarUser?.String ? `${Post.AvatarUser.String}` : '/iconMale.png'}
                         alt="avatar"
                         width={20}
                         height={20}
@@ -116,7 +116,7 @@ export default function Posts({ data }) {
 
             {/* Timestamp */}
             <div>
-              <p>{Post.CreatedAt.replace('T', ' ').slice(0, -1)}</p>
+              <p>{TimeAgo(Post.CreatedAt)}</p>
             </div>
           </section>
 

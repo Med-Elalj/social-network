@@ -226,7 +226,7 @@ export default function Profile() {
           <div className={Style.profileInfo}>
             <div className={Style.avatar}>
               <Image
-                src={data?.Avatar?.Valid ? data.Avatar.String : "/iconGroup.png"}
+                src={data?.Avatar?.String ? data.Avatar.String : "/iconGroup.png"}
                 alt="cover"
                 layout="fill"
               />

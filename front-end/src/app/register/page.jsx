@@ -198,8 +198,9 @@ export default function Register() {
             type="button"
             className={Styles.label}
             onClick={() => fileInputRef.current.click()}
+            style={{ cursor: "pointer", display: "flex", alignItems: "center",justifyContent: "center" }}
           >
-            <img src="/Image.svg" alt="Upload" width="24" height="24" /> Upload Avatar
+            <img src="/Image.svg" alt="Upload" width="24" height="24" style={{ marginTop: "8px" }}/> Upload Avatar
           </button>
           <input
             ref={fileInputRef}

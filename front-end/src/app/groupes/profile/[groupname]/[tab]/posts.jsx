@@ -45,7 +45,7 @@ export default function Posts({ activeSection, setActiveSection, groupId }) {
                 });
             }
 
-            if (newPosts.length === 0) {
+            if (newPosts.length === 0 || !newPosts) {
                 setHasMore(false);
             } else {
                 setLastPostID(newPosts[newPosts.length - 1].ID);

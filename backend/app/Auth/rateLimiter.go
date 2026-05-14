@@ -26,14 +26,15 @@ func ApplyRateLimit(key string, w http.ResponseWriter, r *http.Request, next htt
 	}
 	now := time.Now()
 
-	// Clean old requests
-	valid := []time.Time{}
+	// Clean old requests in-place
+	i := 0
 	for _, t := range c.requests {
 		if now.Sub(t) < interval {
-			valid = append(valid, t)
-		}	
+			c.requests[i] = t
+			i++
+		}
 	}
-	c.requests = valid
+	c.requests = c.requests[:i]
 
 	if len(c.requests) >= limit {
 		mu.Unlock()

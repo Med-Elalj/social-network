@@ -196,7 +196,7 @@ type Follow_get struct {
 	P2_display_name  string `json:"P2_display_name"`
 	Is_group         bool   `json:"is_group"`
 	Group_owner_id   int    `json:"Group_owner_id"`
-	Group_owner_name string `	json:"Group_owner_name"`
+	Group_owner_name string `json:"Group_owner_name"`
 }
 
 type DisplayNameOfId struct {

@@ -118,7 +118,7 @@ export function ResultList({ query, groupId }) {
     const requestFetch = async ()=> {
       const response= await SendData('/api/v1/set/sendRequest', userToSent)
       if (response.ok){
-        showNotification(`request sent succeffully to ${userToSent.id}`)
+        showNotification(`request sent successfully to ${userToSent.id}`)
       } else {
         showNotification(`error sending request, try again`)
       }

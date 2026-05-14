@@ -19,7 +19,7 @@ export default function Groups() {
     if (!isLoggedIn) return;
     const fetchData = async () => {
       try {
-        const response = await GetData("/api/v1/get/userSeggestions", {
+        const response = await GetData("/api/v1/get/userSuggestions", {
           is_user: 0,
         });
         const body = await response.json();

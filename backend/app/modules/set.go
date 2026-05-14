@@ -72,6 +72,14 @@ func InsertPost(post structs.PostCreate, uid, gid int) bool {
 		return false
 	}
 
+	if gid != 0 {
+		structs.NotifyUser(gid, "new_post", map[string]any{
+			"group_id": gid,
+			"user_id":  uid,
+			"message":  "A new post was added to the group",
+		})
+	}
+
 	return true
 }
 

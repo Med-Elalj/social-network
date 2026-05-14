@@ -14,12 +14,13 @@ func LikeDislike(w http.ResponseWriter, r *http.Request, uid int) {
 
 	json.NewDecoder(r.Body).Decode(&LikeInfo)
 
-	if !modules.LikeDeslike(LikeInfo, uid) {
-		auth.JsResponse(w, "Like/deslike failed", http.StatusBadRequest)
+	if !modules.LikeDislike(LikeInfo, uid) {
+		auth.JsResponse(w, "Like/dislike failed", http.StatusBadRequest)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message": "Liked/desliked successfully",
+		"message": "Liked/disliked successfully",
 	})
 }

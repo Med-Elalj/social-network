@@ -30,12 +30,19 @@ func InsertFollow(follower, following int) error {
 		logs.ErrorLog.Printf("Error inserting follow: %v", err)
 		return errors.New("error inserting follow: database error")
 	}
+
+	notifTosent, err := UserInfoForNotification(follower, following, following)
+	if err == nil {
+		notifTosent.Message = notifTosent.Sender.DisplayName + " started following you"
+		structs.NotifyUser(following, "new_follower", notifTosent)
+	}
+
 	return nil
 }
 
 // DeleteFollow removes a follow relationship between a user and a group.
 func DeleteFollow(uid, gid int) error {
-	_, err := DB.Exec(`DELETE FROM follow WHERE follower_id = ? AND following_id = ? and status <> 2;`, uid, gid)
+	_, err := DB.Exec(`DELETE FROM follow WHERE follower_id = ? AND following_id = ?;`, uid, gid)
 	if err != nil {
 		logs.ErrorLog.Printf("Error deleting follow: %v", err)
 		return errors.New("error deleting follow: database error")
@@ -77,6 +84,16 @@ func AcceptFollow(uid, gid, followerID int) error {
 	if rowsAffected, _ := res.RowsAffected(); rowsAffected == 0 {
 		logs.ErrorLog.Printf("No follow relationship found for user %d and group %d", followerID, gid)
 		return errors.New("no follow relationship found or already accepted")
+	}
+
+	notifTosent, err := UserInfoForNotification(uid, followerID, gid)
+	if err == nil {
+		if gid == 0 {
+			notifTosent.Message = notifTosent.Sender.DisplayName + " accepted your follow request"
+		} else {
+			notifTosent.Message = notifTosent.Sender.DisplayName + " accepted your request to join " + notifTosent.Target.DisplayName + " group"
+		}
+		structs.NotifyUser(followerID, "request_accepted", notifTosent)
 	}
 
 	return err
@@ -204,11 +221,11 @@ func SetUnfollow(fromID, toID int) error {
 func GetFollowRequests(uid int) ([]structs.Gusers, error) {
 	var users []structs.Gusers
 	rows, err := DB.Query(`
-	SELECT u.id, u.display_name, u.avatar
-	from users profile
-	LEFT JOIN request ON receiver_id = ?
-	WHERE TYPE = 'follow_request' AND is_accept = 0
-	order by created_at desc;
+	SELECT p.id, p.display_name, p.avatar
+	FROM profile p
+	JOIN request r ON r.sender_id = p.id
+	WHERE r.receiver_id = ? AND r.type = 0
+	ORDER BY r.created_at DESC;
 	`, uid)
 	if err != nil {
 		if err == sql.ErrNoRows {

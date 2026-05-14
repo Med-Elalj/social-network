@@ -18,6 +18,7 @@ export const WebSocketProvider = ({ children }) => {
   const [newNotification, setNewNotification] = useState(null);
   const [newFollowRequest, setNewFollowRequest] = useState(null);
   const [newGroupRequest, setNewGroupRequest] = useState(null);
+  const [newPost, setNewPost] = useState(null);
   const { showNotification } = useNotification();
   const target = useRef(null);
 
@@ -55,7 +56,7 @@ export const WebSocketProvider = ({ children }) => {
             showNotification(`${data.content}`, "error");
           }
         }
-      } else if ((data.sender === "<system>", data.command)) {
+      } else if (data.sender === "<system>" && data.command) {
         if (data.command == "online") {
           // console.log("data received via websocket: ", data);
           setUpdateOnlineUser(data);
@@ -68,6 +69,8 @@ export const WebSocketProvider = ({ children }) => {
           } else if (data?.command === "follow_request") {
             console.log("Received newFollowRequest:", data.value);
             setNewFollowRequest(data.value);
+          } else if (data?.command === "new_post") {
+            setNewPost(data.value);
           }
         }
       }
@@ -139,6 +142,7 @@ export const WebSocketProvider = ({ children }) => {
         newNotification,
         newFollowRequest,
         newGroupRequest,
+        newPost,
       }}
     >
       {children}

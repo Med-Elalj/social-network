@@ -203,8 +203,8 @@ func GetUserSuggestions(w http.ResponseWriter, r *http.Request, uid int) {
 	}
 	users, err := modules.GetSuggestions(uid, is_user)
 	if err != nil {
-		logs.ErrorLog.Println("Error getting segguestions: ", err)
-		auth.JsResponse(w, "error getting segguestions: ", http.StatusInternalServerError)
+		logs.ErrorLog.Println("Error getting suggestions: ", err)
+		auth.JsResponse(w, "error getting suggestions: ", http.StatusInternalServerError)
 		return
 	}
 

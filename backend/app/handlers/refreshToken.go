@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 	"time"
 
 	auth "social-network/app/Auth"
@@ -65,7 +64,7 @@ func RefreshHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate new access token (JWT)
-	username, _ := auth.GetElemVal[string]("display_name", "profile", "id="+strconv.Itoa(session.UserID))
+	username, _ := auth.GetElemVal[string]("display_name", "profile", "id = ?", session.UserID)
 	jwtToken := jwt.Generate(jwt.CreateJwtPayload(auth.AuthInfo.JwtExpiration, session.UserID, username, session.SessionID))
 
 	auth.SetCookie(w, auth.AuthInfo.JwtTokenName, jwtToken, int(auth.AuthInfo.JwtExpiration.Seconds())) // 15 min

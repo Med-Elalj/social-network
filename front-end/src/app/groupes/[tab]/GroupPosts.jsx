@@ -3,18 +3,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import Styles from "../groups.module.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { GetData } from "../../sendData.js";
 import Comments from "@/app/comments.jsx";
 import LikeDeslike from "@/app/utils.jsx";
+import { useWebSocket } from "@/app/context/WebSocketContext.jsx";
 
 export default function GroupPosts() {
     const [posts, setPosts] = useState([]);
     const [openComments, setOpenComments] = useState(null);
+    const { newPost } = useWebSocket();
 
-
-  useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
       const response = await GetData("/api/v1/get/groupFeeds");
       const body = await response.json();
 
@@ -24,10 +24,18 @@ export default function GroupPosts() {
         setPosts(body.posts);
         console.log("Posts fetched successfully!");
       }
-    };
+    }, []);
 
+
+  useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (newPost) {
+      fetchData();
+    }
+  }, [newPost, fetchData]);
 
   return (
     <div>

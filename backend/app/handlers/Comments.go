@@ -16,10 +16,11 @@ func CreateComment(w http.ResponseWriter, r *http.Request, uid int) {
 
 	if !modules.InsertComment(comment, uid) {
 		auth.JsResponse(w, "Comment creation failed", http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
+	w.WriteHeader(http.StatusOK)
 
 	json.NewEncoder(w).Encode(map[string]any{
 		"message": "Comment Added successfully",

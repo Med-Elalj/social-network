@@ -7,7 +7,7 @@ import (
 	"social-network/app/structs"
 )
 
-func LikeDeslike(LikeInfo structs.LikeInfo, uid int) bool {
+func LikeDislike(LikeInfo structs.LikeInfo, uid int) bool {
 	tx, err := DB.Begin()
 	if err != nil {
 		logs.FatalLog.Fatalln("Database transaction error:", err)

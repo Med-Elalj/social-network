@@ -7,7 +7,6 @@ import (
 	MW "social-network/app/Auth/middleware" // middleware
 	"social-network/app/handlers"
 
-	// "social-network/app/handlers"
 	AH "social-network/app/handlers/Auth"    // auth handlers
 	PH "social-network/app/handlers/Profile" // profile handlers
 	UH "social-network/app/handlers/upload"  // upload handlers

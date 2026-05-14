@@ -63,6 +63,16 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// make a unique filename
+	now := time.Now()
+	dateDir := now.Format("2006/01/02")
+	fullUploadPath := filepath.Join(uploadDir, dateDir)
+
+	if err := os.MkdirAll(fullUploadPath, 0o755); err != nil {
+		logs.ErrorLog.Printf("failed to create upload directory: %v", err)
+		auth.JsResponse(w, "Failed to create upload directory", http.StatusInternalServerError)
+		return
+	}
+
 	ext := filepath.Ext(header.Filename)
 	if ext == "" {
 		exts, _ := mime.ExtensionsByType(mediaType)
@@ -70,21 +80,18 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 			ext = exts[0]
 		}
 	}
-	filename := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+	filename := fmt.Sprintf("%d%s", now.UnixNano(), ext)
 
 	// save the file
-	if err = os.WriteFile(filepath.Join(uploadDir, filename), tmpData, 0o644); err != nil {
+	if err = os.WriteFile(filepath.Join(fullUploadPath, filename), tmpData, 0o644); err != nil {
 		logs.ErrorLog.Printf("failed to save file: %v", err)
 		auth.JsResponse(w, "Failed to save file", http.StatusInternalServerError)
 		return
 	}
 
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-	// fmt.Fprintf(w, `{"path": "/uploads/%s"}`, filename) // ?
 	resp := UploadResponse{
 		Message: "File uploaded successfully",
-		Path:    fmt.Sprintf("/uploads/%s", filename),
+		Path:    fmt.Sprintf("/uploads/%s/%s", dateDir, filename),
 		Code:    http.StatusOK,
 	}
 

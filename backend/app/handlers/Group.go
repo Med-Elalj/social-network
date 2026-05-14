@@ -215,7 +215,7 @@ func JoinGroup(w http.ResponseWriter, r *http.Request, uid int) {
 		return
 	}
 
-	auth.JsResponse(w, "join request sented succeffully", http.StatusOK)
+	auth.JsResponse(w, "join request sent successfully", http.StatusOK)
 }
 
 // func UpdateResponseHandler(w http.ResponseWriter, r *http.Request, uid int) {

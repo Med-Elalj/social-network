@@ -15,7 +15,7 @@ export function SuggestionList() {
 
   useEffect(() => {
     const fetchSugguestion = async () => {
-      const response = await GetData("/api/v1/get/userSeggestions", {
+      const response = await GetData("/api/v1/get/userSuggestions", {
         is_user: 1,
       });
       if (response.ok) {
@@ -36,7 +36,7 @@ export function SuggestionList() {
         status: sentUser.status,
       });
       if (response.ok) {
-        showNotification(`${sentUser.status} sent succeffully`);
+        showNotification(`${sentUser.status} sent successfully`);
         setUsers((prev) => {
           return prev.map((user) => {
             {

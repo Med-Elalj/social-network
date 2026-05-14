@@ -15,7 +15,7 @@ export default function Discover() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await SendData("/api/v1/get/userSeggestions", {
+      const response = await SendData("/api/v1/get/userSuggestions", {
         is_user: 0,
       });
       const body = await response.json();

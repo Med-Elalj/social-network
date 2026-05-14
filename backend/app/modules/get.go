@@ -747,7 +747,6 @@ func GetUserNames(uid int) ([]structs.UsersGet, error) {
 		if err := rows.Scan(&user.ID, &user.Username, &user.Avatar, &user.Is_Group); err != nil {
 			return userS, fmt.Errorf("could not scan row: %w", err)
 		}
-		// TODO IMPLEMENT ONLINE STATUS
 		_, user.Online = structs.Sockets[int(user.ID)]
 		userS = append(userS, user)
 	}
@@ -948,7 +947,7 @@ func GetSuggestions(uid int, is_user int) ([]structs.UsersGet, error) {
 		user.Is_Group = !isUser
 
 		// Set online status
-		user.Online = false
+		_, user.Online = structs.Sockets[int(user.ID)]
 
 		// Get relationship status
 		user.FollowStatus, err = GetRelationship(uid, int(user.ID))
